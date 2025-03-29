@@ -29,14 +29,14 @@ class Sprite {
     protected _deleted = false;
     private _stopped = true;
     private _layer: number;
-    private loadedCostumes = 0;
-    private loadedSounds = 0;
     private onReadyCallbacks = [];
     private onReadyPending = true;
     private scheduledCallbacks: Array<ScheduledCallbackItem> = [];
     private scheduledCallbackExecutor: ScheduledCallbackExecutor;
     private _drawings:  DrawingCallbackFunction[] = [];
-    private pendingCostumeGrids = 0;
+    private pendingCostumeGrids =  0;
+    private pendingCostumes =  0;
+    private pendingSounds =  0;
     private _centerDistance = 0;
     private _centerAngle = 0;
 
@@ -80,13 +80,11 @@ class Sprite {
         sprite.scheduledCallbackExecutor = new ScheduledCallbackExecutor(sprite);
         sprite.stage.addSprite(sprite);
 
-        sprite.addListeners();
-
         return sprite;
     }
 
     isReady() {
-        return this.loadedCostumes == this.costumes.length && this.pendingCostumeGrids === 0 && this.loadedSounds == this.sounds.length;
+        return this.pendingCostumes === 0 && this.pendingCostumeGrids === 0 && this.pendingSounds === 0;
     }
 
     onReady(callback) {
@@ -99,10 +97,11 @@ class Sprite {
     ): void {
         const costume = new Costume();
         const costumeIndex = this.costumes.length;
-        const costumeName = (options?.name ?? 'Costume') + costumeIndex;
+        const costumeName = (options?.name ?? 'Costume') + '-' + costumeIndex;
 
         this.costumes.push(costume);
         this.costumeNames.push(costumeName);
+        this.pendingCostumes++;
 
         const image = new Image();
         image.src = costumePath;
@@ -112,52 +111,39 @@ class Sprite {
                 return;
             }
 
-            this.addCostumeByImage(costume, image, options);
+            const transformedImage = this.transformImage(
+                image,
+                options?.imageRotate ?? 0,
+                options?.imageFlipX ?? false,
+                options?.imageFlipY ?? false,
+                options?.imageX ?? 0,
+                options?.imageY ?? 0,
+                options?.imageWidth ?? image.naturalWidth,
+                options?.imageHeight ?? image.naturalHeight
+            );
+
+            const colliderPadding = options?.colliderPadding ?? 0;
+            const colliderPaddingTop = (options?.colliderPaddingTop ?? 0) + colliderPadding;
+            const colliderPaddingRight = (options?.colliderPaddingRight ?? 0) + colliderPadding;
+            const colliderPaddingBottom = (options?.colliderPaddingBottom ?? 0) + colliderPadding;
+            const colliderPaddingLeft = (options?.colliderPaddingLeft ?? 0) + colliderPadding;
+
+            costume.image = transformedImage;
+            costume.ready = true;
+            costume.colliderPaddingTop = colliderPaddingTop;
+            costume.colliderPaddingRight = colliderPaddingRight;
+            costume.colliderPaddingLeft = colliderPaddingLeft;
+            costume.colliderPaddingBottom = colliderPaddingBottom
+
+            this.pendingCostumes--;
+            this.tryDoOnReady();
+
             image.removeEventListener('load', onLoadImage);
         };
         image.addEventListener('load', onLoadImage);
 
         image.addEventListener('error', () => {
             this.game.throwError(ErrorMessages.COSTUME_NOT_LOADED, {costumePath});
-        });
-    }
-
-    private cloneCostume(costume: Costume, name: string) {
-        this.costumes.push(costume);
-        this.costumeNames.push(name);
-        this.loadedCostumes++;
-    }
-
-    private addCostumeByImage(
-        costume: Costume,
-        image: HTMLImageElement,
-        options?: CostumeOptions
-    ): void {
-        const x = options?.imageX ?? 0;
-        const y = options?.imageY ?? 0;
-        const width = options?.imageWidth ?? image.naturalWidth;
-        const height = options?.imageHeight ?? image.naturalHeight;
-
-        const colliderPadding= options?.colliderPadding ?? 0;
-        const colliderPaddingTop = (options?.colliderPaddingTop ?? 0) + colliderPadding;
-        const colliderPaddingRight = (options?.colliderPaddingRight ?? 0) + colliderPadding;
-        const colliderPaddingBottom = (options?.colliderPaddingBottom ?? 0) + colliderPadding;
-        const colliderPaddingLeft = (options?.colliderPaddingLeft ?? 0) + colliderPadding;
-
-        costume.image = image;
-        costume.x = x;
-        costume.y = y;
-        costume.width = width;
-        costume.height = height;
-        costume.colliderPaddingTop = colliderPaddingTop;
-        costume.colliderPaddingRight = colliderPaddingRight;
-        costume.colliderPaddingLeft = colliderPaddingLeft;
-        costume.colliderPaddingBottom = colliderPaddingBottom
-        costume.ready = true;
-
-        this.eventEmitter.emit(Game.SPRITE_COSTUME_READY_EVENT, {
-            costume: costume,
-            spriteId: this.id
         });
     }
 
@@ -211,23 +197,31 @@ class Sprite {
                         const costume = new Costume();
 
                         this.costumes.push(costume);
-                        this.costumeNames.push(costumeName + costumeIndex);
+                        this.costumeNames.push(costumeName + '-' + costumeIndex);
 
-                        this.addCostumeByImage(
-                            costume,
+                        const transformedImage = this.transformImage(
                             image,
-                            {
-                                imageX: x + (options?.imageX ?? 0),
-                                imageY: y + (options?.imageY ?? 0),
-                                imageWidth: (options?.imageWidth ?? chunkWidth),
-                                imageHeight: (options?.imageHeight ?? chunkHeight),
-                                colliderPadding: options.colliderPadding,
-                                colliderPaddingBottom: options.colliderPaddingBottom,
-                                colliderPaddingTop: options.colliderPaddingTop,
-                                colliderPaddingRight: options.colliderPaddingRight,
-                                colliderPaddingLeft: options.colliderPaddingLeft
-                            }
+                            options?.imageRotate ?? 0,
+                            options?.imageFlipX ?? false,
+                            options?.imageFlipY ?? false,
+                            x + (options?.imageX ?? 0),
+                            y + (options?.imageY ?? 0),
+                            (options?.imageWidth ?? chunkWidth),
+                            (options?.imageHeight ?? chunkHeight)
                         );
+
+                        const colliderPadding = options?.colliderPadding ?? 0;
+                        const colliderPaddingTop = (options?.colliderPaddingTop ?? 0) + colliderPadding;
+                        const colliderPaddingRight = (options?.colliderPaddingRight ?? 0) + colliderPadding;
+                        const colliderPaddingBottom = (options?.colliderPaddingBottom ?? 0) + colliderPadding;
+                        const colliderPaddingLeft = (options?.colliderPaddingLeft ?? 0) + colliderPadding;
+
+                        costume.image = transformedImage;
+                        costume.ready = true;
+                        costume.colliderPaddingTop = colliderPaddingTop;
+                        costume.colliderPaddingRight = colliderPaddingRight;
+                        costume.colliderPaddingLeft = colliderPaddingLeft;
+                        costume.colliderPaddingBottom = colliderPaddingBottom
 
                         costumeIndex++;
                     }
@@ -295,14 +289,13 @@ class Sprite {
 
         this.sounds.push(sound);
         this.soundNames.push(name);
+        this.pendingSounds++;
 
         sound.load();
 
         const onLoadSound =  () => {
-            this.eventEmitter.emit(Game.SPRITE_SOUND_READY_EVENT, {
-                sound: sound,
-                spriteId: this.id
-            });
+            this.pendingSounds--;
+            this.tryDoOnReady();
 
             sound.removeEventListener('loadedmetadata', onLoadSound);
         };
@@ -312,8 +305,6 @@ class Sprite {
     private cloneSound(sound, name) {
         this.sounds.push(sound);
         this.soundNames.push(name);
-
-        this.loadedSounds++;
     }
 
     playSound(soundIndex, volume: number = null, currentTime: number = null): void {
@@ -684,9 +675,10 @@ class Sprite {
         clone._deleted = this.deleted;
         clone._stopped = this.stopped;
 
-        for (const costume of this.costumes) {
-            clone.cloneCostume(costume, this.getCostumeName());
+        for (let i = 0; i < this.costumes.length; i++) {
+            clone.cloneCostume(this.costumes[i], this.costumeNames[i]);
         }
+
         clone.switchCostume(this.costumeIndex);
 
         for (let [soundIndex, sound] of this.sounds.entries()) {
@@ -1026,7 +1018,7 @@ class Sprite {
     set xCenterOffset(value:number) {
         const prevX = this.x;
         this._xCenterOffset = value;
-        this.calculateCenterParams()
+        this.updateCenterParams()
         this.x = prevX;
     }
 
@@ -1037,7 +1029,7 @@ class Sprite {
     set yCenterOffset(value:number) {
         const prevY = this.y;
         this._yCenterOffset = value;
-        this.calculateCenterParams()
+        this.updateCenterParams()
         this.y = prevY;
     }
 
@@ -1058,39 +1050,96 @@ class Sprite {
         this.tryDoOnReady();
     }
 
-    private addListeners() {
-        this.eventEmitter.on(Game.SPRITE_COSTUME_READY_EVENT, Game.SPRITE_COSTUME_READY_EVENT, (event: CustomEvent) => {
-            if (this.id == event.detail.spriteId) {
-                this.loadedCostumes++;
-                this.tryDoOnReady();
+    private transformImage(
+      srcImage: HTMLImageElement,
+      rotate: number,
+      flipX: boolean = false,
+      flipY: boolean = false,
+      imageX: number = 0,
+      imageY: number = 0,
+      imageWidth: number = null,
+      imageHeight: number = null
+    ): HTMLCanvasElement {
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d')!;
 
-                if (this.loadedCostumes == this.costumes.length && this.costume === null) {
-                    this.switchCostume(0);
-                }
-            }
-        });
+        const radians = rotate * Math.PI / 180;
+        let canvasWidth = imageWidth ?? srcImage.naturalWidth;
+        let canvasHeight = imageHeight ?? srcImage.naturalHeight;
 
-        this.eventEmitter.on(Game.SPRITE_SOUND_READY_EVENT, Game.SPRITE_SOUND_READY_EVENT, (event: CustomEvent) => {
-            if (this.id == event.detail.spriteId) {
-                this.loadedSounds++;
-                this.tryDoOnReady();
-            }
-        });
+        if (rotate) {
+            const absCos = Math.abs(Math.cos(radians));
+            const absSin = Math.abs(Math.sin(radians));
+
+            canvasWidth = canvasWidth * absCos + canvasHeight * absSin;
+            canvasHeight = canvasWidth * absSin + canvasHeight * absCos;
+        }
+
+        canvas.width = Math.ceil(canvasWidth);
+        canvas.height = Math.ceil(canvasHeight);
+
+        context.translate(canvas.width / 2, canvas.height / 2);
+
+        if (rotate) {
+            context.rotate(radians);
+        }
+
+        if (flipX || flipY) {
+            context.scale(flipX ? -1 : 1, flipY ? -1 : 1);
+        }
+
+        const offsetX = -imageWidth / 2;
+        const offsetY = -imageHeight / 2;
+
+        context.drawImage(
+            srcImage,
+            imageX,
+            imageY,
+            imageWidth,
+            imageHeight,
+            offsetX,
+            offsetY,
+            imageWidth,
+            imageHeight
+        );
+
+        return canvas;
+    }
+
+    cloneCostume(costume: Costume, name: string) {
+        this.costumes.push(costume);
+        this.costumeNames.push(name);
+    }
+
+    cloneCollider(sprite: Sprite): void {
+        const sourceCollider = sprite.getCollider();
+
+        if (sourceCollider instanceof CircleCollider) {
+            this.setCircleCollider(sourceCollider.radius);
+        }
+
+        if (sourceCollider instanceof PointCollider) {
+            this.setPolygonCollider(sourceCollider.points);
+        }
     }
 
     private tryDoOnReady() {
         if (this.onReadyPending && this.isReady()) {
             this.onReadyPending = false;
 
+            if (this.costumes.length && this.costume === null) {
+                this.switchCostume(0);
+            }
+
+            if (!this.collider && !this.colliderNone && this.costumes.length) {
+                this.createColliderFromCostume(this.costumes[0]);
+            }
+
             if (this.onReadyCallbacks.length) {
                 for (const callback of this.onReadyCallbacks) {
                     callback();
                 }
                 this.onReadyCallbacks = [];
-            }
-
-            if (!this.collider && !this.colliderNone && this.costumes.length) {
-                this.createColliderFromCostume(this.costumes[0]);
             }
 
             this.stage.eventEmitter.emit(Game.SPRITE_READY_EVENT, {
@@ -1142,24 +1191,13 @@ class Sprite {
         return {width, height};
     }
 
-    private calculateCenterParams() {
+    private updateCenterParams(): void {
         this._centerDistance = Math.hypot(this._xCenterOffset, this._yCenterOffset);
         this._centerAngle = -Math.atan2(-this._yCenterOffset , -this._xCenterOffset);
     }
 
-    private updateColliderPosition() {
-            this.collider.x = this.sourceX;
-            this.collider.y = this.sourceY;
-    }
-
-    cloneCollider(sprite) {
-        // if (!sprite.getCollider() && !sprite.colliderNone) {
-            if (sprite.getCollider() instanceof CircleCollider) {
-                this.setCircleCollider(sprite.getCollider().radius);
-            }
-            else {
-                this.setPolygonCollider(sprite.getCollider().points);
-            }
-        // }
+    private updateColliderPosition(): void {
+        this.collider.x = this.sourceX;
+        this.collider.y = this.sourceY;
     }
 }

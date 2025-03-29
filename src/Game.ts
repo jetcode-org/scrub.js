@@ -8,6 +8,9 @@ type GridCostumeOptions = {
     limit?: number,
     offset?: number,
     name?: string,
+    imageRotate?: number,
+    imageFlipX?: boolean,
+    imageFlipY?: boolean,
     imageX?: number,
     imageY?: number,
     imageWidth?: number,
@@ -21,6 +24,9 @@ type GridCostumeOptions = {
 
 type CostumeOptions = {
     name?: string,
+    imageRotate?: number,
+    imageFlipX?: boolean,
+    imageFlipY?: boolean,
     imageX?: number,
     imageY?: number,
     imageWidth?: number,
@@ -48,8 +54,6 @@ class Game {
     static readonly STAGE_READY_EVENT = 'scrubjs.stage.ready';
     static readonly STAGE_BACKGROUND_READY_EVENT = 'scrubjs.stage.background_ready';
     static readonly SPRITE_READY_EVENT = 'scrubjs.sprite.ready';
-    static readonly SPRITE_COSTUME_READY_EVENT = 'scrubjs.sprite.costume_ready';
-    static readonly SPRITE_SOUND_READY_EVENT = 'scrubjs.sprite.sound_ready';
 
     private stages: Stage[] = [];
     private activeStage: Stage = null

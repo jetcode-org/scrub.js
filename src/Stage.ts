@@ -177,8 +177,9 @@ class Stage {
         let radiusOffsetX = 0;
         let radiusOffsetY = 0;
 
-        if (sprite.getCollider() instanceof CircleCollider) {
-            radius = sprite.getCollider().radius;
+        const collider = sprite.getCollider();
+        if (collider instanceof CircleCollider) {
+            radius = collider.radius;
             radiusOffsetX = (radius - (costume.width / 2)) * sprite.size / 100;
             radiusOffsetY = (radius - (costume.height / 2)) * sprite.size / 100;
         }
@@ -199,8 +200,8 @@ class Stage {
             // mirror image
             this.context.drawImage(
                 image,
-                costume.x,
-                costume.y,
+                0,
+                0,
                 costume.width,
                 costume.height,
                 (-dstWidth / 2) + (costume.colliderPaddingLeft * sprite.size / 100) + radiusOffsetX,
@@ -213,8 +214,8 @@ class Stage {
             // usual image
             this.context.drawImage(
                 image,
-                costume.x,
-                costume.y,
+                0,
+                0,
                 costume.width,
                 costume.height,
                 dstX + (costume.colliderPaddingLeft * sprite.size / 100) + radiusOffsetX,
@@ -298,7 +299,7 @@ class Stage {
                             y += 20;
                             this.context.fillText("direction: " + sprite.direction, x, y);
                             y += 20;
-                            this.context.fillText("costume: " + sprite.getCostumeIndex(), x, y);
+                            this.context.fillText("costume: " + sprite.getCostumeName(), x, y);
                             y += 20;
                             this.context.fillText("xOffset: " + sprite.xCenterOffset, x, y);
                             y += 20;
