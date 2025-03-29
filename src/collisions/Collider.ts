@@ -30,6 +30,7 @@ class Collider {
     protected _bvh_min_y = 0;
     protected _bvh_max_x = 0;
     protected _bvh_max_y = 0;
+    protected _parent_sprite = null;
 
 	/**
 	 * @constructor
@@ -80,6 +81,14 @@ class Collider {
 		}
 	}
 
+	set parentSprite(value) {
+		this._parent_sprite = value;
+	}
+
+	get parentSprite() {
+		return this._parent_sprite;
+	}
+
 	/**
 	 * Creates a {@link CollisionResult} used to collect the detailed results of a collision test
 	 */
@@ -93,4 +102,5 @@ class Collider {
 	static createResult() {
 		return new CollisionResult();
 	}
+
 }
