@@ -21,6 +21,7 @@ function SAT(a, b, result = null, aabb = true) {
 		result.overlap   = null;
 		result.overlap_x = 0;
 		result.overlap_y = 0;
+		result.collidedSprite = null;
 	}
 
 	if(a_polygon) {

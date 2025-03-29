@@ -39,6 +39,7 @@ class Sprite {
     private pendingSounds =  0;
     private _centerDistance = 0;
     private _centerAngle = 0;
+    private _tags = [];
 
     constructor(stage: Stage = null, layer = 1, costumePaths = [], soundPaths = []) {
         if (!Registry.getInstance().has('game')) {
@@ -745,6 +746,7 @@ class Sprite {
         clone.hidden = this.hidden;
         clone._deleted = this.deleted;
         clone._stopped = this.stopped;
+        clone._tags = this.tags;
 
         for (let i = 0; i < this.costumes.length; i++) {
             clone.cloneCostume(this.costumes[i], this.costumeNames[i]);
@@ -865,6 +867,7 @@ class Sprite {
         ], angle, this.size / 100, this.size / 100);
         this._width = width;
         this._height = height;
+        this.collider.parentSprite = this;
 
         this.stage.collisionSystem.insert(this.collider);
         this.updateColliderPosition()
@@ -888,6 +891,7 @@ class Sprite {
         const { width, height } = this.calculatePolygonSize(centeredPoints);
         this._width = width;
         this._height = height;
+        this.collider.parentSprite = this;
 
         this.stage.collisionSystem.insert(this.collider);
         this.updateColliderPosition()
@@ -897,6 +901,7 @@ class Sprite {
         this.collider = new CircleCollider(this.x, this.y, radius, this.size / 100);
         this._width = radius * 2;
         this._height = radius * 2;
+        this.collider.parentSprite = this;
 
         this.stage.collisionSystem.insert(this.collider);
         this.updateColliderPosition()
@@ -912,6 +917,51 @@ class Sprite {
 
     getCostumeIndex(): string {
         return this.costumeIndex;
+    }
+
+    touchTag(nameOfTag) {
+        if (this.hidden || this.stopped || this.deleted || !this.collider) {
+            return false;
+        }
+
+        const potentialsColliders = this.collider.potentials();
+        if (!potentialsColliders.length) {
+            return false;
+        }
+
+        for (const potentialCollider of potentialsColliders) {
+            const potentialSprite = potentialCollider.parentSprite;
+            if (potentialSprite && potentialSprite.hasTag(nameOfTag)) {
+                if (
+                    !potentialSprite.hidden &&
+                    !potentialSprite.stopped &&
+                    !potentialSprite.deleted &&
+                    potentialSprite.getCollider() &&
+                    this.collider.collides(potentialCollider, this.collisionResult)
+                ) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    hasTag(nameOfTag) {
+        return this._tags.includes(nameOfTag);
+    }
+
+    addTag(nameOfTag) {
+        if (!this.hasTag(nameOfTag)) {
+            this._tags.push(nameOfTag);
+        }
+    }
+
+    removeTag(nameOfTag) {
+        const foundIndex = this._tags.indexOf(nameOfTag);
+        if (foundIndex > -1) {
+            this._tags.splice(foundIndex, 1);
+        }
     }
 
     set direction (direction: number) {
@@ -1118,6 +1168,17 @@ class Sprite {
 
     get layer(): number {
         return this._layer;
+    }
+
+    get tags(){
+        return this._tags;
+    }
+
+    get otherSprite() {
+        if (!this.collisionResult.collision) {
+            return null;
+        }
+        return this.collisionResult.b.parentSprite;
     }
 
     ready(): void {
