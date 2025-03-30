@@ -339,13 +339,15 @@ class Sprite {
             return;
         }
 
-        let nextCostume = this.costumeIndex + 1;
+        let nextCostumeIndex = this.costumeIndex + 1;
 
-        if (nextCostume > this.costumes.length - 1) {
-            nextCostume = 0;
+        if (nextCostumeIndex > this.costumes.length - 1) {
+            nextCostumeIndex = 0;
         }
 
-        this.switchCostume(nextCostume);
+        if (nextCostumeIndex !== this.costumeIndex) {
+            this.switchCostume(nextCostumeIndex);
+        }
     }
 
     addSound(soundPath, name: string = null): void {

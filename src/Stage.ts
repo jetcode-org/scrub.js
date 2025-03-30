@@ -196,6 +196,18 @@ class Stage {
         }
     }
 
+    nextBackground(): void {
+        let nextBackgroundIndex = this.backgroundIndex + 1;
+
+        if (nextBackgroundIndex > this.backgrounds.length - 1) {
+            nextBackgroundIndex = 0;
+        }
+
+        if (nextBackgroundIndex !== this.backgroundIndex) {
+            this.switchBackground(nextBackgroundIndex);
+        }
+    }
+
     drawSprite(sprite: Sprite): void {
         const costume = sprite.getCostume();
         const image = costume.image;

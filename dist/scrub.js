@@ -1085,11 +1085,13 @@ var Sprite = (function () {
         if (this.deleted) {
             return;
         }
-        var nextCostume = this.costumeIndex + 1;
-        if (nextCostume > this.costumes.length - 1) {
-            nextCostume = 0;
+        var nextCostumeIndex = this.costumeIndex + 1;
+        if (nextCostumeIndex > this.costumes.length - 1) {
+            nextCostumeIndex = 0;
         }
-        this.switchCostume(nextCostume);
+        if (nextCostumeIndex !== this.costumeIndex) {
+            this.switchCostume(nextCostumeIndex);
+        }
     };
     Sprite.prototype.addSound = function (soundPath, name) {
         var _this = this;
@@ -2920,6 +2922,15 @@ var Stage = (function () {
         var background = this.backgrounds[backgroundIndex];
         if (background) {
             this.background = background;
+        }
+    };
+    Stage.prototype.nextBackground = function () {
+        var nextBackgroundIndex = this.backgroundIndex + 1;
+        if (nextBackgroundIndex > this.backgrounds.length - 1) {
+            nextBackgroundIndex = 0;
+        }
+        if (nextBackgroundIndex !== this.backgroundIndex) {
+            this.switchBackground(nextBackgroundIndex);
         }
     };
     Stage.prototype.drawSprite = function (sprite) {
