@@ -1577,7 +1577,7 @@ var Sprite = (function () {
                         !potentialSprite.deleted &&
                         potentialSprite.getCollider() &&
                         this.collider.collides(potentialCollider, this.collisionResult)) {
-                        return potentialSprite;
+                        return true;
                     }
                 }
             }
@@ -1851,6 +1851,16 @@ var Sprite = (function () {
     Object.defineProperty(Sprite.prototype, "tags", {
         get: function () {
             return this._tags;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "otherSprite", {
+        get: function () {
+            if (!this.collisionResult.collision) {
+                return null;
+            }
+            return this.collisionResult.b.parentSprite;
         },
         enumerable: false,
         configurable: true
@@ -4032,6 +4042,7 @@ function SAT(a, b, result, aabb) {
         result.overlap = null;
         result.overlap_x = 0;
         result.overlap_y = 0;
+        result.collidedSprite = null;
     }
     if (a_polygon) {
         if (a._dirty_coords ||

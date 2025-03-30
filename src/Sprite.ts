@@ -876,7 +876,7 @@ class Sprite {
                     potentialSprite.getCollider() &&
                     this.collider.collides(potentialCollider, this.collisionResult)
                 ) {
-                    return potentialSprite;
+                    return true;
                 }
             }
         }
@@ -1106,6 +1106,13 @@ class Sprite {
 
     get tags(){
         return this._tags;
+    }
+
+    get otherSprite() {
+        if (!this.collisionResult.collision) {
+            return null;
+        }
+        return this.collisionResult.b.parentSprite;
     }
 
     ready(): void {

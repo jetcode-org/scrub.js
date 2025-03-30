@@ -30,7 +30,7 @@ class Collider {
     protected _bvh_min_y = 0;
     protected _bvh_max_x = 0;
     protected _bvh_max_y = 0;
-	protected _parent_sprite = null;
+    protected _parent_sprite = null;
 
 	/**
 	 * @constructor
