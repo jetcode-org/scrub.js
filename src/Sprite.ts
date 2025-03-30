@@ -241,6 +241,51 @@ class Sprite {
         image.addEventListener('load', onLoadImage);
     }
 
+    drawCostume(callback: DrawingCallbackFunction, options?: CostumeOptions) {
+        let image = document.createElement('canvas');
+        const context = image.getContext('2d');
+
+        image.width = options?.imageWidth ?? 100;
+        image.height = options?.imageHeight ?? 100;
+
+        this.pendingCostumes++;
+        callback(context, this);
+
+        const costumeIndex = this.costumes.length;
+        const costumeName = (options?.name ?? 'Costume') + '-' + costumeIndex;
+
+        const colliderPadding = options?.colliderPadding ?? 0;
+        const colliderPaddingTop = (options?.colliderPaddingTop ?? 0) + colliderPadding;
+        const colliderPaddingRight = (options?.colliderPaddingRight ?? 0) + colliderPadding;
+        const colliderPaddingBottom = (options?.colliderPaddingBottom ?? 0) + colliderPadding;
+        const colliderPaddingLeft = (options?.colliderPaddingLeft ?? 0) + colliderPadding;
+
+        if (options?.imageRotate || options?.imageFlipX || options?.imageFlipY || options?.imageX || options?.imageY) {
+            image = this.transformImage(
+                image,
+                options?.imageRotate ?? 0,
+                options?.imageFlipX ?? false,
+                options?.imageFlipY ?? false,
+                options?.imageX ?? 0,
+                options?.imageY ?? 0,
+                options?.imageWidth ?? image.width,
+                options?.imageHeight ?? image.height
+            );
+        }
+
+        const costume = new Costume();
+        costume.image = image;
+        costume.ready = true;
+        costume.colliderPaddingTop = colliderPaddingTop;
+        costume.colliderPaddingRight = colliderPaddingRight;
+        costume.colliderPaddingLeft = colliderPaddingLeft;
+        costume.colliderPaddingBottom = colliderPaddingBottom
+
+        this.costumes.push(costume);
+        this.costumeNames.push(costumeName + '-' + costumeIndex);
+        this.pendingCostumes--;
+    }
+
     switchCostume(costumeIndex): void {
         if (this.deleted) {
             return;
@@ -1051,7 +1096,7 @@ class Sprite {
     }
 
     private transformImage(
-      srcImage: HTMLImageElement,
+      srcImage: HTMLImageElement|HTMLCanvasElement,
       rotate: number,
       flipX: boolean = false,
       flipY: boolean = false,
@@ -1064,8 +1109,8 @@ class Sprite {
         const context = canvas.getContext('2d')!;
 
         const radians = rotate * Math.PI / 180;
-        let canvasWidth = imageWidth ?? srcImage.naturalWidth;
-        let canvasHeight = imageHeight ?? srcImage.naturalHeight;
+        let canvasWidth = imageWidth ?? (srcImage instanceof HTMLImageElement ? srcImage.naturalWidth : srcImage.width);
+        let canvasHeight = imageHeight ?? (srcImage instanceof HTMLImageElement ? srcImage.naturalHeight : srcImage.height);
 
         if (rotate) {
             const absCos = Math.abs(Math.cos(radians));

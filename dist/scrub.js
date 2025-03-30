@@ -1013,6 +1013,35 @@ var Sprite = (function () {
         };
         image.addEventListener('load', onLoadImage);
     };
+    Sprite.prototype.drawCostume = function (callback, options) {
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q;
+        var image = document.createElement('canvas');
+        var context = image.getContext('2d');
+        image.width = (_a = options === null || options === void 0 ? void 0 : options.imageWidth) !== null && _a !== void 0 ? _a : 100;
+        image.height = (_b = options === null || options === void 0 ? void 0 : options.imageHeight) !== null && _b !== void 0 ? _b : 100;
+        this.pendingCostumes++;
+        callback(context, this);
+        var costumeIndex = this.costumes.length;
+        var costumeName = ((_c = options === null || options === void 0 ? void 0 : options.name) !== null && _c !== void 0 ? _c : 'Costume') + '-' + costumeIndex;
+        var colliderPadding = (_d = options === null || options === void 0 ? void 0 : options.colliderPadding) !== null && _d !== void 0 ? _d : 0;
+        var colliderPaddingTop = ((_e = options === null || options === void 0 ? void 0 : options.colliderPaddingTop) !== null && _e !== void 0 ? _e : 0) + colliderPadding;
+        var colliderPaddingRight = ((_f = options === null || options === void 0 ? void 0 : options.colliderPaddingRight) !== null && _f !== void 0 ? _f : 0) + colliderPadding;
+        var colliderPaddingBottom = ((_g = options === null || options === void 0 ? void 0 : options.colliderPaddingBottom) !== null && _g !== void 0 ? _g : 0) + colliderPadding;
+        var colliderPaddingLeft = ((_h = options === null || options === void 0 ? void 0 : options.colliderPaddingLeft) !== null && _h !== void 0 ? _h : 0) + colliderPadding;
+        if ((options === null || options === void 0 ? void 0 : options.imageRotate) || (options === null || options === void 0 ? void 0 : options.imageFlipX) || (options === null || options === void 0 ? void 0 : options.imageFlipY) || (options === null || options === void 0 ? void 0 : options.imageX) || (options === null || options === void 0 ? void 0 : options.imageY)) {
+            image = this.transformImage(image, (_j = options === null || options === void 0 ? void 0 : options.imageRotate) !== null && _j !== void 0 ? _j : 0, (_k = options === null || options === void 0 ? void 0 : options.imageFlipX) !== null && _k !== void 0 ? _k : false, (_l = options === null || options === void 0 ? void 0 : options.imageFlipY) !== null && _l !== void 0 ? _l : false, (_m = options === null || options === void 0 ? void 0 : options.imageX) !== null && _m !== void 0 ? _m : 0, (_o = options === null || options === void 0 ? void 0 : options.imageY) !== null && _o !== void 0 ? _o : 0, (_p = options === null || options === void 0 ? void 0 : options.imageWidth) !== null && _p !== void 0 ? _p : image.width, (_q = options === null || options === void 0 ? void 0 : options.imageHeight) !== null && _q !== void 0 ? _q : image.height);
+        }
+        var costume = new Costume();
+        costume.image = image;
+        costume.ready = true;
+        costume.colliderPaddingTop = colliderPaddingTop;
+        costume.colliderPaddingRight = colliderPaddingRight;
+        costume.colliderPaddingLeft = colliderPaddingLeft;
+        costume.colliderPaddingBottom = colliderPaddingBottom;
+        this.costumes.push(costume);
+        this.costumeNames.push(costumeName + '-' + costumeIndex);
+        this.pendingCostumes--;
+    };
     Sprite.prototype.switchCostume = function (costumeIndex) {
         if (this.deleted) {
             return;
@@ -1797,8 +1826,8 @@ var Sprite = (function () {
         var canvas = document.createElement('canvas');
         var context = canvas.getContext('2d');
         var radians = rotate * Math.PI / 180;
-        var canvasWidth = imageWidth !== null && imageWidth !== void 0 ? imageWidth : srcImage.naturalWidth;
-        var canvasHeight = imageHeight !== null && imageHeight !== void 0 ? imageHeight : srcImage.naturalHeight;
+        var canvasWidth = imageWidth !== null && imageWidth !== void 0 ? imageWidth : (srcImage instanceof HTMLImageElement ? srcImage.naturalWidth : srcImage.width);
+        var canvasHeight = imageHeight !== null && imageHeight !== void 0 ? imageHeight : (srcImage instanceof HTMLImageElement ? srcImage.naturalHeight : srcImage.height);
         if (rotate) {
             var absCos = Math.abs(Math.cos(radians));
             var absSin = Math.abs(Math.sin(radians));
