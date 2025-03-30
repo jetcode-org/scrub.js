@@ -30,7 +30,6 @@ class Collider {
     protected _bvh_min_y = 0;
     protected _bvh_max_x = 0;
     protected _bvh_max_y = 0;
-	protected _tags = [];
 	protected _parent_sprite = null;
 
 	/**
@@ -82,35 +81,6 @@ class Collider {
 		}
 	}
 
-	set tags(value){
-		this._tags = value;
-	}
-
-	hasTag(nameOfTag){
-		if (!this._tags.length) {
-			return false;
-		}
-		for (const tag of this._tags) {
-			if (tag === nameOfTag) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	removeTag(nameOfTag){
-		const foundIndex = this.findTagIndex(nameOfTag);
-		if (foundIndex > -1) {
-			this._tags.splice(foundIndex, 1);
-		}
-	}
-
-	addTag(nameOfTag){
-		if (!this.hasTag(nameOfTag)) {
-			this._tags.push(nameOfTag);
-		}
-	}
-
 	set parentSprite(value) {
 		this._parent_sprite = value;
 	}
@@ -133,12 +103,4 @@ class Collider {
 		return new CollisionResult();
 	}
 
-	private findTagIndex(nameOfTag) {
-		for (const tag of this._tags) {
-			if (tag === nameOfTag) {
-				return this._tags.indexOf(tag);
-			}
-		}
-		return -1;
-	}
 }

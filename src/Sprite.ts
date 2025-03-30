@@ -804,7 +804,6 @@ class Sprite {
         ], angle, this.size / 100, this.size / 100);
         this._width = width;
         this._height = height;
-        this.collider.tags = this.tags;
         this.collider.parentSprite = this;
 
         this.stage.collisionSystem.insert(this.collider);
@@ -829,7 +828,6 @@ class Sprite {
         const { width, height } = this.calculatePolygonSize(centeredPoints);
         this._width = width;
         this._height = height;
-        this.collider.tags = this.tags;
         this.collider.parentSprite = this;
 
         this.stage.collisionSystem.insert(this.collider);
@@ -840,7 +838,6 @@ class Sprite {
         this.collider = new CircleCollider(this.x, this.y, radius, this.size / 100);
         this._width = radius * 2;
         this._height = radius * 2;
-        this.collider.tags = this.tags;
         this.collider.parentSprite = this;
 
         this.stage.collisionSystem.insert(this.collider);
@@ -870,8 +867,8 @@ class Sprite {
         }
 
         for (const potentialCollider of potentialsColliders) {
-            if (potentialCollider.hasTag(nameOfTag)) {
-                const potentialSprite = potentialCollider.parentSprite;
+            const potentialSprite = potentialCollider.parentSprite;
+            if (potentialSprite && potentialSprite.hasTag(nameOfTag)) {
                 if (
                     !potentialSprite.hidden &&
                     !potentialSprite.stopped &&
@@ -888,33 +885,19 @@ class Sprite {
     }
 
     hasTag(nameOfTag) {
-        if (!this._tags.length) {
-            return false;
-        }
-        for (const tag of this._tags) {
-            if (tag === nameOfTag) {
-                return true;
-            }
-        }
-        return false;
+        return this._tags.includes(nameOfTag);
     }
 
     addTag(nameOfTag) {
         if (!this.hasTag(nameOfTag)) {
             this._tags.push(nameOfTag);
-            if (this.collider){
-                this.collider.addTag(nameOfTag);
-            }
         }
     }
 
     removeTag(nameOfTag) {
-        const foundIndex = this.findTagIndex(nameOfTag);
+        const foundIndex = this._tags.indexOf(nameOfTag);
         if (foundIndex > -1) {
             this._tags.splice(foundIndex, 1);
-            if (this.collider){
-                this.collider.removeTag(nameOfTag);
-            }
         }
     }
 
@@ -1221,15 +1204,6 @@ class Sprite {
     private updateColliderPosition() {
             this.collider.x = this.sourceX;
             this.collider.y = this.sourceY;
-    }
-
-    private findTagIndex(nameOfTag) {
-        for (const tag of this._tags) {
-            if (tag === nameOfTag) {
-                return this._tags.indexOf(tag);
-            }
-        }
-        return -1;
     }
 
     cloneCollider(sprite) {
