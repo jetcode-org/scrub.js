@@ -286,6 +286,30 @@ class Sprite {
         this.pendingCostumes--;
     }
 
+    stamp(costumeIndex: number = null, withRotation = true) {
+        if (!this.isReady()) {
+            this.game.throwError(ErrorMessages.STAMP_NOT_READY);
+        }
+
+        costumeIndex = costumeIndex ?? this.costumeIndex;
+
+        if (!this.costumes[costumeIndex]) {
+            this.game.throwError(ErrorMessages.STAMP_COSTUME_NOT_FOUND, {costumeIndex});
+        }
+
+        const costume = this.costumes[costumeIndex];
+        if (!(costume.image instanceof HTMLCanvasElement)) {
+            this.game.throwErrorRaw('The image inside the costume was not found.');
+        }
+
+        let direction = 0;
+        if (withRotation && this.rotateStyle === 'normal') {
+            direction = this.direction;
+        }
+
+        this.stage.stampImage(costume.image, this.x, this.y, direction);
+    }
+
     switchCostume(costumeIndex): void {
         if (this.deleted) {
             return;
@@ -982,8 +1006,10 @@ class Sprite {
     get sourceX() {
         if (this.rotateStyle === 'leftRight' || this.rotateStyle === 'none') {
             const leftRightMultiplier = this._direction > 180 && this.rotateStyle === 'leftRight' ? -1 : 1;
+
             return this._x - this._xCenterOffset * leftRightMultiplier;
         }
+
         return this._x + Math.cos(this._centerAngle - this.angleRadians) * this._centerDistance;
     }
 
@@ -991,6 +1017,7 @@ class Sprite {
         if (this.rotateStyle === 'leftRight' || this.rotateStyle === 'none') {
             return this._y - this._yCenterOffset;
         }
+
         return this._y - Math.sin(this._centerAngle - this.angleRadians) * this._centerDistance;
     }
 

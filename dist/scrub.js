@@ -1042,6 +1042,26 @@ var Sprite = (function () {
         this.costumeNames.push(costumeName + '-' + costumeIndex);
         this.pendingCostumes--;
     };
+    Sprite.prototype.stamp = function (costumeIndex, withRotation) {
+        if (costumeIndex === void 0) { costumeIndex = null; }
+        if (withRotation === void 0) { withRotation = true; }
+        if (!this.isReady()) {
+            this.game.throwError(ErrorMessages.STAMP_NOT_READY);
+        }
+        costumeIndex = costumeIndex !== null && costumeIndex !== void 0 ? costumeIndex : this.costumeIndex;
+        if (!this.costumes[costumeIndex]) {
+            this.game.throwError(ErrorMessages.STAMP_COSTUME_NOT_FOUND, { costumeIndex: costumeIndex });
+        }
+        var costume = this.costumes[costumeIndex];
+        if (!(costume.image instanceof HTMLCanvasElement)) {
+            this.game.throwErrorRaw('The image inside the costume was not found.');
+        }
+        var direction = 0;
+        if (withRotation && this.rotateStyle === 'normal') {
+            direction = this.direction;
+        }
+        this.stage.stampImage(costume.image, this.x, this.y, direction);
+    };
     Sprite.prototype.switchCostume = function (costumeIndex) {
         if (this.deleted) {
             return;
@@ -2742,7 +2762,6 @@ var SharedData = (function () {
 var Stage = (function () {
     function Stage(background) {
         if (background === void 0) { background = null; }
-        this.backgroundColor = null;
         this.background = null;
         this.backgroundIndex = null;
         this.backgrounds = [];
@@ -2750,7 +2769,7 @@ var Stage = (function () {
         this.drawings = new Map();
         this.addedSprites = 0;
         this.loadedSprites = 0;
-        this.loadedBackgrounds = 0;
+        this.pendingBackgrounds = 0;
         this.pendingRun = false;
         this.onReadyCallbacks = [];
         this.onStartCallbacks = [];
@@ -2810,6 +2829,26 @@ var Stage = (function () {
         enumerable: false,
         configurable: true
     });
+    Object.defineProperty(Stage.prototype, "backgroundColor", {
+        set: function (color) {
+            this.drawBackground(function (context, stage) {
+                context.fillStyle = color;
+                context.fillRect(0, 0, stage.width, stage.height);
+            });
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Stage.prototype.drawBackground = function (callback) {
+        var backgroundCanvas = document.createElement('canvas');
+        var context = backgroundCanvas.getContext('2d');
+        backgroundCanvas.width = this.width;
+        backgroundCanvas.height = this.height;
+        this.pendingBackgrounds++;
+        callback(context, this);
+        this.backgrounds.push(backgroundCanvas);
+        this.pendingBackgrounds--;
+    };
     Stage.prototype.addSprite = function (sprite) {
         var layerSprites;
         if (this.sprites.has(sprite.layer)) {
@@ -2856,18 +2895,23 @@ var Stage = (function () {
     };
     Stage.prototype.addBackground = function (backgroundPath) {
         var _this = this;
-        var background = new Image();
-        background.src = backgroundPath;
-        this.backgrounds.push(background);
+        var backgroundImage = new Image();
+        backgroundImage.src = backgroundPath;
+        this.pendingBackgrounds++;
         var onLoad = function () {
-            _this.eventEmitter.emit(Game.STAGE_BACKGROUND_READY_EVENT, {
-                background: background,
-                stageId: _this.id
-            });
-            background.removeEventListener('load', onLoad);
+            var backgroundCanvas = document.createElement('canvas');
+            var context = backgroundCanvas.getContext('2d');
+            backgroundCanvas.width = _this.width;
+            backgroundCanvas.height = _this.height;
+            context.drawImage(backgroundImage, 0, 0, _this.width, _this.height);
+            _this.backgrounds.push(backgroundCanvas);
+            _this.pendingBackgrounds--;
+            _this.tryDoOnReady();
+            _this.tryDoRun();
+            backgroundImage.removeEventListener('load', onLoad);
         };
-        background.addEventListener('load', onLoad);
-        background.addEventListener('error', function () {
+        backgroundImage.addEventListener('load', onLoad);
+        backgroundImage.addEventListener('error', function () {
             _this.game.throwError(ErrorMessages.BACKGROUND_NOT_LOADED, { backgroundPath: backgroundPath });
         });
     };
@@ -2887,8 +2931,6 @@ var Stage = (function () {
         var dstHeight = sprite.sourceHeight;
         var direction = sprite.direction;
         var rotateStyle = sprite.rotateStyle;
-        var xOffset = sprite.xCenterOffset;
-        var yOffset = sprite.yCenterOffset;
         var radius = 0;
         var radiusOffsetX = 0;
         var radiusOffsetY = 0;
@@ -2917,6 +2959,29 @@ var Stage = (function () {
             this.context.restore();
         }
     };
+    Stage.prototype.stampImage = function (stampImage, x, y, direction) {
+        if (direction === void 0) { direction = 0; }
+        if (this.background instanceof HTMLCanvasElement) {
+            var backgroundCanvas = document.createElement('canvas');
+            var context = backgroundCanvas.getContext('2d');
+            backgroundCanvas.width = this.width;
+            backgroundCanvas.height = this.height;
+            context.drawImage(this.background, 0, 0, this.width, this.height);
+            var stampWidth = stampImage instanceof HTMLImageElement ? stampImage.naturalWidth : stampImage.width;
+            var stampHeight = stampImage instanceof HTMLImageElement ? stampImage.naturalHeight : stampImage.height;
+            var stampDstX = x - stampWidth / 2;
+            var stampDstY = y - stampHeight / 2;
+            if (direction !== 0) {
+                var angleRadians = direction * Math.PI / 180;
+                context.translate(stampDstX + stampWidth / 2, stampDstY + stampHeight / 2);
+                context.rotate(angleRadians);
+                context.translate(-stampDstX - stampWidth / 2, -stampDstY - stampHeight / 2);
+            }
+            context.drawImage(stampImage, stampDstX, stampDstY, stampWidth, stampHeight);
+            this.background = backgroundCanvas;
+            this.backgrounds[this.backgroundIndex] = this.background;
+        }
+    };
     Stage.prototype.pen = function (callback, layer) {
         if (layer === void 0) { layer = 0; }
         var layerDrawings;
@@ -2935,10 +3000,6 @@ var Stage = (function () {
         this.update();
         this.collisionSystem.update();
         this.context.clearRect(0, 0, this.width, this.height);
-        if (this.backgroundColor) {
-            this.context.fillStyle = this.backgroundColor;
-            this.context.fillRect(0, 0, this.width, this.height);
-        }
         if (this.background) {
             this.context.drawImage(this.background, 0, 0, this.width, this.height);
         }
@@ -3083,7 +3144,7 @@ var Stage = (function () {
         this.scheduledCallbacks.push(new ScheduledCallbackItem(callback, state, timeout, finishCallback));
     };
     Stage.prototype.isReady = function () {
-        return this.addedSprites == this.loadedSprites && this.loadedBackgrounds == this.backgrounds.length;
+        return this.addedSprites == this.loadedSprites && this.pendingBackgrounds === 0;
     };
     Stage.prototype.run = function () {
         var e_27, _a, e_28, _b;
@@ -3195,21 +3256,14 @@ var Stage = (function () {
                 _this.tryDoRun();
             }
         });
-        this.eventEmitter.on(Game.STAGE_BACKGROUND_READY_EVENT, Game.STAGE_BACKGROUND_READY_EVENT, function (event) {
-            if (_this.id == event.detail.stageId) {
-                _this.loadedBackgrounds++;
-                _this.tryDoOnReady();
-                _this.tryDoRun();
-                if (_this.loadedBackgrounds == _this.backgrounds.length && _this.backgroundIndex === null) {
-                    _this.switchBackground(0);
-                }
-            }
-        });
     };
     Stage.prototype.tryDoOnReady = function () {
         var e_33, _a;
         if (this.onReadyPending && this.isReady()) {
             this.onReadyPending = false;
+            if (this.backgrounds.length && this.backgroundIndex === null) {
+                this.switchBackground(0);
+            }
             if (this.onReadyCallbacks.length) {
                 try {
                     for (var _b = __values(this.onReadyCallbacks), _c = _b.next(); !_c.done; _c = _b.next()) {
@@ -4538,6 +4592,8 @@ var ErrorMessages = (function () {
     ErrorMessages.SOUND_INDEX_NOT_FOUND = 'sound_index_not_found';
     ErrorMessages.SOUND_NAME_NOT_FOUND = 'sound_name_not_found';
     ErrorMessages.COSTUME_NAME_NOT_FOUND = 'costume_name_not_found';
+    ErrorMessages.STAMP_NOT_READY = 'stamp_not_ready';
+    ErrorMessages.STAMP_COSTUME_NOT_FOUND = 'stamp_costume_not_found';
     ErrorMessages.messages = {
         script_error: {
             'ru': 'Произошла ошибка, ознакомьтесь с подробной информацией в консоли.',
@@ -4580,9 +4636,17 @@ var ErrorMessages = (function () {
             'en': 'Sound with name "${soundName}" not found.'
         },
         costume_name_not_found: {
-            'ru': 'Костуюм с именем "${costumeName}" не найден.',
+            'ru': 'Костюм с именем "${costumeName}" не найден.',
             'en': 'Costume with name "${costumeName}" not found.'
-        }
+        },
+        stamp_not_ready: {
+            'ru': 'Спрайт не может создать штамп, потому что он еще не готов. Попробуйте использовать метод sprite.onReady()',
+            'en': 'Sprite cannot create a stamp because one is not ready. Try using the sprite.onReady() method.'
+        },
+        stamp_costume_not_found: {
+            'ru': 'Штам не может быть создан, так как костюм с индексом "${costumeIndex}" не найден.',
+            'en': 'The stamp cannot be created because the costume with the index "${costumeIndex}" has not been found.'
+        },
     };
     return ErrorMessages;
 }());

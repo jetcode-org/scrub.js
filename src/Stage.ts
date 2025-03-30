@@ -4,17 +4,16 @@ class Stage {
     canvas: HTMLCanvasElement;
     context: CanvasRenderingContext2D;
     collisionSystem: CollisionSystem;
-    backgroundColor = null;
 
     private game: Game;
-    private background = null;
+    private background: HTMLCanvasElement = null;
     private backgroundIndex = null;
     private backgrounds = [];
     private sprites = new Map<number, Sprite[]>();
     private drawings = new Map<number, DrawingCallbackFunction[]>();
     private addedSprites = 0;
     private loadedSprites = 0;
-    private loadedBackgrounds = 0;
+    private pendingBackgrounds = 0;
     private pendingRun = false;
     private onReadyCallbacks = [];
     private onStartCallbacks = [];
@@ -75,6 +74,27 @@ class Stage {
         return this._stopped;
     }
 
+    set backgroundColor(color: string) {
+        this.drawBackground((context, stage) => {
+            context.fillStyle = color;
+            context.fillRect(0, 0, stage.width, stage.height);
+        });
+    }
+
+    drawBackground(callback: DrawingCallbackFunction) {
+        const backgroundCanvas = document.createElement('canvas');
+        const context = backgroundCanvas.getContext('2d');
+
+        backgroundCanvas.width = this.width;
+        backgroundCanvas.height = this.height;
+
+        this.pendingBackgrounds++;
+        callback(context, this);
+
+        this.backgrounds.push(backgroundCanvas);
+        this.pendingBackgrounds--;
+    }
+
     addSprite(sprite: Sprite): void {
         let layerSprites: Sprite[];
 
@@ -133,22 +153,36 @@ class Stage {
     }
 
     addBackground(backgroundPath: string): void {
-        const background = new Image();
-        background.src = backgroundPath;
+        const backgroundImage = new Image();
+        backgroundImage.src = backgroundPath;
 
-        this.backgrounds.push(background);
+        this.pendingBackgrounds++;
 
         const onLoad = () => {
-            this.eventEmitter.emit(Game.STAGE_BACKGROUND_READY_EVENT, {
-                background: background,
-                stageId: this.id
-            });
+            const backgroundCanvas = document.createElement('canvas');
+            const context = backgroundCanvas.getContext('2d');
+            backgroundCanvas.width = this.width;
+            backgroundCanvas.height = this.height;
 
-            background.removeEventListener('load', onLoad);
+            context.drawImage(
+                backgroundImage,
+                0,
+                0,
+                this.width,
+                this.height
+            );
+
+            this.backgrounds.push(backgroundCanvas);
+            this.pendingBackgrounds--;
+
+            this.tryDoOnReady();
+            this.tryDoRun();
+
+            backgroundImage.removeEventListener('load', onLoad);
         };
-        background.addEventListener('load', onLoad);
+        backgroundImage.addEventListener('load', onLoad);
 
-        background.addEventListener('error', () => {
+        backgroundImage.addEventListener('error', () => {
             this.game.throwError(ErrorMessages.BACKGROUND_NOT_LOADED, {backgroundPath});
         });
     }
@@ -158,7 +192,7 @@ class Stage {
         const background = this.backgrounds[backgroundIndex];
 
         if (background) {
-            this    .background = background;
+            this.background = background;
         }
     }
 
@@ -171,8 +205,7 @@ class Stage {
         const dstHeight = sprite.sourceHeight;
         const direction = sprite.direction;
         const rotateStyle = sprite.rotateStyle;
-        const xOffset = sprite.xCenterOffset;
-        const yOffset = sprite.yCenterOffset;
+
         let radius = 0
         let radiusOffsetX = 0;
         let radiusOffsetY = 0;
@@ -230,6 +263,47 @@ class Stage {
         }
     }
 
+    stampImage(stampImage: HTMLCanvasElement|HTMLImageElement, x: number, y: number, direction = 0) {
+        if (this.background instanceof HTMLCanvasElement) {
+            const backgroundCanvas = document.createElement('canvas');
+            const context = backgroundCanvas.getContext('2d');
+            backgroundCanvas.width = this.width;
+            backgroundCanvas.height = this.height;
+
+            context.drawImage(
+                this.background,
+                0,
+                0,
+                this.width,
+                this.height
+            );
+
+            const stampWidth = stampImage instanceof HTMLImageElement ? stampImage.naturalWidth : stampImage.width;
+            const stampHeight = stampImage instanceof HTMLImageElement ? stampImage.naturalHeight : stampImage.height;
+            const stampDstX = x - stampWidth / 2;
+            const stampDstY = y - stampHeight / 2;
+
+            if (direction !== 0) {
+                const angleRadians = direction * Math.PI / 180;
+
+                context.translate(stampDstX + stampWidth / 2, stampDstY + stampHeight / 2);
+                context.rotate(angleRadians);
+                context.translate(-stampDstX - stampWidth / 2, -stampDstY - stampHeight / 2);
+            }
+
+            context.drawImage(
+                stampImage,
+                stampDstX,
+                stampDstY,
+                stampWidth,
+                stampHeight
+            );
+
+            this.background = backgroundCanvas;
+            this.backgrounds[this.backgroundIndex] = this.background;
+        }
+    }
+
     pen(callback: DrawingCallbackFunction, layer = 0): void {
         let layerDrawings: DrawingCallbackFunction[];
 
@@ -249,11 +323,6 @@ class Stage {
         this.collisionSystem.update();
 
         this.context.clearRect(0, 0, this.width, this.height);
-
-        if (this.backgroundColor) {
-            this.context.fillStyle = this.backgroundColor;
-            this.context.fillRect(0, 0, this.width, this.height);
-        }
 
         if (this.background) {
             this.context.drawImage(this.background, 0, 0, this.width, this.height);
@@ -375,7 +444,7 @@ class Stage {
     }
 
     isReady() {
-        return this.addedSprites == this.loadedSprites && this.loadedBackgrounds == this.backgrounds.length;
+        return this.addedSprites == this.loadedSprites && this.pendingBackgrounds === 0;
     }
 
     run(): void {
@@ -435,23 +504,15 @@ class Stage {
                 this.tryDoRun();
             }
         });
-
-        this.eventEmitter.on(Game.STAGE_BACKGROUND_READY_EVENT, Game.STAGE_BACKGROUND_READY_EVENT, (event: CustomEvent) => {
-            if (this.id == event.detail.stageId) {
-                this.loadedBackgrounds++;
-                this.tryDoOnReady();
-                this.tryDoRun();
-
-                if (this.loadedBackgrounds == this.backgrounds.length && this.backgroundIndex === null) {
-                    this.switchBackground(0);
-                }
-            }
-        });
     }
 
     private tryDoOnReady() {
         if (this.onReadyPending && this.isReady()) {
             this.onReadyPending = false;
+
+            if (this.backgrounds.length && this.backgroundIndex === null) {
+                this.switchBackground(0);
+            }
 
             if (this.onReadyCallbacks.length) {
                 for (const callback of this.onReadyCallbacks) {

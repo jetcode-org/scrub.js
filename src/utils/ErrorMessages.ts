@@ -10,6 +10,8 @@ class ErrorMessages {
   static readonly SOUND_INDEX_NOT_FOUND = 'sound_index_not_found';
   static readonly SOUND_NAME_NOT_FOUND = 'sound_name_not_found';
   static readonly COSTUME_NAME_NOT_FOUND = 'costume_name_not_found';
+  static readonly STAMP_NOT_READY = 'stamp_not_ready';
+  static readonly STAMP_COSTUME_NOT_FOUND = 'stamp_costume_not_found';
 
   static readonly messages = {
     script_error:  {
@@ -53,9 +55,17 @@ class ErrorMessages {
       'en': 'Sound with name "${soundName}" not found.'
     },
     costume_name_not_found:  {
-      'ru': 'Костуюм с именем "${costumeName}" не найден.',
+      'ru': 'Костюм с именем "${costumeName}" не найден.',
       'en': 'Costume with name "${costumeName}" not found.'
-    }
+    },
+    stamp_not_ready:  {
+      'ru': 'Спрайт не может создать штамп, потому что он еще не готов. Попробуйте использовать метод sprite.onReady()',
+      'en': 'Sprite cannot create a stamp because one is not ready. Try using the sprite.onReady() method.'
+    },
+    stamp_costume_not_found:  {
+      'ru': 'Штам не может быть создан, так как костюм с индексом "${costumeIndex}" не найден.',
+      'en': 'The stamp cannot be created because the costume with the index "${costumeIndex}" has not been found.'
+    },
   }
 
   static getMessage(messageId: string, locale: string, variables: {}|null = null): string {
