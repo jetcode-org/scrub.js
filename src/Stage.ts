@@ -84,7 +84,7 @@ class Stage {
         });
     }
 
-    drawBackground(callback: DrawingCallbackFunction) {
+    drawBackground(callback: DrawingCallbackFunction): this {
         const backgroundCanvas = document.createElement('canvas');
         const context = backgroundCanvas.getContext('2d');
 
@@ -96,9 +96,11 @@ class Stage {
 
         this.backgrounds.push(backgroundCanvas);
         this.pendingBackgrounds--;
+
+        return this;
     }
 
-    addSprite(sprite: Sprite): void {
+    addSprite(sprite: Sprite): this {
         let layerSprites: Sprite[];
 
         if (this.sprites.has(sprite.layer)) {
@@ -111,9 +113,11 @@ class Stage {
 
         layerSprites.push(sprite);
         this.addedSprites++;
+
+        return this;
     }
 
-    removeSprite(sprite: Sprite, layer: number): void {
+    removeSprite(sprite: Sprite, layer: number): this {
         if (!this.sprites.has(layer)) {
             this.game.throwErrorRaw('The layer "' + layer + '" not defined in the stage.');
         }
@@ -130,6 +134,8 @@ class Stage {
         }
 
         this.addedSprites--;
+
+        return this;
     }
 
     changeSpriteLayer(sprite: Sprite, fromLayer: number, toLayer: number): void {
@@ -155,7 +161,7 @@ class Stage {
         toLayerSprites.push(sprite);
     }
 
-    addBackground(backgroundPath: string): void {
+    addBackground(backgroundPath: string): this {
         const backgroundImage = new Image();
         backgroundImage.src = backgroundPath;
 
@@ -188,6 +194,8 @@ class Stage {
         backgroundImage.addEventListener('error', () => {
             this.game.throwError(ErrorMessages.BACKGROUND_NOT_LOADED, {backgroundPath});
         });
+
+        return this;
     }
 
     switchBackground(backgroundIndex: number): void {
@@ -211,7 +219,7 @@ class Stage {
         }
     }
 
-    addSound(soundPath: string, name: string = null): void {
+    addSound(soundPath: string, name: string = null): this {
         if (!name) {
             name = 'No name ' + this.sounds.length;
         }
@@ -232,17 +240,21 @@ class Stage {
             sound.removeEventListener('loadedmetadata', onLoadSound);
         };
         sound.addEventListener('loadedmetadata', onLoadSound);
+
+        return this;
     }
 
-    removeSound(soundIndex = 0) {
+    removeSound(soundIndex = 0): this {
         if (this.sounds[soundIndex] === undefined) {
             this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, {soundIndex});
         }
 
         this.sounds.splice(soundIndex, 1);
+
+        return this;
     }
 
-    removeSoundByName(soundName: string) {
+    removeSoundByName(soundName: string): this {
         const soundIndex = this.soundNames.indexOf(soundName);
 
         if (soundIndex < 0) {
@@ -250,6 +262,8 @@ class Stage {
         }
 
         this.sounds.splice(soundIndex, 1);
+
+        return this;
     }
 
     playSound(soundIndex = 0, volume: number = null, currentTime: number = null): void {

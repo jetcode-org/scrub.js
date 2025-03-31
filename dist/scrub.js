@@ -951,6 +951,7 @@ var Sprite = (function () {
         image.addEventListener('error', function () {
             _this.game.throwError(ErrorMessages.COSTUME_NOT_LOADED, { costumePath: costumePath });
         });
+        return this;
     };
     Sprite.prototype.addCostumeGrid = function (costumePath, options) {
         var _this = this;
@@ -1018,6 +1019,7 @@ var Sprite = (function () {
             image.removeEventListener('load', onLoadImage);
         };
         image.addEventListener('load', onLoadImage);
+        return this;
     };
     Sprite.prototype.drawCostume = function (callback, options) {
         var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s;
@@ -1054,6 +1056,7 @@ var Sprite = (function () {
         this.costumes.push(costume);
         this.costumeNames.push(costumeName + '-' + costumeIndex);
         this.pendingCostumes--;
+        return this;
     };
     Sprite.prototype.removeCostume = function (costumeIndex) {
         if (this.costumes[costumeIndex] === undefined) {
@@ -1070,6 +1073,7 @@ var Sprite = (function () {
                 this.costume = null;
             }
         }
+        return this;
     };
     Sprite.prototype.stamp = function (costumeIndex, withRotation) {
         if (costumeIndex === void 0) { costumeIndex = null; }
@@ -1162,6 +1166,7 @@ var Sprite = (function () {
             sound.removeEventListener('loadedmetadata', onLoadSound);
         };
         sound.addEventListener('loadedmetadata', onLoadSound);
+        return this;
     };
     Sprite.prototype.removeSound = function (soundIndex) {
         if (soundIndex === void 0) { soundIndex = 0; }
@@ -1169,6 +1174,7 @@ var Sprite = (function () {
             this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, { soundIndex: soundIndex });
         }
         this.sounds.splice(soundIndex, 1);
+        return this;
     };
     Sprite.prototype.removeSoundByName = function (soundName) {
         var soundIndex = this.soundNames.indexOf(soundName);
@@ -1176,6 +1182,7 @@ var Sprite = (function () {
             this.game.throwError(ErrorMessages.SOUND_NAME_NOT_FOUND, { soundName: soundName });
         }
         this.sounds.splice(soundIndex, 1);
+        return this;
     };
     Sprite.prototype.playSound = function (soundIndex, volume, currentTime) {
         if (soundIndex === void 0) { soundIndex = 0; }
@@ -1776,12 +1783,14 @@ var Sprite = (function () {
         if (!this.hasTag(nameOfTag)) {
             this._tags.push(nameOfTag);
         }
+        return this;
     };
     Sprite.prototype.removeTag = function (nameOfTag) {
         var foundIndex = this._tags.indexOf(nameOfTag);
         if (foundIndex > -1) {
             this._tags.splice(foundIndex, 1);
         }
+        return this;
     };
     Object.defineProperty(Sprite.prototype, "direction", {
         get: function () {
@@ -3140,6 +3149,7 @@ var Stage = (function () {
         callback(context, this);
         this.backgrounds.push(backgroundCanvas);
         this.pendingBackgrounds--;
+        return this;
     };
     Stage.prototype.addSprite = function (sprite) {
         var layerSprites;
@@ -3152,6 +3162,7 @@ var Stage = (function () {
         }
         layerSprites.push(sprite);
         this.addedSprites++;
+        return this;
     };
     Stage.prototype.removeSprite = function (sprite, layer) {
         if (!this.sprites.has(layer)) {
@@ -3166,6 +3177,7 @@ var Stage = (function () {
             this.loadedSprites--;
         }
         this.addedSprites--;
+        return this;
     };
     Stage.prototype.changeSpriteLayer = function (sprite, fromLayer, toLayer) {
         if (!this.sprites.has(fromLayer)) {
@@ -3206,6 +3218,7 @@ var Stage = (function () {
         backgroundImage.addEventListener('error', function () {
             _this.game.throwError(ErrorMessages.BACKGROUND_NOT_LOADED, { backgroundPath: backgroundPath });
         });
+        return this;
     };
     Stage.prototype.switchBackground = function (backgroundIndex) {
         this.backgroundIndex = backgroundIndex;
@@ -3241,6 +3254,7 @@ var Stage = (function () {
             sound.removeEventListener('loadedmetadata', onLoadSound);
         };
         sound.addEventListener('loadedmetadata', onLoadSound);
+        return this;
     };
     Stage.prototype.removeSound = function (soundIndex) {
         if (soundIndex === void 0) { soundIndex = 0; }
@@ -3248,6 +3262,7 @@ var Stage = (function () {
             this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, { soundIndex: soundIndex });
         }
         this.sounds.splice(soundIndex, 1);
+        return this;
     };
     Stage.prototype.removeSoundByName = function (soundName) {
         var soundIndex = this.soundNames.indexOf(soundName);
@@ -3255,6 +3270,7 @@ var Stage = (function () {
             this.game.throwError(ErrorMessages.SOUND_NAME_NOT_FOUND, { soundName: soundName });
         }
         this.sounds.splice(soundIndex, 1);
+        return this;
     };
     Stage.prototype.playSound = function (soundIndex, volume, currentTime) {
         if (soundIndex === void 0) { soundIndex = 0; }

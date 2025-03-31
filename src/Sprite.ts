@@ -97,7 +97,7 @@ class Sprite {
     addCostume(
         costumePath: string,
         options?: CostumeOptions
-    ): void {
+    ): this {
         const costume = new Costume();
         const costumeIndex = this.costumes.length;
         const costumeName = (options?.name ?? 'Costume') + '-' + costumeIndex;
@@ -154,12 +154,14 @@ class Sprite {
         image.addEventListener('error', () => {
             this.game.throwError(ErrorMessages.COSTUME_NOT_LOADED, {costumePath});
         });
+
+        return this;
     }
 
     addCostumeGrid(
         costumePath: string,
         options: GridCostumeOptions
-    ) {
+    ): this {
         const image = new Image();
         image.src = costumePath;
 
@@ -250,9 +252,11 @@ class Sprite {
         };
 
         image.addEventListener('load', onLoadImage);
+
+        return this;
     }
 
-    drawCostume(callback: DrawingCallbackFunction, options?: CostumeOptions) {
+    drawCostume(callback: DrawingCallbackFunction, options?: CostumeOptions): this {
         let image = document.createElement('canvas');
         const context = image.getContext('2d');
 
@@ -307,9 +311,11 @@ class Sprite {
         this.costumes.push(costume);
         this.costumeNames.push(costumeName + '-' + costumeIndex);
         this.pendingCostumes--;
+
+        return this;
     }
 
-    removeCostume(costumeIndex: number) {
+    removeCostume(costumeIndex: number): this {
         if (this.costumes[costumeIndex] === undefined) {
             this.game.throwError(ErrorMessages.COSTUME_INDEX_NOT_FOUND, {costumeIndex});
         }
@@ -327,6 +333,8 @@ class Sprite {
                 this.costume = null;
             }
         }
+
+        return this;
     }
 
     stamp(costumeIndex: number = null, withRotation = true) {
@@ -415,7 +423,7 @@ class Sprite {
         }
     }
 
-    addSound(soundPath: string, name: string = null): void {
+    addSound(soundPath: string, name: string = null): this {
         if (!name) {
             name = 'No name ' + this.sounds.length;
         }
@@ -436,17 +444,21 @@ class Sprite {
             sound.removeEventListener('loadedmetadata', onLoadSound);
         };
         sound.addEventListener('loadedmetadata', onLoadSound);
+
+        return this;
     }
 
-    removeSound(soundIndex = 0) {
+    removeSound(soundIndex = 0): this {
         if (this.sounds[soundIndex] === undefined) {
             this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, {soundIndex});
         }
 
         this.sounds.splice(soundIndex, 1);
+
+        return this;
     }
 
-    removeSoundByName(soundName: string) {
+    removeSoundByName(soundName: string): this {
         const soundIndex = this.soundNames.indexOf(soundName);
 
         if (soundIndex < 0) {
@@ -454,6 +466,8 @@ class Sprite {
         }
 
         this.sounds.splice(soundIndex, 1);
+
+        return this;
     }
 
     playSound(soundIndex = 0, volume: number = null, currentTime: number = null): void {
@@ -1107,17 +1121,22 @@ class Sprite {
         return this._tags.includes(nameOfTag);
     }
 
-    addTag(nameOfTag) {
+    addTag(nameOfTag): this {
         if (!this.hasTag(nameOfTag)) {
             this._tags.push(nameOfTag);
         }
+
+        return this;
     }
 
-    removeTag(nameOfTag) {
+    removeTag(nameOfTag): this {
         const foundIndex = this._tags.indexOf(nameOfTag);
+
         if (foundIndex > -1) {
             this._tags.splice(foundIndex, 1);
         }
+
+        return this;
     }
 
     set direction (direction: number) {
