@@ -217,17 +217,8 @@ class Stage {
         const dstHeight = sprite.sourceHeight;
         const direction = sprite.direction;
         const rotateStyle = sprite.rotateStyle;
-
-        let radius = 0
-        let radiusOffsetX = 0;
-        let radiusOffsetY = 0;
-
-        const collider = sprite.getCollider();
-        if (collider instanceof CircleCollider) {
-            radius = collider.radius;
-            radiusOffsetX = (radius - (costume.width / 2)) * sprite.size / 100;
-            radiusOffsetY = (radius - (costume.height / 2)) * sprite.size / 100;
-        }
+        let colliderOffsetX = (sprite.sourceWidth - costume.width * sprite.size / 100) / 2;
+        let colliderOffsetY = (sprite.sourceHeight - costume.height * sprite.size / 100) / 2;
 
         const needSave =
             (rotateStyle === 'normal' && direction !== 0) ||
@@ -264,8 +255,8 @@ class Stage {
                 0,
                 costume.width,
                 costume.height,
-                (-dstWidth / 2) + (costume.colliderPaddingLeft * sprite.size / 100) + radiusOffsetX,
-                dstY + (costume.colliderPaddingTop * sprite.size / 100) + radiusOffsetY,
+                (-dstWidth / 2) + (costume.colliderPaddingLeft * sprite.size / 100) + colliderOffsetX,
+                dstY + (costume.colliderPaddingTop * sprite.size / 100) + colliderOffsetY,
                 costume.width * sprite.size / 100,
                 costume.height * sprite.size / 100
             );
@@ -278,8 +269,8 @@ class Stage {
                 0,
                 costume.width,
                 costume.height,
-                dstX + (costume.colliderPaddingLeft * sprite.size / 100) + radiusOffsetX,
-                dstY + (costume.colliderPaddingTop * sprite.size / 100) + radiusOffsetY,
+                dstX + (costume.colliderPaddingLeft * sprite.size / 100) + colliderOffsetX,
+                dstY + (costume.colliderPaddingTop * sprite.size / 100) + colliderOffsetY,
                 costume.width * sprite.size / 100,
                 costume.height * sprite.size / 100
             );

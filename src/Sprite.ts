@@ -856,6 +856,10 @@ class Sprite {
     }
 
     setRectCollider(width: number, height: number) {
+        if (this.collider) {
+            this.removeCollider()
+        }
+
         let angle = 0;
         if (this.rotateStyle != 'leftRight') {
             angle = this.direction * 3.14 / 180; // to radian
@@ -876,6 +880,10 @@ class Sprite {
     }
 
     setPolygonCollider(points: [number, number][] = []) {
+        if (this.collider) {
+            this.removeCollider()
+        }
+
         let angleRadians = 0;
         if (this.rotateStyle != 'leftRight') {
             angleRadians = this.angleRadians;
@@ -900,6 +908,10 @@ class Sprite {
     }
 
     setCircleCollider(radius: number) {
+        if (this.collider) {
+            this.removeCollider()
+        }
+
         this.collider = new CircleCollider(this.x, this.y, radius, this.size / 100);
         this._width = radius * 2;
         this._height = radius * 2;
@@ -943,6 +955,64 @@ class Sprite {
                 ) {
                     return true;
                 }
+            }
+        }
+
+        return false;
+    }
+
+    touchTagAll(nameOfTag) {
+        if (this.hidden || this.stopped || this.deleted || !this.collider) {
+            return false;
+        }
+
+        const potentialsColliders = this.collider.potentials();
+        if (!potentialsColliders.length) {
+            return false;
+        }
+
+        const collidedSprites = []
+        for (const potentialCollider of potentialsColliders) {
+            const potentialSprite = potentialCollider.parentSprite;
+            if (potentialSprite && potentialSprite.hasTag(nameOfTag)) {
+                if (
+                    !potentialSprite.hidden &&
+                    !potentialSprite.stopped &&
+                    !potentialSprite.deleted &&
+                    potentialSprite.getCollider() &&
+                    this.collider.collides(potentialCollider, this.collisionResult)
+                ) {
+                    collidedSprites.push(potentialSprite);
+                }
+            }
+        }
+
+        if (!collidedSprites.length) {
+            return collidedSprites;
+        }
+
+        return false;
+    }
+
+    touchAnySprite() {
+        if (this.hidden || this.stopped || this.deleted || !this.collider) {
+            return false;
+        }
+        const potentialsColliders = this.collider.potentials();
+        if (!potentialsColliders.length) {
+            return false;
+        }
+
+        for (const potentialCollider of potentialsColliders) {
+            const potentialSprite = potentialCollider.parentSprite;
+            if (
+                !potentialSprite.hidden &&
+                !potentialSprite.stopped &&
+                !potentialSprite.deleted &&
+                potentialSprite.getCollider() &&
+                this.collider.collides(potentialCollider, this.collisionResult)
+            ) {
+                return true;
             }
         }
 
