@@ -15,6 +15,8 @@ type GridCostumeOptions = {
     imageY?: number,
     imageWidth?: number,
     imageHeight?: number,
+    imageAlphaColor?: string | { r: number; g: number; b: number };
+    imageAlphaTolerance?: number;
     colliderPadding?: number,
     colliderPaddingTop?: number,
     colliderPaddingRight?: number,
@@ -31,6 +33,8 @@ type CostumeOptions = {
     imageY?: number,
     imageWidth?: number,
     imageHeight?: number,
+    imageAlphaColor?: string | { r: number; g: number; b: number };
+    imageAlphaTolerance?: number;
     colliderPadding?: number,
     colliderPaddingTop?: number,
     colliderPaddingRight?: number,

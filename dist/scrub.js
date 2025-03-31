@@ -923,17 +923,20 @@ var Sprite = (function () {
         this.pendingCostumes++;
         var image = new Image();
         image.src = costumePath;
+        if (options === null || options === void 0 ? void 0 : options.imageAlphaColor) {
+            image.crossOrigin = 'anonymous';
+        }
         var onLoadImage = function () {
-            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
+            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p;
             if (_this.deleted) {
                 return;
             }
-            var transformedImage = _this.transformImage(image, (_a = options === null || options === void 0 ? void 0 : options.imageRotate) !== null && _a !== void 0 ? _a : 0, (_b = options === null || options === void 0 ? void 0 : options.imageFlipX) !== null && _b !== void 0 ? _b : false, (_c = options === null || options === void 0 ? void 0 : options.imageFlipY) !== null && _c !== void 0 ? _c : false, (_d = options === null || options === void 0 ? void 0 : options.imageX) !== null && _d !== void 0 ? _d : 0, (_e = options === null || options === void 0 ? void 0 : options.imageY) !== null && _e !== void 0 ? _e : 0, (_f = options === null || options === void 0 ? void 0 : options.imageWidth) !== null && _f !== void 0 ? _f : image.naturalWidth, (_g = options === null || options === void 0 ? void 0 : options.imageHeight) !== null && _g !== void 0 ? _g : image.naturalHeight);
-            var colliderPadding = (_h = options === null || options === void 0 ? void 0 : options.colliderPadding) !== null && _h !== void 0 ? _h : 0;
-            var colliderPaddingTop = ((_j = options === null || options === void 0 ? void 0 : options.colliderPaddingTop) !== null && _j !== void 0 ? _j : 0) + colliderPadding;
-            var colliderPaddingRight = ((_k = options === null || options === void 0 ? void 0 : options.colliderPaddingRight) !== null && _k !== void 0 ? _k : 0) + colliderPadding;
-            var colliderPaddingBottom = ((_l = options === null || options === void 0 ? void 0 : options.colliderPaddingBottom) !== null && _l !== void 0 ? _l : 0) + colliderPadding;
-            var colliderPaddingLeft = ((_m = options === null || options === void 0 ? void 0 : options.colliderPaddingLeft) !== null && _m !== void 0 ? _m : 0) + colliderPadding;
+            var transformedImage = _this.transformImage(image, (_a = options === null || options === void 0 ? void 0 : options.imageRotate) !== null && _a !== void 0 ? _a : 0, (_b = options === null || options === void 0 ? void 0 : options.imageFlipX) !== null && _b !== void 0 ? _b : false, (_c = options === null || options === void 0 ? void 0 : options.imageFlipY) !== null && _c !== void 0 ? _c : false, (_d = options === null || options === void 0 ? void 0 : options.imageX) !== null && _d !== void 0 ? _d : 0, (_e = options === null || options === void 0 ? void 0 : options.imageY) !== null && _e !== void 0 ? _e : 0, (_f = options === null || options === void 0 ? void 0 : options.imageWidth) !== null && _f !== void 0 ? _f : image.naturalWidth, (_g = options === null || options === void 0 ? void 0 : options.imageHeight) !== null && _g !== void 0 ? _g : image.naturalHeight, (_h = options === null || options === void 0 ? void 0 : options.imageAlphaColor) !== null && _h !== void 0 ? _h : null, (_j = options === null || options === void 0 ? void 0 : options.imageAlphaTolerance) !== null && _j !== void 0 ? _j : 0);
+            var colliderPadding = (_k = options === null || options === void 0 ? void 0 : options.colliderPadding) !== null && _k !== void 0 ? _k : 0;
+            var colliderPaddingTop = ((_l = options === null || options === void 0 ? void 0 : options.colliderPaddingTop) !== null && _l !== void 0 ? _l : 0) + colliderPadding;
+            var colliderPaddingRight = ((_m = options === null || options === void 0 ? void 0 : options.colliderPaddingRight) !== null && _m !== void 0 ? _m : 0) + colliderPadding;
+            var colliderPaddingBottom = ((_o = options === null || options === void 0 ? void 0 : options.colliderPaddingBottom) !== null && _o !== void 0 ? _o : 0) + colliderPadding;
+            var colliderPaddingLeft = ((_p = options === null || options === void 0 ? void 0 : options.colliderPaddingLeft) !== null && _p !== void 0 ? _p : 0) + colliderPadding;
             costume.image = transformedImage;
             costume.ready = true;
             costume.colliderPaddingTop = colliderPaddingTop;
@@ -957,7 +960,7 @@ var Sprite = (function () {
         var costumeName = (_a = options === null || options === void 0 ? void 0 : options.name) !== null && _a !== void 0 ? _a : 'Costume';
         this.pendingCostumeGrids++;
         var onLoadImage = function () {
-            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
+            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p;
             image.naturalWidth;
             image.naturalHeight;
             var cols = options.cols;
@@ -991,12 +994,12 @@ var Sprite = (function () {
                         var costume = new Costume();
                         _this.costumes.push(costume);
                         _this.costumeNames.push(costumeName + '-' + costumeIndex);
-                        var transformedImage = _this.transformImage(image, (_a = options === null || options === void 0 ? void 0 : options.imageRotate) !== null && _a !== void 0 ? _a : 0, (_b = options === null || options === void 0 ? void 0 : options.imageFlipX) !== null && _b !== void 0 ? _b : false, (_c = options === null || options === void 0 ? void 0 : options.imageFlipY) !== null && _c !== void 0 ? _c : false, x + ((_d = options === null || options === void 0 ? void 0 : options.imageX) !== null && _d !== void 0 ? _d : 0), y + ((_e = options === null || options === void 0 ? void 0 : options.imageY) !== null && _e !== void 0 ? _e : 0), ((_f = options === null || options === void 0 ? void 0 : options.imageWidth) !== null && _f !== void 0 ? _f : chunkWidth), ((_g = options === null || options === void 0 ? void 0 : options.imageHeight) !== null && _g !== void 0 ? _g : chunkHeight));
-                        var colliderPadding = (_h = options === null || options === void 0 ? void 0 : options.colliderPadding) !== null && _h !== void 0 ? _h : 0;
-                        var colliderPaddingTop = ((_j = options === null || options === void 0 ? void 0 : options.colliderPaddingTop) !== null && _j !== void 0 ? _j : 0) + colliderPadding;
-                        var colliderPaddingRight = ((_k = options === null || options === void 0 ? void 0 : options.colliderPaddingRight) !== null && _k !== void 0 ? _k : 0) + colliderPadding;
-                        var colliderPaddingBottom = ((_l = options === null || options === void 0 ? void 0 : options.colliderPaddingBottom) !== null && _l !== void 0 ? _l : 0) + colliderPadding;
-                        var colliderPaddingLeft = ((_m = options === null || options === void 0 ? void 0 : options.colliderPaddingLeft) !== null && _m !== void 0 ? _m : 0) + colliderPadding;
+                        var transformedImage = _this.transformImage(image, (_a = options === null || options === void 0 ? void 0 : options.imageRotate) !== null && _a !== void 0 ? _a : 0, (_b = options === null || options === void 0 ? void 0 : options.imageFlipX) !== null && _b !== void 0 ? _b : false, (_c = options === null || options === void 0 ? void 0 : options.imageFlipY) !== null && _c !== void 0 ? _c : false, x + ((_d = options === null || options === void 0 ? void 0 : options.imageX) !== null && _d !== void 0 ? _d : 0), y + ((_e = options === null || options === void 0 ? void 0 : options.imageY) !== null && _e !== void 0 ? _e : 0), ((_f = options === null || options === void 0 ? void 0 : options.imageWidth) !== null && _f !== void 0 ? _f : chunkWidth), ((_g = options === null || options === void 0 ? void 0 : options.imageHeight) !== null && _g !== void 0 ? _g : chunkHeight), (_h = options === null || options === void 0 ? void 0 : options.imageAlphaColor) !== null && _h !== void 0 ? _h : null, (_j = options === null || options === void 0 ? void 0 : options.imageAlphaTolerance) !== null && _j !== void 0 ? _j : 0);
+                        var colliderPadding = (_k = options === null || options === void 0 ? void 0 : options.colliderPadding) !== null && _k !== void 0 ? _k : 0;
+                        var colliderPaddingTop = ((_l = options === null || options === void 0 ? void 0 : options.colliderPaddingTop) !== null && _l !== void 0 ? _l : 0) + colliderPadding;
+                        var colliderPaddingRight = ((_m = options === null || options === void 0 ? void 0 : options.colliderPaddingRight) !== null && _m !== void 0 ? _m : 0) + colliderPadding;
+                        var colliderPaddingBottom = ((_o = options === null || options === void 0 ? void 0 : options.colliderPaddingBottom) !== null && _o !== void 0 ? _o : 0) + colliderPadding;
+                        var colliderPaddingLeft = ((_p = options === null || options === void 0 ? void 0 : options.colliderPaddingLeft) !== null && _p !== void 0 ? _p : 0) + colliderPadding;
                         costume.image = transformedImage;
                         costume.ready = true;
                         costume.colliderPaddingTop = colliderPaddingTop;
@@ -1017,7 +1020,7 @@ var Sprite = (function () {
         image.addEventListener('load', onLoadImage);
     };
     Sprite.prototype.drawCostume = function (callback, options) {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s;
         var image = document.createElement('canvas');
         var context = image.getContext('2d');
         image.width = (_a = options === null || options === void 0 ? void 0 : options.imageWidth) !== null && _a !== void 0 ? _a : 100;
@@ -1031,8 +1034,15 @@ var Sprite = (function () {
         var colliderPaddingRight = ((_f = options === null || options === void 0 ? void 0 : options.colliderPaddingRight) !== null && _f !== void 0 ? _f : 0) + colliderPadding;
         var colliderPaddingBottom = ((_g = options === null || options === void 0 ? void 0 : options.colliderPaddingBottom) !== null && _g !== void 0 ? _g : 0) + colliderPadding;
         var colliderPaddingLeft = ((_h = options === null || options === void 0 ? void 0 : options.colliderPaddingLeft) !== null && _h !== void 0 ? _h : 0) + colliderPadding;
-        if ((options === null || options === void 0 ? void 0 : options.imageRotate) || (options === null || options === void 0 ? void 0 : options.imageFlipX) || (options === null || options === void 0 ? void 0 : options.imageFlipY) || (options === null || options === void 0 ? void 0 : options.imageX) || (options === null || options === void 0 ? void 0 : options.imageY)) {
-            image = this.transformImage(image, (_j = options === null || options === void 0 ? void 0 : options.imageRotate) !== null && _j !== void 0 ? _j : 0, (_k = options === null || options === void 0 ? void 0 : options.imageFlipX) !== null && _k !== void 0 ? _k : false, (_l = options === null || options === void 0 ? void 0 : options.imageFlipY) !== null && _l !== void 0 ? _l : false, (_m = options === null || options === void 0 ? void 0 : options.imageX) !== null && _m !== void 0 ? _m : 0, (_o = options === null || options === void 0 ? void 0 : options.imageY) !== null && _o !== void 0 ? _o : 0, (_p = options === null || options === void 0 ? void 0 : options.imageWidth) !== null && _p !== void 0 ? _p : image.width, (_q = options === null || options === void 0 ? void 0 : options.imageHeight) !== null && _q !== void 0 ? _q : image.height);
+        var needTransform = (options === null || options === void 0 ? void 0 : options.imageRotate) ||
+            (options === null || options === void 0 ? void 0 : options.imageFlipX) ||
+            (options === null || options === void 0 ? void 0 : options.imageFlipY) ||
+            (options === null || options === void 0 ? void 0 : options.imageX) ||
+            (options === null || options === void 0 ? void 0 : options.imageY) ||
+            (options === null || options === void 0 ? void 0 : options.imageAlphaColor) ||
+            (options === null || options === void 0 ? void 0 : options.imageAlphaTolerance);
+        if (needTransform) {
+            image = this.transformImage(image, (_j = options === null || options === void 0 ? void 0 : options.imageRotate) !== null && _j !== void 0 ? _j : 0, (_k = options === null || options === void 0 ? void 0 : options.imageFlipX) !== null && _k !== void 0 ? _k : false, (_l = options === null || options === void 0 ? void 0 : options.imageFlipY) !== null && _l !== void 0 ? _l : false, (_m = options === null || options === void 0 ? void 0 : options.imageX) !== null && _m !== void 0 ? _m : 0, (_o = options === null || options === void 0 ? void 0 : options.imageY) !== null && _o !== void 0 ? _o : 0, (_p = options === null || options === void 0 ? void 0 : options.imageWidth) !== null && _p !== void 0 ? _p : image.width, (_q = options === null || options === void 0 ? void 0 : options.imageHeight) !== null && _q !== void 0 ? _q : image.height, (_r = options === null || options === void 0 ? void 0 : options.imageAlphaColor) !== null && _r !== void 0 ? _r : null, (_s = options === null || options === void 0 ? void 0 : options.imageAlphaTolerance) !== null && _s !== void 0 ? _s : 0);
         }
         var costume = new Costume();
         costume.image = image;
@@ -2011,15 +2021,17 @@ var Sprite = (function () {
     Sprite.prototype.ready = function () {
         this.tryDoOnReady();
     };
-    Sprite.prototype.transformImage = function (srcImage, rotate, flipX, flipY, imageX, imageY, imageWidth, imageHeight) {
+    Sprite.prototype.transformImage = function (srcImage, rotate, flipX, flipY, imageX, imageY, imageWidth, imageHeight, imageAlphaColor, imageAlphaTolerance) {
         if (flipX === void 0) { flipX = false; }
         if (flipY === void 0) { flipY = false; }
         if (imageX === void 0) { imageX = 0; }
         if (imageY === void 0) { imageY = 0; }
         if (imageWidth === void 0) { imageWidth = null; }
         if (imageHeight === void 0) { imageHeight = null; }
-        var canvas = document.createElement('canvas');
-        var context = canvas.getContext('2d');
+        if (imageAlphaColor === void 0) { imageAlphaColor = null; }
+        if (imageAlphaTolerance === void 0) { imageAlphaTolerance = 0; }
+        var imageCanvas = document.createElement('canvas');
+        var context = imageCanvas.getContext('2d');
         var radians = rotate * Math.PI / 180;
         var canvasWidth = imageWidth !== null && imageWidth !== void 0 ? imageWidth : (srcImage instanceof HTMLImageElement ? srcImage.naturalWidth : srcImage.width);
         var canvasHeight = imageHeight !== null && imageHeight !== void 0 ? imageHeight : (srcImage instanceof HTMLImageElement ? srcImage.naturalHeight : srcImage.height);
@@ -2029,9 +2041,9 @@ var Sprite = (function () {
             canvasWidth = canvasWidth * absCos + canvasHeight * absSin;
             canvasHeight = canvasWidth * absSin + canvasHeight * absCos;
         }
-        canvas.width = Math.ceil(canvasWidth);
-        canvas.height = Math.ceil(canvasHeight);
-        context.translate(canvas.width / 2, canvas.height / 2);
+        imageCanvas.width = Math.ceil(canvasWidth);
+        imageCanvas.height = Math.ceil(canvasHeight);
+        context.translate(imageCanvas.width / 2, imageCanvas.height / 2);
         if (rotate) {
             context.rotate(radians);
         }
@@ -2041,7 +2053,59 @@ var Sprite = (function () {
         var offsetX = -imageWidth / 2;
         var offsetY = -imageHeight / 2;
         context.drawImage(srcImage, imageX, imageY, imageWidth, imageHeight, offsetX, offsetY, imageWidth, imageHeight);
+        if (imageAlphaColor) {
+            imageCanvas = this.setAlpha(imageCanvas, imageAlphaColor, imageAlphaTolerance !== null && imageAlphaTolerance !== void 0 ? imageAlphaTolerance : 0);
+        }
+        return imageCanvas;
+    };
+    Sprite.prototype.setAlpha = function (image, targetColor, tolerance) {
+        if (tolerance === void 0) { tolerance = 0; }
+        var canvas = document.createElement('canvas');
+        var context = canvas.getContext('2d');
+        if (!context) {
+            throw new Error('Canvas context is not available');
+        }
+        canvas.width = image.width;
+        canvas.height = image.height;
+        var imageData = image.getContext('2d').getImageData(0, 0, image.width, image.height);
+        var data = imageData.data;
+        var targetRGB;
+        if (typeof targetColor === 'string') {
+            targetRGB = this.hexToRgb(targetColor);
+            if (!targetRGB) {
+                throw new Error("Invalid HEX color: ".concat(targetColor));
+            }
+        }
+        else {
+            targetRGB = targetColor;
+        }
+        for (var i = 0; i < data.length; i += 4) {
+            var r = data[i];
+            var g = data[i + 1];
+            var b = data[i + 2];
+            if (Math.abs(r - targetRGB.r) <= tolerance &&
+                Math.abs(g - targetRGB.g) <= tolerance &&
+                Math.abs(b - targetRGB.b) <= tolerance) {
+                data[i + 3] = 0;
+            }
+        }
+        context.putImageData(imageData, 0, 0);
         return canvas;
+    };
+    Sprite.prototype.hexToRgb = function (hex) {
+        hex = hex.replace(/^#/, '');
+        if (hex.length === 3) {
+            hex = hex.split('').map(function (char) { return char + char; }).join('');
+        }
+        if (hex.length !== 6) {
+            return null;
+        }
+        var bigint = parseInt(hex, 16);
+        return {
+            r: (bigint >> 16) & 255,
+            g: (bigint >> 8) & 255,
+            b: bigint & 255,
+        };
     };
     Sprite.prototype.cloneCostume = function (costume, name) {
         this.costumes.push(costume);
