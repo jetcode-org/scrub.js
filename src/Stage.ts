@@ -229,16 +229,31 @@ class Stage {
             radiusOffsetY = (radius - (costume.height / 2)) * sprite.size / 100;
         }
 
+        const needSave =
+            (rotateStyle === 'normal' && direction !== 0) ||
+            (rotateStyle === 'leftRight' && direction > 180) ||
+            sprite.opacity !== null ||
+            (sprite.filter !== null && sprite.filter != '');
+
+        if (needSave) {
+            this.context.save();
+        }
+
+        if (sprite.opacity !== null) {
+            this.context.globalAlpha = sprite.opacity;
+        }
+
+        if (sprite.filter) {
+            this.context.filter = sprite.filter;
+        }
 
         if (rotateStyle === 'normal' && direction !== 0) {
-            this.context.save();
             this.context.translate(dstX + dstWidth / 2, dstY + dstHeight / 2);
             this.context.rotate(sprite.angleRadians);
             this.context.translate(-dstX - dstWidth / 2, -dstY - dstHeight / 2);
         }
 
         if (rotateStyle === 'leftRight' && direction > 180) {
-            this.context.save();
             this.context.translate(dstX + dstWidth / 2, 0);
             this.context.scale(-1, 1);
 
@@ -270,7 +285,7 @@ class Stage {
             );
         }
 
-        if (rotateStyle === 'normal' && direction !== 0 || rotateStyle === 'leftRight' && direction > 180) {
+        if (needSave) {
             this.context.restore();
         }
     }

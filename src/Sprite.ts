@@ -26,6 +26,8 @@ class Sprite {
     private _direction = 0;
     private _size = 100;
     private _hidden = false;
+    private _opacity = null;
+    private _filter = null;
     protected _deleted = false;
     private _stopped = true;
     private _layer: number;
@@ -1129,6 +1131,27 @@ class Sprite {
 
     get hidden(): boolean {
         return this._hidden;
+    }
+
+    set opacity(value: number|null) {
+        if (value === null) {
+            this._opacity = null;
+
+        } else {
+            this._opacity = Math.min(1, Math.max(0, value));
+        }
+    }
+
+    get opacity(): number|null {
+        return this._opacity;
+    }
+
+    set filter(value: string|null) {
+        this._filter = value;
+    }
+
+    get filter(): string|null {
+        return this._filter;
     }
 
     get deleted(): boolean {
