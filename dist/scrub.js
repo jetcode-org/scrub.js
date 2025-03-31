@@ -1547,6 +1547,9 @@ var Sprite = (function () {
         }
     };
     Sprite.prototype.setRectCollider = function (width, height) {
+        if (this.collider) {
+            this.removeCollider();
+        }
         var angle = 0;
         if (this.rotateStyle != 'leftRight') {
             angle = this.direction * 3.14 / 180;
@@ -1565,6 +1568,9 @@ var Sprite = (function () {
     };
     Sprite.prototype.setPolygonCollider = function (points) {
         if (points === void 0) { points = []; }
+        if (this.collider) {
+            this.removeCollider();
+        }
         var angleRadians = 0;
         if (this.rotateStyle != 'leftRight') {
             angleRadians = this.angleRadians;
@@ -1583,6 +1589,9 @@ var Sprite = (function () {
         this.updateColliderPosition();
     };
     Sprite.prototype.setCircleCollider = function (radius) {
+        if (this.collider) {
+            this.removeCollider();
+        }
         this.collider = new CircleCollider(this.x, this.y, radius, this.size / 100);
         this._width = radius * 2;
         this._height = radius * 2;
@@ -1629,6 +1638,74 @@ var Sprite = (function () {
                 if (potentialsColliders_1_1 && !potentialsColliders_1_1.done && (_a = potentialsColliders_1.return)) _a.call(potentialsColliders_1);
             }
             finally { if (e_12) throw e_12.error; }
+        }
+        return false;
+    };
+    Sprite.prototype.touchTagAll = function (nameOfTag) {
+        var e_13, _a;
+        if (this.hidden || this.stopped || this.deleted || !this.collider) {
+            return false;
+        }
+        var potentialsColliders = this.collider.potentials();
+        if (!potentialsColliders.length) {
+            return false;
+        }
+        var collidedSprites = [];
+        try {
+            for (var potentialsColliders_2 = __values(potentialsColliders), potentialsColliders_2_1 = potentialsColliders_2.next(); !potentialsColliders_2_1.done; potentialsColliders_2_1 = potentialsColliders_2.next()) {
+                var potentialCollider = potentialsColliders_2_1.value;
+                var potentialSprite = potentialCollider.parentSprite;
+                if (potentialSprite && potentialSprite.hasTag(nameOfTag)) {
+                    if (!potentialSprite.hidden &&
+                        !potentialSprite.stopped &&
+                        !potentialSprite.deleted &&
+                        potentialSprite.getCollider() &&
+                        this.collider.collides(potentialCollider, this.collisionResult)) {
+                        collidedSprites.push(potentialSprite);
+                    }
+                }
+            }
+        }
+        catch (e_13_1) { e_13 = { error: e_13_1 }; }
+        finally {
+            try {
+                if (potentialsColliders_2_1 && !potentialsColliders_2_1.done && (_a = potentialsColliders_2.return)) _a.call(potentialsColliders_2);
+            }
+            finally { if (e_13) throw e_13.error; }
+        }
+        if (!collidedSprites.length) {
+            return collidedSprites;
+        }
+        return false;
+    };
+    Sprite.prototype.touchAnySprite = function () {
+        var e_14, _a;
+        if (this.hidden || this.stopped || this.deleted || !this.collider) {
+            return false;
+        }
+        var potentialsColliders = this.collider.potentials();
+        if (!potentialsColliders.length) {
+            return false;
+        }
+        try {
+            for (var potentialsColliders_3 = __values(potentialsColliders), potentialsColliders_3_1 = potentialsColliders_3.next(); !potentialsColliders_3_1.done; potentialsColliders_3_1 = potentialsColliders_3.next()) {
+                var potentialCollider = potentialsColliders_3_1.value;
+                var potentialSprite = potentialCollider.parentSprite;
+                if (!potentialSprite.hidden &&
+                    !potentialSprite.stopped &&
+                    !potentialSprite.deleted &&
+                    potentialSprite.getCollider() &&
+                    this.collider.collides(potentialCollider, this.collisionResult)) {
+                    return true;
+                }
+            }
+        }
+        catch (e_14_1) { e_14 = { error: e_14_1 }; }
+        finally {
+            try {
+                if (potentialsColliders_3_1 && !potentialsColliders_3_1.done && (_a = potentialsColliders_3.return)) _a.call(potentialsColliders_3);
+            }
+            finally { if (e_14) throw e_14.error; }
         }
         return false;
     };
@@ -1980,7 +2057,7 @@ var Sprite = (function () {
         }
     };
     Sprite.prototype.tryDoOnReady = function () {
-        var e_13, _a;
+        var e_15, _a;
         if (this.onReadyPending && this.isReady()) {
             this.onReadyPending = false;
             if (this.costumes.length && this.costume === null) {
@@ -1996,12 +2073,12 @@ var Sprite = (function () {
                         callback();
                     }
                 }
-                catch (e_13_1) { e_13 = { error: e_13_1 }; }
+                catch (e_15_1) { e_15 = { error: e_15_1 }; }
                 finally {
                     try {
                         if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
                     }
-                    finally { if (e_13) throw e_13.error; }
+                    finally { if (e_15) throw e_15.error; }
                 }
                 this.onReadyCallbacks = [];
             }
@@ -2016,7 +2093,7 @@ var Sprite = (function () {
         this.updateColliderPosition();
     };
     Sprite.prototype.calculateCentroid = function (points) {
-        var e_14, _a;
+        var e_16, _a;
         var xSum = 0;
         var ySum = 0;
         try {
@@ -2026,19 +2103,19 @@ var Sprite = (function () {
                 ySum += point[1];
             }
         }
-        catch (e_14_1) { e_14 = { error: e_14_1 }; }
+        catch (e_16_1) { e_16 = { error: e_16_1 }; }
         finally {
             try {
                 if (points_1_1 && !points_1_1.done && (_a = points_1.return)) _a.call(points_1);
             }
-            finally { if (e_14) throw e_14.error; }
+            finally { if (e_16) throw e_16.error; }
         }
         var x = xSum / points.length;
         var y = ySum / points.length;
         return { x: x, y: y };
     };
     Sprite.prototype.calculatePolygonSize = function (points) {
-        var e_15, _a;
+        var e_17, _a;
         var minX = points[0][0];
         var minY = points[0][1];
         var maxX = points[0][0];
@@ -2056,12 +2133,12 @@ var Sprite = (function () {
                     maxY = vertex[1];
             }
         }
-        catch (e_15_1) { e_15 = { error: e_15_1 }; }
+        catch (e_17_1) { e_17 = { error: e_17_1 }; }
         finally {
             try {
                 if (points_2_1 && !points_2_1.done && (_a = points_2.return)) _a.call(points_2);
             }
-            finally { if (e_15) throw e_15.error; }
+            finally { if (e_17) throw e_17.error; }
         }
         var width = maxX - minX;
         var height = maxY - minY;
@@ -2232,7 +2309,7 @@ var MultiplayerGame = (function (_super) {
         }
     };
     MultiplayerGame.prototype.stop = function () {
-        var e_16, _a;
+        var e_18, _a;
         _super.prototype.stop.call(this);
         try {
             for (var _b = __values(this.players), _c = _b.next(); !_c.done; _c = _b.next()) {
@@ -2240,12 +2317,12 @@ var MultiplayerGame = (function (_super) {
                 player.delete();
             }
         }
-        catch (e_16_1) { e_16 = { error: e_16_1 }; }
+        catch (e_18_1) { e_18 = { error: e_18_1 }; }
         finally {
             try {
                 if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
             }
-            finally { if (e_16) throw e_16.error; }
+            finally { if (e_18) throw e_18.error; }
         }
         this.players = [];
     };
@@ -2279,13 +2356,13 @@ var MultiplayerGame = (function (_super) {
         return __spreadArray(__spreadArray(__spreadArray([], __read(multiplayerSprites), false), __read(players), false), __read(sharedObjects), false);
     };
     MultiplayerGame.prototype.syncObjects = function (syncData, deltaTime) {
-        var e_17, _a, e_18, _b;
+        var e_19, _a, e_20, _b;
         var gameAllSyncObjects = this.getSyncObjects();
         try {
             for (var _c = __values(Object.entries(syncData)), _d = _c.next(); !_d.done; _d = _c.next()) {
                 var _e = __read(_d.value, 2), syncPackName = _e[0], syncObjectsData = _e[1];
                 try {
-                    for (var gameAllSyncObjects_1 = (e_18 = void 0, __values(gameAllSyncObjects)), gameAllSyncObjects_1_1 = gameAllSyncObjects_1.next(); !gameAllSyncObjects_1_1.done; gameAllSyncObjects_1_1 = gameAllSyncObjects_1.next()) {
+                    for (var gameAllSyncObjects_1 = (e_20 = void 0, __values(gameAllSyncObjects)), gameAllSyncObjects_1_1 = gameAllSyncObjects_1.next(); !gameAllSyncObjects_1_1.done; gameAllSyncObjects_1_1 = gameAllSyncObjects_1.next()) {
                         var syncObject = gameAllSyncObjects_1_1.value;
                         if (syncObjectsData[syncObject.getMultiplayerName()]) {
                             var syncPackData = syncObjectsData[syncObject.getMultiplayerName()];
@@ -2293,25 +2370,25 @@ var MultiplayerGame = (function (_super) {
                         }
                     }
                 }
-                catch (e_18_1) { e_18 = { error: e_18_1 }; }
+                catch (e_20_1) { e_20 = { error: e_20_1 }; }
                 finally {
                     try {
                         if (gameAllSyncObjects_1_1 && !gameAllSyncObjects_1_1.done && (_b = gameAllSyncObjects_1.return)) _b.call(gameAllSyncObjects_1);
                     }
-                    finally { if (e_18) throw e_18.error; }
+                    finally { if (e_20) throw e_20.error; }
                 }
             }
         }
-        catch (e_17_1) { e_17 = { error: e_17_1 }; }
+        catch (e_19_1) { e_19 = { error: e_19_1 }; }
         finally {
             try {
                 if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
             }
-            finally { if (e_17) throw e_17.error; }
+            finally { if (e_19) throw e_19.error; }
         }
     };
     MultiplayerGame.prototype.packSyncData = function (packName, syncObjects) {
-        var e_19, _a;
+        var e_21, _a;
         var syncObjectsData = {};
         try {
             for (var syncObjects_1 = __values(syncObjects), syncObjects_1_1 = syncObjects_1.next(); !syncObjects_1_1.done; syncObjects_1_1 = syncObjects_1.next()) {
@@ -2320,12 +2397,12 @@ var MultiplayerGame = (function (_super) {
                 syncObjectsData[syncObject.getMultiplayerName()]['syncId'] = syncObject.increaseSyncId();
             }
         }
-        catch (e_19_1) { e_19 = { error: e_19_1 }; }
+        catch (e_21_1) { e_21 = { error: e_21_1 }; }
         finally {
             try {
                 if (syncObjects_1_1 && !syncObjects_1_1.done && (_a = syncObjects_1.return)) _a.call(syncObjects_1);
             }
-            finally { if (e_19) throw e_19.error; }
+            finally { if (e_21) throw e_21.error; }
         }
         var result = {};
         result[packName] = syncObjectsData;
@@ -2452,7 +2529,7 @@ var MultiplayerSprite = (function (_super) {
         return Math.random().toString(36).slice(2) + '-' + Math.random().toString(36).slice(2);
     };
     MultiplayerSprite.prototype.getCustomerProperties = function () {
-        var e_20, _a;
+        var e_22, _a;
         var data = {};
         try {
             for (var _b = __values(Object.keys(this)), _c = _b.next(); !_c.done; _c = _b.next()) {
@@ -2463,12 +2540,12 @@ var MultiplayerSprite = (function (_super) {
                 data[key] = this[key];
             }
         }
-        catch (e_20_1) { e_20 = { error: e_20_1 }; }
+        catch (e_22_1) { e_22 = { error: e_22_1 }; }
         finally {
             try {
                 if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
             }
-            finally { if (e_20) throw e_20.error; }
+            finally { if (e_22) throw e_22.error; }
         }
         return data;
     };
@@ -2537,7 +2614,7 @@ var OrphanSharedData = (function () {
         return this.parent.increaseSyncId();
     };
     OrphanSharedData.prototype.getSyncData = function () {
-        var e_21, _a;
+        var e_23, _a;
         var syncData = {};
         try {
             for (var _b = __values(this.properties), _c = _b.next(); !_c.done; _c = _b.next()) {
@@ -2547,12 +2624,12 @@ var OrphanSharedData = (function () {
                 }
             }
         }
-        catch (e_21_1) { e_21 = { error: e_21_1 }; }
+        catch (e_23_1) { e_23 = { error: e_23_1 }; }
         finally {
             try {
                 if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
             }
-            finally { if (e_21) throw e_21.error; }
+            finally { if (e_23) throw e_23.error; }
         }
         return syncData;
     };
@@ -2683,7 +2760,7 @@ var Player = (function () {
         return this.syncId;
     };
     Player.prototype.getSyncData = function () {
-        var e_22, _a;
+        var e_24, _a;
         var data = {};
         try {
             for (var _b = __values(Object.keys(this)), _c = _b.next(); !_c.done; _c = _b.next()) {
@@ -2694,12 +2771,12 @@ var Player = (function () {
                 data[key] = this[key];
             }
         }
-        catch (e_22_1) { e_22 = { error: e_22_1 }; }
+        catch (e_24_1) { e_24 = { error: e_24_1 }; }
         finally {
             try {
                 if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
             }
-            finally { if (e_22) throw e_22.error; }
+            finally { if (e_24) throw e_24.error; }
         }
         return data;
     };
@@ -2813,7 +2890,7 @@ var SharedData = (function () {
         return this.syncId;
     };
     SharedData.prototype.getSyncData = function () {
-        var e_23, _a;
+        var e_25, _a;
         var data = {};
         try {
             for (var _b = __values(Object.keys(this)), _c = _b.next(); !_c.done; _c = _b.next()) {
@@ -2821,12 +2898,12 @@ var SharedData = (function () {
                 data[key] = this[key];
             }
         }
-        catch (e_23_1) { e_23 = { error: e_23_1 }; }
+        catch (e_25_1) { e_25 = { error: e_25_1 }; }
         finally {
             try {
                 if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
             }
-            finally { if (e_23) throw e_23.error; }
+            finally { if (e_25) throw e_25.error; }
         }
         return data;
     };
@@ -3038,15 +3115,8 @@ var Stage = (function () {
         var dstHeight = sprite.sourceHeight;
         var direction = sprite.direction;
         var rotateStyle = sprite.rotateStyle;
-        var radius = 0;
-        var radiusOffsetX = 0;
-        var radiusOffsetY = 0;
-        var collider = sprite.getCollider();
-        if (collider instanceof CircleCollider) {
-            radius = collider.radius;
-            radiusOffsetX = (radius - (costume.width / 2)) * sprite.size / 100;
-            radiusOffsetY = (radius - (costume.height / 2)) * sprite.size / 100;
-        }
+        var colliderOffsetX = (sprite.sourceWidth - costume.width * sprite.size / 100) / 2;
+        var colliderOffsetY = (sprite.sourceHeight - costume.height * sprite.size / 100) / 2;
         var needSave = (rotateStyle === 'normal' && direction !== 0) ||
             (rotateStyle === 'leftRight' && direction > 180) ||
             sprite.opacity !== null ||
@@ -3068,10 +3138,10 @@ var Stage = (function () {
         if (rotateStyle === 'leftRight' && direction > 180) {
             this.context.translate(dstX + dstWidth / 2, 0);
             this.context.scale(-1, 1);
-            this.context.drawImage(image, 0, 0, costume.width, costume.height, (-dstWidth / 2) + (costume.colliderPaddingLeft * sprite.size / 100) + radiusOffsetX, dstY + (costume.colliderPaddingTop * sprite.size / 100) + radiusOffsetY, costume.width * sprite.size / 100, costume.height * sprite.size / 100);
+            this.context.drawImage(image, 0, 0, costume.width, costume.height, (-dstWidth / 2) + (costume.colliderPaddingLeft * sprite.size / 100) + colliderOffsetX, dstY + (costume.colliderPaddingTop * sprite.size / 100) + colliderOffsetY, costume.width * sprite.size / 100, costume.height * sprite.size / 100);
         }
         else {
-            this.context.drawImage(image, 0, 0, costume.width, costume.height, dstX + (costume.colliderPaddingLeft * sprite.size / 100) + radiusOffsetX, dstY + (costume.colliderPaddingTop * sprite.size / 100) + radiusOffsetY, costume.width * sprite.size / 100, costume.height * sprite.size / 100);
+            this.context.drawImage(image, 0, 0, costume.width, costume.height, dstX + (costume.colliderPaddingLeft * sprite.size / 100) + colliderOffsetX, dstY + (costume.colliderPaddingTop * sprite.size / 100) + colliderOffsetY, costume.width * sprite.size / 100, costume.height * sprite.size / 100);
         }
         if (needSave) {
             this.context.restore();
@@ -3113,7 +3183,7 @@ var Stage = (function () {
         layerDrawings.push(callback);
     };
     Stage.prototype.render = function () {
-        var e_24, _a, e_25, _b, e_26, _c;
+        var e_26, _a, e_27, _b, e_28, _c;
         var _this = this;
         this.update();
         this.collisionSystem.update();
@@ -3130,23 +3200,23 @@ var Stage = (function () {
                 if (this.drawings.has(layer)) {
                     var layerDrawings = this.drawings.get(layer);
                     try {
-                        for (var layerDrawings_1 = (e_25 = void 0, __values(layerDrawings)), layerDrawings_1_1 = layerDrawings_1.next(); !layerDrawings_1_1.done; layerDrawings_1_1 = layerDrawings_1.next()) {
+                        for (var layerDrawings_1 = (e_27 = void 0, __values(layerDrawings)), layerDrawings_1_1 = layerDrawings_1.next(); !layerDrawings_1_1.done; layerDrawings_1_1 = layerDrawings_1.next()) {
                             var drawing = layerDrawings_1_1.value;
                             drawing(this.context, this);
                         }
                     }
-                    catch (e_25_1) { e_25 = { error: e_25_1 }; }
+                    catch (e_27_1) { e_27 = { error: e_27_1 }; }
                     finally {
                         try {
                             if (layerDrawings_1_1 && !layerDrawings_1_1.done && (_b = layerDrawings_1.return)) _b.call(layerDrawings_1);
                         }
-                        finally { if (e_25) throw e_25.error; }
+                        finally { if (e_27) throw e_27.error; }
                     }
                 }
                 if (this.sprites.has(layer)) {
                     var layerSprites = this.sprites.get(layer);
                     var _loop_1 = function (sprite) {
-                        var e_27, _d;
+                        var e_29, _d;
                         if (sprite.hidden) {
                             return "continue";
                         }
@@ -3196,42 +3266,42 @@ var Stage = (function () {
                             this_1.drawSprite(sprite);
                         }
                         try {
-                            for (var _e = (e_27 = void 0, __values(sprite.drawings)), _f = _e.next(); !_f.done; _f = _e.next()) {
+                            for (var _e = (e_29 = void 0, __values(sprite.drawings)), _f = _e.next(); !_f.done; _f = _e.next()) {
                                 var drawing = _f.value;
                                 drawing(this_1.context, sprite);
                             }
                         }
-                        catch (e_27_1) { e_27 = { error: e_27_1 }; }
+                        catch (e_29_1) { e_29 = { error: e_29_1 }; }
                         finally {
                             try {
                                 if (_f && !_f.done && (_d = _e.return)) _d.call(_e);
                             }
-                            finally { if (e_27) throw e_27.error; }
+                            finally { if (e_29) throw e_29.error; }
                         }
                     };
                     var this_1 = this;
                     try {
-                        for (var layerSprites_1 = (e_26 = void 0, __values(layerSprites)), layerSprites_1_1 = layerSprites_1.next(); !layerSprites_1_1.done; layerSprites_1_1 = layerSprites_1.next()) {
+                        for (var layerSprites_1 = (e_28 = void 0, __values(layerSprites)), layerSprites_1_1 = layerSprites_1.next(); !layerSprites_1_1.done; layerSprites_1_1 = layerSprites_1.next()) {
                             var sprite = layerSprites_1_1.value;
                             _loop_1(sprite);
                         }
                     }
-                    catch (e_26_1) { e_26 = { error: e_26_1 }; }
+                    catch (e_28_1) { e_28 = { error: e_28_1 }; }
                     finally {
                         try {
                             if (layerSprites_1_1 && !layerSprites_1_1.done && (_c = layerSprites_1.return)) _c.call(layerSprites_1);
                         }
-                        finally { if (e_26) throw e_26.error; }
+                        finally { if (e_28) throw e_28.error; }
                     }
                 }
             }
         }
-        catch (e_24_1) { e_24 = { error: e_24_1 }; }
+        catch (e_26_1) { e_26 = { error: e_26_1 }; }
         finally {
             try {
                 if (layers_1_1 && !layers_1_1.done && (_a = layers_1.return)) _a.call(layers_1);
             }
-            finally { if (e_24) throw e_24.error; }
+            finally { if (e_26) throw e_26.error; }
         }
         if (this.game.debugCollider) {
             this.context.strokeStyle = this.game.debugColor;
@@ -3265,53 +3335,21 @@ var Stage = (function () {
         return this.addedSprites == this.loadedSprites && this.pendingBackgrounds === 0;
     };
     Stage.prototype.run = function () {
-        var e_28, _a, e_29, _b;
+        var e_30, _a, e_31, _b;
         this._stopped = false;
         try {
             for (var _c = __values(this.sprites.values()), _d = _c.next(); !_d.done; _d = _c.next()) {
                 var layerSprites = _d.value;
                 try {
-                    for (var layerSprites_2 = (e_29 = void 0, __values(layerSprites)), layerSprites_2_1 = layerSprites_2.next(); !layerSprites_2_1.done; layerSprites_2_1 = layerSprites_2.next()) {
+                    for (var layerSprites_2 = (e_31 = void 0, __values(layerSprites)), layerSprites_2_1 = layerSprites_2.next(); !layerSprites_2_1.done; layerSprites_2_1 = layerSprites_2.next()) {
                         var sprite = layerSprites_2_1.value;
                         sprite.run();
-                    }
-                }
-                catch (e_29_1) { e_29 = { error: e_29_1 }; }
-                finally {
-                    try {
-                        if (layerSprites_2_1 && !layerSprites_2_1.done && (_b = layerSprites_2.return)) _b.call(layerSprites_2);
-                    }
-                    finally { if (e_29) throw e_29.error; }
-                }
-            }
-        }
-        catch (e_28_1) { e_28 = { error: e_28_1 }; }
-        finally {
-            try {
-                if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
-            }
-            finally { if (e_28) throw e_28.error; }
-        }
-        this.pendingRun = true;
-        this.tryDoRun();
-    };
-    Stage.prototype.ready = function () {
-        var e_30, _a, e_31, _b;
-        this.tryDoOnReady();
-        this.tryDoRun();
-        try {
-            for (var _c = __values(this.sprites.values()), _d = _c.next(); !_d.done; _d = _c.next()) {
-                var layerSprites = _d.value;
-                try {
-                    for (var layerSprites_3 = (e_31 = void 0, __values(layerSprites)), layerSprites_3_1 = layerSprites_3.next(); !layerSprites_3_1.done; layerSprites_3_1 = layerSprites_3.next()) {
-                        var sprite = layerSprites_3_1.value;
-                        sprite.ready();
                     }
                 }
                 catch (e_31_1) { e_31 = { error: e_31_1 }; }
                 finally {
                     try {
-                        if (layerSprites_3_1 && !layerSprites_3_1.done && (_b = layerSprites_3.return)) _b.call(layerSprites_3);
+                        if (layerSprites_2_1 && !layerSprites_2_1.done && (_b = layerSprites_2.return)) _b.call(layerSprites_2);
                     }
                     finally { if (e_31) throw e_31.error; }
                 }
@@ -3324,30 +3362,26 @@ var Stage = (function () {
             }
             finally { if (e_30) throw e_30.error; }
         }
+        this.pendingRun = true;
+        this.tryDoRun();
     };
-    Stage.prototype.onStart = function (onStartCallback) {
-        this.onStartCallbacks.push(onStartCallback);
-    };
-    Stage.prototype.onReady = function (callback) {
-        this.onReadyCallbacks.push(callback);
-    };
-    Stage.prototype.stop = function () {
+    Stage.prototype.ready = function () {
         var e_32, _a, e_33, _b;
-        this._running = false;
-        this._stopped = true;
+        this.tryDoOnReady();
+        this.tryDoRun();
         try {
             for (var _c = __values(this.sprites.values()), _d = _c.next(); !_d.done; _d = _c.next()) {
                 var layerSprites = _d.value;
                 try {
-                    for (var layerSprites_4 = (e_33 = void 0, __values(layerSprites)), layerSprites_4_1 = layerSprites_4.next(); !layerSprites_4_1.done; layerSprites_4_1 = layerSprites_4.next()) {
-                        var sprite = layerSprites_4_1.value;
-                        sprite.stop();
+                    for (var layerSprites_3 = (e_33 = void 0, __values(layerSprites)), layerSprites_3_1 = layerSprites_3.next(); !layerSprites_3_1.done; layerSprites_3_1 = layerSprites_3.next()) {
+                        var sprite = layerSprites_3_1.value;
+                        sprite.ready();
                     }
                 }
                 catch (e_33_1) { e_33 = { error: e_33_1 }; }
                 finally {
                     try {
-                        if (layerSprites_4_1 && !layerSprites_4_1.done && (_b = layerSprites_4.return)) _b.call(layerSprites_4);
+                        if (layerSprites_3_1 && !layerSprites_3_1.done && (_b = layerSprites_3.return)) _b.call(layerSprites_3);
                     }
                     finally { if (e_33) throw e_33.error; }
                 }
@@ -3359,6 +3393,42 @@ var Stage = (function () {
                 if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
             }
             finally { if (e_32) throw e_32.error; }
+        }
+    };
+    Stage.prototype.onStart = function (onStartCallback) {
+        this.onStartCallbacks.push(onStartCallback);
+    };
+    Stage.prototype.onReady = function (callback) {
+        this.onReadyCallbacks.push(callback);
+    };
+    Stage.prototype.stop = function () {
+        var e_34, _a, e_35, _b;
+        this._running = false;
+        this._stopped = true;
+        try {
+            for (var _c = __values(this.sprites.values()), _d = _c.next(); !_d.done; _d = _c.next()) {
+                var layerSprites = _d.value;
+                try {
+                    for (var layerSprites_4 = (e_35 = void 0, __values(layerSprites)), layerSprites_4_1 = layerSprites_4.next(); !layerSprites_4_1.done; layerSprites_4_1 = layerSprites_4.next()) {
+                        var sprite = layerSprites_4_1.value;
+                        sprite.stop();
+                    }
+                }
+                catch (e_35_1) { e_35 = { error: e_35_1 }; }
+                finally {
+                    try {
+                        if (layerSprites_4_1 && !layerSprites_4_1.done && (_b = layerSprites_4.return)) _b.call(layerSprites_4);
+                    }
+                    finally { if (e_35) throw e_35.error; }
+                }
+            }
+        }
+        catch (e_34_1) { e_34 = { error: e_34_1 }; }
+        finally {
+            try {
+                if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
+            }
+            finally { if (e_34) throw e_34.error; }
         }
         this.stoppedTime = Date.now();
     };
@@ -3376,7 +3446,7 @@ var Stage = (function () {
         });
     };
     Stage.prototype.tryDoOnReady = function () {
-        var e_34, _a;
+        var e_36, _a;
         if (this.onReadyPending && this.isReady()) {
             this.onReadyPending = false;
             if (this.backgrounds.length && this.backgroundIndex === null) {
@@ -3389,12 +3459,12 @@ var Stage = (function () {
                         callback();
                     }
                 }
-                catch (e_34_1) { e_34 = { error: e_34_1 }; }
+                catch (e_36_1) { e_36 = { error: e_36_1 }; }
                 finally {
                     try {
                         if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
                     }
-                    finally { if (e_34) throw e_34.error; }
+                    finally { if (e_36) throw e_36.error; }
                 }
                 this.onReadyCallbacks = [];
             }
@@ -3404,7 +3474,7 @@ var Stage = (function () {
         }
     };
     Stage.prototype.doOnStart = function () {
-        var e_35, _a;
+        var e_37, _a;
         var _loop_2 = function (callback) {
             setTimeout(function () {
                 callback();
@@ -3416,12 +3486,12 @@ var Stage = (function () {
                 _loop_2(callback);
             }
         }
-        catch (e_35_1) { e_35 = { error: e_35_1 }; }
+        catch (e_37_1) { e_37 = { error: e_37_1 }; }
         finally {
             try {
                 if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
             }
-            finally { if (e_35) throw e_35.error; }
+            finally { if (e_37) throw e_37.error; }
         }
     };
     Stage.prototype.tryDoRun = function () {
@@ -3448,7 +3518,7 @@ var Stage = (function () {
         var _this = this;
         this.scheduledCallbacks = this.scheduledCallbacks.filter(this.scheduledCallbackExecutor.execute(Date.now(), this.diffTime));
         this.sprites.forEach(function (layerSprites, layer) {
-            var e_36, _a;
+            var e_38, _a;
             try {
                 for (var layerSprites_5 = __values(layerSprites), layerSprites_5_1 = layerSprites_5.next(); !layerSprites_5_1.done; layerSprites_5_1 = layerSprites_5.next()) {
                     var sprite = layerSprites_5_1.value;
@@ -3459,12 +3529,12 @@ var Stage = (function () {
                     sprite.update(_this.diffTime);
                 }
             }
-            catch (e_36_1) { e_36 = { error: e_36_1 }; }
+            catch (e_38_1) { e_38 = { error: e_38_1 }; }
             finally {
                 try {
                     if (layerSprites_5_1 && !layerSprites_5_1.done && (_a = layerSprites_5.return)) _a.call(layerSprites_5);
                 }
-                finally { if (e_36) throw e_36.error; }
+                finally { if (e_38) throw e_38.error; }
             }
         });
         this.diffTime = 0;
@@ -3939,7 +4009,7 @@ var CollisionSystem = (function () {
         return new CollisionResult();
     };
     CollisionSystem.prototype.insert = function () {
-        var e_37, _a;
+        var e_39, _a;
         var bodies = [];
         for (var _i = 0; _i < arguments.length; _i++) {
             bodies[_i] = arguments[_i];
@@ -3950,17 +4020,17 @@ var CollisionSystem = (function () {
                 this._bvh.insert(body, false);
             }
         }
-        catch (e_37_1) { e_37 = { error: e_37_1 }; }
+        catch (e_39_1) { e_39 = { error: e_39_1 }; }
         finally {
             try {
                 if (bodies_1_1 && !bodies_1_1.done && (_a = bodies_1.return)) _a.call(bodies_1);
             }
-            finally { if (e_37) throw e_37.error; }
+            finally { if (e_39) throw e_39.error; }
         }
         return this;
     };
     CollisionSystem.prototype.remove = function () {
-        var e_38, _a;
+        var e_40, _a;
         var bodies = [];
         for (var _i = 0; _i < arguments.length; _i++) {
             bodies[_i] = arguments[_i];
@@ -3971,12 +4041,12 @@ var CollisionSystem = (function () {
                 this._bvh.remove(body, false);
             }
         }
-        catch (e_38_1) { e_38 = { error: e_38_1 }; }
+        catch (e_40_1) { e_40 = { error: e_40_1 }; }
         finally {
             try {
                 if (bodies_2_1 && !bodies_2_1.done && (_a = bodies_2.return)) _a.call(bodies_2);
             }
-            finally { if (e_38) throw e_38.error; }
+            finally { if (e_40) throw e_40.error; }
         }
         return this;
     };
@@ -4592,7 +4662,7 @@ var JetcodeSocketConnection = (function () {
         this.connects[action] = this.connects[action].filter(function (cb) { return cb !== callback; });
     };
     JetcodeSocketConnection.prototype.sendData = function (value, parameters) {
-        var e_39, _a;
+        var e_41, _a;
         if (parameters === void 0) { parameters = {}; }
         if (!this.lobbyId) {
             throw new Error('You are not in the lobby!');
@@ -4604,12 +4674,12 @@ var JetcodeSocketConnection = (function () {
                 request += key + '=' + value_1 + '\n';
             }
         }
-        catch (e_39_1) { e_39 = { error: e_39_1 }; }
+        catch (e_41_1) { e_41 = { error: e_41_1 }; }
         finally {
             try {
                 if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
             }
-            finally { if (e_39) throw e_39.error; }
+            finally { if (e_41) throw e_41.error; }
         }
         request += "SendTime=".concat(Date.now(), "\n");
         request += '\n' + value;
@@ -4619,7 +4689,7 @@ var JetcodeSocketConnection = (function () {
         var _this = this;
         if (parameters === void 0) { parameters = {}; }
         return new Promise(function (resolve, reject) {
-            var e_40, _a;
+            var e_42, _a;
             if (!lobbyId) {
                 lobbyId = 0;
             }
@@ -4632,12 +4702,12 @@ var JetcodeSocketConnection = (function () {
                     request += "".concat(key, "=").concat(value, "\n");
                 }
             }
-            catch (e_40_1) { e_40 = { error: e_40_1 }; }
+            catch (e_42_1) { e_42 = { error: e_42_1 }; }
             finally {
                 try {
                     if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
                 }
-                finally { if (e_40) throw e_40.error; }
+                finally { if (e_42) throw e_42.error; }
             }
             _this.socket.send(request);
             _this.connect(JetcodeSocket.JOINED, function (responseParams) {
