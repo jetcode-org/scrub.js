@@ -847,7 +847,7 @@ class Sprite {
         this.repeat(callback, 1, null, timeout, undefined);
     }
 
-    repeat(callback: ScheduledCallbackFunction, repeat: number, interval: number = null, timeout: number = null, finishCallback: ScheduledCallbackFunction) {
+    repeat(callback: ScheduledCallbackFunction, repeat: number, interval: number = null, timeout: number = null, finishCallback: ScheduledCallbackFunction): ScheduledState {
         const state = new ScheduledState(interval, repeat, 0);
 
         if (timeout) {
@@ -855,9 +855,11 @@ class Sprite {
         }
 
         this.scheduledCallbacks.push(new ScheduledCallbackItem(callback, state, timeout, finishCallback));
+
+        return state;
     }
 
-    forever(callback: ScheduledCallbackFunction, interval: number = null, timeout: number = null, finishCallback: ScheduledCallbackFunction): void {
+    forever(callback: ScheduledCallbackFunction, interval: number = null, timeout: number = null, finishCallback: ScheduledCallbackFunction): ScheduledState {
         const state = new ScheduledState(interval);
 
         if (timeout) {
@@ -865,6 +867,8 @@ class Sprite {
         }
 
         this.scheduledCallbacks.push(new ScheduledCallbackItem(callback, state, timeout, finishCallback));
+
+        return state;
     }
 
     pen(callback: DrawingCallbackFunction): void {

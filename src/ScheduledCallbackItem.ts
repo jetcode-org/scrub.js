@@ -3,6 +3,7 @@ class ScheduledCallbackItem  {
   state: ScheduledState;
   timeout?: number;
   finishCallback?: ScheduledCallbackFunction;
+  control: any;
 
   constructor(callback: ScheduledCallbackFunction, state: ScheduledState, timeout?: number, finishCallback?: ScheduledCallbackFunction) {
     this.callback = callback;

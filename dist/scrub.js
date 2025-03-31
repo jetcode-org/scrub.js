@@ -1543,6 +1543,7 @@ var Sprite = (function () {
             timeout = Date.now() + timeout;
         }
         this.scheduledCallbacks.push(new ScheduledCallbackItem(callback, state, timeout, finishCallback));
+        return state;
     };
     Sprite.prototype.forever = function (callback, interval, timeout, finishCallback) {
         if (interval === void 0) { interval = null; }
@@ -1552,6 +1553,7 @@ var Sprite = (function () {
             timeout = Date.now() + timeout;
         }
         this.scheduledCallbacks.push(new ScheduledCallbackItem(callback, state, timeout, finishCallback));
+        return state;
     };
     Sprite.prototype.pen = function (callback) {
         this._drawings.push(callback);
@@ -1659,7 +1661,7 @@ var Sprite = (function () {
     };
     Sprite.prototype.getCostumeName = function () {
         if (this.costumeIndex === null) {
-            return 'not costume';
+            return 'No costume';
         }
         return this.costumeNames[this.costumeIndex];
     };
@@ -3508,6 +3510,7 @@ var Stage = (function () {
             timeout = Date.now() + timeout;
         }
         this.scheduledCallbacks.push(new ScheduledCallbackItem(callback, state, timeout, finishCallback));
+        return state;
     };
     Stage.prototype.forever = function (callback, interval, timeout, finishCallback) {
         if (interval === void 0) { interval = null; }
@@ -3517,6 +3520,7 @@ var Stage = (function () {
             timeout = Date.now() + timeout;
         }
         this.scheduledCallbacks.push(new ScheduledCallbackItem(callback, state, timeout, finishCallback));
+        return state;
     };
     Stage.prototype.isReady = function () {
         return this.addedSprites == this.loadedSprites && this.pendingBackgrounds === 0;

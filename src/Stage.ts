@@ -533,7 +533,7 @@ class Stage {
         this.repeat(callback, 1, null, timeout, undefined);
     }
 
-    repeat(callback: ScheduledCallbackFunction, repeat: number, interval: number = null, timeout: number = null, finishCallback?: ScheduledCallbackFunction): void {
+    repeat(callback: ScheduledCallbackFunction, repeat: number, interval: number = null, timeout: number = null, finishCallback?: ScheduledCallbackFunction): ScheduledState {
         const state = new ScheduledState(interval, repeat, 0);
 
         if (timeout) {
@@ -541,9 +541,11 @@ class Stage {
         }
 
         this.scheduledCallbacks.push(new ScheduledCallbackItem(callback, state, timeout, finishCallback));
+
+        return state;
     }
 
-    forever(callback: ScheduledCallbackFunction, interval: number = null, timeout: number = null, finishCallback?: ScheduledCallbackFunction): void {
+    forever(callback: ScheduledCallbackFunction, interval: number = null, timeout: number = null, finishCallback?: ScheduledCallbackFunction): ScheduledState {
         const state = new ScheduledState(interval);
 
         if (timeout) {
@@ -551,6 +553,8 @@ class Stage {
         }
 
         this.scheduledCallbacks.push(new ScheduledCallbackItem(callback, state, timeout, finishCallback));
+
+        return state;
     }
 
     isReady() {
