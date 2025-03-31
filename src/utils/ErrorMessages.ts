@@ -87,8 +87,8 @@ class ErrorMessages {
   }
 
   private static replaceVariables(message: string, variables: {}): string {
-    return message.replace(/\${([^}]+)}/g, (match, key) => {
-      return variables[key] || '';
-    });
+      return message.replace(/\${([^}]+)}/g, (match, key) => {
+          return variables[key] !== undefined ? variables[key] : '';
+      });
   }
 }

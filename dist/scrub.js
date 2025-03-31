@@ -1125,55 +1125,63 @@ var Sprite = (function () {
         };
         sound.addEventListener('loadedmetadata', onLoadSound);
     };
-    Sprite.prototype.cloneSound = function (sound, name) {
-        this.sounds.push(sound);
-        this.soundNames.push(name);
+    Sprite.prototype.removeSound = function (soundIndex) {
+        if (soundIndex === void 0) { soundIndex = 0; }
+        var sound = this.sounds[soundIndex];
+        if (!(sound instanceof Audio)) {
+            this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, { soundIndex: soundIndex });
+        }
+        this.sounds.splice(soundIndex, 1);
+    };
+    Sprite.prototype.removeSoundByName = function (soundName) {
+        var soundIndex = this.soundNames.indexOf(soundName);
+        if (soundIndex < 0) {
+            this.game.throwError(ErrorMessages.SOUND_NAME_NOT_FOUND, { soundName: soundName });
+        }
+        this.sounds.splice(soundIndex, 1);
     };
     Sprite.prototype.playSound = function (soundIndex, volume, currentTime) {
+        if (soundIndex === void 0) { soundIndex = 0; }
         if (volume === void 0) { volume = null; }
         if (currentTime === void 0) { currentTime = null; }
         var sound = this.sounds[soundIndex];
-        if (sound instanceof Audio) {
-            sound.play();
-            if (volume !== null) {
-                sound.volume = volume;
-            }
-            if (currentTime !== null) {
-                sound.currentTime = currentTime;
-            }
-        }
-        else {
+        if (!(sound instanceof Audio)) {
             this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, { soundIndex: soundIndex });
+        }
+        sound.play();
+        if (volume !== null) {
+            sound.volume = volume;
+        }
+        if (currentTime !== null) {
+            sound.currentTime = currentTime;
         }
     };
     Sprite.prototype.pauseSound = function (soundIndex) {
         var sound = this.sounds[soundIndex];
-        if (sound instanceof Audio) {
-            sound.pause();
-        }
-        else {
+        if (!(sound instanceof Audio)) {
             this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, { soundIndex: soundIndex });
         }
+        sound.pause();
     };
     Sprite.prototype.playSoundByName = function (soundName, volume, currentTime) {
         if (volume === void 0) { volume = null; }
         if (currentTime === void 0) { currentTime = null; }
         var soundIndex = this.soundNames.indexOf(soundName);
-        if (soundIndex > -1) {
-            this.playSound(soundIndex, volume, currentTime);
-        }
-        else {
+        if (soundIndex < 0) {
             this.game.throwError(ErrorMessages.SOUND_NAME_NOT_FOUND, { soundName: soundName });
         }
+        this.playSound(soundIndex, volume, currentTime);
     };
     Sprite.prototype.pauseSoundByName = function (soundName) {
         var soundIndex = this.soundNames.indexOf(soundName);
-        if (soundIndex > -1) {
-            this.pauseSound(soundIndex);
-        }
-        else {
+        if (soundIndex < 0) {
             this.game.throwError(ErrorMessages.SOUND_NAME_NOT_FOUND, { soundName: soundName });
         }
+        this.pauseSound(soundIndex);
+    };
+    Sprite.prototype.cloneSound = function (sound, name) {
+        this.sounds.push(sound);
+        this.soundNames.push(name);
     };
     Sprite.prototype.move = function (steps) {
         var angleRadians = this.angleRadians;
@@ -3004,11 +3012,14 @@ var Stage = (function () {
         this.background = null;
         this.backgroundIndex = null;
         this.backgrounds = [];
+        this.sounds = [];
+        this.soundNames = [];
         this.sprites = new Map();
         this.drawings = new Map();
         this.addedSprites = 0;
         this.loadedSprites = 0;
         this.pendingBackgrounds = 0;
+        this.pendingSounds = 0;
         this.pendingRun = false;
         this.onReadyCallbacks = [];
         this.onStartCallbacks = [];
@@ -3169,6 +3180,79 @@ var Stage = (function () {
         if (nextBackgroundIndex !== this.backgroundIndex) {
             this.switchBackground(nextBackgroundIndex);
         }
+    };
+    Stage.prototype.addSound = function (soundPath, name) {
+        var _this = this;
+        if (name === void 0) { name = null; }
+        if (!name) {
+            name = 'No name ' + this.sounds.length;
+        }
+        var sound = new Audio();
+        sound.src = soundPath;
+        this.sounds.push(sound);
+        this.soundNames.push(name);
+        this.pendingSounds++;
+        sound.load();
+        var onLoadSound = function () {
+            _this.pendingSounds--;
+            _this.tryDoOnReady();
+            sound.removeEventListener('loadedmetadata', onLoadSound);
+        };
+        sound.addEventListener('loadedmetadata', onLoadSound);
+    };
+    Stage.prototype.removeSound = function (soundIndex) {
+        if (soundIndex === void 0) { soundIndex = 0; }
+        var sound = this.sounds[soundIndex];
+        if (!(sound instanceof Audio)) {
+            this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, { soundIndex: soundIndex });
+        }
+        this.sounds.splice(soundIndex, 1);
+    };
+    Stage.prototype.removeSoundByName = function (soundName) {
+        var soundIndex = this.soundNames.indexOf(soundName);
+        if (soundIndex < 0) {
+            this.game.throwError(ErrorMessages.SOUND_NAME_NOT_FOUND, { soundName: soundName });
+        }
+        this.sounds.splice(soundIndex, 1);
+    };
+    Stage.prototype.playSound = function (soundIndex, volume, currentTime) {
+        if (soundIndex === void 0) { soundIndex = 0; }
+        if (volume === void 0) { volume = null; }
+        if (currentTime === void 0) { currentTime = null; }
+        var sound = this.sounds[soundIndex];
+        if (!(sound instanceof Audio)) {
+            this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, { soundIndex: soundIndex });
+        }
+        sound.play();
+        if (volume !== null) {
+            sound.volume = volume;
+        }
+        if (currentTime !== null) {
+            sound.currentTime = currentTime;
+        }
+    };
+    Stage.prototype.pauseSound = function (soundIndex) {
+        var sound = this.sounds[soundIndex];
+        if (!(sound instanceof Audio)) {
+            this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, { soundIndex: soundIndex });
+        }
+        sound.pause();
+    };
+    Stage.prototype.playSoundByName = function (soundName, volume, currentTime) {
+        if (volume === void 0) { volume = null; }
+        if (currentTime === void 0) { currentTime = null; }
+        var soundIndex = this.soundNames.indexOf(soundName);
+        if (soundIndex < 0) {
+            this.game.throwError(ErrorMessages.SOUND_NAME_NOT_FOUND, { soundName: soundName });
+        }
+        this.playSound(soundIndex, volume, currentTime);
+    };
+    Stage.prototype.pauseSoundByName = function (soundName) {
+        var soundIndex = this.soundNames.indexOf(soundName);
+        if (soundIndex < 0) {
+            this.game.throwError(ErrorMessages.SOUND_NAME_NOT_FOUND, { soundName: soundName });
+        }
+        this.pauseSound(soundIndex);
     };
     Stage.prototype.drawSprite = function (sprite) {
         var costume = sprite.getCostume();
@@ -4842,7 +4926,7 @@ var ErrorMessages = (function () {
     };
     ErrorMessages.replaceVariables = function (message, variables) {
         return message.replace(/\${([^}]+)}/g, function (match, key) {
-            return variables[key] || '';
+            return variables[key] !== undefined ? variables[key] : '';
         });
     };
     ErrorMessages.SCRIPT_ERROR = 'script_error';
