@@ -19,6 +19,16 @@ class Collider {
      */
     padding: number;
 
+	/**
+	 * The offset of the body along X axis
+	 */
+	protected _offset_x = 0;
+
+	/**
+	 * The offset of the body along Y axis
+	 */
+	protected _offset_y = 0;
+
     protected _circle = false;
     protected _polygon = false;
     protected _point = false;
@@ -31,7 +41,8 @@ class Collider {
     protected _bvh_max_x = 0;
     protected _bvh_max_y = 0;
     protected _parent_sprite = null;
-
+	protected _center_distance = 0
+	protected _center_angle = 0;
 	/**
 	 * @constructor
 	 * @param {Number} [x = 0] The starting X coordinate
@@ -89,11 +100,49 @@ class Collider {
 		return this._parent_sprite;
 	}
 
+	set offset_x(value){
+		this._offset_x = value;
+		this.updateCenterParams()
+	}
+
+	get offset_x(){
+		return this._offset_x;
+	}
+
+	set offset_y(value){
+		this._offset_y = -value;
+		this.updateCenterParams()
+	}
+
+	get offset_y(){
+		return -this._offset_y;
+	}
+
+	get center_offset_x(){
+		if (this._parent_sprite.rotateStyle === 'leftRight' || this._parent_sprite.rotateStyle === 'none') {
+			const leftRightMultiplier = this._parent_sprite._direction > 180 && this._parent_sprite.rotateStyle === 'leftRight' ? -1 : 1;
+			return this._parent_sprite.collider._offset_x * leftRightMultiplier;
+		}
+		return this._center_distance * Math.cos(this._center_angle - this._parent_sprite.angleRadians);
+	}
+
+	get center_offset_y(){
+		if (this._parent_sprite.rotateStyle === 'leftRight' || this._parent_sprite.rotateStyle === 'none') {
+			return -this._parent_sprite.collider._offset_y;
+		}
+		return -this._center_distance * Math.sin(this._center_angle - this._parent_sprite.angleRadians);
+	}
+
 	/**
 	 * Creates a {@link CollisionResult} used to collect the detailed results of a collision test
 	 */
 	createResult() {
 		return new CollisionResult();
+	}
+
+	updateCenterParams(): void {
+		this._center_distance = Math.hypot(this._offset_x, this._offset_y);
+		this._center_angle = -Math.atan2(-this._offset_y , -this._offset_x);
 	}
 
 	/**

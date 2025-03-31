@@ -796,7 +796,9 @@ class Sprite {
             clone.cloneSound(sound, this.soundNames[soundIndex]);
         }
 
-        clone.cloneCollider(this)
+        if (this.collider) {
+            clone.cloneCollider(this)
+        }
 
         clone.ready();
 
@@ -892,6 +894,9 @@ class Sprite {
     }
 
     setRectCollider(width: number, height: number) {
+        const xOffset = this.collider ? this.collider.offset_x : 0;
+        const yOffset = this.collider ? this.collider.offset_y : 0;
+
         if (this.collider) {
             this.removeCollider()
         }
@@ -910,12 +915,17 @@ class Sprite {
         this._width = width;
         this._height = height;
         this.collider.parentSprite = this;
+        this.collider.offset_x = xOffset;
+        this.collider.offset_y = yOffset;
 
         this.stage.collisionSystem.insert(this.collider);
         this.updateColliderPosition()
     }
 
     setPolygonCollider(points: [number, number][] = []) {
+        const xOffset = this.collider ? this.collider.offset_x : 0;
+        const yOffset = this.collider ? this.collider.offset_y : 0;
+
         if (this.collider) {
             this.removeCollider()
         }
@@ -938,12 +948,17 @@ class Sprite {
         this._width = width;
         this._height = height;
         this.collider.parentSprite = this;
+        this.collider.offset_x = xOffset;
+        this.collider.offset_y = yOffset;
 
         this.stage.collisionSystem.insert(this.collider);
         this.updateColliderPosition()
     }
 
     setCircleCollider(radius: number) {
+        const xOffset = this.collider ? this.collider.offset_x : 0;
+        const yOffset = this.collider ? this.collider.offset_y : 0;
+
         if (this.collider) {
             this.removeCollider()
         }
@@ -952,6 +967,8 @@ class Sprite {
         this._width = radius * 2;
         this._height = radius * 2;
         this.collider.parentSprite = this;
+        this.collider.offset_x = xOffset;
+        this.collider.offset_y = yOffset;
 
         this.stage.collisionSystem.insert(this.collider);
         this.updateColliderPosition()
@@ -1167,18 +1184,18 @@ class Sprite {
         if (this.rotateStyle === 'leftRight' || this.rotateStyle === 'none') {
             const leftRightMultiplier = this._direction > 180 && this.rotateStyle === 'leftRight' ? -1 : 1;
 
-            return this._x - this._xCenterOffset * leftRightMultiplier;
+            return this._x - this._xCenterOffset * leftRightMultiplier * this.size / 100;
         }
 
-        return this._x + Math.cos(this._centerAngle - this.angleRadians) * this._centerDistance;
+        return this._x + Math.cos(this._centerAngle - this.angleRadians) * this._centerDistance * this.size / 100;
     }
 
     get sourceY() {
         if (this.rotateStyle === 'leftRight' || this.rotateStyle === 'none') {
-            return this._y - this._yCenterOffset;
+            return this._y - this._yCenterOffset * this.size / 100;
         }
 
-        return this._y - Math.sin(this._centerAngle - this.angleRadians) * this._centerDistance;
+        return this._y - Math.sin(this._centerAngle - this.angleRadians) * this._centerDistance * this.size / 100;
     }
 
     get realX(): number {
@@ -1190,19 +1207,19 @@ class Sprite {
     }
 
     get rightX(): number {
-        return this.sourceX + this.width / 2;
+        return this.sourceX + this.width / 2 + this.collider.center_offset_x * this.size / 100;
     }
 
     get leftX(): number {
-        return this.sourceX - this.width / 2;
+        return this.sourceX - this.width / 2 + this.collider.center_offset_x * this.size / 100;
     }
 
     get topY(): number {
-        return this.sourceY - this.height / 2;
+        return this.sourceY - this.height / 2 + this.collider.center_offset_y * this.size / 100;
     }
 
     get bottomY(): number {
-        return this.sourceY + this.height / 2;
+        return this.sourceY + this.height / 2 + this.collider.center_offset_y * this.size / 100;
     }
 
     set size(value: number) {
@@ -1308,6 +1325,34 @@ class Sprite {
             return null;
         }
         return this.collisionResult.b.parentSprite;
+    }
+
+    set xColliderOffset(value){
+        if (this.collider) {
+            this.collider.offset_x = value;
+            this.updateColliderPosition()
+        }
+    }
+
+    get xColliderOffset(){
+        if (this.collider) {
+            return this.collider.offset_x;
+        }
+        return 0;
+    }
+
+    set yColliderOffset(value){
+        if (this.collider) {
+            this.collider.offset_y = value;
+            this.updateColliderPosition()
+        }
+    }
+
+    get yColliderOffset(){
+        if (this.collider) {
+            return this.collider.offset_y;
+        }
+        return 0;
     }
 
     ready(): void {
@@ -1453,15 +1498,22 @@ class Sprite {
     }
 
     cloneCollider(sprite: Sprite): void {
+        if (!sprite.collider) {
+            return null
+        }
+
         const sourceCollider = sprite.getCollider();
 
         if (sourceCollider instanceof CircleCollider) {
             this.setCircleCollider(sourceCollider.radius);
         }
 
-        if (sourceCollider instanceof PointCollider) {
+        if (sourceCollider instanceof PolygonCollider) {
             this.setPolygonCollider(sourceCollider.points);
         }
+
+        this.collider.offset_x = sprite.collider.offset_x;
+        this.collider.offset_y = sprite.collider.offset_y;
     }
 
     private tryDoOnReady() {
@@ -1495,6 +1547,8 @@ class Sprite {
           costume.width + costume.colliderPaddingLeft + costume.colliderPaddingRight,
           costume.height + costume.colliderPaddingTop + costume.colliderPaddingBottom
         );
+        this.collider.offset_x = (costume.colliderPaddingLeft - costume.colliderPaddingRight) / 2;
+        this.collider.offset_y = -(costume.colliderPaddingTop - costume.colliderPaddingBottom) / 2;
         this.updateColliderPosition();
     }
 
@@ -1538,7 +1592,7 @@ class Sprite {
     }
 
     private updateColliderPosition(): void {
-        this.collider.x = this.sourceX;
-        this.collider.y = this.sourceY;
+            this.collider.x = this.sourceX + this.collider.center_offset_x * this.size / 100;
+            this.collider.y = this.sourceY + this.collider.center_offset_y * this.size / 100;
     }
 }
