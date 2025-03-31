@@ -109,6 +109,10 @@ class Sprite {
         const image = new Image();
         image.src = costumePath;
 
+        if (options?.imageAlphaColor) {
+            image.crossOrigin = 'anonymous';
+        }
+
         const onLoadImage = () => {
             if (this.deleted) {
                 return;
@@ -122,7 +126,9 @@ class Sprite {
                 options?.imageX ?? 0,
                 options?.imageY ?? 0,
                 options?.imageWidth ?? image.naturalWidth,
-                options?.imageHeight ?? image.naturalHeight
+                options?.imageHeight ?? image.naturalHeight,
+                options?.imageAlphaColor ?? null,
+                options?.imageAlphaTolerance ?? 0
             );
 
             const colliderPadding = options?.colliderPadding ?? 0;
@@ -210,7 +216,9 @@ class Sprite {
                             x + (options?.imageX ?? 0),
                             y + (options?.imageY ?? 0),
                             (options?.imageWidth ?? chunkWidth),
-                            (options?.imageHeight ?? chunkHeight)
+                            (options?.imageHeight ?? chunkHeight),
+                            options?.imageAlphaColor ?? null,
+                            options?.imageAlphaTolerance ?? 0
                         );
 
                         const colliderPadding = options?.colliderPadding ?? 0;
@@ -263,7 +271,17 @@ class Sprite {
         const colliderPaddingBottom = (options?.colliderPaddingBottom ?? 0) + colliderPadding;
         const colliderPaddingLeft = (options?.colliderPaddingLeft ?? 0) + colliderPadding;
 
-        if (options?.imageRotate || options?.imageFlipX || options?.imageFlipY || options?.imageX || options?.imageY) {
+        const needTransform =
+            options?.imageRotate ||
+            options?.imageFlipX ||
+            options?.imageFlipY ||
+            options?.imageX ||
+            options?.imageY ||
+            options?.imageAlphaColor ||
+            options?.imageAlphaTolerance
+        ;
+
+        if (needTransform) {
             image = this.transformImage(
                 image,
                 options?.imageRotate ?? 0,
@@ -272,7 +290,9 @@ class Sprite {
                 options?.imageX ?? 0,
                 options?.imageY ?? 0,
                 options?.imageWidth ?? image.width,
-                options?.imageHeight ?? image.height
+                options?.imageHeight ?? image.height,
+                options?.imageAlphaColor ?? null,
+                options?.imageAlphaTolerance ?? 0
             );
         }
 
@@ -353,7 +373,7 @@ class Sprite {
         }
     }
 
-    addSound(soundPath, name: string = null): void {
+    addSound(soundPath: string, name: string = null): void {
         if (!name) {
             name = 'No name ' + this.sounds.length;
         }
@@ -376,61 +396,77 @@ class Sprite {
         sound.addEventListener('loadedmetadata', onLoadSound);
     }
 
-    private cloneSound(sound, name) {
+    removeSound(soundIndex = 0) {
+        const sound = this.sounds[soundIndex];
+
+        if (!(sound instanceof Audio)) {
+            this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, {soundIndex});
+        }
+
+        this.sounds.splice(soundIndex, 1);
+    }
+
+    removeSoundByName(soundName: string) {
+        const soundIndex = this.soundNames.indexOf(soundName);
+
+        if (soundIndex < 0) {
+            this.game.throwError(ErrorMessages.SOUND_NAME_NOT_FOUND, {soundName});
+        }
+
+        this.sounds.splice(soundIndex, 1);
+    }
+
+    playSound(soundIndex = 0, volume: number = null, currentTime: number = null): void {
+        const sound = this.sounds[soundIndex];
+
+        if (!(sound instanceof Audio)) {
+            this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, {soundIndex});
+        }
+
+        sound.play();
+
+        if (volume !== null) {
+            sound.volume = volume;
+        }
+
+        if (currentTime !== null) {
+            sound.currentTime = currentTime;
+        }
+    }
+
+    pauseSound(soundIndex: number): void {
+        const sound = this.sounds[soundIndex];
+
+        if (!(sound instanceof Audio)) {
+            this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, {soundIndex});
+        }
+
+        sound.pause();
+    }
+
+    playSoundByName(soundName: string, volume: number = null, currentTime: number = null): void {
+        const soundIndex = this.soundNames.indexOf(soundName);
+
+        if (soundIndex < 0) {
+            this.game.throwError(ErrorMessages.SOUND_NAME_NOT_FOUND, {soundName});
+        }
+
+        this.playSound(soundIndex, volume, currentTime);
+    }
+
+    pauseSoundByName(soundName: string): void {
+        const soundIndex = this.soundNames.indexOf(soundName);
+
+        if (soundIndex < 0) {
+            this.game.throwError(ErrorMessages.SOUND_NAME_NOT_FOUND, {soundName});
+        }
+
+        this.pauseSound(soundIndex);
+    }
+
+    private cloneSound(sound: typeof Audio, name: string) {
         this.sounds.push(sound);
         this.soundNames.push(name);
-    }
-
-    playSound(soundIndex, volume: number = null, currentTime: number = null): void {
-        const sound = this.sounds[soundIndex];
-
-        if (sound instanceof Audio) {
-            sound.play();
-
-            if (volume !== null) {
-                sound.volume = volume;
-            }
-
-            if (currentTime !== null) {
-                sound.currentTime = currentTime;
-            }
-
-        } else {
-            this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, {soundIndex});
-        }
-    }
-
-    pauseSound(soundIndex): void {
-        const sound = this.sounds[soundIndex];
-
-        if (sound instanceof Audio) {
-            sound.pause();
-
-        } else {
-            this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, {soundIndex});
-        }
-    }
-
-    playSoundByName(soundName, volume: number = null, currentTime: number = null): void {
-        const soundIndex = this.soundNames.indexOf(soundName);
-
-        if (soundIndex > -1) {
-            this.playSound(soundIndex, volume, currentTime);
-
-        } else {
-            this.game.throwError(ErrorMessages.SOUND_NAME_NOT_FOUND, {soundName});
-        }
-    }
-
-    pauseSoundByName(soundName): void {
-        const soundIndex = this.soundNames.indexOf(soundName);
-
-        if (soundIndex > -1) {
-            this.pauseSound(soundIndex);
-
-        } else {
-            this.game.throwError(ErrorMessages.SOUND_NAME_NOT_FOUND, {soundName});
-        }
     }
 
     move(steps): void {
@@ -1279,17 +1315,19 @@ class Sprite {
     }
 
     private transformImage(
-      srcImage: HTMLImageElement|HTMLCanvasElement,
-      rotate: number,
-      flipX: boolean = false,
-      flipY: boolean = false,
-      imageX: number = 0,
-      imageY: number = 0,
-      imageWidth: number = null,
-      imageHeight: number = null
+        srcImage: HTMLImageElement|HTMLCanvasElement,
+        rotate: number,
+        flipX: boolean = false,
+        flipY: boolean = false,
+        imageX: number = 0,
+        imageY: number = 0,
+        imageWidth: number = null,
+        imageHeight: number = null,
+        imageAlphaColor = null,
+        imageAlphaTolerance = 0
     ): HTMLCanvasElement {
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d')!;
+        let imageCanvas = document.createElement('canvas');
+        const context = imageCanvas.getContext('2d')!;
 
         const radians = rotate * Math.PI / 180;
         let canvasWidth = imageWidth ?? (srcImage instanceof HTMLImageElement ? srcImage.naturalWidth : srcImage.width);
@@ -1303,10 +1341,10 @@ class Sprite {
             canvasHeight = canvasWidth * absSin + canvasHeight * absCos;
         }
 
-        canvas.width = Math.ceil(canvasWidth);
-        canvas.height = Math.ceil(canvasHeight);
+        imageCanvas.width = Math.ceil(canvasWidth);
+        imageCanvas.height = Math.ceil(canvasHeight);
 
-        context.translate(canvas.width / 2, canvas.height / 2);
+        context.translate(imageCanvas.width / 2, imageCanvas.height / 2);
 
         if (rotate) {
             context.rotate(radians);
@@ -1331,7 +1369,82 @@ class Sprite {
             imageHeight
         );
 
+        if (imageAlphaColor) {
+            imageCanvas = this.setAlpha(imageCanvas, imageAlphaColor, imageAlphaTolerance ?? 0);
+        }
+
+        return imageCanvas;
+    }
+
+    private setAlpha(
+      image: HTMLCanvasElement,
+      targetColor: { r: number; g: number; b: number } | string,
+      tolerance = 0
+    ): HTMLCanvasElement {
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+
+        if (!context) {
+            throw new Error('Canvas context is not available');
+        }
+
+        canvas.width = image.width;
+        canvas.height = image.height;
+
+        const imageData = image.getContext('2d').getImageData(0, 0, image.width, image.height);
+        const data = imageData.data;
+
+        let targetRGB: { r: number; g: number; b: number };
+        if (typeof targetColor === 'string') {
+            targetRGB = this.hexToRgb(targetColor);
+
+            if (!targetRGB) {
+                throw new Error(`Invalid HEX color: ${targetColor}`);
+            }
+
+        } else {
+            targetRGB = targetColor;
+        }
+
+        for (let i = 0; i < data.length; i += 4) {
+            const r = data[i];     // Красный канал
+            const g = data[i + 1]; // Зеленый канал
+            const b = data[i + 2]; // Синий канал
+
+            if (
+              Math.abs(r - targetRGB.r) <= tolerance &&
+              Math.abs(g - targetRGB.g) <= tolerance &&
+              Math.abs(b - targetRGB.b) <= tolerance
+            ) {
+                data[i + 3] = 0;
+            }
+        }
+
+        context.putImageData(imageData, 0, 0);
+
         return canvas;
+    }
+
+    private hexToRgb(hex: string): { r: number; g: number; b: number } | null {
+        // Убираем символ "#" из строки, если он есть
+        hex = hex.replace(/^#/, '');
+
+        // Проверяем длину строки (3 или 6 символов)
+        if (hex.length === 3) {
+            hex = hex.split('').map(char => char + char).join('');
+        }
+
+        if (hex.length !== 6) {
+            return null;
+        }
+
+        const bigint = parseInt(hex, 16);
+
+        return {
+            r: (bigint >> 16) & 255,
+            g: (bigint >> 8) & 255,
+            b: bigint & 255,
+        };
     }
 
     cloneCostume(costume: Costume, name: string) {

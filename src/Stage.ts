@@ -9,11 +9,14 @@ class Stage {
     private background: HTMLCanvasElement = null;
     private backgroundIndex = null;
     private backgrounds = [];
+    private sounds = [];
+    private soundNames = [];
     private sprites = new Map<number, Sprite[]>();
     private drawings = new Map<number, DrawingCallbackFunction[]>();
     private addedSprites = 0;
     private loadedSprites = 0;
     private pendingBackgrounds = 0;
+    private pendingSounds =  0;
     private pendingRun = false;
     private onReadyCallbacks = [];
     private onStartCallbacks = [];
@@ -206,6 +209,97 @@ class Stage {
         if (nextBackgroundIndex !== this.backgroundIndex) {
             this.switchBackground(nextBackgroundIndex);
         }
+    }
+
+    addSound(soundPath: string, name: string = null): void {
+        if (!name) {
+            name = 'No name ' + this.sounds.length;
+        }
+
+        const sound = new Audio();
+        sound.src = soundPath;
+
+        this.sounds.push(sound);
+        this.soundNames.push(name);
+        this.pendingSounds++;
+
+        sound.load();
+
+        const onLoadSound =  () => {
+            this.pendingSounds--;
+            this.tryDoOnReady();
+
+            sound.removeEventListener('loadedmetadata', onLoadSound);
+        };
+        sound.addEventListener('loadedmetadata', onLoadSound);
+    }
+
+    removeSound(soundIndex = 0) {
+        const sound = this.sounds[soundIndex];
+
+        if (!(sound instanceof Audio)) {
+            this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, {soundIndex});
+        }
+
+        this.sounds.splice(soundIndex, 1);
+    }
+
+    removeSoundByName(soundName: string) {
+        const soundIndex = this.soundNames.indexOf(soundName);
+
+        if (soundIndex < 0) {
+            this.game.throwError(ErrorMessages.SOUND_NAME_NOT_FOUND, {soundName});
+        }
+
+        this.sounds.splice(soundIndex, 1);
+    }
+
+    playSound(soundIndex = 0, volume: number = null, currentTime: number = null): void {
+        const sound = this.sounds[soundIndex];
+
+        if (!(sound instanceof Audio)) {
+            this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, {soundIndex});
+        }
+
+        sound.play();
+
+        if (volume !== null) {
+            sound.volume = volume;
+        }
+
+        if (currentTime !== null) {
+            sound.currentTime = currentTime;
+        }
+    }
+
+    pauseSound(soundIndex: number): void {
+        const sound = this.sounds[soundIndex];
+
+        if (!(sound instanceof Audio)) {
+            this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, {soundIndex});
+        }
+
+        sound.pause();
+    }
+
+    playSoundByName(soundName: string, volume: number = null, currentTime: number = null): void {
+        const soundIndex = this.soundNames.indexOf(soundName);
+
+        if (soundIndex < 0) {
+            this.game.throwError(ErrorMessages.SOUND_NAME_NOT_FOUND, {soundName});
+        }
+
+        this.playSound(soundIndex, volume, currentTime);
+    }
+
+    pauseSoundByName(soundName: string): void {
+        const soundIndex = this.soundNames.indexOf(soundName);
+
+        if (soundIndex < 0) {
+            this.game.throwError(ErrorMessages.SOUND_NAME_NOT_FOUND, {soundName});
+        }
+
+        this.pauseSound(soundIndex);
     }
 
     drawSprite(sprite: Sprite): void {
