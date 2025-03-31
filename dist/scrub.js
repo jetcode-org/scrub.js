@@ -1094,16 +1094,38 @@ var Sprite = (function () {
             this.game.throwError(ErrorMessages.COSTUME_NAME_NOT_FOUND, { costumeName: costumeName });
         }
     };
-    Sprite.prototype.nextCostume = function () {
+    Sprite.prototype.nextCostume = function (minCostume, maxCostume) {
+        if (minCostume === void 0) { minCostume = 0; }
+        if (maxCostume === void 0) { maxCostume = null; }
         if (this.deleted) {
             return;
         }
+        var maxCostumeIndex = this.costumes.length - 1;
+        minCostume = Math.min(maxCostumeIndex, Math.max(0, minCostume));
+        maxCostume = Math.min(maxCostumeIndex, Math.max(0, maxCostume !== null && maxCostume !== void 0 ? maxCostume : maxCostumeIndex));
         var nextCostumeIndex = this.costumeIndex + 1;
-        if (nextCostumeIndex > this.costumes.length - 1) {
-            nextCostumeIndex = 0;
+        if (nextCostumeIndex > maxCostume || nextCostumeIndex < minCostume) {
+            nextCostumeIndex = minCostume;
         }
         if (nextCostumeIndex !== this.costumeIndex) {
             this.switchCostume(nextCostumeIndex);
+        }
+    };
+    Sprite.prototype.prevCostume = function (minCostume, maxCostume) {
+        if (minCostume === void 0) { minCostume = 0; }
+        if (maxCostume === void 0) { maxCostume = null; }
+        if (this.deleted) {
+            return;
+        }
+        var maxCostumeIndex = this.costumes.length - 1;
+        minCostume = Math.min(maxCostumeIndex, Math.max(0, minCostume));
+        maxCostume = Math.min(maxCostumeIndex, Math.max(0, maxCostume !== null && maxCostume !== void 0 ? maxCostume : maxCostumeIndex));
+        var prevCostumeIndex = this.costumeIndex - 1;
+        if (prevCostumeIndex < minCostume || prevCostumeIndex > maxCostume) {
+            prevCostumeIndex = maxCostume;
+        }
+        if (prevCostumeIndex !== this.costumeIndex) {
+            this.switchCostume(prevCostumeIndex);
         }
     };
     Sprite.prototype.addSound = function (soundPath, name) {

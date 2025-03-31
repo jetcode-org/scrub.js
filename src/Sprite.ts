@@ -357,19 +357,41 @@ class Sprite {
         }
     }
 
-    nextCostume(): void {
+    nextCostume(minCostume = 0, maxCostume: number = null): void {
         if (this.deleted) {
             return;
         }
 
-        let nextCostumeIndex = this.costumeIndex + 1;
+        const maxCostumeIndex = this.costumes.length - 1;
+        minCostume = Math.min(maxCostumeIndex, Math.max(0, minCostume));
+        maxCostume = Math.min(maxCostumeIndex, Math.max(0, maxCostume ?? maxCostumeIndex));
 
-        if (nextCostumeIndex > this.costumes.length - 1) {
-            nextCostumeIndex = 0;
+        let nextCostumeIndex = this.costumeIndex + 1;
+        if (nextCostumeIndex > maxCostume || nextCostumeIndex < minCostume) {
+            nextCostumeIndex = minCostume;
         }
 
         if (nextCostumeIndex !== this.costumeIndex) {
             this.switchCostume(nextCostumeIndex);
+        }
+    }
+
+    prevCostume(minCostume = 0, maxCostume: number = null): void {
+        if (this.deleted) {
+            return;
+        }
+
+        const maxCostumeIndex = this.costumes.length - 1;
+        minCostume = Math.min(maxCostumeIndex, Math.max(0, minCostume));
+        maxCostume = Math.min(maxCostumeIndex, Math.max(0, maxCostume ?? maxCostumeIndex));
+
+        let prevCostumeIndex = this.costumeIndex - 1;
+        if (prevCostumeIndex < minCostume || prevCostumeIndex > maxCostume) {
+            prevCostumeIndex = maxCostume;
+        }
+
+        if (prevCostumeIndex !== this.costumeIndex) {
+            this.switchCostume(prevCostumeIndex);
         }
     }
 
