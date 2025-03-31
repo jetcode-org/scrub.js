@@ -294,6 +294,18 @@ var Game = (function () {
             _this.loadedStages++;
             _this.tryDoOnReady();
         });
+        document.addEventListener('visibilitychange', function () {
+            if (document.hidden) {
+                if (_this.activeStage && _this.activeStage.running) {
+                    _this.activeStage.stop();
+                }
+            }
+            else {
+                if (_this.activeStage && _this.activeStage.stopped) {
+                    _this.activeStage.run();
+                }
+            }
+        });
     };
     Game.prototype.tryDoOnReady = function () {
         var e_2, _a;
@@ -3543,6 +3555,9 @@ var Stage = (function () {
     };
     Stage.prototype.run = function () {
         var e_30, _a, e_31, _b;
+        if (!this._stopped) {
+            return;
+        }
         this._stopped = false;
         try {
             for (var _c = __values(this.sprites.values()), _d = _c.next(); !_d.done; _d = _c.next()) {
@@ -3610,6 +3625,9 @@ var Stage = (function () {
     };
     Stage.prototype.stop = function () {
         var e_34, _a, e_35, _b;
+        if (this._stopped) {
+            return;
+        }
         this._running = false;
         this._stopped = true;
         try {

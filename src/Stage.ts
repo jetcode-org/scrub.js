@@ -576,6 +576,10 @@ class Stage {
     }
 
     run(): void {
+        if (!this._stopped) {
+            return;
+        }
+
         this._stopped = false;
 
         for(const layerSprites of this.sprites.values()) {
@@ -608,6 +612,10 @@ class Stage {
     }
 
     stop(): void {
+        if (this._stopped) {
+            return;
+        }
+
         this._running = false;
         this._stopped = true;
 

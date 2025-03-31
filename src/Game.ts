@@ -260,6 +260,19 @@ class Game {
             this.loadedStages++;
             this.tryDoOnReady();
         });
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                if (this.activeStage && this.activeStage.running) {
+                    this.activeStage.stop();
+                }
+
+            } else {
+                if (this.activeStage && this.activeStage.stopped) {
+                    this.activeStage.run();
+                }
+            }
+        });
     }
 
     private tryDoOnReady() {
