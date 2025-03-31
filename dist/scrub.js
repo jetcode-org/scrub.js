@@ -1055,6 +1055,22 @@ var Sprite = (function () {
         this.costumeNames.push(costumeName + '-' + costumeIndex);
         this.pendingCostumes--;
     };
+    Sprite.prototype.removeCostume = function (costumeIndex) {
+        if (this.costumes[costumeIndex] === undefined) {
+            this.game.throwError(ErrorMessages.COSTUME_INDEX_NOT_FOUND, { costumeIndex: costumeIndex });
+        }
+        this.costumes.splice(costumeIndex, 1);
+        this.costumeNames.splice(costumeIndex, 1);
+        if (this.costumeIndex === costumeIndex) {
+            this.costumeIndex = null;
+            if (this.costumes.length > 0) {
+                this.nextCostume();
+            }
+            else {
+                this.costume = null;
+            }
+        }
+    };
     Sprite.prototype.stamp = function (costumeIndex, withRotation) {
         if (costumeIndex === void 0) { costumeIndex = null; }
         if (withRotation === void 0) { withRotation = true; }
@@ -1149,8 +1165,7 @@ var Sprite = (function () {
     };
     Sprite.prototype.removeSound = function (soundIndex) {
         if (soundIndex === void 0) { soundIndex = 0; }
-        var sound = this.sounds[soundIndex];
-        if (!(sound instanceof Audio)) {
+        if (this.sounds[soundIndex] === undefined) {
             this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, { soundIndex: soundIndex });
         }
         this.sounds.splice(soundIndex, 1);
@@ -1643,6 +1658,9 @@ var Sprite = (function () {
         return this.costume;
     };
     Sprite.prototype.getCostumeName = function () {
+        if (this.costumeIndex === null) {
+            return 'not costume';
+        }
         return this.costumeNames[this.costumeIndex];
     };
     Sprite.prototype.getCostumeIndex = function () {
@@ -3224,8 +3242,7 @@ var Stage = (function () {
     };
     Stage.prototype.removeSound = function (soundIndex) {
         if (soundIndex === void 0) { soundIndex = 0; }
-        var sound = this.sounds[soundIndex];
-        if (!(sound instanceof Audio)) {
+        if (this.sounds[soundIndex] === undefined) {
             this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, { soundIndex: soundIndex });
         }
         this.sounds.splice(soundIndex, 1);
@@ -4961,6 +4978,7 @@ var ErrorMessages = (function () {
     ErrorMessages.CLONED_NOT_READY = 'cloned_not_ready';
     ErrorMessages.SOUND_INDEX_NOT_FOUND = 'sound_index_not_found';
     ErrorMessages.SOUND_NAME_NOT_FOUND = 'sound_name_not_found';
+    ErrorMessages.COSTUME_INDEX_NOT_FOUND = 'costume_index_not_found';
     ErrorMessages.COSTUME_NAME_NOT_FOUND = 'costume_name_not_found';
     ErrorMessages.STAMP_NOT_READY = 'stamp_not_ready';
     ErrorMessages.STAMP_COSTUME_NOT_FOUND = 'stamp_costume_not_found';
@@ -5004,6 +5022,10 @@ var ErrorMessages = (function () {
         sound_name_not_found: {
             'ru': 'Звук с именем "${soundName}" не найден.',
             'en': 'Sound with name "${soundName}" not found.'
+        },
+        costume_index_not_found: {
+            'ru': 'Костюм с индексом "${costumeIndex}" не найден.',
+            'en': 'Costume with index "${costumeIndex}" not found.'
         },
         costume_name_not_found: {
             'ru': 'Костюм с именем "${costumeName}" не найден.',

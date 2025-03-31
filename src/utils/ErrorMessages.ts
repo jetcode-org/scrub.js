@@ -9,6 +9,7 @@ class ErrorMessages {
   static readonly CLONED_NOT_READY = 'cloned_not_ready';
   static readonly SOUND_INDEX_NOT_FOUND = 'sound_index_not_found';
   static readonly SOUND_NAME_NOT_FOUND = 'sound_name_not_found';
+  static readonly COSTUME_INDEX_NOT_FOUND = 'costume_index_not_found';
   static readonly COSTUME_NAME_NOT_FOUND = 'costume_name_not_found';
   static readonly STAMP_NOT_READY = 'stamp_not_ready';
   static readonly STAMP_COSTUME_NOT_FOUND = 'stamp_costume_not_found';
@@ -53,6 +54,10 @@ class ErrorMessages {
     sound_name_not_found:  {
       'ru': 'Звук с именем "${soundName}" не найден.',
       'en': 'Sound with name "${soundName}" not found.'
+    },
+    costume_index_not_found:  {
+      'ru': 'Костюм с индексом "${costumeIndex}" не найден.',
+      'en': 'Costume with index "${costumeIndex}" not found.'
     },
     costume_name_not_found:  {
       'ru': 'Костюм с именем "${costumeName}" не найден.',

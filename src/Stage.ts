@@ -235,9 +235,7 @@ class Stage {
     }
 
     removeSound(soundIndex = 0) {
-        const sound = this.sounds[soundIndex];
-
-        if (!(sound instanceof Audio)) {
+        if (this.sounds[soundIndex] === undefined) {
             this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, {soundIndex});
         }
 

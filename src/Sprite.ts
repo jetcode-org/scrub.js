@@ -309,6 +309,26 @@ class Sprite {
         this.pendingCostumes--;
     }
 
+    removeCostume(costumeIndex: number) {
+        if (this.costumes[costumeIndex] === undefined) {
+            this.game.throwError(ErrorMessages.COSTUME_INDEX_NOT_FOUND, {costumeIndex});
+        }
+
+        this.costumes.splice(costumeIndex, 1);
+        this.costumeNames.splice(costumeIndex, 1);
+
+        if (this.costumeIndex === costumeIndex) {
+            this.costumeIndex = null;
+
+            if (this.costumes.length > 0) {
+                this.nextCostume();
+
+            } else {
+                this.costume = null;
+            }
+        }
+    }
+
     stamp(costumeIndex: number = null, withRotation = true) {
         if (!this.isReady()) {
             this.game.throwError(ErrorMessages.STAMP_NOT_READY);
@@ -419,9 +439,7 @@ class Sprite {
     }
 
     removeSound(soundIndex = 0) {
-        const sound = this.sounds[soundIndex];
-
-        if (!(sound instanceof Audio)) {
+        if (this.sounds[soundIndex] === undefined) {
             this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, {soundIndex});
         }
 
@@ -984,6 +1002,10 @@ class Sprite {
     }
 
     getCostumeName(): string {
+        if (this.costumeIndex === null) {
+            return 'No costume';
+        }
+
         return this.costumeNames[this.costumeIndex];
     }
 
