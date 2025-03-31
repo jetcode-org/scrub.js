@@ -1547,7 +1547,9 @@ var Sprite = (function () {
             }
             finally { if (e_11) throw e_11.error; }
         }
-        clone.cloneCollider(this);
+        if (this.collider) {
+            clone.cloneCollider(this);
+        }
         clone.ready();
         return clone;
     };
@@ -1623,6 +1625,8 @@ var Sprite = (function () {
         }
     };
     Sprite.prototype.setRectCollider = function (width, height) {
+        var xOffset = this.collider ? this.collider.offset_x : 0;
+        var yOffset = this.collider ? this.collider.offset_y : 0;
         if (this.collider) {
             this.removeCollider();
         }
@@ -1639,11 +1643,15 @@ var Sprite = (function () {
         this._width = width;
         this._height = height;
         this.collider.parentSprite = this;
+        this.collider.offset_x = xOffset;
+        this.collider.offset_y = yOffset;
         this.stage.collisionSystem.insert(this.collider);
         this.updateColliderPosition();
     };
     Sprite.prototype.setPolygonCollider = function (points) {
         if (points === void 0) { points = []; }
+        var xOffset = this.collider ? this.collider.offset_x : 0;
+        var yOffset = this.collider ? this.collider.offset_y : 0;
         if (this.collider) {
             this.removeCollider();
         }
@@ -1661,10 +1669,14 @@ var Sprite = (function () {
         this._width = width;
         this._height = height;
         this.collider.parentSprite = this;
+        this.collider.offset_x = xOffset;
+        this.collider.offset_y = yOffset;
         this.stage.collisionSystem.insert(this.collider);
         this.updateColliderPosition();
     };
     Sprite.prototype.setCircleCollider = function (radius) {
+        var xOffset = this.collider ? this.collider.offset_x : 0;
+        var yOffset = this.collider ? this.collider.offset_y : 0;
         if (this.collider) {
             this.removeCollider();
         }
@@ -1672,6 +1684,8 @@ var Sprite = (function () {
         this._width = radius * 2;
         this._height = radius * 2;
         this.collider.parentSprite = this;
+        this.collider.offset_x = xOffset;
+        this.collider.offset_y = yOffset;
         this.stage.collisionSystem.insert(this.collider);
         this.updateColliderPosition();
     };
@@ -1910,9 +1924,9 @@ var Sprite = (function () {
         get: function () {
             if (this.rotateStyle === 'leftRight' || this.rotateStyle === 'none') {
                 var leftRightMultiplier = this._direction > 180 && this.rotateStyle === 'leftRight' ? -1 : 1;
-                return this._x - this._xCenterOffset * leftRightMultiplier;
+                return this._x - this._xCenterOffset * leftRightMultiplier * this.size / 100;
             }
-            return this._x + Math.cos(this._centerAngle - this.angleRadians) * this._centerDistance;
+            return this._x + Math.cos(this._centerAngle - this.angleRadians) * this._centerDistance * this.size / 100;
         },
         enumerable: false,
         configurable: true
@@ -1920,9 +1934,9 @@ var Sprite = (function () {
     Object.defineProperty(Sprite.prototype, "sourceY", {
         get: function () {
             if (this.rotateStyle === 'leftRight' || this.rotateStyle === 'none') {
-                return this._y - this._yCenterOffset;
+                return this._y - this._yCenterOffset * this.size / 100;
             }
-            return this._y - Math.sin(this._centerAngle - this.angleRadians) * this._centerDistance;
+            return this._y - Math.sin(this._centerAngle - this.angleRadians) * this._centerDistance * this.size / 100;
         },
         enumerable: false,
         configurable: true
@@ -1943,28 +1957,28 @@ var Sprite = (function () {
     });
     Object.defineProperty(Sprite.prototype, "rightX", {
         get: function () {
-            return this.sourceX + this.width / 2;
+            return this.sourceX + this.width / 2 + this.collider.center_offset_x * this.size / 100;
         },
         enumerable: false,
         configurable: true
     });
     Object.defineProperty(Sprite.prototype, "leftX", {
         get: function () {
-            return this.sourceX - this.width / 2;
+            return this.sourceX - this.width / 2 + this.collider.center_offset_x * this.size / 100;
         },
         enumerable: false,
         configurable: true
     });
     Object.defineProperty(Sprite.prototype, "topY", {
         get: function () {
-            return this.sourceY - this.height / 2;
+            return this.sourceY - this.height / 2 + this.collider.center_offset_y * this.size / 100;
         },
         enumerable: false,
         configurable: true
     });
     Object.defineProperty(Sprite.prototype, "bottomY", {
         get: function () {
-            return this.sourceY + this.height / 2;
+            return this.sourceY + this.height / 2 + this.collider.center_offset_y * this.size / 100;
         },
         enumerable: false,
         configurable: true
@@ -2089,6 +2103,38 @@ var Sprite = (function () {
         enumerable: false,
         configurable: true
     });
+    Object.defineProperty(Sprite.prototype, "xColliderOffset", {
+        get: function () {
+            if (this.collider) {
+                return this.collider.offset_x;
+            }
+            return 0;
+        },
+        set: function (value) {
+            if (this.collider) {
+                this.collider.offset_x = value;
+                this.updateColliderPosition();
+            }
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "yColliderOffset", {
+        get: function () {
+            if (this.collider) {
+                return this.collider.offset_y;
+            }
+            return 0;
+        },
+        set: function (value) {
+            if (this.collider) {
+                this.collider.offset_y = value;
+                this.updateColliderPosition();
+            }
+        },
+        enumerable: false,
+        configurable: true
+    });
     Sprite.prototype.ready = function () {
         this.tryDoOnReady();
     };
@@ -2183,13 +2229,18 @@ var Sprite = (function () {
         this.costumeNames.push(name);
     };
     Sprite.prototype.cloneCollider = function (sprite) {
+        if (!sprite.collider) {
+            return null;
+        }
         var sourceCollider = sprite.getCollider();
         if (sourceCollider instanceof CircleCollider) {
             this.setCircleCollider(sourceCollider.radius);
         }
-        if (sourceCollider instanceof PointCollider) {
+        if (sourceCollider instanceof PolygonCollider) {
             this.setPolygonCollider(sourceCollider.points);
         }
+        this.collider.offset_x = sprite.collider.offset_x;
+        this.collider.offset_y = sprite.collider.offset_y;
     };
     Sprite.prototype.tryDoOnReady = function () {
         var e_15, _a;
@@ -2225,6 +2276,8 @@ var Sprite = (function () {
     };
     Sprite.prototype.createColliderFromCostume = function (costume) {
         this.setRectCollider(costume.width + costume.colliderPaddingLeft + costume.colliderPaddingRight, costume.height + costume.colliderPaddingTop + costume.colliderPaddingBottom);
+        this.collider.offset_x = (costume.colliderPaddingLeft - costume.colliderPaddingRight) / 2;
+        this.collider.offset_y = -(costume.colliderPaddingTop - costume.colliderPaddingBottom) / 2;
         this.updateColliderPosition();
     };
     Sprite.prototype.calculateCentroid = function (points) {
@@ -2284,8 +2337,8 @@ var Sprite = (function () {
         this._centerAngle = -Math.atan2(-this._yCenterOffset, -this._xCenterOffset);
     };
     Sprite.prototype.updateColliderPosition = function () {
-        this.collider.x = this.sourceX;
-        this.collider.y = this.sourceY;
+        this.collider.x = this.sourceX + this.collider.center_offset_x * this.size / 100;
+        this.collider.y = this.sourceY + this.collider.center_offset_y * this.size / 100;
     };
     return Sprite;
 }());
@@ -3355,10 +3408,10 @@ var Stage = (function () {
         if (rotateStyle === 'leftRight' && direction > 180) {
             this.context.translate(dstX + dstWidth / 2, 0);
             this.context.scale(-1, 1);
-            this.context.drawImage(image, 0, 0, costume.width, costume.height, (-dstWidth / 2) + (costume.colliderPaddingLeft * sprite.size / 100) + colliderOffsetX, dstY + (costume.colliderPaddingTop * sprite.size / 100) + colliderOffsetY, costume.width * sprite.size / 100, costume.height * sprite.size / 100);
+            this.context.drawImage(image, 0, 0, costume.width, costume.height, (-dstWidth / 2) + colliderOffsetX, dstY + colliderOffsetY, costume.width * sprite.size / 100, costume.height * sprite.size / 100);
         }
         else {
-            this.context.drawImage(image, 0, 0, costume.width, costume.height, dstX + (costume.colliderPaddingLeft * sprite.size / 100) + colliderOffsetX, dstY + (costume.colliderPaddingTop * sprite.size / 100) + colliderOffsetY, costume.width * sprite.size / 100, costume.height * sprite.size / 100);
+            this.context.drawImage(image, 0, 0, costume.width, costume.height, dstX + colliderOffsetX, dstY + colliderOffsetY, costume.width * sprite.size / 100, costume.height * sprite.size / 100);
         }
         if (needSave) {
             this.context.restore();
@@ -4106,6 +4159,8 @@ var Collider = (function () {
         if (x === void 0) { x = 0; }
         if (y === void 0) { y = 0; }
         if (padding === void 0) { padding = 0; }
+        this._offset_x = 0;
+        this._offset_y = 0;
         this._circle = false;
         this._polygon = false;
         this._point = false;
@@ -4117,6 +4172,8 @@ var Collider = (function () {
         this._bvh_max_x = 0;
         this._bvh_max_y = 0;
         this._parent_sprite = null;
+        this._center_distance = 0;
+        this._center_angle = 0;
         this.x = x;
         this.y = y;
         this.padding = padding;
@@ -4150,8 +4207,55 @@ var Collider = (function () {
         enumerable: false,
         configurable: true
     });
+    Object.defineProperty(Collider.prototype, "offset_x", {
+        get: function () {
+            return this._offset_x;
+        },
+        set: function (value) {
+            this._offset_x = value;
+            this.updateCenterParams();
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Collider.prototype, "offset_y", {
+        get: function () {
+            return -this._offset_y;
+        },
+        set: function (value) {
+            this._offset_y = -value;
+            this.updateCenterParams();
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Collider.prototype, "center_offset_x", {
+        get: function () {
+            if (this._parent_sprite.rotateStyle === 'leftRight' || this._parent_sprite.rotateStyle === 'none') {
+                var leftRightMultiplier = this._parent_sprite._direction > 180 && this._parent_sprite.rotateStyle === 'leftRight' ? -1 : 1;
+                return this._parent_sprite.collider._offset_x * leftRightMultiplier;
+            }
+            return this._center_distance * Math.cos(this._center_angle - this._parent_sprite.angleRadians);
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Collider.prototype, "center_offset_y", {
+        get: function () {
+            if (this._parent_sprite.rotateStyle === 'leftRight' || this._parent_sprite.rotateStyle === 'none') {
+                return -this._parent_sprite.collider._offset_y;
+            }
+            return -this._center_distance * Math.sin(this._center_angle - this._parent_sprite.angleRadians);
+        },
+        enumerable: false,
+        configurable: true
+    });
     Collider.prototype.createResult = function () {
         return new CollisionResult();
+    };
+    Collider.prototype.updateCenterParams = function () {
+        this._center_distance = Math.hypot(this._offset_x, this._offset_y);
+        this._center_angle = -Math.atan2(-this._offset_y, -this._offset_x);
     };
     Collider.createResult = function () {
         return new CollisionResult();
