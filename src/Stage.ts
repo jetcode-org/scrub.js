@@ -361,8 +361,8 @@ class Stage {
                 0,
                 costume.width,
                 costume.height,
-                (-dstWidth / 2) + (costume.colliderPaddingLeft * sprite.size / 100) + colliderOffsetX,
-                dstY + (costume.colliderPaddingTop * sprite.size / 100) + colliderOffsetY,
+                (-dstWidth / 2) + colliderOffsetX,
+                dstY + colliderOffsetY,
                 costume.width * sprite.size / 100,
                 costume.height * sprite.size / 100
             );
@@ -375,8 +375,8 @@ class Stage {
                 0,
                 costume.width,
                 costume.height,
-                dstX + (costume.colliderPaddingLeft * sprite.size / 100) + colliderOffsetX,
-                dstY + (costume.colliderPaddingTop * sprite.size / 100) + colliderOffsetY,
+                dstX + colliderOffsetX,
+                dstY + colliderOffsetY,
                 costume.width * sprite.size / 100,
                 costume.height * sprite.size / 100
             );
