@@ -42,6 +42,8 @@ class Sprite {
     private _centerDistance = 0;
     private _centerAngle = 0;
     private _tags = [];
+    private _xColliderOffset = 0;
+    private _yColliderOffset = 0;
 
     constructor(stage: Stage = null, layer = 1, costumePaths = [], soundPaths = []) {
         if (!Registry.getInstance().has('game')) {
@@ -839,6 +841,7 @@ class Sprite {
         clone._deleted = this.deleted;
         clone._stopped = this.stopped;
         clone._tags = this.tags;
+        clone.colliderNone = this.colliderNone;
 
         for (let i = 0; i < this.costumes.length; i++) {
             clone.cloneCostume(this.costumes[i], this.costumeNames[i]);
@@ -851,7 +854,7 @@ class Sprite {
         }
 
         if (this.collider) {
-            clone.cloneCollider(this)
+            clone.cloneCollider(this);
         }
 
         clone.ready();
@@ -948,12 +951,13 @@ class Sprite {
         if (this.collider) {
             this.stage.collisionSystem.remove(this.collider);
             this.collider = null;
+            this.colliderNone = true;
         }
     }
 
     setRectCollider(width: number, height: number) {
-        const xOffset = this.collider ? this.collider.offset_x : 0;
-        const yOffset = this.collider ? this.collider.offset_y : 0;
+        const xOffset = this.collider ? this.collider.offset_x : this._xColliderOffset;
+        const yOffset = this.collider ? this.collider.offset_y : this._yColliderOffset;
 
         if (this.collider) {
             this.removeCollider()
@@ -981,8 +985,8 @@ class Sprite {
     }
 
     setPolygonCollider(points: [number, number][] = []) {
-        const xOffset = this.collider ? this.collider.offset_x : 0;
-        const yOffset = this.collider ? this.collider.offset_y : 0;
+        const xOffset = this.collider ? this.collider.offset_x : this._xColliderOffset;
+        const yOffset = this.collider ? this.collider.offset_y : this._yColliderOffset;
 
         if (this.collider) {
             this.removeCollider()
@@ -1014,8 +1018,8 @@ class Sprite {
     }
 
     setCircleCollider(radius: number) {
-        const xOffset = this.collider ? this.collider.offset_x : 0;
-        const yOffset = this.collider ? this.collider.offset_y : 0;
+        const xOffset = this.collider ? this.collider.offset_x : this._xColliderOffset;
+        const yOffset = this.collider ? this.collider.offset_y : this._yColliderOffset;
 
         if (this.collider) {
             this.removeCollider()
@@ -1395,6 +1399,7 @@ class Sprite {
     }
 
     set xColliderOffset(value){
+        this._xColliderOffset = value;
         if (this.collider) {
             this.collider.offset_x = value;
             this.updateColliderPosition()
@@ -1409,6 +1414,7 @@ class Sprite {
     }
 
     set yColliderOffset(value){
+        this._yColliderOffset = value;
         if (this.collider) {
             this.collider.offset_y = value;
             this.updateColliderPosition()

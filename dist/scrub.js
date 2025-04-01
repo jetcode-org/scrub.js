@@ -867,6 +867,8 @@ var Sprite = (function () {
         this._centerDistance = 0;
         this._centerAngle = 0;
         this._tags = [];
+        this._xColliderOffset = 0;
+        this._yColliderOffset = 0;
         if (!Registry.getInstance().has('game')) {
             throw new Error('You need create Game instance before Stage instance.');
         }
@@ -1530,6 +1532,7 @@ var Sprite = (function () {
         clone._deleted = this.deleted;
         clone._stopped = this.stopped;
         clone._tags = this.tags;
+        clone.colliderNone = this.colliderNone;
         for (var i = 0; i < this.costumes.length; i++) {
             clone.cloneCostume(this.costumes[i], this.costumeNames[i]);
         }
@@ -1622,11 +1625,12 @@ var Sprite = (function () {
         if (this.collider) {
             this.stage.collisionSystem.remove(this.collider);
             this.collider = null;
+            this.colliderNone = true;
         }
     };
     Sprite.prototype.setRectCollider = function (width, height) {
-        var xOffset = this.collider ? this.collider.offset_x : 0;
-        var yOffset = this.collider ? this.collider.offset_y : 0;
+        var xOffset = this.collider ? this.collider.offset_x : this._xColliderOffset;
+        var yOffset = this.collider ? this.collider.offset_y : this._yColliderOffset;
         if (this.collider) {
             this.removeCollider();
         }
@@ -1650,8 +1654,8 @@ var Sprite = (function () {
     };
     Sprite.prototype.setPolygonCollider = function (points) {
         if (points === void 0) { points = []; }
-        var xOffset = this.collider ? this.collider.offset_x : 0;
-        var yOffset = this.collider ? this.collider.offset_y : 0;
+        var xOffset = this.collider ? this.collider.offset_x : this._xColliderOffset;
+        var yOffset = this.collider ? this.collider.offset_y : this._yColliderOffset;
         if (this.collider) {
             this.removeCollider();
         }
@@ -1675,8 +1679,8 @@ var Sprite = (function () {
         this.updateColliderPosition();
     };
     Sprite.prototype.setCircleCollider = function (radius) {
-        var xOffset = this.collider ? this.collider.offset_x : 0;
-        var yOffset = this.collider ? this.collider.offset_y : 0;
+        var xOffset = this.collider ? this.collider.offset_x : this._xColliderOffset;
+        var yOffset = this.collider ? this.collider.offset_y : this._yColliderOffset;
         if (this.collider) {
             this.removeCollider();
         }
@@ -2111,6 +2115,7 @@ var Sprite = (function () {
             return 0;
         },
         set: function (value) {
+            this._xColliderOffset = value;
             if (this.collider) {
                 this.collider.offset_x = value;
                 this.updateColliderPosition();
@@ -2127,6 +2132,7 @@ var Sprite = (function () {
             return 0;
         },
         set: function (value) {
+            this._yColliderOffset = value;
             if (this.collider) {
                 this.collider.offset_y = value;
                 this.updateColliderPosition();
