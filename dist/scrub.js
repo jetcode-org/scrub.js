@@ -107,7 +107,7 @@ var ComplexSprite = (function () {
     });
     Object.defineProperty(ComplexSprite.prototype, "absoluteY", {
         get: function () {
-            return this._parentComplexSprite ? this._y + this._parentComplexSprite.y : this._x;
+            return this._parentComplexSprite ? this._y + this._parentComplexSprite.y : this._y;
         },
         enumerable: false,
         configurable: true

@@ -76,7 +76,7 @@ class ComplexSprite{
     }
 
     get absoluteY() {
-        return this._parentComplexSprite ? this._y + this._parentComplexSprite.y : this._x;
+        return this._parentComplexSprite ? this._y + this._parentComplexSprite.y : this._y;
     }
 
 
