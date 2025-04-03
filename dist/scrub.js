@@ -1,10 +1,6 @@
 var Costume = (function () {
     function Costume() {
         this.ready = false;
-        this.colliderPaddingTop = 0;
-        this.colliderPaddingRight = 0;
-        this.colliderPaddingBottom = 0;
-        this.colliderPaddingLeft = 0;
     }
     Object.defineProperty(Costume.prototype, "width", {
         get: function () {
@@ -845,8 +841,8 @@ var Sprite = (function () {
         this.phraseLiveTime = null;
         this._x = 0;
         this._y = 0;
-        this._xCenterOffset = 0;
-        this._yCenterOffset = 0;
+        this._centerOffsetX = 0;
+        this._centerOffsetY = 0;
         this._width = 0;
         this._height = 0;
         this._colliderNone = false;
@@ -867,8 +863,8 @@ var Sprite = (function () {
         this._centerDistance = 0;
         this._centerAngle = 0;
         this._tags = [];
-        this._xColliderOffset = 0;
-        this._yColliderOffset = 0;
+        this._colliderOffsetX = 0;
+        this._colliderOffsetY = 0;
         if (!Registry.getInstance().has('game')) {
             throw new Error('You need create Game instance before Stage instance.');
         }
@@ -937,7 +933,7 @@ var Sprite = (function () {
         this.pendingCostumes++;
         var image = new Image();
         image.src = costumePath;
-        if (options === null || options === void 0 ? void 0 : options.imageAlphaColor) {
+        if (options === null || options === void 0 ? void 0 : options.alphaColor) {
             image.crossOrigin = 'anonymous';
         }
         var onLoadImage = function () {
@@ -945,18 +941,9 @@ var Sprite = (function () {
             if (_this.deleted) {
                 return;
             }
-            var transformedImage = _this.transformImage(image, (_a = options === null || options === void 0 ? void 0 : options.imageRotate) !== null && _a !== void 0 ? _a : 0, (_b = options === null || options === void 0 ? void 0 : options.imageFlipX) !== null && _b !== void 0 ? _b : false, (_c = options === null || options === void 0 ? void 0 : options.imageFlipY) !== null && _c !== void 0 ? _c : false, (_d = options === null || options === void 0 ? void 0 : options.imageX) !== null && _d !== void 0 ? _d : 0, (_e = options === null || options === void 0 ? void 0 : options.imageY) !== null && _e !== void 0 ? _e : 0, (_f = options === null || options === void 0 ? void 0 : options.imageWidth) !== null && _f !== void 0 ? _f : image.naturalWidth, (_g = options === null || options === void 0 ? void 0 : options.imageHeight) !== null && _g !== void 0 ? _g : image.naturalHeight, (_h = options === null || options === void 0 ? void 0 : options.imageAlphaColor) !== null && _h !== void 0 ? _h : null, (_j = options === null || options === void 0 ? void 0 : options.imageAlphaTolerance) !== null && _j !== void 0 ? _j : 0);
-            var colliderPadding = (_k = options === null || options === void 0 ? void 0 : options.colliderPadding) !== null && _k !== void 0 ? _k : 0;
-            var colliderPaddingTop = ((_l = options === null || options === void 0 ? void 0 : options.colliderPaddingTop) !== null && _l !== void 0 ? _l : 0) + colliderPadding;
-            var colliderPaddingRight = ((_m = options === null || options === void 0 ? void 0 : options.colliderPaddingRight) !== null && _m !== void 0 ? _m : 0) + colliderPadding;
-            var colliderPaddingBottom = ((_o = options === null || options === void 0 ? void 0 : options.colliderPaddingBottom) !== null && _o !== void 0 ? _o : 0) + colliderPadding;
-            var colliderPaddingLeft = ((_p = options === null || options === void 0 ? void 0 : options.colliderPaddingLeft) !== null && _p !== void 0 ? _p : 0) + colliderPadding;
+            var transformedImage = _this.transformImage(image, (_a = options === null || options === void 0 ? void 0 : options.rotate) !== null && _a !== void 0 ? _a : 0, (_b = options === null || options === void 0 ? void 0 : options.flipX) !== null && _b !== void 0 ? _b : false, (_c = options === null || options === void 0 ? void 0 : options.flipY) !== null && _c !== void 0 ? _c : false, (_d = options === null || options === void 0 ? void 0 : options.x) !== null && _d !== void 0 ? _d : 0, (_e = options === null || options === void 0 ? void 0 : options.y) !== null && _e !== void 0 ? _e : 0, (_f = options === null || options === void 0 ? void 0 : options.width) !== null && _f !== void 0 ? _f : image.naturalWidth, (_g = options === null || options === void 0 ? void 0 : options.height) !== null && _g !== void 0 ? _g : image.naturalHeight, (_h = options === null || options === void 0 ? void 0 : options.alphaColor) !== null && _h !== void 0 ? _h : null, (_j = options === null || options === void 0 ? void 0 : options.alphaTolerance) !== null && _j !== void 0 ? _j : 0, (_k = options === null || options === void 0 ? void 0 : options.crop) !== null && _k !== void 0 ? _k : 0, (_l = options === null || options === void 0 ? void 0 : options.cropTop) !== null && _l !== void 0 ? _l : null, (_m = options === null || options === void 0 ? void 0 : options.cropRight) !== null && _m !== void 0 ? _m : null, (_o = options === null || options === void 0 ? void 0 : options.cropBottom) !== null && _o !== void 0 ? _o : null, (_p = options === null || options === void 0 ? void 0 : options.cropLeft) !== null && _p !== void 0 ? _p : null);
             costume.image = transformedImage;
             costume.ready = true;
-            costume.colliderPaddingTop = colliderPaddingTop;
-            costume.colliderPaddingRight = colliderPaddingRight;
-            costume.colliderPaddingLeft = colliderPaddingLeft;
-            costume.colliderPaddingBottom = colliderPaddingBottom;
             _this.pendingCostumes--;
             _this.tryDoOnReady();
             image.removeEventListener('load', onLoadImage);
@@ -1009,18 +996,9 @@ var Sprite = (function () {
                         var costume = new Costume();
                         _this.costumes.push(costume);
                         _this.costumeNames.push(costumeName + '-' + costumeIndex);
-                        var transformedImage = _this.transformImage(image, (_a = options === null || options === void 0 ? void 0 : options.imageRotate) !== null && _a !== void 0 ? _a : 0, (_b = options === null || options === void 0 ? void 0 : options.imageFlipX) !== null && _b !== void 0 ? _b : false, (_c = options === null || options === void 0 ? void 0 : options.imageFlipY) !== null && _c !== void 0 ? _c : false, x + ((_d = options === null || options === void 0 ? void 0 : options.imageX) !== null && _d !== void 0 ? _d : 0), y + ((_e = options === null || options === void 0 ? void 0 : options.imageY) !== null && _e !== void 0 ? _e : 0), ((_f = options === null || options === void 0 ? void 0 : options.imageWidth) !== null && _f !== void 0 ? _f : chunkWidth), ((_g = options === null || options === void 0 ? void 0 : options.imageHeight) !== null && _g !== void 0 ? _g : chunkHeight), (_h = options === null || options === void 0 ? void 0 : options.imageAlphaColor) !== null && _h !== void 0 ? _h : null, (_j = options === null || options === void 0 ? void 0 : options.imageAlphaTolerance) !== null && _j !== void 0 ? _j : 0);
-                        var colliderPadding = (_k = options === null || options === void 0 ? void 0 : options.colliderPadding) !== null && _k !== void 0 ? _k : 0;
-                        var colliderPaddingTop = ((_l = options === null || options === void 0 ? void 0 : options.colliderPaddingTop) !== null && _l !== void 0 ? _l : 0) + colliderPadding;
-                        var colliderPaddingRight = ((_m = options === null || options === void 0 ? void 0 : options.colliderPaddingRight) !== null && _m !== void 0 ? _m : 0) + colliderPadding;
-                        var colliderPaddingBottom = ((_o = options === null || options === void 0 ? void 0 : options.colliderPaddingBottom) !== null && _o !== void 0 ? _o : 0) + colliderPadding;
-                        var colliderPaddingLeft = ((_p = options === null || options === void 0 ? void 0 : options.colliderPaddingLeft) !== null && _p !== void 0 ? _p : 0) + colliderPadding;
+                        var transformedImage = _this.transformImage(image, (_a = options === null || options === void 0 ? void 0 : options.rotate) !== null && _a !== void 0 ? _a : 0, (_b = options === null || options === void 0 ? void 0 : options.flipX) !== null && _b !== void 0 ? _b : false, (_c = options === null || options === void 0 ? void 0 : options.flipY) !== null && _c !== void 0 ? _c : false, x + ((_d = options === null || options === void 0 ? void 0 : options.imageX) !== null && _d !== void 0 ? _d : 0), y + ((_e = options === null || options === void 0 ? void 0 : options.imageY) !== null && _e !== void 0 ? _e : 0), ((_f = options === null || options === void 0 ? void 0 : options.width) !== null && _f !== void 0 ? _f : chunkWidth), ((_g = options === null || options === void 0 ? void 0 : options.height) !== null && _g !== void 0 ? _g : chunkHeight), (_h = options === null || options === void 0 ? void 0 : options.alphaColor) !== null && _h !== void 0 ? _h : null, (_j = options === null || options === void 0 ? void 0 : options.alphaTolerance) !== null && _j !== void 0 ? _j : 0, (_k = options === null || options === void 0 ? void 0 : options.crop) !== null && _k !== void 0 ? _k : 0, (_l = options === null || options === void 0 ? void 0 : options.cropTop) !== null && _l !== void 0 ? _l : null, (_m = options === null || options === void 0 ? void 0 : options.cropRight) !== null && _m !== void 0 ? _m : null, (_o = options === null || options === void 0 ? void 0 : options.cropBottom) !== null && _o !== void 0 ? _o : null, (_p = options === null || options === void 0 ? void 0 : options.cropLeft) !== null && _p !== void 0 ? _p : null);
                         costume.image = transformedImage;
                         costume.ready = true;
-                        costume.colliderPaddingTop = colliderPaddingTop;
-                        costume.colliderPaddingRight = colliderPaddingRight;
-                        costume.colliderPaddingLeft = colliderPaddingLeft;
-                        costume.colliderPaddingBottom = colliderPaddingBottom;
                         costumeIndex++;
                     }
                     x += chunkWidth;
@@ -1039,34 +1017,19 @@ var Sprite = (function () {
         var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s;
         var image = document.createElement('canvas');
         var context = image.getContext('2d');
-        image.width = (_a = options === null || options === void 0 ? void 0 : options.imageWidth) !== null && _a !== void 0 ? _a : 100;
-        image.height = (_b = options === null || options === void 0 ? void 0 : options.imageHeight) !== null && _b !== void 0 ? _b : 100;
+        image.width = (_a = options === null || options === void 0 ? void 0 : options.width) !== null && _a !== void 0 ? _a : 100;
+        image.height = (_b = options === null || options === void 0 ? void 0 : options.height) !== null && _b !== void 0 ? _b : 100;
         this.pendingCostumes++;
         callback(context, this);
         var costumeIndex = this.costumes.length;
         var costumeName = ((_c = options === null || options === void 0 ? void 0 : options.name) !== null && _c !== void 0 ? _c : 'Costume') + '-' + costumeIndex;
-        var colliderPadding = (_d = options === null || options === void 0 ? void 0 : options.colliderPadding) !== null && _d !== void 0 ? _d : 0;
-        var colliderPaddingTop = ((_e = options === null || options === void 0 ? void 0 : options.colliderPaddingTop) !== null && _e !== void 0 ? _e : 0) + colliderPadding;
-        var colliderPaddingRight = ((_f = options === null || options === void 0 ? void 0 : options.colliderPaddingRight) !== null && _f !== void 0 ? _f : 0) + colliderPadding;
-        var colliderPaddingBottom = ((_g = options === null || options === void 0 ? void 0 : options.colliderPaddingBottom) !== null && _g !== void 0 ? _g : 0) + colliderPadding;
-        var colliderPaddingLeft = ((_h = options === null || options === void 0 ? void 0 : options.colliderPaddingLeft) !== null && _h !== void 0 ? _h : 0) + colliderPadding;
-        var needTransform = (options === null || options === void 0 ? void 0 : options.imageRotate) ||
-            (options === null || options === void 0 ? void 0 : options.imageFlipX) ||
-            (options === null || options === void 0 ? void 0 : options.imageFlipY) ||
-            (options === null || options === void 0 ? void 0 : options.imageX) ||
-            (options === null || options === void 0 ? void 0 : options.imageY) ||
-            (options === null || options === void 0 ? void 0 : options.imageAlphaColor) ||
-            (options === null || options === void 0 ? void 0 : options.imageAlphaTolerance);
+        var needTransform = Object.values(options || {}).some(function (value) { return !!value; });
         if (needTransform) {
-            image = this.transformImage(image, (_j = options === null || options === void 0 ? void 0 : options.imageRotate) !== null && _j !== void 0 ? _j : 0, (_k = options === null || options === void 0 ? void 0 : options.imageFlipX) !== null && _k !== void 0 ? _k : false, (_l = options === null || options === void 0 ? void 0 : options.imageFlipY) !== null && _l !== void 0 ? _l : false, (_m = options === null || options === void 0 ? void 0 : options.imageX) !== null && _m !== void 0 ? _m : 0, (_o = options === null || options === void 0 ? void 0 : options.imageY) !== null && _o !== void 0 ? _o : 0, (_p = options === null || options === void 0 ? void 0 : options.imageWidth) !== null && _p !== void 0 ? _p : image.width, (_q = options === null || options === void 0 ? void 0 : options.imageHeight) !== null && _q !== void 0 ? _q : image.height, (_r = options === null || options === void 0 ? void 0 : options.imageAlphaColor) !== null && _r !== void 0 ? _r : null, (_s = options === null || options === void 0 ? void 0 : options.imageAlphaTolerance) !== null && _s !== void 0 ? _s : 0);
+            image = this.transformImage(image, (_d = options === null || options === void 0 ? void 0 : options.rotate) !== null && _d !== void 0 ? _d : 0, (_e = options === null || options === void 0 ? void 0 : options.flipX) !== null && _e !== void 0 ? _e : false, (_f = options === null || options === void 0 ? void 0 : options.flipY) !== null && _f !== void 0 ? _f : false, (_g = options === null || options === void 0 ? void 0 : options.x) !== null && _g !== void 0 ? _g : 0, (_h = options === null || options === void 0 ? void 0 : options.y) !== null && _h !== void 0 ? _h : 0, (_j = options === null || options === void 0 ? void 0 : options.width) !== null && _j !== void 0 ? _j : image.width, (_k = options === null || options === void 0 ? void 0 : options.height) !== null && _k !== void 0 ? _k : image.height, (_l = options === null || options === void 0 ? void 0 : options.alphaColor) !== null && _l !== void 0 ? _l : null, (_m = options === null || options === void 0 ? void 0 : options.alphaTolerance) !== null && _m !== void 0 ? _m : 0, (_o = options === null || options === void 0 ? void 0 : options.crop) !== null && _o !== void 0 ? _o : 0, (_p = options === null || options === void 0 ? void 0 : options.cropTop) !== null && _p !== void 0 ? _p : null, (_q = options === null || options === void 0 ? void 0 : options.cropRight) !== null && _q !== void 0 ? _q : null, (_r = options === null || options === void 0 ? void 0 : options.cropBottom) !== null && _r !== void 0 ? _r : null, (_s = options === null || options === void 0 ? void 0 : options.cropLeft) !== null && _s !== void 0 ? _s : null);
         }
         var costume = new Costume();
         costume.image = image;
         costume.ready = true;
-        costume.colliderPaddingTop = colliderPaddingTop;
-        costume.colliderPaddingRight = colliderPaddingRight;
-        costume.colliderPaddingLeft = colliderPaddingLeft;
-        costume.colliderPaddingBottom = colliderPaddingBottom;
         this.costumes.push(costume);
         this.costumeNames.push(costumeName + '-' + costumeIndex);
         this.pendingCostumes--;
@@ -1524,8 +1487,8 @@ var Sprite = (function () {
         clone.rotateStyle = this.rotateStyle;
         clone.x = this.x;
         clone.y = this.y;
-        clone.xCenterOffset = this.xCenterOffset;
-        clone.yCenterOffset = this.yCenterOffset;
+        clone.centerOffsetX = this.centerOffsetX;
+        clone.centerOffsetY = this.centerOffsetY;
         clone.direction = this.direction;
         clone.size = this.size;
         clone.hidden = this.hidden;
@@ -1614,6 +1577,20 @@ var Sprite = (function () {
     Sprite.prototype.stop = function () {
         this._stopped = true;
     };
+    Sprite.prototype.setCenterOffset = function (x, y) {
+        if (x === void 0) { x = 0; }
+        if (y === void 0) { y = 0; }
+        this.centerOffsetX = x;
+        this.centerOffsetY = y;
+        return this;
+    };
+    Sprite.prototype.setColliderOffset = function (x, y) {
+        if (x === void 0) { x = 0; }
+        if (y === void 0) { y = 0; }
+        this.colliderOffsetX = x;
+        this.colliderOffsetY = y;
+        return this;
+    };
     Sprite.prototype.getCollider = function () {
         return this.collider;
     };
@@ -1629,8 +1606,8 @@ var Sprite = (function () {
         }
     };
     Sprite.prototype.setRectCollider = function (width, height) {
-        var xOffset = this.collider ? this.collider.offset_x : this._xColliderOffset;
-        var yOffset = this.collider ? this.collider.offset_y : this._yColliderOffset;
+        var xOffset = this.collider ? this.collider.offset_x : this._colliderOffsetX;
+        var yOffset = this.collider ? this.collider.offset_y : this._colliderOffsetY;
         if (this.collider) {
             this.removeCollider();
         }
@@ -1654,8 +1631,8 @@ var Sprite = (function () {
     };
     Sprite.prototype.setPolygonCollider = function (points) {
         if (points === void 0) { points = []; }
-        var xOffset = this.collider ? this.collider.offset_x : this._xColliderOffset;
-        var yOffset = this.collider ? this.collider.offset_y : this._yColliderOffset;
+        var xOffset = this.collider ? this.collider.offset_x : this._colliderOffsetX;
+        var yOffset = this.collider ? this.collider.offset_y : this._colliderOffsetY;
         if (this.collider) {
             this.removeCollider();
         }
@@ -1679,8 +1656,8 @@ var Sprite = (function () {
         this.updateColliderPosition();
     };
     Sprite.prototype.setCircleCollider = function (radius) {
-        var xOffset = this.collider ? this.collider.offset_x : this._xColliderOffset;
-        var yOffset = this.collider ? this.collider.offset_y : this._yColliderOffset;
+        var xOffset = this.collider ? this.collider.offset_x : this._colliderOffsetX;
+        var yOffset = this.collider ? this.collider.offset_y : this._colliderOffsetY;
         if (this.collider) {
             this.removeCollider();
         }
@@ -1884,16 +1861,22 @@ var Sprite = (function () {
     });
     Object.defineProperty(Sprite.prototype, "width", {
         get: function () {
-            var angleRadians = this.angleRadians;
-            return Math.abs(this.sourceWidth * Math.cos(angleRadians)) + Math.abs(this.sourceHeight * Math.sin(angleRadians));
+            if (this.collider instanceof PolygonCollider) {
+                var angleRadians = this.angleRadians;
+                return Math.abs(this.sourceWidth * Math.cos(angleRadians)) + Math.abs(this.sourceHeight * Math.sin(angleRadians));
+            }
+            return this.sourceWidth;
         },
         enumerable: false,
         configurable: true
     });
     Object.defineProperty(Sprite.prototype, "height", {
         get: function () {
-            var angleRadians = this.angleRadians;
-            return Math.abs(this.sourceWidth * Math.sin(angleRadians)) + Math.abs(this.sourceHeight * Math.cos(angleRadians));
+            if (this.collider instanceof PolygonCollider) {
+                var angleRadians = this.angleRadians;
+                return Math.abs(this.sourceWidth * Math.sin(angleRadians)) + Math.abs(this.sourceHeight * Math.cos(angleRadians));
+            }
+            return this.sourceHeight;
         },
         enumerable: false,
         configurable: true
@@ -1928,7 +1911,7 @@ var Sprite = (function () {
         get: function () {
             if (this.rotateStyle === 'leftRight' || this.rotateStyle === 'none') {
                 var leftRightMultiplier = this._direction > 180 && this.rotateStyle === 'leftRight' ? -1 : 1;
-                return this._x - this._xCenterOffset * leftRightMultiplier * this.size / 100;
+                return this._x - this._centerOffsetX * leftRightMultiplier * this.size / 100;
             }
             return this._x + Math.cos(this._centerAngle - this.angleRadians) * this._centerDistance * this.size / 100;
         },
@@ -1938,7 +1921,7 @@ var Sprite = (function () {
     Object.defineProperty(Sprite.prototype, "sourceY", {
         get: function () {
             if (this.rotateStyle === 'leftRight' || this.rotateStyle === 'none') {
-                return this._y - this._yCenterOffset * this.size / 100;
+                return this._y - this._centerOffsetY * this.size / 100;
             }
             return this._y - Math.sin(this._centerAngle - this.angleRadians) * this._centerDistance * this.size / 100;
         },
@@ -2053,26 +2036,26 @@ var Sprite = (function () {
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(Sprite.prototype, "xCenterOffset", {
+    Object.defineProperty(Sprite.prototype, "centerOffsetX", {
         get: function () {
-            return this._xCenterOffset;
+            return this._centerOffsetX;
         },
         set: function (value) {
             var prevX = this.x;
-            this._xCenterOffset = value;
+            this._centerOffsetX = value;
             this.updateCenterParams();
             this.x = prevX;
         },
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(Sprite.prototype, "yCenterOffset", {
+    Object.defineProperty(Sprite.prototype, "centerOffsetY", {
         get: function () {
-            return this._yCenterOffset;
+            return this._centerOffsetY;
         },
         set: function (value) {
             var prevY = this.y;
-            this._yCenterOffset = value;
+            this._centerOffsetY = value;
             this.updateCenterParams();
             this.y = prevY;
         },
@@ -2107,15 +2090,15 @@ var Sprite = (function () {
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(Sprite.prototype, "xColliderOffset", {
+    Object.defineProperty(Sprite.prototype, "colliderOffsetX", {
         get: function () {
             if (this.collider) {
                 return this.collider.offset_x;
             }
-            return 0;
+            return this._colliderOffsetX;
         },
         set: function (value) {
-            this._xColliderOffset = value;
+            this._colliderOffsetX = value;
             if (this.collider) {
                 this.collider.offset_x = value;
                 this.updateColliderPosition();
@@ -2124,7 +2107,7 @@ var Sprite = (function () {
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(Sprite.prototype, "yColliderOffset", {
+    Object.defineProperty(Sprite.prototype, "colliderOffsetY", {
         get: function () {
             if (this.collider) {
                 return this.collider.offset_y;
@@ -2132,7 +2115,7 @@ var Sprite = (function () {
             return 0;
         },
         set: function (value) {
-            this._yColliderOffset = value;
+            this._colliderOffsetY = value;
             if (this.collider) {
                 this.collider.offset_y = value;
                 this.updateColliderPosition();
@@ -2144,7 +2127,7 @@ var Sprite = (function () {
     Sprite.prototype.ready = function () {
         this.tryDoOnReady();
     };
-    Sprite.prototype.transformImage = function (srcImage, rotate, flipX, flipY, imageX, imageY, imageWidth, imageHeight, imageAlphaColor, imageAlphaTolerance) {
+    Sprite.prototype.transformImage = function (srcImage, rotate, flipX, flipY, imageX, imageY, imageWidth, imageHeight, imageAlphaColor, imageAlphaTolerance, crop, cropTop, cropRight, cropBottom, cropLeft) {
         if (flipX === void 0) { flipX = false; }
         if (flipY === void 0) { flipY = false; }
         if (imageX === void 0) { imageX = 0; }
@@ -2153,6 +2136,21 @@ var Sprite = (function () {
         if (imageHeight === void 0) { imageHeight = null; }
         if (imageAlphaColor === void 0) { imageAlphaColor = null; }
         if (imageAlphaTolerance === void 0) { imageAlphaTolerance = 0; }
+        if (crop === void 0) { crop = 0; }
+        if (cropTop === void 0) { cropTop = null; }
+        if (cropRight === void 0) { cropRight = null; }
+        if (cropBottom === void 0) { cropBottom = null; }
+        if (cropLeft === void 0) { cropLeft = null; }
+        cropTop = cropTop !== null && cropTop !== void 0 ? cropTop : crop;
+        cropRight = cropRight !== null && cropRight !== void 0 ? cropRight : crop;
+        cropBottom = cropBottom !== null && cropBottom !== void 0 ? cropBottom : crop;
+        cropLeft = cropLeft !== null && cropLeft !== void 0 ? cropLeft : crop;
+        imageX += cropRight;
+        imageWidth -= cropRight;
+        imageWidth -= cropLeft;
+        imageY += cropTop;
+        imageHeight -= cropTop;
+        imageHeight -= cropBottom;
         var imageCanvas = document.createElement('canvas');
         var context = imageCanvas.getContext('2d');
         var radians = rotate * Math.PI / 180;
@@ -2256,7 +2254,7 @@ var Sprite = (function () {
                 this.switchCostume(0);
             }
             if (!this.collider && !this.colliderNone && this.costumes.length) {
-                this.createColliderFromCostume(this.costumes[0]);
+                this.setColliderFromCostume(this.costumes[0]);
             }
             if (this.onReadyCallbacks.length) {
                 try {
@@ -2280,10 +2278,8 @@ var Sprite = (function () {
             });
         }
     };
-    Sprite.prototype.createColliderFromCostume = function (costume) {
-        this.setRectCollider(costume.width + costume.colliderPaddingLeft + costume.colliderPaddingRight, costume.height + costume.colliderPaddingTop + costume.colliderPaddingBottom);
-        this.collider.offset_x = (costume.colliderPaddingLeft - costume.colliderPaddingRight) / 2;
-        this.collider.offset_y = -(costume.colliderPaddingTop - costume.colliderPaddingBottom) / 2;
+    Sprite.prototype.setColliderFromCostume = function (costume) {
+        this.setRectCollider(costume.width, costume.height);
         this.updateColliderPosition();
     };
     Sprite.prototype.calculateCentroid = function (points) {
@@ -2339,8 +2335,8 @@ var Sprite = (function () {
         return { width: width, height: height };
     };
     Sprite.prototype.updateCenterParams = function () {
-        this._centerDistance = Math.hypot(this._xCenterOffset, this._yCenterOffset);
-        this._centerAngle = -Math.atan2(-this._yCenterOffset, -this._xCenterOffset);
+        this._centerDistance = Math.hypot(this._centerOffsetX, this._centerOffsetY);
+        this._centerAngle = -Math.atan2(-this._centerOffsetY, -this._centerOffsetX);
     };
     Sprite.prototype.updateColliderPosition = function () {
         this.collider.x = this.sourceX + this.collider.center_offset_x * this.size / 100;
@@ -3513,9 +3509,9 @@ var Stage = (function () {
                                 y += 20;
                                 _this.context.fillText("costume: " + sprite.getCostumeName(), x, y);
                                 y += 20;
-                                _this.context.fillText("xOffset: " + sprite.xCenterOffset, x, y);
+                                _this.context.fillText("xOffset: " + sprite.centerOffsetX, x, y);
                                 y += 20;
-                                _this.context.fillText("yOffset: " + sprite.yCenterOffset, x, y);
+                                _this.context.fillText("yOffset: " + sprite.centerOffsetY, x, y);
                                 _this.context.beginPath();
                                 _this.context.moveTo(sprite.x - 2, sprite.y);
                                 _this.context.lineTo(sprite.x + 2, sprite.y);
@@ -4215,10 +4211,10 @@ var Collider = (function () {
     });
     Object.defineProperty(Collider.prototype, "offset_x", {
         get: function () {
-            return this._offset_x;
+            return -this._offset_x;
         },
         set: function (value) {
-            this._offset_x = value;
+            this._offset_x = -value;
             this.updateCenterParams();
         },
         enumerable: false,

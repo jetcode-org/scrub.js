@@ -101,12 +101,12 @@ class Collider {
 	}
 
 	set offset_x(value){
-		this._offset_x = value;
+		this._offset_x = -value;
 		this.updateCenterParams()
 	}
 
 	get offset_x(){
-		return this._offset_x;
+		return -this._offset_x;
 	}
 
 	set offset_y(value){
@@ -123,6 +123,7 @@ class Collider {
 			const leftRightMultiplier = this._parent_sprite._direction > 180 && this._parent_sprite.rotateStyle === 'leftRight' ? -1 : 1;
 			return this._parent_sprite.collider._offset_x * leftRightMultiplier;
 		}
+
 		return this._center_distance * Math.cos(this._center_angle - this._parent_sprite.angleRadians);
 	}
 
@@ -130,6 +131,7 @@ class Collider {
 		if (this._parent_sprite.rotateStyle === 'leftRight' || this._parent_sprite.rotateStyle === 'none') {
 			return -this._parent_sprite.collider._offset_y;
 		}
+
 		return -this._center_distance * Math.sin(this._center_angle - this._parent_sprite.angleRadians);
 	}
 

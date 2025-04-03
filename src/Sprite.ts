@@ -18,8 +18,8 @@ class Sprite {
     private phraseLiveTime = null;
     private _x = 0;
     private _y = 0;
-    private _xCenterOffset = 0;
-    private _yCenterOffset = 0;
+    private _centerOffsetX = 0;
+    private _centerOffsetY = 0;
     private _width = 0;
     private _height = 0;
     private _colliderNone = false;
@@ -42,8 +42,8 @@ class Sprite {
     private _centerDistance = 0;
     private _centerAngle = 0;
     private _tags = [];
-    private _xColliderOffset = 0;
-    private _yColliderOffset = 0;
+    private _colliderOffsetX = 0;
+    private _colliderOffsetY = 0;
 
     constructor(stage: Stage = null, layer = 1, costumePaths = [], soundPaths = []) {
         if (!Registry.getInstance().has('game')) {
@@ -111,7 +111,7 @@ class Sprite {
         const image = new Image();
         image.src = costumePath;
 
-        if (options?.imageAlphaColor) {
+        if (options?.alphaColor) {
             image.crossOrigin = 'anonymous';
         }
 
@@ -122,29 +122,24 @@ class Sprite {
 
             const transformedImage = this.transformImage(
                 image,
-                options?.imageRotate ?? 0,
-                options?.imageFlipX ?? false,
-                options?.imageFlipY ?? false,
-                options?.imageX ?? 0,
-                options?.imageY ?? 0,
-                options?.imageWidth ?? image.naturalWidth,
-                options?.imageHeight ?? image.naturalHeight,
-                options?.imageAlphaColor ?? null,
-                options?.imageAlphaTolerance ?? 0
+                options?.rotate ?? 0,
+                options?.flipX ?? false,
+                options?.flipY ?? false,
+                options?.x ?? 0,
+                options?.y ?? 0,
+                options?.width ?? image.naturalWidth,
+                options?.height ?? image.naturalHeight,
+                options?.alphaColor ?? null,
+                options?.alphaTolerance ?? 0,
+                options?.crop ?? 0,
+                options?.cropTop ?? null,
+                options?.cropRight ?? null,
+                options?.cropBottom ?? null,
+                options?.cropLeft ?? null
             );
-
-            const colliderPadding = options?.colliderPadding ?? 0;
-            const colliderPaddingTop = (options?.colliderPaddingTop ?? 0) + colliderPadding;
-            const colliderPaddingRight = (options?.colliderPaddingRight ?? 0) + colliderPadding;
-            const colliderPaddingBottom = (options?.colliderPaddingBottom ?? 0) + colliderPadding;
-            const colliderPaddingLeft = (options?.colliderPaddingLeft ?? 0) + colliderPadding;
 
             costume.image = transformedImage;
             costume.ready = true;
-            costume.colliderPaddingTop = colliderPaddingTop;
-            costume.colliderPaddingRight = colliderPaddingRight;
-            costume.colliderPaddingLeft = colliderPaddingLeft;
-            costume.colliderPaddingBottom = colliderPaddingBottom
 
             this.pendingCostumes--;
             this.tryDoOnReady();
@@ -214,29 +209,24 @@ class Sprite {
 
                         const transformedImage = this.transformImage(
                             image,
-                            options?.imageRotate ?? 0,
-                            options?.imageFlipX ?? false,
-                            options?.imageFlipY ?? false,
+                            options?.rotate ?? 0,
+                            options?.flipX ?? false,
+                            options?.flipY ?? false,
                             x + (options?.imageX ?? 0),
                             y + (options?.imageY ?? 0),
-                            (options?.imageWidth ?? chunkWidth),
-                            (options?.imageHeight ?? chunkHeight),
-                            options?.imageAlphaColor ?? null,
-                            options?.imageAlphaTolerance ?? 0
+                            (options?.width ?? chunkWidth),
+                            (options?.height ?? chunkHeight),
+                            options?.alphaColor ?? null,
+                            options?.alphaTolerance ?? 0,
+                            options?.crop ?? 0,
+                            options?.cropTop ?? null,
+                            options?.cropRight ?? null,
+                            options?.cropBottom ?? null,
+                            options?.cropLeft ?? null
                         );
-
-                        const colliderPadding = options?.colliderPadding ?? 0;
-                        const colliderPaddingTop = (options?.colliderPaddingTop ?? 0) + colliderPadding;
-                        const colliderPaddingRight = (options?.colliderPaddingRight ?? 0) + colliderPadding;
-                        const colliderPaddingBottom = (options?.colliderPaddingBottom ?? 0) + colliderPadding;
-                        const colliderPaddingLeft = (options?.colliderPaddingLeft ?? 0) + colliderPadding;
 
                         costume.image = transformedImage;
                         costume.ready = true;
-                        costume.colliderPaddingTop = colliderPaddingTop;
-                        costume.colliderPaddingRight = colliderPaddingRight;
-                        costume.colliderPaddingLeft = colliderPaddingLeft;
-                        costume.colliderPaddingBottom = colliderPaddingBottom
 
                         costumeIndex++;
                     }
@@ -262,8 +252,8 @@ class Sprite {
         let image = document.createElement('canvas');
         const context = image.getContext('2d');
 
-        image.width = options?.imageWidth ?? 100;
-        image.height = options?.imageHeight ?? 100;
+        image.width = options?.width ?? 100;
+        image.height = options?.height ?? 100;
 
         this.pendingCostumes++;
         callback(context, this);
@@ -271,44 +261,30 @@ class Sprite {
         const costumeIndex = this.costumes.length;
         const costumeName = (options?.name ?? 'Costume') + '-' + costumeIndex;
 
-        const colliderPadding = options?.colliderPadding ?? 0;
-        const colliderPaddingTop = (options?.colliderPaddingTop ?? 0) + colliderPadding;
-        const colliderPaddingRight = (options?.colliderPaddingRight ?? 0) + colliderPadding;
-        const colliderPaddingBottom = (options?.colliderPaddingBottom ?? 0) + colliderPadding;
-        const colliderPaddingLeft = (options?.colliderPaddingLeft ?? 0) + colliderPadding;
-
-        const needTransform =
-            options?.imageRotate ||
-            options?.imageFlipX ||
-            options?.imageFlipY ||
-            options?.imageX ||
-            options?.imageY ||
-            options?.imageAlphaColor ||
-            options?.imageAlphaTolerance
-        ;
-
+        const needTransform = Object.values(options || {}).some(value => !!value);
         if (needTransform) {
             image = this.transformImage(
                 image,
-                options?.imageRotate ?? 0,
-                options?.imageFlipX ?? false,
-                options?.imageFlipY ?? false,
-                options?.imageX ?? 0,
-                options?.imageY ?? 0,
-                options?.imageWidth ?? image.width,
-                options?.imageHeight ?? image.height,
-                options?.imageAlphaColor ?? null,
-                options?.imageAlphaTolerance ?? 0
+                options?.rotate ?? 0,
+                options?.flipX ?? false,
+                options?.flipY ?? false,
+                options?.x ?? 0,
+                options?.y ?? 0,
+                options?.width ?? image.width,
+                options?.height ?? image.height,
+                options?.alphaColor ?? null,
+                options?.alphaTolerance ?? 0,
+                options?.crop ?? 0,
+                options?.cropTop ?? null,
+                options?.cropRight ?? null,
+                options?.cropBottom ?? null,
+                options?.cropLeft ?? null
             );
         }
 
         const costume = new Costume();
         costume.image = image;
         costume.ready = true;
-        costume.colliderPaddingTop = colliderPaddingTop;
-        costume.colliderPaddingRight = colliderPaddingRight;
-        costume.colliderPaddingLeft = colliderPaddingLeft;
-        costume.colliderPaddingBottom = colliderPaddingBottom
 
         this.costumes.push(costume);
         this.costumeNames.push(costumeName + '-' + costumeIndex);
@@ -833,8 +809,8 @@ class Sprite {
 
         clone.x = this.x;
         clone.y = this.y;
-        clone.xCenterOffset = this.xCenterOffset;
-        clone.yCenterOffset = this.yCenterOffset;
+        clone.centerOffsetX = this.centerOffsetX;
+        clone.centerOffsetY = this.centerOffsetY;
         clone.direction = this.direction;
         clone.size = this.size;
         clone.hidden = this.hidden;
@@ -938,6 +914,20 @@ class Sprite {
         this._stopped = true;
     }
 
+    setCenterOffset(x: number = 0, y: number = 0): this {
+        this.centerOffsetX = x;
+        this.centerOffsetY = y;
+
+        return this;
+    }
+
+    setColliderOffset(x: number = 0, y: number = 0): this {
+        this.colliderOffsetX = x;
+        this.colliderOffsetY = y;
+
+        return this;
+    }
+
     getCollider(): Collider {
         return this.collider;
     }
@@ -956,11 +946,11 @@ class Sprite {
     }
 
     setRectCollider(width: number, height: number) {
-        const xOffset = this.collider ? this.collider.offset_x : this._xColliderOffset;
-        const yOffset = this.collider ? this.collider.offset_y : this._yColliderOffset;
+        const xOffset = this.collider ? this.collider.offset_x : this._colliderOffsetX;
+        const yOffset = this.collider ? this.collider.offset_y : this._colliderOffsetY;
 
         if (this.collider) {
-            this.removeCollider()
+            this.removeCollider();
         }
 
         let angle = 0;
@@ -981,15 +971,15 @@ class Sprite {
         this.collider.offset_y = yOffset;
 
         this.stage.collisionSystem.insert(this.collider);
-        this.updateColliderPosition()
+        this.updateColliderPosition();
     }
 
     setPolygonCollider(points: [number, number][] = []) {
-        const xOffset = this.collider ? this.collider.offset_x : this._xColliderOffset;
-        const yOffset = this.collider ? this.collider.offset_y : this._yColliderOffset;
+        const xOffset = this.collider ? this.collider.offset_x : this._colliderOffsetX;
+        const yOffset = this.collider ? this.collider.offset_y : this._colliderOffsetY;
 
         if (this.collider) {
-            this.removeCollider()
+            this.removeCollider();
         }
 
         let angleRadians = 0;
@@ -1014,15 +1004,15 @@ class Sprite {
         this.collider.offset_y = yOffset;
 
         this.stage.collisionSystem.insert(this.collider);
-        this.updateColliderPosition()
+        this.updateColliderPosition();
     }
 
     setCircleCollider(radius: number) {
-        const xOffset = this.collider ? this.collider.offset_x : this._xColliderOffset;
-        const yOffset = this.collider ? this.collider.offset_y : this._yColliderOffset;
+        const xOffset = this.collider ? this.collider.offset_x : this._colliderOffsetX;
+        const yOffset = this.collider ? this.collider.offset_y : this._colliderOffsetY;
 
         if (this.collider) {
-            this.removeCollider()
+            this.removeCollider();
         }
 
         this.collider = new CircleCollider(this.x, this.y, radius, this.size / 100);
@@ -1033,7 +1023,7 @@ class Sprite {
         this.collider.offset_y = yOffset;
 
         this.stage.collisionSystem.insert(this.collider);
-        this.updateColliderPosition()
+        this.updateColliderPosition();
     }
 
     getCostume(): Costume {
@@ -1216,15 +1206,23 @@ class Sprite {
     }
 
     get width(): number {
-        const angleRadians = this.angleRadians;
+        if (this.collider instanceof PolygonCollider) {
+            const angleRadians = this.angleRadians;
 
-        return Math.abs(this.sourceWidth * Math.cos(angleRadians)) + Math.abs(this.sourceHeight * Math.sin(angleRadians));
+            return Math.abs(this.sourceWidth * Math.cos(angleRadians)) + Math.abs(this.sourceHeight * Math.sin(angleRadians));
+        }
+
+        return this.sourceWidth;
     }
 
     get height(): number {
-        const angleRadians = this.angleRadians;
+        if (this.collider instanceof PolygonCollider) {
+            const angleRadians = this.angleRadians;
 
-        return Math.abs(this.sourceWidth * Math.sin(angleRadians)) + Math.abs(this.sourceHeight * Math.cos(angleRadians));
+            return Math.abs(this.sourceWidth * Math.sin(angleRadians)) + Math.abs(this.sourceHeight * Math.cos(angleRadians));
+        }
+
+        return this.sourceHeight;
     }
 
     set x(value: number) {
@@ -1255,7 +1253,7 @@ class Sprite {
         if (this.rotateStyle === 'leftRight' || this.rotateStyle === 'none') {
             const leftRightMultiplier = this._direction > 180 && this.rotateStyle === 'leftRight' ? -1 : 1;
 
-            return this._x - this._xCenterOffset * leftRightMultiplier * this.size / 100;
+            return this._x - this._centerOffsetX * leftRightMultiplier * this.size / 100;
         }
 
         return this._x + Math.cos(this._centerAngle - this.angleRadians) * this._centerDistance * this.size / 100;
@@ -1263,7 +1261,7 @@ class Sprite {
 
     get sourceY() {
         if (this.rotateStyle === 'leftRight' || this.rotateStyle === 'none') {
-            return this._y - this._yCenterOffset * this.size / 100;
+            return this._y - this._centerOffsetY * this.size / 100;
         }
 
         return this._y - Math.sin(this._centerAngle - this.angleRadians) * this._centerDistance * this.size / 100;
@@ -1356,26 +1354,26 @@ class Sprite {
         return this._stopped;
     }
 
-    set xCenterOffset(value:number) {
+    set centerOffsetX(value:number) {
         const prevX = this.x;
-        this._xCenterOffset = value;
+        this._centerOffsetX = value;
         this.updateCenterParams()
         this.x = prevX;
     }
 
-    get xCenterOffset() {
-        return this._xCenterOffset;
+    get centerOffsetX() {
+        return this._centerOffsetX;
     }
 
-    set yCenterOffset(value:number) {
+    set centerOffsetY(value:number) {
         const prevY = this.y;
-        this._yCenterOffset = value;
+        this._centerOffsetY = value;
         this.updateCenterParams()
         this.y = prevY;
     }
 
-    get yCenterOffset() {
-        return this._yCenterOffset;
+    get centerOffsetY() {
+        return this._centerOffsetY;
     }
 
     set layer(newLayer: number) {
@@ -1398,30 +1396,31 @@ class Sprite {
         return this.collisionResult.b.parentSprite;
     }
 
-    set xColliderOffset(value){
-        this._xColliderOffset = value;
+    set colliderOffsetX(value){
+        this._colliderOffsetX = value;
         if (this.collider) {
             this.collider.offset_x = value;
             this.updateColliderPosition()
         }
     }
 
-    get xColliderOffset(){
+    get colliderOffsetX(){
         if (this.collider) {
             return this.collider.offset_x;
         }
-        return 0;
+
+        return this._colliderOffsetX;
     }
 
-    set yColliderOffset(value){
-        this._yColliderOffset = value;
+    set colliderOffsetY(value){
+        this._colliderOffsetY = value;
         if (this.collider) {
             this.collider.offset_y = value;
             this.updateColliderPosition()
         }
     }
 
-    get yColliderOffset(){
+    get colliderOffsetY(){
         if (this.collider) {
             return this.collider.offset_y;
         }
@@ -1442,8 +1441,25 @@ class Sprite {
         imageWidth: number = null,
         imageHeight: number = null,
         imageAlphaColor = null,
-        imageAlphaTolerance = 0
+        imageAlphaTolerance = 0,
+        crop = 0,
+        cropTop = null,
+        cropRight = null,
+        cropBottom = null,
+        cropLeft = null
     ): HTMLCanvasElement {
+        cropTop = cropTop ?? crop;
+        cropRight = cropRight ?? crop;
+        cropBottom = cropBottom ?? crop;
+        cropLeft = cropLeft ?? crop;
+
+        imageX += cropRight;
+        imageWidth -= cropRight;
+        imageWidth -= cropLeft;
+        imageY += cropTop;
+        imageHeight -= cropTop;
+        imageHeight -= cropBottom;
+
         let imageCanvas = document.createElement('canvas');
         const context = imageCanvas.getContext('2d')!;
 
@@ -1598,7 +1614,7 @@ class Sprite {
             }
 
             if (!this.collider && !this.colliderNone && this.costumes.length) {
-                this.createColliderFromCostume(this.costumes[0]);
+                this.setColliderFromCostume(this.costumes[0]);
             }
 
             if (this.onReadyCallbacks.length) {
@@ -1615,13 +1631,12 @@ class Sprite {
         }
     }
 
-    private createColliderFromCostume(costume: Costume) {
+    private setColliderFromCostume(costume: Costume) {
         this.setRectCollider(
-          costume.width + costume.colliderPaddingLeft + costume.colliderPaddingRight,
-          costume.height + costume.colliderPaddingTop + costume.colliderPaddingBottom
+            costume.width,
+            costume.height
         );
-        this.collider.offset_x = (costume.colliderPaddingLeft - costume.colliderPaddingRight) / 2;
-        this.collider.offset_y = -(costume.colliderPaddingTop - costume.colliderPaddingBottom) / 2;
+
         this.updateColliderPosition();
     }
 
@@ -1660,8 +1675,8 @@ class Sprite {
     }
 
     private updateCenterParams(): void {
-        this._centerDistance = Math.hypot(this._xCenterOffset, this._yCenterOffset);
-        this._centerAngle = -Math.atan2(-this._yCenterOffset , -this._xCenterOffset);
+        this._centerDistance = Math.hypot(this._centerOffsetX, this._centerOffsetY);
+        this._centerAngle = -Math.atan2(-this._centerOffsetY , -this._centerOffsetX);
     }
 
     private updateColliderPosition(): void {

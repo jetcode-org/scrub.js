@@ -8,38 +8,38 @@ type GridCostumeOptions = {
     limit?: number,
     offset?: number,
     name?: string,
-    imageRotate?: number,
-    imageFlipX?: boolean,
-    imageFlipY?: boolean,
+    rotate?: number,
+    flipX?: boolean,
+    flipY?: boolean,
     imageX?: number,
     imageY?: number,
-    imageWidth?: number,
-    imageHeight?: number,
-    imageAlphaColor?: string | { r: number; g: number; b: number };
-    imageAlphaTolerance?: number;
-    colliderPadding?: number,
-    colliderPaddingTop?: number,
-    colliderPaddingRight?: number,
-    colliderPaddingBottom?: number,
-    colliderPaddingLeft?: number
+    width?: number,
+    height?: number,
+    alphaColor?: string | { r: number; g: number; b: number };
+    alphaTolerance?: number;
+    crop?: number,
+    cropTop?: number,
+    cropRight?: number,
+    cropBottom?: number,
+    cropLeft?: number
 };
 
 type CostumeOptions = {
     name?: string,
-    imageRotate?: number,
-    imageFlipX?: boolean,
-    imageFlipY?: boolean,
-    imageX?: number,
-    imageY?: number,
-    imageWidth?: number,
-    imageHeight?: number,
-    imageAlphaColor?: string | { r: number; g: number; b: number };
-    imageAlphaTolerance?: number;
-    colliderPadding?: number,
-    colliderPaddingTop?: number,
-    colliderPaddingRight?: number,
-    colliderPaddingBottom?: number,
-    colliderPaddingLeft?: number
+    rotate?: number,
+    flipX?: boolean,
+    flipY?: boolean,
+    x?: number,
+    y?: number,
+    width?: number,
+    height?: number,
+    alphaColor?: string | { r: number; g: number; b: number };
+    alphaTolerance?: number;
+    crop?: number,
+    cropTop?: number,
+    cropRight?: number,
+    cropBottom?: number,
+    cropLeft?: number
 };
 
 class Game {

@@ -494,9 +494,9 @@ class Stage {
                             y += 20;
                             this.context.fillText("costume: " + sprite.getCostumeName(), x, y);
                             y += 20;
-                            this.context.fillText("xOffset: " + sprite.xCenterOffset, x, y);
+                            this.context.fillText("xOffset: " + sprite.centerOffsetX, x, y);
                             y += 20;
-                            this.context.fillText("yOffset: " + sprite.yCenterOffset, x, y);
+                            this.context.fillText("yOffset: " + sprite.centerOffsetY, x, y);
                             // this.context.font = '40px Arial';
                             this.context.beginPath();
                             this.context.moveTo(sprite.x - 2, sprite.y);
