@@ -476,8 +476,8 @@ class Stage {
                     if (this.game.debugMode !== 'none') {
                         const fn = () => {
 
-                            const x = sprite.x - (this.context.measureText(sprite.name).width / 2);
-                            let y = sprite.realY + sprite.height + 20;
+                            const x = sprite.sourceX - (this.context.measureText(sprite.name).width / 2);
+                            let y = sprite.sourceY + sprite.height + 20;
 
                             this.context.fillStyle = this.game.debugColor;
 
@@ -499,10 +499,10 @@ class Stage {
                             this.context.fillText("yOffset: " + sprite.centerOffsetY, x, y);
                             // this.context.font = '40px Arial';
                             this.context.beginPath();
-                            this.context.moveTo(sprite.x - 2, sprite.y);
-                            this.context.lineTo(sprite.x + 2, sprite.y);
-                            this.context.moveTo(sprite.x, sprite.y - 2);
-                            this.context.lineTo(sprite.x, sprite.y + 2);
+                            this.context.moveTo(sprite.absoluteX - 2, sprite.absoluteY);
+                            this.context.lineTo(sprite.absoluteX + 2, sprite.absoluteY);
+                            this.context.moveTo(sprite.absoluteX, sprite.absoluteY - 2);
+                            this.context.lineTo(sprite.absoluteX, sprite.absoluteY + 2);
                             this.context.stroke()
                         };
 

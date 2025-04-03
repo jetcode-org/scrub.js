@@ -1,3 +1,406 @@
+var __values = (this && this.__values) || function(o) {
+    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+    if (m) return m.call(o);
+    if (o && typeof o.length === "number") return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
+        }
+    };
+    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+};
+var ComplexSprite = (function () {
+    function ComplexSprite(stage, layer) {
+        if (stage === void 0) { stage = null; }
+        if (layer === void 0) { layer = 1; }
+        this.name = 'No Name';
+        this.game = null;
+        this.stage = null;
+        this._children = [];
+        this._x = 0;
+        this._y = 0;
+        this._direction = 0;
+        this._rotateStyle = 'normal';
+        this._pivotOffsetX = 0;
+        this._pivotOffsetY = 0;
+        this._collidedSprite = null;
+        this._parentComplexSprite = null;
+        this._size = 100;
+        this._centerDistance = 0;
+        this._centerAngle = 0;
+        if (!Registry.getInstance().has('game')) {
+            throw new Error('You need create Game instance before Stage instance.');
+        }
+        this.game = Registry.getInstance().get('game');
+        var complexSprite = this;
+        if (this.game.displayErrors) {
+            complexSprite = this.game.validatorFactory.createValidator(this, 'ComplexSprite');
+        }
+        complexSprite.stage = stage;
+        if (!this.stage) {
+            complexSprite.stage = this.game.getLastStage();
+        }
+        if (!complexSprite.stage) {
+            complexSprite.game.throwError(ErrorMessages.NEED_CREATE_STAGE_BEFORE_SPRITE);
+        }
+        complexSprite._layer = layer;
+        complexSprite._x = complexSprite.game.width / 2;
+        complexSprite._y = complexSprite.game.height / 2;
+        return complexSprite;
+    }
+    Object.defineProperty(ComplexSprite.prototype, "x", {
+        get: function () {
+            return this._x;
+        },
+        set: function (value) {
+            var e_1, _a;
+            this._x = value;
+            this.updateCenterParams();
+            try {
+                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var child = _c.value;
+                    child.updateColliderPosition();
+                }
+            }
+            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_1) throw e_1.error; }
+            }
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(ComplexSprite.prototype, "absoluteX", {
+        get: function () {
+            return this._parentComplexSprite ? this._x + this._parentComplexSprite.x : this._x;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(ComplexSprite.prototype, "y", {
+        get: function () {
+            return this._y;
+        },
+        set: function (value) {
+            var e_2, _a;
+            this._y = value;
+            try {
+                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var child = _c.value;
+                    child.updateColliderPosition();
+                }
+            }
+            catch (e_2_1) { e_2 = { error: e_2_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_2) throw e_2.error; }
+            }
+            this.updateCenterParams();
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(ComplexSprite.prototype, "absoluteY", {
+        get: function () {
+            return this._parentComplexSprite ? this._y + this._parentComplexSprite.y : this._x;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(ComplexSprite.prototype, "direction", {
+        get: function () {
+            return this._direction;
+        },
+        set: function (value) {
+            var e_3, _a;
+            var direction = value;
+            direction = direction % 360;
+            if (direction < 0) {
+                direction += 360;
+            }
+            this._direction = direction;
+            try {
+                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var child = _c.value;
+                    child.direction = direction;
+                }
+            }
+            catch (e_3_1) { e_3 = { error: e_3_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_3) throw e_3.error; }
+            }
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(ComplexSprite.prototype, "angleRadians", {
+        get: function () {
+            return this._direction * Math.PI / 180;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(ComplexSprite.prototype, "layer", {
+        get: function () {
+            return this._layer;
+        },
+        set: function (newLayer) {
+            var e_4, _a;
+            this._layer = newLayer;
+            try {
+                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var child = _c.value;
+                    child.layer = this._layer;
+                }
+            }
+            catch (e_4_1) { e_4 = { error: e_4_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_4) throw e_4.error; }
+            }
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(ComplexSprite.prototype, "parent", {
+        get: function () {
+            return this._parentComplexSprite;
+        },
+        set: function (value) {
+            this._parentComplexSprite = value;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(ComplexSprite.prototype, "size", {
+        get: function () {
+            return this._size;
+        },
+        set: function (value) {
+            var e_5, _a;
+            this._size = value;
+            try {
+                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var child = _c.value;
+                    child.size = value;
+                }
+            }
+            catch (e_5_1) { e_5 = { error: e_5_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_5) throw e_5.error; }
+            }
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(ComplexSprite.prototype, "rotateStyle", {
+        get: function () {
+            return this._rotateStyle;
+        },
+        set: function (value) {
+            var e_6, _a;
+            this._rotateStyle = value;
+            try {
+                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var child = _c.value;
+                    child.rotateStyle = value;
+                }
+            }
+            catch (e_6_1) { e_6 = { error: e_6_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_6) throw e_6.error; }
+            }
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(ComplexSprite.prototype, "otherSprite", {
+        get: function () {
+            if (!this._collidedSprite) {
+                return null;
+            }
+            return this._collidedSprite;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(ComplexSprite.prototype, "otherMainSprite", {
+        get: function () {
+            if (!this._collidedSprite) {
+                return null;
+            }
+            return this._collidedSprite.getMainSprite();
+        },
+        enumerable: false,
+        configurable: true
+    });
+    ComplexSprite.prototype.addChild = function (child) {
+        if (!this._children.includes(child)) {
+            this._children.push(child);
+            child.parent = this;
+            child.layer = this.layer;
+            child.x = 0;
+            child.y = 0;
+            child.direction = this.direction;
+        }
+    };
+    ComplexSprite.prototype.removeChild = function (child) {
+        var foundChildIndex = this._children.indexOf(child);
+        if (foundChildIndex > -1) {
+            var child_1 = this._children[foundChildIndex];
+            child_1.parent = null;
+            this._children.splice(foundChildIndex, 1);
+        }
+    };
+    ComplexSprite.prototype.getChildren = function () {
+        return this._children;
+    };
+    ComplexSprite.prototype.move = function (steps) {
+        var angleRadians = this.angleRadians;
+        this.x += (steps * Math.sin(angleRadians));
+        this.y -= (steps * Math.cos(angleRadians));
+    };
+    ComplexSprite.prototype.touchSprite = function (sprite) {
+        var e_7, _a;
+        this._collidedSprite = null;
+        try {
+            for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                var child = _c.value;
+                if (child.toucheSprite(sprite)) {
+                    this._collidedSprite = child;
+                    return true;
+                }
+            }
+        }
+        catch (e_7_1) { e_7 = { error: e_7_1 }; }
+        finally {
+            try {
+                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            }
+            finally { if (e_7) throw e_7.error; }
+        }
+        return false;
+    };
+    ComplexSprite.prototype.touchTag = function (nameOfTag) {
+        var e_8, _a;
+        try {
+            for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                var child = _c.value;
+                if (child.touchTag(nameOfTag)) {
+                    this._collidedSprite = child.otherSprite;
+                }
+            }
+        }
+        catch (e_8_1) { e_8 = { error: e_8_1 }; }
+        finally {
+            try {
+                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            }
+            finally { if (e_8) throw e_8.error; }
+        }
+    };
+    ComplexSprite.prototype.touchTagAll = function (nameOfTag) {
+        var e_9, _a;
+        try {
+            for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                var child = _c.value;
+                var collidedSprites = child.touchTagAll(nameOfTag);
+                if (!collidedSprites.length) {
+                    return collidedSprites;
+                }
+            }
+        }
+        catch (e_9_1) { e_9 = { error: e_9_1 }; }
+        finally {
+            try {
+                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            }
+            finally { if (e_9) throw e_9.error; }
+        }
+        return false;
+    };
+    ComplexSprite.prototype.pointForward = function (object) {
+        this.direction = (Math.atan2(this.absoluteY - object.absoluteY, this.absoluteX - object.absoluteX) / Math.PI * 180) - 90;
+    };
+    ComplexSprite.prototype.getDistanceTo = function (object) {
+        return Math.sqrt((Math.abs(this.absoluteX - object.absoluteX)) + (Math.abs(this.absoluteY - object.absoluteY)));
+    };
+    ComplexSprite.prototype.touchMouse = function () {
+        var e_10, _a;
+        try {
+            for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                var child = _c.value;
+                if (child.touchMousePoint(child.game.getMousePoint())) {
+                    return true;
+                }
+            }
+        }
+        catch (e_10_1) { e_10 = { error: e_10_1 }; }
+        finally {
+            try {
+                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            }
+            finally { if (e_10) throw e_10.error; }
+        }
+        return false;
+    };
+    ComplexSprite.prototype.updateCenterParams = function () {
+        this._centerDistance = Math.hypot(this._pivotOffsetX, this._pivotOffsetY);
+        this._centerAngle = -Math.atan2(-this._pivotOffsetY, -this._pivotOffsetX);
+    };
+    ComplexSprite.prototype.getMainSprite = function () {
+        if (this._parentComplexSprite) {
+            return this._parentComplexSprite.getMainSprite();
+        }
+        return this;
+    };
+    ComplexSprite.prototype.createClone = function (stage) {
+        var e_11, _a;
+        if (stage === void 0) { stage = null; }
+        if (!stage) {
+            stage = this.stage;
+        }
+        var clone = new ComplexSprite(stage);
+        try {
+            for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                var child = _c.value;
+                var childClone = child.createClone();
+                clone.addChild(childClone);
+            }
+        }
+        catch (e_11_1) { e_11 = { error: e_11_1 }; }
+        finally {
+            try {
+                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            }
+            finally { if (e_11) throw e_11.error; }
+        }
+        clone.x = this.x;
+        clone.y = this.y;
+        clone.direction = this.direction;
+        clone.size = this.size;
+        clone.layer = this.layer;
+        clone.parent = null;
+        return clone;
+    };
+    return ComplexSprite;
+}());
 var Costume = (function () {
     function Costume() {
         this.ready = false;
@@ -86,17 +489,6 @@ var EventEmitter = (function () {
     };
     return EventEmitter;
 }());
-var __values = (this && this.__values) || function(o) {
-    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
-    if (m) return m.call(o);
-    if (o && typeof o.length === "number") return {
-        next: function () {
-            if (o && i >= o.length) o = void 0;
-            return { value: o && o[i++], done: !o };
-        }
-    };
-    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
-};
 var Game = (function () {
     function Game(width, height, canvasId, displayErrors, locale) {
         if (width === void 0) { width = null; }
@@ -166,7 +558,7 @@ var Game = (function () {
         return null;
     };
     Game.prototype.run = function (stage) {
-        var e_1, _a;
+        var e_12, _a;
         if (stage === void 0) { stage = null; }
         if (!stage && this.stages.length) {
             stage = this.stages[0];
@@ -181,12 +573,12 @@ var Game = (function () {
                     inStage.ready();
                 }
             }
-            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+            catch (e_12_1) { e_12 = { error: e_12_1 }; }
             finally {
                 try {
                     if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
                 }
-                finally { if (e_1) throw e_1.error; }
+                finally { if (e_12) throw e_12.error; }
             }
         }
         if (this.activeStage && this.activeStage.running) {
@@ -304,7 +696,7 @@ var Game = (function () {
         });
     };
     Game.prototype.tryDoOnReady = function () {
-        var e_2, _a;
+        var e_13, _a;
         if (this.isReady() && this.onReadyPending) {
             this.onReadyPending = false;
             if (this.onReadyCallbacks.length) {
@@ -314,12 +706,12 @@ var Game = (function () {
                         callback();
                     }
                 }
-                catch (e_2_1) { e_2 = { error: e_2_1 }; }
+                catch (e_13_1) { e_13 = { error: e_13_1 }; }
                 finally {
                     try {
                         if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
                     }
-                    finally { if (e_2) throw e_2.error; }
+                    finally { if (e_13) throw e_13.error; }
                 }
                 this.onReadyCallbacks = [];
             }
@@ -628,7 +1020,7 @@ var MultiplayerControl = (function () {
             if (_this.userKeydownCallbacks.has(char)) {
                 var callback_1 = _this.userKeydownCallbacks.get(char)[0];
                 var block_1 = function (isBlock, chars, mouse) {
-                    var e_3, _a;
+                    var e_14, _a;
                     if (chars === void 0) { chars = [char]; }
                     if (mouse === void 0) { mouse = false; }
                     if (mouse) {
@@ -640,12 +1032,12 @@ var MultiplayerControl = (function () {
                             _this.userLockedChars[char_1.toUpperCase()] = isBlock;
                         }
                     }
-                    catch (e_3_1) { e_3 = { error: e_3_1 }; }
+                    catch (e_14_1) { e_14 = { error: e_14_1 }; }
                     finally {
                         try {
                             if (chars_1_1 && !chars_1_1.done && (_a = chars_1.return)) _a.call(chars_1);
                         }
-                        finally { if (e_3) throw e_3.error; }
+                        finally { if (e_14) throw e_14.error; }
                     }
                 };
                 var attempts_1 = 0;
@@ -678,7 +1070,7 @@ var MultiplayerControl = (function () {
                 var mouseY_1 = data['mouseY'];
                 var syncData_1 = data['sync'];
                 var block_2 = function (isBlock, chars, mouse) {
-                    var e_4, _a;
+                    var e_15, _a;
                     if (chars === void 0) { chars = []; }
                     if (mouse === void 0) { mouse = true; }
                     if (mouse) {
@@ -690,12 +1082,12 @@ var MultiplayerControl = (function () {
                             _this.userLockedChars[char.toUpperCase()] = isBlock;
                         }
                     }
-                    catch (e_4_1) { e_4 = { error: e_4_1 }; }
+                    catch (e_15_1) { e_15 = { error: e_15_1 }; }
                     finally {
                         try {
                             if (chars_2_1 && !chars_2_1.done && (_a = chars_2.return)) _a.call(chars_2);
                         }
-                        finally { if (e_4) throw e_4.error; }
+                        finally { if (e_15) throw e_15.error; }
                     }
                 };
                 var attempts_2 = 0;
@@ -764,7 +1156,7 @@ var MultiplayerControl = (function () {
         document.addEventListener('mousedown', this.mousedownCallback);
     };
     MultiplayerControl.prototype.stop = function () {
-        var e_5, _a;
+        var e_16, _a;
         if (this.keydownCallback) {
             document.removeEventListener('keydown', this.keydownCallback);
         }
@@ -774,12 +1166,12 @@ var MultiplayerControl = (function () {
                 this.connection.disconnect(JetcodeSocket.RECEIVE_DATA, connection);
             }
         }
-        catch (e_5_1) { e_5 = { error: e_5_1 }; }
+        catch (e_16_1) { e_16 = { error: e_16_1 }; }
         finally {
             try {
                 if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
             }
-            finally { if (e_5) throw e_5.error; }
+            finally { if (e_16) throw e_16.error; }
         }
     };
     MultiplayerControl.prototype.keyDown = function (char, callback, syncPackName, syncData) {
@@ -821,7 +1213,7 @@ var __read = (this && this.__read) || function (o, n) {
 };
 var Sprite = (function () {
     function Sprite(stage, layer, costumePaths, soundPaths) {
-        var e_6, _a, e_7, _b;
+        var e_17, _a, e_18, _b;
         if (stage === void 0) { stage = null; }
         if (layer === void 0) { layer = 1; }
         if (costumePaths === void 0) { costumePaths = []; }
@@ -865,6 +1257,7 @@ var Sprite = (function () {
         this._tags = [];
         this._colliderOffsetX = 0;
         this._colliderOffsetY = 0;
+        this._parentComplexSprite = null;
         if (!Registry.getInstance().has('game')) {
             throw new Error('You need create Game instance before Stage instance.');
         }
@@ -892,12 +1285,12 @@ var Sprite = (function () {
                 sprite.addCostume(costumePath);
             }
         }
-        catch (e_6_1) { e_6 = { error: e_6_1 }; }
+        catch (e_17_1) { e_17 = { error: e_17_1 }; }
         finally {
             try {
                 if (costumePaths_1_1 && !costumePaths_1_1.done && (_a = costumePaths_1.return)) _a.call(costumePaths_1);
             }
-            finally { if (e_6) throw e_6.error; }
+            finally { if (e_17) throw e_17.error; }
         }
         try {
             for (var soundPaths_1 = __values(soundPaths), soundPaths_1_1 = soundPaths_1.next(); !soundPaths_1_1.done; soundPaths_1_1 = soundPaths_1.next()) {
@@ -905,12 +1298,12 @@ var Sprite = (function () {
                 sprite.addSound(soundPath);
             }
         }
-        catch (e_7_1) { e_7 = { error: e_7_1 }; }
+        catch (e_18_1) { e_18 = { error: e_18_1 }; }
         finally {
             try {
                 if (soundPaths_1_1 && !soundPaths_1_1.done && (_b = soundPaths_1.return)) _b.call(soundPaths_1);
             }
-            finally { if (e_7) throw e_7.error; }
+            finally { if (e_18) throw e_18.error; }
         }
         sprite.scheduledCallbackExecutor = new ScheduledCallbackExecutor(sprite);
         sprite.stage.addSprite(sprite);
@@ -1218,20 +1611,41 @@ var Sprite = (function () {
         }
     };
     Sprite.prototype.touchSprite = function (sprite) {
-        if (sprite.hidden ||
-            this.hidden ||
-            sprite.stopped ||
-            this.stopped ||
-            sprite.deleted ||
-            this.deleted ||
-            !sprite.getCollider() ||
-            !this.collider) {
+        var e_19, _a;
+        if (sprite instanceof Sprite) {
+            if (sprite.hidden ||
+                this.hidden ||
+                sprite.stopped ||
+                this.stopped ||
+                sprite.deleted ||
+                this.deleted ||
+                !sprite.getCollider() ||
+                !this.collider) {
+                return false;
+            }
+            return this.collider.collides(sprite.getCollider(), this.collisionResult);
+        }
+        if (sprite instanceof ComplexSprite) {
+            try {
+                for (var _b = __values(sprite.getChildren()), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var child = _c.value;
+                    if (this.touchSprite(child)) {
+                        return true;
+                    }
+                }
+            }
+            catch (e_19_1) { e_19 = { error: e_19_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_19) throw e_19.error; }
+            }
             return false;
         }
-        return this.collider.collides(sprite.getCollider(), this.collisionResult);
     };
     Sprite.prototype.touchSprites = function (sprites) {
-        var e_8, _a;
+        var e_20, _a;
         if (this.hidden || this.stopped || this.deleted || !this.collider) {
             return false;
         }
@@ -1243,17 +1657,17 @@ var Sprite = (function () {
                 }
             }
         }
-        catch (e_8_1) { e_8 = { error: e_8_1 }; }
+        catch (e_20_1) { e_20 = { error: e_20_1 }; }
         finally {
             try {
                 if (sprites_1_1 && !sprites_1_1.done && (_a = sprites_1.return)) _a.call(sprites_1);
             }
-            finally { if (e_8) throw e_8.error; }
+            finally { if (e_20) throw e_20.error; }
         }
         return false;
     };
     Sprite.prototype.touchPotentialSprites = function (sprites) {
-        var e_9, _a, e_10, _b;
+        var e_21, _a, e_22, _b;
         if (this.hidden || this.stopped || this.deleted || !this.collider) {
             return false;
         }
@@ -1270,12 +1684,12 @@ var Sprite = (function () {
                 }
             }
         }
-        catch (e_9_1) { e_9 = { error: e_9_1 }; }
+        catch (e_21_1) { e_21 = { error: e_21_1 }; }
         finally {
             try {
                 if (sprites_2_1 && !sprites_2_1.done && (_a = sprites_2.return)) _a.call(sprites_2);
             }
-            finally { if (e_9) throw e_9.error; }
+            finally { if (e_21) throw e_21.error; }
         }
         try {
             for (var potentialSprites_1 = __values(potentialSprites), potentialSprites_1_1 = potentialSprites_1.next(); !potentialSprites_1_1.done; potentialSprites_1_1 = potentialSprites_1.next()) {
@@ -1285,12 +1699,12 @@ var Sprite = (function () {
                 }
             }
         }
-        catch (e_10_1) { e_10 = { error: e_10_1 }; }
+        catch (e_22_1) { e_22 = { error: e_22_1 }; }
         finally {
             try {
                 if (potentialSprites_1_1 && !potentialSprites_1_1.done && (_b = potentialSprites_1.return)) _b.call(potentialSprites_1);
             }
-            finally { if (e_10) throw e_10.error; }
+            finally { if (e_22) throw e_22.error; }
         }
         return false;
     };
@@ -1440,13 +1854,13 @@ var Sprite = (function () {
         return this.collider.collides(mousePoint, this.collisionResult);
     };
     Sprite.prototype.pointForward = function (sprite) {
-        this.direction = (Math.atan2(this.y - sprite.y, this.x - sprite.x) / Math.PI * 180) - 90;
+        this.direction = (Math.atan2(this.absoluteY - sprite.absoluteY, this.absoluteX - sprite.absoluteX) / Math.PI * 180) - 90;
     };
     Sprite.prototype.getDistanceToSprite = function (sprite) {
-        return Math.sqrt((Math.abs(this.x - sprite.x)) + (Math.abs(this.y - sprite.y)));
+        return Math.sqrt((Math.abs(this.absoluteX - sprite.absoluteX)) + (Math.abs(this.absoluteY - sprite.absoluteY)));
     };
     Sprite.prototype.getDistanceToMouse = function (mouse) {
-        return Math.sqrt((Math.abs(this.x - mouse.x)) + (Math.abs(this.y - mouse.y)));
+        return Math.sqrt((Math.abs(this.absoluteX - mouse.x)) + (Math.abs(this.absoluteY - mouse.y)));
     };
     Sprite.prototype.say = function (text, time) {
         if (time === void 0) { time = null; }
@@ -1474,7 +1888,7 @@ var Sprite = (function () {
         return null;
     };
     Sprite.prototype.createClone = function (stage) {
-        var e_11, _a;
+        var e_23, _a;
         if (stage === void 0) { stage = null; }
         if (!this.isReady()) {
             this.game.throwError(ErrorMessages.CLONED_NOT_READY);
@@ -1506,12 +1920,12 @@ var Sprite = (function () {
                 clone.cloneSound(sound, this.soundNames[soundIndex]);
             }
         }
-        catch (e_11_1) { e_11 = { error: e_11_1 }; }
+        catch (e_23_1) { e_23 = { error: e_23_1 }; }
         finally {
             try {
                 if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
             }
-            finally { if (e_11) throw e_11.error; }
+            finally { if (e_23) throw e_23.error; }
         }
         if (this.collider) {
             clone.cloneCollider(this);
@@ -1683,7 +2097,7 @@ var Sprite = (function () {
         return this.costumeIndex;
     };
     Sprite.prototype.touchTag = function (nameOfTag) {
-        var e_12, _a;
+        var e_24, _a;
         if (this.hidden || this.stopped || this.deleted || !this.collider) {
             return false;
         }
@@ -1706,17 +2120,17 @@ var Sprite = (function () {
                 }
             }
         }
-        catch (e_12_1) { e_12 = { error: e_12_1 }; }
+        catch (e_24_1) { e_24 = { error: e_24_1 }; }
         finally {
             try {
                 if (potentialsColliders_1_1 && !potentialsColliders_1_1.done && (_a = potentialsColliders_1.return)) _a.call(potentialsColliders_1);
             }
-            finally { if (e_12) throw e_12.error; }
+            finally { if (e_24) throw e_24.error; }
         }
         return false;
     };
     Sprite.prototype.touchTagAll = function (nameOfTag) {
-        var e_13, _a;
+        var e_25, _a;
         if (this.hidden || this.stopped || this.deleted || !this.collider) {
             return false;
         }
@@ -1740,12 +2154,12 @@ var Sprite = (function () {
                 }
             }
         }
-        catch (e_13_1) { e_13 = { error: e_13_1 }; }
+        catch (e_25_1) { e_25 = { error: e_25_1 }; }
         finally {
             try {
                 if (potentialsColliders_2_1 && !potentialsColliders_2_1.done && (_a = potentialsColliders_2.return)) _a.call(potentialsColliders_2);
             }
-            finally { if (e_13) throw e_13.error; }
+            finally { if (e_25) throw e_25.error; }
         }
         if (!collidedSprites.length) {
             return collidedSprites;
@@ -1753,7 +2167,7 @@ var Sprite = (function () {
         return false;
     };
     Sprite.prototype.touchAnySprite = function () {
-        var e_14, _a;
+        var e_26, _a;
         if (this.hidden || this.stopped || this.deleted || !this.collider) {
             return false;
         }
@@ -1774,12 +2188,12 @@ var Sprite = (function () {
                 }
             }
         }
-        catch (e_14_1) { e_14 = { error: e_14_1 }; }
+        catch (e_26_1) { e_26 = { error: e_26_1 }; }
         finally {
             try {
                 if (potentialsColliders_3_1 && !potentialsColliders_3_1.done && (_a = potentialsColliders_3.return)) _a.call(potentialsColliders_3);
             }
-            finally { if (e_14) throw e_14.error; }
+            finally { if (e_26) throw e_26.error; }
         }
         return false;
     };
@@ -1911,9 +2325,9 @@ var Sprite = (function () {
         get: function () {
             if (this.rotateStyle === 'leftRight' || this.rotateStyle === 'none') {
                 var leftRightMultiplier = this._direction > 180 && this.rotateStyle === 'leftRight' ? -1 : 1;
-                return this._x - this._centerOffsetX * leftRightMultiplier * this.size / 100;
+                return this.absoluteX - this._centerOffsetX * leftRightMultiplier * this.size / 100;
             }
-            return this._x + Math.cos(this._centerAngle - this.angleRadians) * this._centerDistance * this.size / 100;
+            return this.absoluteX + Math.cos(this._centerAngle - this.angleRadians) * this._centerDistance * this.size / 100;
         },
         enumerable: false,
         configurable: true
@@ -1921,9 +2335,9 @@ var Sprite = (function () {
     Object.defineProperty(Sprite.prototype, "sourceY", {
         get: function () {
             if (this.rotateStyle === 'leftRight' || this.rotateStyle === 'none') {
-                return this._y - this._centerOffsetY * this.size / 100;
+                return this.absoluteY - this._centerOffsetY * this.size / 100;
             }
-            return this._y - Math.sin(this._centerAngle - this.angleRadians) * this._centerDistance * this.size / 100;
+            return this.absoluteY - Math.sin(this._centerAngle - this.angleRadians) * this._centerDistance * this.size / 100;
         },
         enumerable: false,
         configurable: true
@@ -1938,6 +2352,37 @@ var Sprite = (function () {
     Object.defineProperty(Sprite.prototype, "realY", {
         get: function () {
             return this.y - this.height / 2;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "absoluteX", {
+        get: function () {
+            if (this._parentComplexSprite) {
+                if (this.rotateStyle === 'leftRight' || this.rotateStyle === 'none') {
+                    var leftRightMultiplier = this._direction > 180 && this.rotateStyle === 'leftRight' ? -1 : 1;
+                    return this._parentComplexSprite.absoluteX + this._x * leftRightMultiplier * this.size / 100;
+                }
+                else {
+                    return this._parentComplexSprite.absoluteX + this.distanceToParent * Math.cos(this.angleToParent - this._parentComplexSprite.angleRadians) * this.size / 100;
+                }
+            }
+            return this._x;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "absoluteY", {
+        get: function () {
+            if (this._parentComplexSprite) {
+                if (this.rotateStyle === 'leftRight' || this.rotateStyle === 'none') {
+                    return this._parentComplexSprite.absoluteY + this._y;
+                }
+                else {
+                    return this._parentComplexSprite.absoluteY - this.distanceToParent * Math.sin(this.angleToParent - this._parentComplexSprite.angleRadians) * this.size / 100;
+                }
+            }
+            return this._y;
         },
         enumerable: false,
         configurable: true
@@ -2090,6 +2535,16 @@ var Sprite = (function () {
         enumerable: false,
         configurable: true
     });
+    Object.defineProperty(Sprite.prototype, "otherMainSprite", {
+        get: function () {
+            if (!this.collisionResult.collision) {
+                return null;
+            }
+            return this.collisionResult.b.parentSprite.getMainSprite();
+        },
+        enumerable: false,
+        configurable: true
+    });
     Object.defineProperty(Sprite.prototype, "colliderOffsetX", {
         get: function () {
             if (this.collider) {
@@ -2120,6 +2575,30 @@ var Sprite = (function () {
                 this.collider.offset_y = value;
                 this.updateColliderPosition();
             }
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "parent", {
+        get: function () {
+            return this._parentComplexSprite;
+        },
+        set: function (newParent) {
+            this._parentComplexSprite = newParent;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "angleToParent", {
+        get: function () {
+            return -Math.atan2(this.y, this.x);
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "distanceToParent", {
+        get: function () {
+            return Math.hypot(this.x, this.y);
         },
         enumerable: false,
         configurable: true
@@ -2247,7 +2726,7 @@ var Sprite = (function () {
         this.collider.offset_y = sprite.collider.offset_y;
     };
     Sprite.prototype.tryDoOnReady = function () {
-        var e_15, _a;
+        var e_27, _a;
         if (this.onReadyPending && this.isReady()) {
             this.onReadyPending = false;
             if (this.costumes.length && this.costume === null) {
@@ -2263,12 +2742,12 @@ var Sprite = (function () {
                         callback();
                     }
                 }
-                catch (e_15_1) { e_15 = { error: e_15_1 }; }
+                catch (e_27_1) { e_27 = { error: e_27_1 }; }
                 finally {
                     try {
                         if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
                     }
-                    finally { if (e_15) throw e_15.error; }
+                    finally { if (e_27) throw e_27.error; }
                 }
                 this.onReadyCallbacks = [];
             }
@@ -2283,7 +2762,7 @@ var Sprite = (function () {
         this.updateColliderPosition();
     };
     Sprite.prototype.calculateCentroid = function (points) {
-        var e_16, _a;
+        var e_28, _a;
         var xSum = 0;
         var ySum = 0;
         try {
@@ -2293,19 +2772,19 @@ var Sprite = (function () {
                 ySum += point[1];
             }
         }
-        catch (e_16_1) { e_16 = { error: e_16_1 }; }
+        catch (e_28_1) { e_28 = { error: e_28_1 }; }
         finally {
             try {
                 if (points_1_1 && !points_1_1.done && (_a = points_1.return)) _a.call(points_1);
             }
-            finally { if (e_16) throw e_16.error; }
+            finally { if (e_28) throw e_28.error; }
         }
         var x = xSum / points.length;
         var y = ySum / points.length;
         return { x: x, y: y };
     };
     Sprite.prototype.calculatePolygonSize = function (points) {
-        var e_17, _a;
+        var e_29, _a;
         var minX = points[0][0];
         var minY = points[0][1];
         var maxX = points[0][0];
@@ -2323,12 +2802,12 @@ var Sprite = (function () {
                     maxY = vertex[1];
             }
         }
-        catch (e_17_1) { e_17 = { error: e_17_1 }; }
+        catch (e_29_1) { e_29 = { error: e_29_1 }; }
         finally {
             try {
                 if (points_2_1 && !points_2_1.done && (_a = points_2.return)) _a.call(points_2);
             }
-            finally { if (e_17) throw e_17.error; }
+            finally { if (e_29) throw e_29.error; }
         }
         var width = maxX - minX;
         var height = maxY - minY;
@@ -2341,6 +2820,15 @@ var Sprite = (function () {
     Sprite.prototype.updateColliderPosition = function () {
         this.collider.x = this.sourceX + this.collider.center_offset_x * this.size / 100;
         this.collider.y = this.sourceY + this.collider.center_offset_y * this.size / 100;
+    };
+    Sprite.prototype.getMainSprite = function () {
+        if (this._parentComplexSprite) {
+            return this._parentComplexSprite.getMainSprite();
+        }
+        return this;
+    };
+    Sprite.prototype.getParent = function (parent) {
+        parent.addChild(this);
     };
     return Sprite;
 }());
@@ -2499,7 +2987,7 @@ var MultiplayerGame = (function (_super) {
         }
     };
     MultiplayerGame.prototype.stop = function () {
-        var e_18, _a;
+        var e_30, _a;
         _super.prototype.stop.call(this);
         try {
             for (var _b = __values(this.players), _c = _b.next(); !_c.done; _c = _b.next()) {
@@ -2507,12 +2995,12 @@ var MultiplayerGame = (function (_super) {
                 player.delete();
             }
         }
-        catch (e_18_1) { e_18 = { error: e_18_1 }; }
+        catch (e_30_1) { e_30 = { error: e_30_1 }; }
         finally {
             try {
                 if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
             }
-            finally { if (e_18) throw e_18.error; }
+            finally { if (e_30) throw e_30.error; }
         }
         this.players = [];
     };
@@ -2546,13 +3034,13 @@ var MultiplayerGame = (function (_super) {
         return __spreadArray(__spreadArray(__spreadArray([], __read(multiplayerSprites), false), __read(players), false), __read(sharedObjects), false);
     };
     MultiplayerGame.prototype.syncObjects = function (syncData, deltaTime) {
-        var e_19, _a, e_20, _b;
+        var e_31, _a, e_32, _b;
         var gameAllSyncObjects = this.getSyncObjects();
         try {
             for (var _c = __values(Object.entries(syncData)), _d = _c.next(); !_d.done; _d = _c.next()) {
                 var _e = __read(_d.value, 2), syncPackName = _e[0], syncObjectsData = _e[1];
                 try {
-                    for (var gameAllSyncObjects_1 = (e_20 = void 0, __values(gameAllSyncObjects)), gameAllSyncObjects_1_1 = gameAllSyncObjects_1.next(); !gameAllSyncObjects_1_1.done; gameAllSyncObjects_1_1 = gameAllSyncObjects_1.next()) {
+                    for (var gameAllSyncObjects_1 = (e_32 = void 0, __values(gameAllSyncObjects)), gameAllSyncObjects_1_1 = gameAllSyncObjects_1.next(); !gameAllSyncObjects_1_1.done; gameAllSyncObjects_1_1 = gameAllSyncObjects_1.next()) {
                         var syncObject = gameAllSyncObjects_1_1.value;
                         if (syncObjectsData[syncObject.getMultiplayerName()]) {
                             var syncPackData = syncObjectsData[syncObject.getMultiplayerName()];
@@ -2560,25 +3048,25 @@ var MultiplayerGame = (function (_super) {
                         }
                     }
                 }
-                catch (e_20_1) { e_20 = { error: e_20_1 }; }
+                catch (e_32_1) { e_32 = { error: e_32_1 }; }
                 finally {
                     try {
                         if (gameAllSyncObjects_1_1 && !gameAllSyncObjects_1_1.done && (_b = gameAllSyncObjects_1.return)) _b.call(gameAllSyncObjects_1);
                     }
-                    finally { if (e_20) throw e_20.error; }
+                    finally { if (e_32) throw e_32.error; }
                 }
             }
         }
-        catch (e_19_1) { e_19 = { error: e_19_1 }; }
+        catch (e_31_1) { e_31 = { error: e_31_1 }; }
         finally {
             try {
                 if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
             }
-            finally { if (e_19) throw e_19.error; }
+            finally { if (e_31) throw e_31.error; }
         }
     };
     MultiplayerGame.prototype.packSyncData = function (packName, syncObjects) {
-        var e_21, _a;
+        var e_33, _a;
         var syncObjectsData = {};
         try {
             for (var syncObjects_1 = __values(syncObjects), syncObjects_1_1 = syncObjects_1.next(); !syncObjects_1_1.done; syncObjects_1_1 = syncObjects_1.next()) {
@@ -2587,12 +3075,12 @@ var MultiplayerGame = (function (_super) {
                 syncObjectsData[syncObject.getMultiplayerName()]['syncId'] = syncObject.increaseSyncId();
             }
         }
-        catch (e_21_1) { e_21 = { error: e_21_1 }; }
+        catch (e_33_1) { e_33 = { error: e_33_1 }; }
         finally {
             try {
                 if (syncObjects_1_1 && !syncObjects_1_1.done && (_a = syncObjects_1.return)) _a.call(syncObjects_1);
             }
-            finally { if (e_21) throw e_21.error; }
+            finally { if (e_33) throw e_33.error; }
         }
         var result = {};
         result[packName] = syncObjectsData;
@@ -2719,7 +3207,7 @@ var MultiplayerSprite = (function (_super) {
         return Math.random().toString(36).slice(2) + '-' + Math.random().toString(36).slice(2);
     };
     MultiplayerSprite.prototype.getCustomerProperties = function () {
-        var e_22, _a;
+        var e_34, _a;
         var data = {};
         try {
             for (var _b = __values(Object.keys(this)), _c = _b.next(); !_c.done; _c = _b.next()) {
@@ -2730,12 +3218,12 @@ var MultiplayerSprite = (function (_super) {
                 data[key] = this[key];
             }
         }
-        catch (e_22_1) { e_22 = { error: e_22_1 }; }
+        catch (e_34_1) { e_34 = { error: e_34_1 }; }
         finally {
             try {
                 if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
             }
-            finally { if (e_22) throw e_22.error; }
+            finally { if (e_34) throw e_34.error; }
         }
         return data;
     };
@@ -2804,7 +3292,7 @@ var OrphanSharedData = (function () {
         return this.parent.increaseSyncId();
     };
     OrphanSharedData.prototype.getSyncData = function () {
-        var e_23, _a;
+        var e_35, _a;
         var syncData = {};
         try {
             for (var _b = __values(this.properties), _c = _b.next(); !_c.done; _c = _b.next()) {
@@ -2814,12 +3302,12 @@ var OrphanSharedData = (function () {
                 }
             }
         }
-        catch (e_23_1) { e_23 = { error: e_23_1 }; }
+        catch (e_35_1) { e_35 = { error: e_35_1 }; }
         finally {
             try {
                 if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
             }
-            finally { if (e_23) throw e_23.error; }
+            finally { if (e_35) throw e_35.error; }
         }
         return syncData;
     };
@@ -2950,7 +3438,7 @@ var Player = (function () {
         return this.syncId;
     };
     Player.prototype.getSyncData = function () {
-        var e_24, _a;
+        var e_36, _a;
         var data = {};
         try {
             for (var _b = __values(Object.keys(this)), _c = _b.next(); !_c.done; _c = _b.next()) {
@@ -2961,12 +3449,12 @@ var Player = (function () {
                 data[key] = this[key];
             }
         }
-        catch (e_24_1) { e_24 = { error: e_24_1 }; }
+        catch (e_36_1) { e_36 = { error: e_36_1 }; }
         finally {
             try {
                 if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
             }
-            finally { if (e_24) throw e_24.error; }
+            finally { if (e_36) throw e_36.error; }
         }
         return data;
     };
@@ -3080,7 +3568,7 @@ var SharedData = (function () {
         return this.syncId;
     };
     SharedData.prototype.getSyncData = function () {
-        var e_25, _a;
+        var e_37, _a;
         var data = {};
         try {
             for (var _b = __values(Object.keys(this)), _c = _b.next(); !_c.done; _c = _b.next()) {
@@ -3088,12 +3576,12 @@ var SharedData = (function () {
                 data[key] = this[key];
             }
         }
-        catch (e_25_1) { e_25 = { error: e_25_1 }; }
+        catch (e_37_1) { e_37 = { error: e_37_1 }; }
         finally {
             try {
                 if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
             }
-            finally { if (e_25) throw e_25.error; }
+            finally { if (e_37) throw e_37.error; }
         }
         return data;
     };
@@ -3455,7 +3943,7 @@ var Stage = (function () {
         layerDrawings.push(callback);
     };
     Stage.prototype.render = function () {
-        var e_26, _a, e_27, _b, e_28, _c;
+        var e_38, _a, e_39, _b, e_40, _c;
         var _this = this;
         this.update();
         this.collisionSystem.update();
@@ -3472,30 +3960,30 @@ var Stage = (function () {
                 if (this.drawings.has(layer)) {
                     var layerDrawings = this.drawings.get(layer);
                     try {
-                        for (var layerDrawings_1 = (e_27 = void 0, __values(layerDrawings)), layerDrawings_1_1 = layerDrawings_1.next(); !layerDrawings_1_1.done; layerDrawings_1_1 = layerDrawings_1.next()) {
+                        for (var layerDrawings_1 = (e_39 = void 0, __values(layerDrawings)), layerDrawings_1_1 = layerDrawings_1.next(); !layerDrawings_1_1.done; layerDrawings_1_1 = layerDrawings_1.next()) {
                             var drawing = layerDrawings_1_1.value;
                             drawing(this.context, this);
                         }
                     }
-                    catch (e_27_1) { e_27 = { error: e_27_1 }; }
+                    catch (e_39_1) { e_39 = { error: e_39_1 }; }
                     finally {
                         try {
                             if (layerDrawings_1_1 && !layerDrawings_1_1.done && (_b = layerDrawings_1.return)) _b.call(layerDrawings_1);
                         }
-                        finally { if (e_27) throw e_27.error; }
+                        finally { if (e_39) throw e_39.error; }
                     }
                 }
                 if (this.sprites.has(layer)) {
                     var layerSprites = this.sprites.get(layer);
                     var _loop_1 = function (sprite) {
-                        var e_29, _d;
+                        var e_41, _d;
                         if (sprite.hidden) {
                             return "continue";
                         }
                         if (this_1.game.debugMode !== 'none') {
                             var fn = function () {
-                                var x = sprite.x - (_this.context.measureText(sprite.name).width / 2);
-                                var y = sprite.realY + sprite.height + 20;
+                                var x = sprite.sourceX - (_this.context.measureText(sprite.name).width / 2);
+                                var y = sprite.sourceY + sprite.height + 20;
                                 _this.context.fillStyle = _this.game.debugColor;
                                 _this.context.font = '16px Arial';
                                 _this.context.fillText(sprite.name, x, y);
@@ -3513,10 +4001,10 @@ var Stage = (function () {
                                 y += 20;
                                 _this.context.fillText("yOffset: " + sprite.centerOffsetY, x, y);
                                 _this.context.beginPath();
-                                _this.context.moveTo(sprite.x - 2, sprite.y);
-                                _this.context.lineTo(sprite.x + 2, sprite.y);
-                                _this.context.moveTo(sprite.x, sprite.y - 2);
-                                _this.context.lineTo(sprite.x, sprite.y + 2);
+                                _this.context.moveTo(sprite.absoluteX - 2, sprite.absoluteY);
+                                _this.context.lineTo(sprite.absoluteX + 2, sprite.absoluteY);
+                                _this.context.moveTo(sprite.absoluteX, sprite.absoluteY - 2);
+                                _this.context.lineTo(sprite.absoluteX, sprite.absoluteY + 2);
                                 _this.context.stroke();
                             };
                             if (this_1.game.debugMode === 'hover') {
@@ -3538,42 +4026,42 @@ var Stage = (function () {
                             this_1.drawSprite(sprite);
                         }
                         try {
-                            for (var _e = (e_29 = void 0, __values(sprite.drawings)), _f = _e.next(); !_f.done; _f = _e.next()) {
+                            for (var _e = (e_41 = void 0, __values(sprite.drawings)), _f = _e.next(); !_f.done; _f = _e.next()) {
                                 var drawing = _f.value;
                                 drawing(this_1.context, sprite);
                             }
                         }
-                        catch (e_29_1) { e_29 = { error: e_29_1 }; }
+                        catch (e_41_1) { e_41 = { error: e_41_1 }; }
                         finally {
                             try {
                                 if (_f && !_f.done && (_d = _e.return)) _d.call(_e);
                             }
-                            finally { if (e_29) throw e_29.error; }
+                            finally { if (e_41) throw e_41.error; }
                         }
                     };
                     var this_1 = this;
                     try {
-                        for (var layerSprites_1 = (e_28 = void 0, __values(layerSprites)), layerSprites_1_1 = layerSprites_1.next(); !layerSprites_1_1.done; layerSprites_1_1 = layerSprites_1.next()) {
+                        for (var layerSprites_1 = (e_40 = void 0, __values(layerSprites)), layerSprites_1_1 = layerSprites_1.next(); !layerSprites_1_1.done; layerSprites_1_1 = layerSprites_1.next()) {
                             var sprite = layerSprites_1_1.value;
                             _loop_1(sprite);
                         }
                     }
-                    catch (e_28_1) { e_28 = { error: e_28_1 }; }
+                    catch (e_40_1) { e_40 = { error: e_40_1 }; }
                     finally {
                         try {
                             if (layerSprites_1_1 && !layerSprites_1_1.done && (_c = layerSprites_1.return)) _c.call(layerSprites_1);
                         }
-                        finally { if (e_28) throw e_28.error; }
+                        finally { if (e_40) throw e_40.error; }
                     }
                 }
             }
         }
-        catch (e_26_1) { e_26 = { error: e_26_1 }; }
+        catch (e_38_1) { e_38 = { error: e_38_1 }; }
         finally {
             try {
                 if (layers_1_1 && !layers_1_1.done && (_a = layers_1.return)) _a.call(layers_1);
             }
-            finally { if (e_26) throw e_26.error; }
+            finally { if (e_38) throw e_38.error; }
         }
         if (this.game.debugCollider) {
             this.context.strokeStyle = this.game.debugColor;
@@ -3609,7 +4097,7 @@ var Stage = (function () {
         return this.addedSprites == this.loadedSprites && this.pendingBackgrounds === 0;
     };
     Stage.prototype.run = function () {
-        var e_30, _a, e_31, _b;
+        var e_42, _a, e_43, _b;
         if (!this._stopped) {
             return;
         }
@@ -3618,58 +4106,58 @@ var Stage = (function () {
             for (var _c = __values(this.sprites.values()), _d = _c.next(); !_d.done; _d = _c.next()) {
                 var layerSprites = _d.value;
                 try {
-                    for (var layerSprites_2 = (e_31 = void 0, __values(layerSprites)), layerSprites_2_1 = layerSprites_2.next(); !layerSprites_2_1.done; layerSprites_2_1 = layerSprites_2.next()) {
+                    for (var layerSprites_2 = (e_43 = void 0, __values(layerSprites)), layerSprites_2_1 = layerSprites_2.next(); !layerSprites_2_1.done; layerSprites_2_1 = layerSprites_2.next()) {
                         var sprite = layerSprites_2_1.value;
                         sprite.run();
                     }
                 }
-                catch (e_31_1) { e_31 = { error: e_31_1 }; }
+                catch (e_43_1) { e_43 = { error: e_43_1 }; }
                 finally {
                     try {
                         if (layerSprites_2_1 && !layerSprites_2_1.done && (_b = layerSprites_2.return)) _b.call(layerSprites_2);
                     }
-                    finally { if (e_31) throw e_31.error; }
+                    finally { if (e_43) throw e_43.error; }
                 }
             }
         }
-        catch (e_30_1) { e_30 = { error: e_30_1 }; }
+        catch (e_42_1) { e_42 = { error: e_42_1 }; }
         finally {
             try {
                 if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
             }
-            finally { if (e_30) throw e_30.error; }
+            finally { if (e_42) throw e_42.error; }
         }
         this.pendingRun = true;
         this.tryDoRun();
     };
     Stage.prototype.ready = function () {
-        var e_32, _a, e_33, _b;
+        var e_44, _a, e_45, _b;
         this.tryDoOnReady();
         this.tryDoRun();
         try {
             for (var _c = __values(this.sprites.values()), _d = _c.next(); !_d.done; _d = _c.next()) {
                 var layerSprites = _d.value;
                 try {
-                    for (var layerSprites_3 = (e_33 = void 0, __values(layerSprites)), layerSprites_3_1 = layerSprites_3.next(); !layerSprites_3_1.done; layerSprites_3_1 = layerSprites_3.next()) {
+                    for (var layerSprites_3 = (e_45 = void 0, __values(layerSprites)), layerSprites_3_1 = layerSprites_3.next(); !layerSprites_3_1.done; layerSprites_3_1 = layerSprites_3.next()) {
                         var sprite = layerSprites_3_1.value;
                         sprite.ready();
                     }
                 }
-                catch (e_33_1) { e_33 = { error: e_33_1 }; }
+                catch (e_45_1) { e_45 = { error: e_45_1 }; }
                 finally {
                     try {
                         if (layerSprites_3_1 && !layerSprites_3_1.done && (_b = layerSprites_3.return)) _b.call(layerSprites_3);
                     }
-                    finally { if (e_33) throw e_33.error; }
+                    finally { if (e_45) throw e_45.error; }
                 }
             }
         }
-        catch (e_32_1) { e_32 = { error: e_32_1 }; }
+        catch (e_44_1) { e_44 = { error: e_44_1 }; }
         finally {
             try {
                 if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
             }
-            finally { if (e_32) throw e_32.error; }
+            finally { if (e_44) throw e_44.error; }
         }
     };
     Stage.prototype.onStart = function (onStartCallback) {
@@ -3679,7 +4167,7 @@ var Stage = (function () {
         this.onReadyCallbacks.push(callback);
     };
     Stage.prototype.stop = function () {
-        var e_34, _a, e_35, _b;
+        var e_46, _a, e_47, _b;
         if (this._stopped) {
             return;
         }
@@ -3689,26 +4177,26 @@ var Stage = (function () {
             for (var _c = __values(this.sprites.values()), _d = _c.next(); !_d.done; _d = _c.next()) {
                 var layerSprites = _d.value;
                 try {
-                    for (var layerSprites_4 = (e_35 = void 0, __values(layerSprites)), layerSprites_4_1 = layerSprites_4.next(); !layerSprites_4_1.done; layerSprites_4_1 = layerSprites_4.next()) {
+                    for (var layerSprites_4 = (e_47 = void 0, __values(layerSprites)), layerSprites_4_1 = layerSprites_4.next(); !layerSprites_4_1.done; layerSprites_4_1 = layerSprites_4.next()) {
                         var sprite = layerSprites_4_1.value;
                         sprite.stop();
                     }
                 }
-                catch (e_35_1) { e_35 = { error: e_35_1 }; }
+                catch (e_47_1) { e_47 = { error: e_47_1 }; }
                 finally {
                     try {
                         if (layerSprites_4_1 && !layerSprites_4_1.done && (_b = layerSprites_4.return)) _b.call(layerSprites_4);
                     }
-                    finally { if (e_35) throw e_35.error; }
+                    finally { if (e_47) throw e_47.error; }
                 }
             }
         }
-        catch (e_34_1) { e_34 = { error: e_34_1 }; }
+        catch (e_46_1) { e_46 = { error: e_46_1 }; }
         finally {
             try {
                 if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
             }
-            finally { if (e_34) throw e_34.error; }
+            finally { if (e_46) throw e_46.error; }
         }
         this.stoppedTime = Date.now();
     };
@@ -3726,7 +4214,7 @@ var Stage = (function () {
         });
     };
     Stage.prototype.tryDoOnReady = function () {
-        var e_36, _a;
+        var e_48, _a;
         if (this.onReadyPending && this.isReady()) {
             this.onReadyPending = false;
             if (this.backgrounds.length && this.backgroundIndex === null) {
@@ -3739,12 +4227,12 @@ var Stage = (function () {
                         callback();
                     }
                 }
-                catch (e_36_1) { e_36 = { error: e_36_1 }; }
+                catch (e_48_1) { e_48 = { error: e_48_1 }; }
                 finally {
                     try {
                         if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
                     }
-                    finally { if (e_36) throw e_36.error; }
+                    finally { if (e_48) throw e_48.error; }
                 }
                 this.onReadyCallbacks = [];
             }
@@ -3754,7 +4242,7 @@ var Stage = (function () {
         }
     };
     Stage.prototype.doOnStart = function () {
-        var e_37, _a;
+        var e_49, _a;
         var _loop_2 = function (callback) {
             setTimeout(function () {
                 callback();
@@ -3766,12 +4254,12 @@ var Stage = (function () {
                 _loop_2(callback);
             }
         }
-        catch (e_37_1) { e_37 = { error: e_37_1 }; }
+        catch (e_49_1) { e_49 = { error: e_49_1 }; }
         finally {
             try {
                 if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
             }
-            finally { if (e_37) throw e_37.error; }
+            finally { if (e_49) throw e_49.error; }
         }
     };
     Stage.prototype.tryDoRun = function () {
@@ -3798,7 +4286,7 @@ var Stage = (function () {
         var _this = this;
         this.scheduledCallbacks = this.scheduledCallbacks.filter(this.scheduledCallbackExecutor.execute(Date.now(), this.diffTime));
         this.sprites.forEach(function (layerSprites, layer) {
-            var e_38, _a;
+            var e_50, _a;
             try {
                 for (var layerSprites_5 = __values(layerSprites), layerSprites_5_1 = layerSprites_5.next(); !layerSprites_5_1.done; layerSprites_5_1 = layerSprites_5.next()) {
                     var sprite = layerSprites_5_1.value;
@@ -3809,12 +4297,12 @@ var Stage = (function () {
                     sprite.update(_this.diffTime);
                 }
             }
-            catch (e_38_1) { e_38 = { error: e_38_1 }; }
+            catch (e_50_1) { e_50 = { error: e_50_1 }; }
             finally {
                 try {
                     if (layerSprites_5_1 && !layerSprites_5_1.done && (_a = layerSprites_5.return)) _a.call(layerSprites_5);
                 }
-                finally { if (e_38) throw e_38.error; }
+                finally { if (e_50) throw e_50.error; }
             }
         });
         this.diffTime = 0;
@@ -4340,7 +4828,7 @@ var CollisionSystem = (function () {
         return new CollisionResult();
     };
     CollisionSystem.prototype.insert = function () {
-        var e_39, _a;
+        var e_51, _a;
         var bodies = [];
         for (var _i = 0; _i < arguments.length; _i++) {
             bodies[_i] = arguments[_i];
@@ -4351,17 +4839,17 @@ var CollisionSystem = (function () {
                 this._bvh.insert(body, false);
             }
         }
-        catch (e_39_1) { e_39 = { error: e_39_1 }; }
+        catch (e_51_1) { e_51 = { error: e_51_1 }; }
         finally {
             try {
                 if (bodies_1_1 && !bodies_1_1.done && (_a = bodies_1.return)) _a.call(bodies_1);
             }
-            finally { if (e_39) throw e_39.error; }
+            finally { if (e_51) throw e_51.error; }
         }
         return this;
     };
     CollisionSystem.prototype.remove = function () {
-        var e_40, _a;
+        var e_52, _a;
         var bodies = [];
         for (var _i = 0; _i < arguments.length; _i++) {
             bodies[_i] = arguments[_i];
@@ -4372,12 +4860,12 @@ var CollisionSystem = (function () {
                 this._bvh.remove(body, false);
             }
         }
-        catch (e_40_1) { e_40 = { error: e_40_1 }; }
+        catch (e_52_1) { e_52 = { error: e_52_1 }; }
         finally {
             try {
                 if (bodies_2_1 && !bodies_2_1.done && (_a = bodies_2.return)) _a.call(bodies_2);
             }
-            finally { if (e_40) throw e_40.error; }
+            finally { if (e_52) throw e_52.error; }
         }
         return this;
     };
@@ -4993,7 +5481,7 @@ var JetcodeSocketConnection = (function () {
         this.connects[action] = this.connects[action].filter(function (cb) { return cb !== callback; });
     };
     JetcodeSocketConnection.prototype.sendData = function (value, parameters) {
-        var e_41, _a;
+        var e_53, _a;
         if (parameters === void 0) { parameters = {}; }
         if (!this.lobbyId) {
             throw new Error('You are not in the lobby!');
@@ -5005,12 +5493,12 @@ var JetcodeSocketConnection = (function () {
                 request += key + '=' + value_1 + '\n';
             }
         }
-        catch (e_41_1) { e_41 = { error: e_41_1 }; }
+        catch (e_53_1) { e_53 = { error: e_53_1 }; }
         finally {
             try {
                 if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
             }
-            finally { if (e_41) throw e_41.error; }
+            finally { if (e_53) throw e_53.error; }
         }
         request += "SendTime=".concat(Date.now(), "\n");
         request += '\n' + value;
@@ -5020,7 +5508,7 @@ var JetcodeSocketConnection = (function () {
         var _this = this;
         if (parameters === void 0) { parameters = {}; }
         return new Promise(function (resolve, reject) {
-            var e_42, _a;
+            var e_54, _a;
             if (!lobbyId) {
                 lobbyId = 0;
             }
@@ -5033,12 +5521,12 @@ var JetcodeSocketConnection = (function () {
                     request += "".concat(key, "=").concat(value, "\n");
                 }
             }
-            catch (e_42_1) { e_42 = { error: e_42_1 }; }
+            catch (e_54_1) { e_54 = { error: e_54_1 }; }
             finally {
                 try {
                     if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
                 }
-                finally { if (e_42) throw e_42.error; }
+                finally { if (e_54) throw e_54.error; }
             }
             _this.socket.send(request);
             _this.connect(JetcodeSocket.JOINED, function (responseParams) {
@@ -5250,6 +5738,20 @@ var Mouse = (function () {
     Mouse.prototype.clearMouseDown = function () {
         this.isDown = false;
     };
+    Object.defineProperty(Mouse.prototype, "absoluteX", {
+        get: function () {
+            return this.x;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Mouse.prototype, "absoluteY", {
+        get: function () {
+            return this.y;
+        },
+        enumerable: false,
+        configurable: true
+    });
     return Mouse;
 }());
 var Registry = (function () {
