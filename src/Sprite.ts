@@ -1546,7 +1546,7 @@ class Sprite {
         return this._y;
     }
 
-    get sourceX() {
+    get imageCenterX() {
         if (this._rotateStyle === 'leftRight' || this._rotateStyle === 'none') {
             const leftRightMultiplier = this._direction > 180 && this._rotateStyle === 'leftRight' ? -1 : 1;
 
@@ -1556,7 +1556,7 @@ class Sprite {
         return this.absoluteX + Math.cos(this._centerAngle - this.absoluteAngleRadians) * this._centerDistance * this.size / 100;
     }
 
-    get sourceY() {
+    get imageCenterY() {
         if (this._rotateStyle === 'leftRight' || this._rotateStyle === 'none') {
             return this.absoluteY - this._pivotOffsetY * this.size / 100;
         }
@@ -1577,10 +1577,10 @@ class Sprite {
             if (this._rotateStyle === 'leftRight' || this._rotateStyle === 'none') {
                 const leftRightMultiplier = this._direction > 180 && this._rotateStyle === 'leftRight' ? -1 : 1;
 
-                return this._parentSprite.sourceX + this._x * leftRightMultiplier * this.size / 100;
+                return this._parentSprite.imageCenterX + this._x * leftRightMultiplier * this.size / 100;
             }
 
-            return this._parentSprite.sourceX + this.distanceToParent * Math.cos(this.angleToParent - this._parentSprite.absoluteAngleRadians) * this.size / 100;
+            return this._parentSprite.imageCenterX + this.distanceToParent * Math.cos(this.angleToParent - this._parentSprite.absoluteAngleRadians) * this.size / 100;
         }
 
         return this._x;
@@ -1589,10 +1589,10 @@ class Sprite {
     get absoluteY() {
         if (this._parentSprite) {
             if (this._rotateStyle === 'leftRight' || this._rotateStyle === 'none') {
-                return this._parentSprite.sourceY + this._y;
+                return this._parentSprite.imageCenterY + this._y;
             }
 
-            return this._parentSprite.sourceY - this.distanceToParent * Math.sin(this.angleToParent - this._parentSprite.absoluteAngleRadians) * this.size / 100;
+            return this._parentSprite.imageCenterY - this.distanceToParent * Math.sin(this.angleToParent - this._parentSprite.absoluteAngleRadians) * this.size / 100;
         }
 
         return this._y;
@@ -1601,25 +1601,25 @@ class Sprite {
     get rightX(): number {
         const collider = this.collider;
 
-        return this.sourceX + this.width / 2 + (collider ? collider.center_offset_x * this.size / 100 : 0);
+        return this.imageCenterX + this.width / 2 + (collider ? collider.center_offset_x * this.size / 100 : 0);
     }
 
     get leftX(): number {
         const collider = this.collider;
 
-        return this.sourceX - this.width / 2 + (collider ? collider.center_offset_x * this.size / 100 : 0);
+        return this.imageCenterX - this.width / 2 + (collider ? collider.center_offset_x * this.size / 100 : 0);
     }
 
     get topY(): number {
         const collider = this.collider;
 
-        return this.sourceY - this.height / 2 + (collider ? collider.center_offset_y * this.size / 100 : 0);
+        return this.imageCenterY - this.height / 2 + (collider ? collider.center_offset_y * this.size / 100 : 0);
     }
 
     get bottomY(): number {
         const collider = this.collider;
 
-        return this.sourceY + this.height / 2 + (collider ? collider.center_offset_y * this.size / 100 : 0);
+        return this.imageCenterY + this.height / 2 + (collider ? collider.center_offset_y * this.size / 100 : 0);
     }
 
     set size(value: number) {
@@ -2025,8 +2025,8 @@ class Sprite {
     }
 
     private updateColliderPosition(collider: Collider): void {
-        collider.x = this.sourceX + collider.center_offset_x * this.size / 100;
-        collider.y = this.sourceY + collider.center_offset_y * this.size / 100;
+        collider.x = this.imageCenterX + collider.center_offset_x * this.size / 100;
+        collider.y = this.imageCenterY + collider.center_offset_y * this.size / 100;
     }
 
     updateColliderAngle() {

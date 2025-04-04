@@ -2380,7 +2380,7 @@ var Sprite = (function () {
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(Sprite.prototype, "sourceX", {
+    Object.defineProperty(Sprite.prototype, "imageCenterX", {
         get: function () {
             if (this._rotateStyle === 'leftRight' || this._rotateStyle === 'none') {
                 var leftRightMultiplier = this._direction > 180 && this._rotateStyle === 'leftRight' ? -1 : 1;
@@ -2391,7 +2391,7 @@ var Sprite = (function () {
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(Sprite.prototype, "sourceY", {
+    Object.defineProperty(Sprite.prototype, "imageCenterY", {
         get: function () {
             if (this._rotateStyle === 'leftRight' || this._rotateStyle === 'none') {
                 return this.absoluteY - this._pivotOffsetY * this.size / 100;
@@ -2420,9 +2420,9 @@ var Sprite = (function () {
             if (this._parentSprite) {
                 if (this._rotateStyle === 'leftRight' || this._rotateStyle === 'none') {
                     var leftRightMultiplier = this._direction > 180 && this._rotateStyle === 'leftRight' ? -1 : 1;
-                    return this._parentSprite.sourceX + this._x * leftRightMultiplier * this.size / 100;
+                    return this._parentSprite.imageCenterX + this._x * leftRightMultiplier * this.size / 100;
                 }
-                return this._parentSprite.sourceX + this.distanceToParent * Math.cos(this.angleToParent - this._parentSprite.absoluteAngleRadians) * this.size / 100;
+                return this._parentSprite.imageCenterX + this.distanceToParent * Math.cos(this.angleToParent - this._parentSprite.absoluteAngleRadians) * this.size / 100;
             }
             return this._x;
         },
@@ -2433,9 +2433,9 @@ var Sprite = (function () {
         get: function () {
             if (this._parentSprite) {
                 if (this._rotateStyle === 'leftRight' || this._rotateStyle === 'none') {
-                    return this._parentSprite.sourceY + this._y;
+                    return this._parentSprite.imageCenterY + this._y;
                 }
-                return this._parentSprite.sourceY - this.distanceToParent * Math.sin(this.angleToParent - this._parentSprite.absoluteAngleRadians) * this.size / 100;
+                return this._parentSprite.imageCenterY - this.distanceToParent * Math.sin(this.angleToParent - this._parentSprite.absoluteAngleRadians) * this.size / 100;
             }
             return this._y;
         },
@@ -2445,7 +2445,7 @@ var Sprite = (function () {
     Object.defineProperty(Sprite.prototype, "rightX", {
         get: function () {
             var collider = this.collider;
-            return this.sourceX + this.width / 2 + (collider ? collider.center_offset_x * this.size / 100 : 0);
+            return this.imageCenterX + this.width / 2 + (collider ? collider.center_offset_x * this.size / 100 : 0);
         },
         enumerable: false,
         configurable: true
@@ -2453,7 +2453,7 @@ var Sprite = (function () {
     Object.defineProperty(Sprite.prototype, "leftX", {
         get: function () {
             var collider = this.collider;
-            return this.sourceX - this.width / 2 + (collider ? collider.center_offset_x * this.size / 100 : 0);
+            return this.imageCenterX - this.width / 2 + (collider ? collider.center_offset_x * this.size / 100 : 0);
         },
         enumerable: false,
         configurable: true
@@ -2461,7 +2461,7 @@ var Sprite = (function () {
     Object.defineProperty(Sprite.prototype, "topY", {
         get: function () {
             var collider = this.collider;
-            return this.sourceY - this.height / 2 + (collider ? collider.center_offset_y * this.size / 100 : 0);
+            return this.imageCenterY - this.height / 2 + (collider ? collider.center_offset_y * this.size / 100 : 0);
         },
         enumerable: false,
         configurable: true
@@ -2469,7 +2469,7 @@ var Sprite = (function () {
     Object.defineProperty(Sprite.prototype, "bottomY", {
         get: function () {
             var collider = this.collider;
-            return this.sourceY + this.height / 2 + (collider ? collider.center_offset_y * this.size / 100 : 0);
+            return this.imageCenterY + this.height / 2 + (collider ? collider.center_offset_y * this.size / 100 : 0);
         },
         enumerable: false,
         configurable: true
@@ -2927,8 +2927,8 @@ var Sprite = (function () {
         this._centerAngle = -Math.atan2(-this._pivotOffsetY, -this._pivotOffsetX);
     };
     Sprite.prototype.updateColliderPosition = function (collider) {
-        collider.x = this.sourceX + collider.center_offset_x * this.size / 100;
-        collider.y = this.sourceY + collider.center_offset_y * this.size / 100;
+        collider.x = this.imageCenterX + collider.center_offset_x * this.size / 100;
+        collider.y = this.imageCenterY + collider.center_offset_y * this.size / 100;
     };
     Sprite.prototype.updateColliderAngle = function () {
         var collider = this.collider;
@@ -3996,8 +3996,8 @@ var Stage = (function () {
     Stage.prototype.drawSprite = function (sprite) {
         var costume = sprite.getCostume();
         var image = costume.image;
-        var dstX = sprite.sourceX - sprite.sourceWidth / 2;
-        var dstY = sprite.sourceY - sprite.sourceHeight / 2;
+        var dstX = sprite.imageCenterX - sprite.sourceWidth / 2;
+        var dstY = sprite.imageCenterY - sprite.sourceHeight / 2;
         var dstWidth = sprite.sourceWidth;
         var dstHeight = sprite.sourceHeight;
         var direction = sprite.absoluteDirection;
@@ -4109,8 +4109,8 @@ var Stage = (function () {
                         }
                         if (this_1.game.debugMode !== 'none') {
                             var fn = function () {
-                                var x = sprite.sourceX - (_this.context.measureText(sprite.name).width / 2);
-                                var y = sprite.sourceY + sprite.height + 20;
+                                var x = sprite.imageCenterX - (_this.context.measureText(sprite.name).width / 2);
+                                var y = sprite.imageCenterY + sprite.height + 20;
                                 _this.context.fillStyle = _this.game.debugColor;
                                 _this.context.font = '16px Arial';
                                 _this.context.fillText(sprite.name, x, y);

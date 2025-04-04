@@ -316,8 +316,8 @@ class Stage {
     drawSprite(sprite: Sprite): void {
         const costume = sprite.getCostume();
         const image = costume.image;
-        const dstX = sprite.sourceX - sprite.sourceWidth / 2;
-        const dstY = sprite.sourceY - sprite.sourceHeight / 2;
+        const dstX = sprite.imageCenterX - sprite.sourceWidth / 2;
+        const dstY = sprite.imageCenterY - sprite.sourceHeight / 2;
         const dstWidth = sprite.sourceWidth;
         const dstHeight = sprite.sourceHeight;
         const direction = sprite.absoluteDirection;
@@ -475,8 +475,8 @@ class Stage {
                     if (this.game.debugMode !== 'none') {
                         const fn = () => {
 
-                            const x = sprite.sourceX - (this.context.measureText(sprite.name).width / 2);
-                            let y = sprite.sourceY + sprite.height + 20;
+                            const x = sprite.imageCenterX - (this.context.measureText(sprite.name).width / 2);
+                            let y = sprite.imageCenterY + sprite.height + 20;
 
                             this.context.fillStyle = this.game.debugColor;
 
