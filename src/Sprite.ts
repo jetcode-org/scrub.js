@@ -895,7 +895,7 @@ class Sprite {
         let globalX = object.globalX ? object.globalX : object.x;
         let globalY = object.globalY ? object.globalY : object.y;
 
-        this.direction = (Math.atan2(this.globalY - globalY , this.globalX - globalX) / Math.PI * 180) - 90
+        this.globalDirection = (Math.atan2(this.globalY - globalY , this.globalX - globalX) / Math.PI * 180) - 90
     }
 
     getDistanceTo(object): number {
@@ -1455,6 +1455,10 @@ class Sprite {
 
     get direction(): number {
         return this._direction;
+    }
+
+    set globalDirection(value) {
+        this.direction = this._parentSprite ? value - this._parentSprite.direction : value;
     }
 
     get globalDirection(): number{

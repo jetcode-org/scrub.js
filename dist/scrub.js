@@ -1666,7 +1666,7 @@ var Sprite = (function () {
     Sprite.prototype.pointForward = function (object) {
         var globalX = object.globalX ? object.globalX : object.x;
         var globalY = object.globalY ? object.globalY : object.y;
-        this.direction = (Math.atan2(this.globalY - globalY, this.globalX - globalX) / Math.PI * 180) - 90;
+        this.globalDirection = (Math.atan2(this.globalY - globalY, this.globalX - globalX) / Math.PI * 180) - 90;
     };
     Sprite.prototype.getDistanceTo = function (object) {
         var globalX = object.globalX ? object.globalX : object.x;
@@ -2258,6 +2258,9 @@ var Sprite = (function () {
     Object.defineProperty(Sprite.prototype, "globalDirection", {
         get: function () {
             return this._parentSprite ? this._parentSprite.direction + this.direction : this.direction;
+        },
+        set: function (value) {
+            this.direction = this._parentSprite ? value - this._parentSprite.direction : value;
         },
         enumerable: false,
         configurable: true
