@@ -763,16 +763,18 @@ class Sprite {
         return this.collider.collides(mousePoint, this.collisionResult);
     }
 
-    pointForward(sprite): void {
-        this.direction = (Math.atan2(this.absoluteY - sprite.absoluteY , this.absoluteX - sprite.absoluteX) / Math.PI * 180) - 90
+    pointForward(object): void {
+        let absoluteX = object.absoluteX ? object.absoluteX : object.x;
+        let absoluteY = object.absoluteY ? object.absoluteY : object.y;
+
+        this.direction = (Math.atan2(this.absoluteY - absoluteY , this.absoluteX - absoluteX) / Math.PI * 180) - 90
     }
 
-    getDistanceToSprite(sprite: Sprite): number {
-        return Math.sqrt((Math.abs(this.absoluteX - sprite.absoluteX)) + (Math.abs(this.absoluteY - sprite.absoluteY)));
-    }
+    getDistanceTo(object): number {
+        let absoluteX = object.absoluteX ? object.absoluteX : object.x;
+        let absoluteY = object.absoluteY ? object.absoluteY : object.y;
 
-    getDistanceToMouse(mouse: Mouse): number {
-        return Math.sqrt((Math.abs(this.absoluteX - mouse.x)) + (Math.abs(this.absoluteY - mouse.y)));
+        return Math.sqrt((Math.abs(this.absoluteX - absoluteX)) + (Math.abs(this.absoluteY - absoluteY)));
     }
 
     say(text, time = null): void {
@@ -1304,7 +1306,7 @@ class Sprite {
     get absoluteY() {
         if (this._parentComplexSprite) {
             if (this.rotateStyle === 'leftRight' || this.rotateStyle === 'none') {
-                return this._parentComplexSprite.absoluteY + this._y
+                return this._parentComplexSprite.absoluteY + this._y;
             }
             else {
                 return this._parentComplexSprite.absoluteY - this.distanceToParent * Math.sin(this.angleToParent - this._parentComplexSprite.angleRadians) * this.size / 100;

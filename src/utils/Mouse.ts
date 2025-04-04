@@ -37,12 +37,4 @@ class Mouse {
     clearMouseDown(): void {
         this.isDown = false;
     }
-
-    get absoluteX() {
-        return this.x;
-    }
-
-    get absoluteY() {
-        return this.y;
-    }
 }

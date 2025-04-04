@@ -1,4 +1,4 @@
-class ComplexSprite{
+class ComplexSprite {
 
     name = 'No Name';
 
@@ -9,14 +9,18 @@ class ComplexSprite{
     private _y = 0;
     private _direction = 0;
     private _rotateStyle = 'normal';
-    private _pivotOffsetX = 0;
-    private _pivotOffsetY = 0;
+    private _centerOffsetX = 0;
+    private _centerOffsetY = 0;
     private _collidedSprite = null;
     private _layer: number;
     private _parentComplexSprite = null;
     private _size = 100;
+    private scheduledCallbacks: Array<ScheduledCallbackItem> = [];
+    private scheduledCallbackExecutor: ScheduledCallbackExecutor;
     private _centerDistance = 0;
     private _centerAngle = 0;
+    protected _deleted = false;
+    private _hidden = false;
 
     constructor(stage: Stage = null, layer = 1) {
         if (!Registry.getInstance().has('game')) {
@@ -43,6 +47,9 @@ class ComplexSprite{
         complexSprite._x = complexSprite.game.width / 2;
         complexSprite._y = complexSprite.game.height / 2;
 
+        // complexSprite.scheduledCallbackExecutor = new ScheduledCallbackExecutor(complexSprite);
+        // this.stage.addSprite();
+
         return complexSprite;
     }
 
@@ -51,7 +58,9 @@ class ComplexSprite{
         this.updateCenterParams()
 
         for (const child of this._children) {
-            child.updateColliderPosition()
+            if (child.collider){
+                child.updateColliderPosition()
+            }
         }
     }
 
@@ -60,13 +69,26 @@ class ComplexSprite{
     }
 
     get absoluteX() {
-        return this._parentComplexSprite ? this._x + this._parentComplexSprite.x : this._x;
+        if (this._parentComplexSprite) {
+            if (this.rotateStyle === 'leftRight' || this.rotateStyle === 'none') {
+                const leftRightMultiplier = this._direction > 180 && this.rotateStyle === 'leftRight' ? -1 : 1;
+
+                return this._parentComplexSprite.absoluteX + this._x * leftRightMultiplier * this.size / 100;
+            }
+            else {
+                return this._parentComplexSprite.absoluteX + this.distanceToParent * Math.cos(this.angleToParent - this._parentComplexSprite.angleRadians) * this.size / 100;
+            }
+        }
+
+        return this._x;
     }
 
     set y(value){
         this._y = value;
         for (const child of this._children) {
-            child.updateColliderPosition()
+            if (child.collider){
+                child.updateColliderPosition()
+            }
         }
         this.updateCenterParams()
     }
@@ -76,7 +98,24 @@ class ComplexSprite{
     }
 
     get absoluteY() {
-        return this._parentComplexSprite ? this._y + this._parentComplexSprite.y : this._y;
+        if (this._parentComplexSprite) {
+            if (this.rotateStyle === 'leftRight' || this.rotateStyle === 'none') {
+                return this._parentComplexSprite.absoluteY + this._y;
+            }
+            else {
+                return this._parentComplexSprite.absoluteY - this.distanceToParent * Math.sin(this.angleToParent - this._parentComplexSprite.angleRadians) * this.size / 100;
+            }
+        }
+
+        return this._y;
+    }
+
+    get angleToParent(){
+        return -Math.atan2(this.y, this.x);
+    }
+
+    get distanceToParent(){
+        return Math.hypot(this.x, this.y);
     }
 
 
@@ -151,14 +190,79 @@ class ComplexSprite{
         if (!this._collidedSprite){
             return null;
         }
-        return this._collidedSprite;
+        return this._collidedSprite.collisionResult.b;
     }
 
     get otherMainSprite(){
         if (!this._collidedSprite){
             return null;
         }
-        return this._collidedSprite.getMainSprite();
+        return this._collidedSprite.collisionResult.b.getMainSprite();
+    }
+    
+    set hidden(value){
+        this._hidden = value;
+        for (const child of this._children){
+            child.hidden = value;
+        }
+    }
+    
+    get hidden(){
+        return this._hidden;
+    }
+
+    get collidedSprite(){
+        return this._collidedSprite;
+    }
+
+    get deleted(){
+        return this._deleted;
+    }
+
+    get overlap() {
+        if (!this._collidedSprite.collisionResult.collision) {
+            return 0;
+        }
+
+        return this._collidedSprite.collisionResult.overlap;
+    }
+
+    get overlapX() {
+        if (!this._collidedSprite.collisionResult.collision) {
+            return 0;
+        }
+
+        return this._collidedSprite.collisionResult.overlap_x * this._collidedSprite.collisionResult.overlap;
+    }
+
+    get overlapY() {
+        if (!this._collidedSprite.collisionResult.collision) {
+            return 0;
+        }
+
+        return this._collidedSprite.collisionResult.overlap_y * this._collidedSprite.collisionResult.overlap;
+    }
+
+    set centerOffsetX(value:number) {
+        const prevX = this.x;
+        this._centerOffsetX = value;
+        this.updateCenterParams()
+        this.x = prevX;
+    }
+
+    get centerOffsetX() {
+        return this._centerOffsetX;
+    }
+
+    set centerOffsetY(value:number) {
+        const prevY = this.y;
+        this._centerOffsetY = value;
+        this.updateCenterParams()
+        this.y = prevY;
+    }
+
+    get centerOffsetY() {
+        return this._centerOffsetY;
     }
 
     addChild(child:Sprite|ComplexSprite) {
@@ -195,45 +299,69 @@ class ComplexSprite{
     }
 
     touchSprite(sprite){
-        this._collidedSprite = null;
-        for (const child of this._children) {
-            if (child.toucheSprite(sprite)){
-                this._collidedSprite = child;
-                return true;
+        if (!this._deleted && !this._hidden) {
+            this._collidedSprite = null;
+            for (const child of this._children) {
+                if (child.toucheSprite(sprite)) {
+                    this._collidedSprite = child;
+                    return true;
+                }
             }
         }
         return false;
     }
 
     touchTag(nameOfTag){
-        for (const child of this._children) {
-            if (child.touchTag(nameOfTag)){
-                this._collidedSprite = child.otherSprite;
-            }
-        }
-    }
-
-    touchTagAll(nameOfTag){
-        for (const child of this._children) {
-            const collidedSprites = child.touchTagAll(nameOfTag);
-            if (!collidedSprites.length){
-                return collidedSprites;
+        if (!this._deleted && !this._hidden) {
+            for (const child of this._children) {
+                if (child.touchTag(nameOfTag)) {
+                    this._collidedSprite = child;
+                    return true;
+                }
             }
         }
         return false;
     }
 
+    touchTagAll(nameOfTag){
+        const collidedSprites = [];
+
+        if (!this._deleted && !this._hidden) {
+            for (const child of this._children) {
+                const collision = child.touchTagAll(nameOfTag);
+                if (!collision.length) {
+                    for (const sprite of collision) {
+                        collidedSprites.push(sprite);
+                    }
+                }
+            }
+        }
+
+        if (!collidedSprites.length) {
+            return collidedSprites;
+        }
+
+        return false;
+    }
+
     pointForward(object): void {
-        this.direction = (Math.atan2(this.absoluteY - object.absoluteY , this.absoluteX - object.absoluteX) / Math.PI * 180) - 90
+        let absoluteX = object.absoluteX ? object.absoluteX : object.x;
+        let absoluteY = object.absoluteY ? object.absoluteY : object.y;
+
+        this.direction = (Math.atan2(this.absoluteY - absoluteY , this.absoluteX - absoluteX) / Math.PI * 180) - 90
     }
 
     getDistanceTo(object): number {
-        return Math.sqrt((Math.abs(this.absoluteX - object.absoluteX)) + (Math.abs(this.absoluteY - object.absoluteY)));
+        let absoluteX = object.absoluteX ? object.absoluteX : object.x;
+        let absoluteY = object.absoluteY ? object.absoluteY : object.y;
+
+        return Math.sqrt((Math.abs(this.absoluteX - absoluteX)) + (Math.abs(this.absoluteY - absoluteY)));
     }
 
     touchMouse(): boolean {
         for (const child of this._children) {
             if (child.touchMousePoint(child.game.getMousePoint())){
+                this._collidedSprite = child.otherSprite;
                 return true;
             }
         }
@@ -241,8 +369,8 @@ class ComplexSprite{
     }
 
     private updateCenterParams(): void {
-        this._centerDistance = Math.hypot(this._pivotOffsetX, this._pivotOffsetY);
-        this._centerAngle = -Math.atan2(-this._pivotOffsetY , -this._pivotOffsetX);
+        this._centerDistance = Math.hypot(this._centerOffsetX, this._centerOffsetY);
+        this._centerAngle = -Math.atan2(-this._centerOffsetY , -this._centerOffsetX);
     }
 
     getMainSprite(){
@@ -262,6 +390,8 @@ class ComplexSprite{
         for (const child of this._children) {
             const childClone = child.createClone();
             clone.addChild(childClone)
+            childClone.x = child.x;
+            childClone.y = child.y;
         }
 
         clone.x = this.x;
@@ -274,4 +404,84 @@ class ComplexSprite{
 
         return clone;
     }
+
+    addTag(nameOfTag){
+       for (const child of this._children) {
+           child.addTag(nameOfTag);
+       }
+    }
+
+    removeTag(nameOfTag){
+        for (const child of this._children) {
+            child.removeTag(nameOfTag);
+        }
+    }
+    
+    delete() {
+        for (const child of this._children){
+            child.delete();
+        }
+        this._deleted = true;
+    }
+
+    touchEdge () {
+        for (const child of this._children) {
+            if (child.touchEdge()) {
+                this._collidedSprite = child;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    touchTopEdge(){
+        for (const child of this._children) {
+            if (child.touchTopEdge()) {
+                this._collidedSprite = child;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    touchBottomEdge(){
+        for (const child of this._children) {
+            if (child.touchBottomEdge()) {
+                this._collidedSprite = child;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    touchLeftEdge(){
+        for (const child of this._children) {
+            if (child.touchLeftEdge()) {
+                this._collidedSprite = child;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    touchRightEdge(){
+        for (const child of this._children) {
+            if (child.touchRightEdge()) {
+                this._collidedSprite = child;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    bounceOnEdge(): void {
+        if (this.touchTopEdge() || this.touchBottomEdge()) {
+            this.direction = 180 - this.direction;
+        }
+
+        if (this.touchLeftEdge() || this.touchRightEdge()) {
+            this.direction *= -1;
+        }
+    }
+
 }
