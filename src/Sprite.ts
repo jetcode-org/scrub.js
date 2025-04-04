@@ -44,6 +44,7 @@ class Sprite {
     private _tags = [];
     private _colliderOffsetX = 0;
     private _colliderOffsetY = 0;
+    private _parentComplexSprite = null;
 
     constructor(stage: Stage = null, layer = 1, costumePaths = [], soundPaths = []) {
         if (!Registry.getInstance().has('game')) {
@@ -518,21 +519,31 @@ class Sprite {
         }
     }
 
-    touchSprite(sprite: Sprite): boolean {
-        if (
-            sprite.hidden ||
-            this.hidden ||
-            sprite.stopped ||
-            this.stopped ||
-            sprite.deleted ||
-            this.deleted ||
-            !sprite.getCollider() ||
-            !this.collider
-        ) {
+    touchSprite(sprite): boolean {
+        if (sprite instanceof Sprite){
+            if (
+                sprite.hidden ||
+                this.hidden ||
+                sprite.stopped ||
+                this.stopped ||
+                sprite.deleted ||
+                this.deleted ||
+                !sprite.getCollider() ||
+                !this.collider
+            ) {
+                return false;
+            }
+
+            return this.collider.collides(sprite.getCollider(), this.collisionResult);
+        }
+        if (sprite instanceof ComplexSprite) {
+            for (const child of sprite.getChildren()){
+                if (this.touchSprite(child)){
+                    return true
+                }
+            }
             return false;
         }
-
-        return this.collider.collides(sprite.getCollider(), this.collisionResult);
     }
 
     touchSprites(sprites: Sprite[]): boolean {
@@ -752,16 +763,18 @@ class Sprite {
         return this.collider.collides(mousePoint, this.collisionResult);
     }
 
-    pointForward(sprite): void {
-        this.direction = (Math.atan2(this.y - sprite.y , this.x - sprite.x) / Math.PI * 180) - 90
+    pointForward(object): void {
+        let absoluteX = object.absoluteX ? object.absoluteX : object.x;
+        let absoluteY = object.absoluteY ? object.absoluteY : object.y;
+
+        this.direction = (Math.atan2(this.absoluteY - absoluteY , this.absoluteX - absoluteX) / Math.PI * 180) - 90
     }
 
-    getDistanceToSprite(sprite: Sprite): number {
-        return Math.sqrt((Math.abs(this.x - sprite.x)) + (Math.abs(this.y - sprite.y)));
-    }
+    getDistanceTo(object): number {
+        let absoluteX = object.absoluteX ? object.absoluteX : object.x;
+        let absoluteY = object.absoluteY ? object.absoluteY : object.y;
 
-    getDistanceToMouse(mouse: Mouse): number {
-        return Math.sqrt((Math.abs(this.x - mouse.x)) + (Math.abs(this.y - mouse.y)));
+        return Math.sqrt((Math.abs(this.absoluteX - absoluteX)) + (Math.abs(this.absoluteY - absoluteY)));
     }
 
     say(text, time = null): void {
@@ -1253,18 +1266,18 @@ class Sprite {
         if (this.rotateStyle === 'leftRight' || this.rotateStyle === 'none') {
             const leftRightMultiplier = this._direction > 180 && this.rotateStyle === 'leftRight' ? -1 : 1;
 
-            return this._x - this._centerOffsetX * leftRightMultiplier * this.size / 100;
+            return this.absoluteX - this._centerOffsetX * leftRightMultiplier * this.size / 100;
         }
 
-        return this._x + Math.cos(this._centerAngle - this.angleRadians) * this._centerDistance * this.size / 100;
+        return this.absoluteX + Math.cos(this._centerAngle - this.angleRadians) * this._centerDistance * this.size / 100;
     }
 
     get sourceY() {
         if (this.rotateStyle === 'leftRight' || this.rotateStyle === 'none') {
-            return this._y - this._centerOffsetY * this.size / 100;
+            return this.absoluteY - this._centerOffsetY * this.size / 100;
         }
 
-        return this._y - Math.sin(this._centerAngle - this.angleRadians) * this._centerDistance * this.size / 100;
+        return this.absoluteY - Math.sin(this._centerAngle - this.angleRadians) * this._centerDistance * this.size / 100;
     }
 
     get realX(): number {
@@ -1273,6 +1286,34 @@ class Sprite {
 
     get realY(): number {
         return this.y - this.height / 2;
+    }
+
+    get absoluteX() {
+        if (this._parentComplexSprite) {
+            if (this.rotateStyle === 'leftRight' || this.rotateStyle === 'none') {
+                const leftRightMultiplier = this._direction > 180 && this.rotateStyle === 'leftRight' ? -1 : 1;
+
+                return this._parentComplexSprite.absoluteX + this._x * leftRightMultiplier * this.size / 100;
+            }
+            else {
+                return this._parentComplexSprite.absoluteX + this.distanceToParent * Math.cos(this.angleToParent - this._parentComplexSprite.angleRadians) * this.size / 100;
+            }
+        }
+
+        return this._x;
+    }
+
+    get absoluteY() {
+        if (this._parentComplexSprite) {
+            if (this.rotateStyle === 'leftRight' || this.rotateStyle === 'none') {
+                return this._parentComplexSprite.absoluteY + this._y;
+            }
+            else {
+                return this._parentComplexSprite.absoluteY - this.distanceToParent * Math.sin(this.angleToParent - this._parentComplexSprite.angleRadians) * this.size / 100;
+            }
+        }
+
+        return this._y;
     }
 
     get rightX(): number {
@@ -1396,6 +1437,13 @@ class Sprite {
         return this.collisionResult.b.parentSprite;
     }
 
+    get otherMainSprite() {
+        if (!this.collisionResult.collision) {
+            return null;
+        }
+        return this.collisionResult.b.parentSprite.getMainSprite();
+    }
+
     set colliderOffsetX(value){
         this._colliderOffsetX = value;
         if (this.collider) {
@@ -1425,6 +1473,22 @@ class Sprite {
             return this.collider.offset_y;
         }
         return 0;
+    }
+
+    set parent(newParent) {
+        this._parentComplexSprite = newParent;
+    }
+
+    get parent(){
+        return this._parentComplexSprite;
+    }
+
+    get angleToParent(){
+        return -Math.atan2(this.y, this.x);
+    }
+
+    get distanceToParent(){
+        return Math.hypot(this.x, this.y);
     }
 
     ready(): void {
@@ -1679,8 +1743,19 @@ class Sprite {
         this._centerAngle = -Math.atan2(-this._centerOffsetY , -this._centerOffsetX);
     }
 
-    private updateColliderPosition(): void {
+    updateColliderPosition(): void {
             this.collider.x = this.sourceX + this.collider.center_offset_x * this.size / 100;
             this.collider.y = this.sourceY + this.collider.center_offset_y * this.size / 100;
+    }
+
+    getMainSprite(){
+        if (this._parentComplexSprite){
+            return this._parentComplexSprite.getMainSprite();
+        }
+        return this;
+    }
+
+    getParent(parent:ComplexSprite){
+        parent.addChild(this);
     }
 }
