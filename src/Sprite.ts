@@ -552,7 +552,7 @@ class Sprite {
         }
     }
 
-    touchSprite(sprite: Sprite): boolean {
+    touchSprite(sprite: Sprite, checkChildren = true): boolean {
         this._collidedSprite = null;
 
         if (
@@ -574,6 +574,18 @@ class Sprite {
             return true;
         }
 
+        if (!checkChildren) {
+            return false;
+        }
+
+        if (collider) {
+            for (const otherChild of sprite.getChildren()) {
+                if (this.touchSprite(otherChild, false)) {
+                    return true
+                }
+            }
+        }
+
         for (const child of this._children) {
             if (otherCollider && child.touchSprite(sprite)) {
                 this._collidedSprite = child;
@@ -582,12 +594,6 @@ class Sprite {
             }
 
             for (const otherChild of sprite.getChildren()) {
-                if (collider && this.touchSprite(otherChild)) {
-                    this._collidedSprite = child;
-
-                    return true
-                }
-
                 if (child.touchSprite(otherChild)) {
                     this._collidedSprite = child;
 
@@ -599,13 +605,13 @@ class Sprite {
         return false;
     }
 
-    touchSprites(sprites: Sprite[]): boolean {
+    touchSprites(sprites: Sprite[], checkChildren = true): boolean {
         if (this.hidden || this.stopped || this.deleted) {
             return false;
         }
 
         for (const sprite of sprites) {
-            if (this.touchSprite(sprite)) {
+            if (this.touchSprite(sprite, checkChildren)) {
                 return true;
             }
         }
@@ -613,7 +619,7 @@ class Sprite {
         return false;
     }
 
-    touchEdge(): boolean {
+    touchEdge(checkChildren = true): boolean {
         const result = this.getPureCollisionResult();
         this._collidedSprite = null;
 
@@ -662,18 +668,20 @@ class Sprite {
             }
         }
 
-        for (const child of this._children) {
-            if (child.touchEdge()) {
-                this._collidedSprite = child;
+        if (checkChildren) {
+            for (const child of this._children) {
+                if (child.touchEdge()) {
+                    this._collidedSprite = child;
 
-                return true;
+                    return true;
+                }
             }
         }
 
         return false;
     }
 
-    touchTopEdge(): boolean {
+    touchTopEdge(checkChildren = true): boolean {
         this.clearCollisionResult();
         this._collidedSprite = null;
 
@@ -689,18 +697,20 @@ class Sprite {
             return true;
         }
 
-        for (const child of this._children) {
-            if (child.touchTopEdge()) {
-                this._collidedSprite = child;
+        if (checkChildren) {
+            for (const child of this._children) {
+                if (child.touchTopEdge()) {
+                    this._collidedSprite = child;
 
-                return true;
+                    return true;
+                }
             }
         }
 
         return false;
     }
 
-    touchBottomEdge(): boolean {
+    touchBottomEdge(checkChildren = true): boolean {
         this.clearCollisionResult();
         this._collidedSprite = null;
 
@@ -716,18 +726,20 @@ class Sprite {
             return true;
         }
 
-        for (const child of this._children) {
-            if (child.touchBottomEdge()) {
-                this._collidedSprite = child;
+        if (checkChildren) {
+            for (const child of this._children) {
+                if (child.touchBottomEdge()) {
+                    this._collidedSprite = child;
 
-                return true;
+                    return true;
+                }
             }
         }
 
         return false;
     }
 
-    touchLeftEdge(): boolean {
+    touchLeftEdge(checkChildren = true): boolean {
         this.clearCollisionResult();
         this._collidedSprite = null;
 
@@ -743,18 +755,20 @@ class Sprite {
             return true;
         }
 
-        for (const child of this._children) {
-            if (child.touchLeftEdge()) {
-                this._collidedSprite = child;
+        if (checkChildren) {
+            for (const child of this._children) {
+                if (child.touchLeftEdge()) {
+                    this._collidedSprite = child;
 
-                return true;
+                    return true;
+                }
             }
         }
 
         return false;
     }
 
-    touchRightEdge(): boolean {
+    touchRightEdge(checkChildren = true): boolean {
         this.clearCollisionResult();
         this._collidedSprite = null;
 
@@ -770,11 +784,13 @@ class Sprite {
             return true;
         }
 
-        for (const child of this._children) {
-            if (child.touchRightEdge()) {
-                this._collidedSprite = child;
+        if (checkChildren) {
+            for (const child of this._children) {
+                if (child.touchRightEdge()) {
+                    this._collidedSprite = child;
 
-                return true;
+                    return true;
+                }
             }
         }
 
@@ -838,11 +854,11 @@ class Sprite {
         return this.collisionResult;
     }
 
-    touchMouse(): boolean {
-        return this.touchMousePoint(this.game.getMousePoint());
+    touchMouse(checkChildren = true): boolean {
+        return this.touchMousePoint(this.game.getMousePoint(), checkChildren);
     }
 
-    touchMousePoint(mousePoint: PointCollider): boolean {
+    touchMousePoint(mousePoint: PointCollider, checkChildren = true): boolean {
         this._collidedSprite = null;
 
         if (this.hidden || this.stopped || this.deleted) {
@@ -856,11 +872,13 @@ class Sprite {
             return true;
         }
 
-        for (const child of this._children) {
-            if (child.touchMousePoint(child.game.getMousePoint())){
-                this._collidedSprite = child.otherSprite;
+        if (checkChildren) {
+            for (const child of this._children) {
+                if (child.touchMousePoint(child.game.getMousePoint())) {
+                    this._collidedSprite = child.otherSprite;
 
-                return true;
+                    return true;
+                }
             }
         }
 
@@ -1239,7 +1257,7 @@ class Sprite {
         return this.costumeIndex;
     }
 
-    touchTag(tagName: string): boolean {
+    touchTag(tagName: string, checkChildren = true): boolean {
         this._collidedSprite = null;
 
         if (this.hidden || this.stopped || this.deleted) {
@@ -1271,18 +1289,20 @@ class Sprite {
             }
         }
 
-        for (const child of this._children) {
-            if (child.touchTag(tagName)) {
-                this._collidedSprite = child;
+        if (checkChildren) {
+            for (const child of this._children) {
+                if (child.touchTag(tagName)) {
+                    this._collidedSprite = child;
 
-                return true;
+                    return true;
+                }
             }
         }
 
         return false;
     }
 
-    touchTagAll(tagName: string) {
+    touchTagAll(tagName: string, checkChildren = true) {
         this._collidedSprite = null;
 
         if (this.hidden || this.stopped || this.deleted) {
@@ -1315,12 +1335,14 @@ class Sprite {
             }
         }
 
-        for (const child of this._children) {
-            const collision = child.touchTagAll(tagName);
+        if (checkChildren) {
+            for (const child of this._children) {
+                const collision = child.touchTagAll(tagName);
 
-            if (collision && !collision.length) {
-                for (const sprite of collision) {
-                    collidedSprites.push(sprite);
+                if (collision && !collision.length) {
+                    for (const sprite of collision) {
+                        collidedSprites.push(sprite);
+                    }
                 }
             }
         }
@@ -1332,7 +1354,7 @@ class Sprite {
         return false;
     }
 
-    touchAnySprite() {
+    touchAnySprite(checkChildren = true) {
         this._collidedSprite = null;
 
         if (this.hidden || this.stopped || this.deleted) {
@@ -1361,11 +1383,13 @@ class Sprite {
             }
         }
 
-        for (const child of this._children) {
-            if (child.touchAnySprite()) {
-                this._collidedSprite = child;
+        if (checkChildren) {
+            for (const child of this._children) {
+                if (child.touchAnySprite()) {
+                    this._collidedSprite = child;
 
-                return true;
+                    return true;
+                }
             }
         }
 
