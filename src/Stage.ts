@@ -320,7 +320,7 @@ class Stage {
         const dstY = sprite.sourceY - sprite.sourceHeight / 2;
         const dstWidth = sprite.sourceWidth;
         const dstHeight = sprite.sourceHeight;
-        const direction = sprite.direction;
+        const direction = sprite.absoluteDirection;
         const rotateStyle = sprite.rotateStyle;
         let colliderOffsetX = (sprite.sourceWidth - costume.width * sprite.size / 100) / 2;
         let colliderOffsetY = (sprite.sourceHeight - costume.height * sprite.size / 100) / 2;
@@ -345,7 +345,7 @@ class Stage {
 
         if (rotateStyle === 'normal' && direction !== 0) {
             this.context.translate(dstX + dstWidth / 2, dstY + dstHeight / 2);
-            this.context.rotate(sprite.angleRadians);
+            this.context.rotate(sprite.absoluteAngleRadians);
             this.context.translate(-dstX - dstWidth / 2, -dstY - dstHeight / 2);
         }
 
