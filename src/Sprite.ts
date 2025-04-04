@@ -1141,7 +1141,7 @@ class Sprite {
                     !potentialSprite.hidden &&
                     !potentialSprite.stopped &&
                     !potentialSprite.deleted &&
-                    potentialSprite.getCollider() &&
+                    potentialSprite.collider &&
                     this.collider.collides(potentialCollider, this.collisionResult)
                 ) {
                     return true;
@@ -1170,7 +1170,7 @@ class Sprite {
                     !potentialSprite.hidden &&
                     !potentialSprite.stopped &&
                     !potentialSprite.deleted &&
-                    potentialSprite.getCollider() &&
+                    potentialSprite.collider &&
                     this.collider.collides(potentialCollider, this.collisionResult)
                 ) {
                     collidedSprites.push(potentialSprite);
@@ -1200,7 +1200,7 @@ class Sprite {
                 !potentialSprite.hidden &&
                 !potentialSprite.stopped &&
                 !potentialSprite.deleted &&
-                potentialSprite.getCollider() &&
+                potentialSprite.collider &&
                 this.collider.collides(potentialCollider, this.collisionResult)
             ) {
                 return true;

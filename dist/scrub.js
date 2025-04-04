@@ -2491,7 +2491,7 @@ var Sprite = (function () {
                     if (!potentialSprite.hidden &&
                         !potentialSprite.stopped &&
                         !potentialSprite.deleted &&
-                        potentialSprite.getCollider() &&
+                        potentialSprite.collider &&
                         this.collider.collides(potentialCollider, this.collisionResult)) {
                         return true;
                     }
@@ -2525,7 +2525,7 @@ var Sprite = (function () {
                     if (!potentialSprite.hidden &&
                         !potentialSprite.stopped &&
                         !potentialSprite.deleted &&
-                        potentialSprite.getCollider() &&
+                        potentialSprite.collider &&
                         this.collider.collides(potentialCollider, this.collisionResult)) {
                         collidedSprites.push(potentialSprite);
                     }
@@ -2560,7 +2560,7 @@ var Sprite = (function () {
                 if (!potentialSprite.hidden &&
                     !potentialSprite.stopped &&
                     !potentialSprite.deleted &&
-                    potentialSprite.getCollider() &&
+                    potentialSprite.collider &&
                     this.collider.collides(potentialCollider, this.collisionResult)) {
                     return true;
                 }
