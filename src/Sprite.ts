@@ -1577,10 +1577,10 @@ class Sprite {
             if (this._rotateStyle === 'leftRight' || this._rotateStyle === 'none') {
                 const leftRightMultiplier = this._direction > 180 && this._rotateStyle === 'leftRight' ? -1 : 1;
 
-                return this._parentSprite.absoluteX + this._x * leftRightMultiplier * this.size / 100;
+                return this._parentSprite.sourceX + this._x * leftRightMultiplier * this.size / 100;
             }
 
-            return this._parentSprite.absoluteX + this.distanceToParent * Math.cos(this.angleToParent - this._parentSprite.absoluteAngleRadians) * this.size / 100;
+            return this._parentSprite.sourceX + this.distanceToParent * Math.cos(this.angleToParent - this._parentSprite.absoluteAngleRadians) * this.size / 100;
         }
 
         return this._x;
@@ -1589,10 +1589,10 @@ class Sprite {
     get absoluteY() {
         if (this._parentSprite) {
             if (this._rotateStyle === 'leftRight' || this._rotateStyle === 'none') {
-                return this._parentSprite.absoluteY + this._y;
+                return this._parentSprite.sourceY + this._y;
             }
 
-            return this._parentSprite.absoluteY - this.distanceToParent * Math.sin(this.angleToParent - this._parentSprite.absoluteAngleRadians) * this.size / 100;
+            return this._parentSprite.sourceY - this.distanceToParent * Math.sin(this.angleToParent - this._parentSprite.absoluteAngleRadians) * this.size / 100;
         }
 
         return this._y;
