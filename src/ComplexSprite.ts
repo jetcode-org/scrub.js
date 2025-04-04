@@ -9,8 +9,8 @@ class ComplexSprite {
     private _y = 0;
     private _direction = 0;
     private _rotateStyle = 'normal';
-    private _centerOffsetX = 0;
-    private _centerOffsetY = 0;
+    private _pivotOffsetX = 0;
+    private _pivotOffsetY = 0;
     private _collidedSprite = null;
     private _layer: number;
     private _parentComplexSprite = null;
@@ -243,26 +243,26 @@ class ComplexSprite {
         return this._collidedSprite.collisionResult.overlap_y * this._collidedSprite.collisionResult.overlap;
     }
 
-    set centerOffsetX(value:number) {
+    set pivotOffsetX(value:number) {
         const prevX = this.x;
-        this._centerOffsetX = value;
+        this._pivotOffsetX = value;
         this.updateCenterParams()
         this.x = prevX;
     }
 
-    get centerOffsetX() {
-        return this._centerOffsetX;
+    get pivotOffsetX() {
+        return this._pivotOffsetX;
     }
 
-    set centerOffsetY(value:number) {
+    set pivotOffsetY(value:number) {
         const prevY = this.y;
-        this._centerOffsetY = value;
+        this._pivotOffsetY = value;
         this.updateCenterParams()
         this.y = prevY;
     }
 
-    get centerOffsetY() {
-        return this._centerOffsetY;
+    get pivotOffsetY() {
+        return this._pivotOffsetY;
     }
 
     addChild(child:Sprite|ComplexSprite) {
@@ -369,8 +369,8 @@ class ComplexSprite {
     }
 
     private updateCenterParams(): void {
-        this._centerDistance = Math.hypot(this._centerOffsetX, this._centerOffsetY);
-        this._centerAngle = -Math.atan2(-this._centerOffsetY , -this._centerOffsetX);
+        this._centerDistance = Math.hypot(this._pivotOffsetX, this._pivotOffsetY);
+        this._centerAngle = -Math.atan2(-this._pivotOffsetY , -this._pivotOffsetX);
     }
 
     getMainSprite(){

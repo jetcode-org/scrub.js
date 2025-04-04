@@ -21,8 +21,8 @@ var ComplexSprite = (function () {
         this._y = 0;
         this._direction = 0;
         this._rotateStyle = 'normal';
-        this._centerOffsetX = 0;
-        this._centerOffsetY = 0;
+        this._pivotOffsetX = 0;
+        this._pivotOffsetY = 0;
         this._collidedSprite = null;
         this._parentComplexSprite = null;
         this._size = 100;
@@ -356,26 +356,26 @@ var ComplexSprite = (function () {
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(ComplexSprite.prototype, "centerOffsetX", {
+    Object.defineProperty(ComplexSprite.prototype, "pivotOffsetX", {
         get: function () {
-            return this._centerOffsetX;
+            return this._pivotOffsetX;
         },
         set: function (value) {
             var prevX = this.x;
-            this._centerOffsetX = value;
+            this._pivotOffsetX = value;
             this.updateCenterParams();
             this.x = prevX;
         },
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(ComplexSprite.prototype, "centerOffsetY", {
+    Object.defineProperty(ComplexSprite.prototype, "pivotOffsetY", {
         get: function () {
-            return this._centerOffsetY;
+            return this._pivotOffsetY;
         },
         set: function (value) {
             var prevY = this.y;
-            this._centerOffsetY = value;
+            this._pivotOffsetY = value;
             this.updateCenterParams();
             this.y = prevY;
         },
@@ -522,8 +522,8 @@ var ComplexSprite = (function () {
         return false;
     };
     ComplexSprite.prototype.updateCenterParams = function () {
-        this._centerDistance = Math.hypot(this._centerOffsetX, this._centerOffsetY);
-        this._centerAngle = -Math.atan2(-this._centerOffsetY, -this._centerOffsetX);
+        this._centerDistance = Math.hypot(this._pivotOffsetX, this._pivotOffsetY);
+        this._centerAngle = -Math.atan2(-this._pivotOffsetY, -this._pivotOffsetX);
     };
     ComplexSprite.prototype.getMainSprite = function () {
         if (this._parentComplexSprite) {
@@ -1553,8 +1553,8 @@ var Sprite = (function () {
         this.phraseLiveTime = null;
         this._x = 0;
         this._y = 0;
-        this._centerOffsetX = 0;
-        this._centerOffsetY = 0;
+        this._pivotOffsetX = 0;
+        this._pivotOffsetY = 0;
         this._width = 0;
         this._height = 0;
         this._defaultColliderNone = false;
@@ -2221,8 +2221,8 @@ var Sprite = (function () {
         clone.rotateStyle = this.rotateStyle;
         clone.x = this.x;
         clone.y = this.y;
-        clone.centerOffsetX = this.centerOffsetX;
-        clone.centerOffsetY = this.centerOffsetY;
+        clone.pivotOffsetX = this.pivotOffsetX;
+        clone.pivotOffsetY = this.pivotOffsetY;
         clone.direction = this.direction;
         clone.size = this.size;
         clone.hidden = this.hidden;
@@ -2313,11 +2313,11 @@ var Sprite = (function () {
     Sprite.prototype.stop = function () {
         this._stopped = true;
     };
-    Sprite.prototype.setCenterOffset = function (x, y) {
+    Sprite.prototype.setPivotOffset = function (x, y) {
         if (x === void 0) { x = 0; }
         if (y === void 0) { y = 0; }
-        this.centerOffsetX = x;
-        this.centerOffsetY = y;
+        this.pivotOffsetX = x;
+        this.pivotOffsetY = y;
         return this;
     };
     Sprite.prototype.switchCollider = function (colliderName) {
@@ -2705,7 +2705,7 @@ var Sprite = (function () {
         get: function () {
             if (this.rotateStyle === 'leftRight' || this.rotateStyle === 'none') {
                 var leftRightMultiplier = this._direction > 180 && this.rotateStyle === 'leftRight' ? -1 : 1;
-                return this.absoluteX - this._centerOffsetX * leftRightMultiplier * this.size / 100;
+                return this.absoluteX - this._pivotOffsetX * leftRightMultiplier * this.size / 100;
             }
             return this.absoluteX + Math.cos(this._centerAngle - this.angleRadians) * this._centerDistance * this.size / 100;
         },
@@ -2715,7 +2715,7 @@ var Sprite = (function () {
     Object.defineProperty(Sprite.prototype, "sourceY", {
         get: function () {
             if (this.rotateStyle === 'leftRight' || this.rotateStyle === 'none') {
-                return this.absoluteY - this._centerOffsetY * this.size / 100;
+                return this.absoluteY - this._pivotOffsetY * this.size / 100;
             }
             return this.absoluteY - Math.sin(this._centerAngle - this.angleRadians) * this._centerDistance * this.size / 100;
         },
@@ -2862,26 +2862,26 @@ var Sprite = (function () {
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(Sprite.prototype, "centerOffsetX", {
+    Object.defineProperty(Sprite.prototype, "pivotOffsetX", {
         get: function () {
-            return this._centerOffsetX;
+            return this._pivotOffsetX;
         },
         set: function (value) {
             var prevX = this.x;
-            this._centerOffsetX = value;
+            this._pivotOffsetX = value;
             this.updateCenterParams();
             this.x = prevX;
         },
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(Sprite.prototype, "centerOffsetY", {
+    Object.defineProperty(Sprite.prototype, "pivotOffsetY", {
         get: function () {
-            return this._centerOffsetY;
+            return this._pivotOffsetY;
         },
         set: function (value) {
             var prevY = this.y;
-            this._centerOffsetY = value;
+            this._pivotOffsetY = value;
             this.updateCenterParams();
             this.y = prevY;
         },
@@ -3175,8 +3175,8 @@ var Sprite = (function () {
         return { width: width, height: height };
     };
     Sprite.prototype.updateCenterParams = function () {
-        this._centerDistance = Math.hypot(this._centerOffsetX, this._centerOffsetY);
-        this._centerAngle = -Math.atan2(-this._centerOffsetY, -this._centerOffsetX);
+        this._centerDistance = Math.hypot(this._pivotOffsetX, this._pivotOffsetY);
+        this._centerAngle = -Math.atan2(-this._pivotOffsetY, -this._pivotOffsetX);
     };
     Sprite.prototype.updateColliderPosition = function (collider) {
         collider.x = this.sourceX + collider.center_offset_x * this.size / 100;
@@ -4370,9 +4370,9 @@ var Stage = (function () {
                                 y += 20;
                                 _this.context.fillText("costume: " + sprite.getCostumeName(), x, y);
                                 y += 20;
-                                _this.context.fillText("xOffset: " + sprite.centerOffsetX, x, y);
+                                _this.context.fillText("xOffset: " + sprite.pivotOffsetX, x, y);
                                 y += 20;
-                                _this.context.fillText("yOffset: " + sprite.centerOffsetY, x, y);
+                                _this.context.fillText("yOffset: " + sprite.pivotOffsetY, x, y);
                                 _this.context.beginPath();
                                 _this.context.moveTo(sprite.absoluteX - 2, sprite.absoluteY);
                                 _this.context.lineTo(sprite.absoluteX + 2, sprite.absoluteY);

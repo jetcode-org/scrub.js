@@ -18,8 +18,8 @@ class Sprite {
     private phraseLiveTime = null;
     private _x = 0;
     private _y = 0;
-    private _centerOffsetX = 0;
-    private _centerOffsetY = 0;
+    private _pivotOffsetX = 0;
+    private _pivotOffsetY = 0;
     private _width = 0;
     private _height = 0;
     private _defaultColliderNone = false;
@@ -824,8 +824,8 @@ class Sprite {
 
         clone.x = this.x;
         clone.y = this.y;
-        clone.centerOffsetX = this.centerOffsetX;
-        clone.centerOffsetY = this.centerOffsetY;
+        clone.pivotOffsetX = this.pivotOffsetX;
+        clone.pivotOffsetY = this.pivotOffsetY;
         clone.direction = this.direction;
         clone.size = this.size;
         clone.hidden = this.hidden;
@@ -932,9 +932,9 @@ class Sprite {
         this._stopped = true;
     }
 
-    setCenterOffset(x: number = 0, y: number = 0): this {
-        this.centerOffsetX = x;
-        this.centerOffsetY = y;
+    setPivotOffset(x: number = 0, y: number = 0): this {
+        this.pivotOffsetX = x;
+        this.pivotOffsetY = y;
 
         return this;
     }
@@ -1334,7 +1334,7 @@ class Sprite {
         if (this.rotateStyle === 'leftRight' || this.rotateStyle === 'none') {
             const leftRightMultiplier = this._direction > 180 && this.rotateStyle === 'leftRight' ? -1 : 1;
 
-            return this.absoluteX - this._centerOffsetX * leftRightMultiplier * this.size / 100;
+            return this.absoluteX - this._pivotOffsetX * leftRightMultiplier * this.size / 100;
         }
 
         return this.absoluteX + Math.cos(this._centerAngle - this.angleRadians) * this._centerDistance * this.size / 100;
@@ -1342,7 +1342,7 @@ class Sprite {
 
     get sourceY() {
         if (this.rotateStyle === 'leftRight' || this.rotateStyle === 'none') {
-            return this.absoluteY - this._centerOffsetY * this.size / 100;
+            return this.absoluteY - this._pivotOffsetY * this.size / 100;
         }
 
         return this.absoluteY - Math.sin(this._centerAngle - this.angleRadians) * this._centerDistance * this.size / 100;
@@ -1468,26 +1468,26 @@ class Sprite {
         return this._stopped;
     }
 
-    set centerOffsetX(value:number) {
+    set pivotOffsetX(value:number) {
         const prevX = this.x;
-        this._centerOffsetX = value;
+        this._pivotOffsetX = value;
         this.updateCenterParams()
         this.x = prevX;
     }
 
-    get centerOffsetX() {
-        return this._centerOffsetX;
+    get pivotOffsetX() {
+        return this._pivotOffsetX;
     }
 
-    set centerOffsetY(value:number) {
+    set pivotOffsetY(value:number) {
         const prevY = this.y;
-        this._centerOffsetY = value;
+        this._pivotOffsetY = value;
         this.updateCenterParams()
         this.y = prevY;
     }
 
-    get centerOffsetY() {
-        return this._centerOffsetY;
+    get pivotOffsetY() {
+        return this._pivotOffsetY;
     }
 
     set layer(newLayer: number) {
@@ -1777,8 +1777,8 @@ class Sprite {
     }
 
     private updateCenterParams(): void {
-        this._centerDistance = Math.hypot(this._centerOffsetX, this._centerOffsetY);
-        this._centerAngle = -Math.atan2(-this._centerOffsetY , -this._centerOffsetX);
+        this._centerDistance = Math.hypot(this._pivotOffsetX, this._pivotOffsetY);
+        this._centerAngle = -Math.atan2(-this._pivotOffsetY , -this._pivotOffsetX);
     }
 
     private updateColliderPosition(collider: Collider): void {
