@@ -983,6 +983,7 @@ class Sprite {
 
             childClone.x = child.x;
             childClone.y = child.y;
+            childClone.direction = child.direction;
         }
 
         clone.ready();
@@ -1043,6 +1044,10 @@ class Sprite {
         this.removeCollider();
         this.scheduledCallbackExecutor = null;
 
+        for (const child of this._children) {
+            child.delete();
+        }
+
         let props = Object.keys(this);
         for (let i = 0; i < props.length; i++) {
             delete this[props[i]];
@@ -1055,10 +1060,6 @@ class Sprite {
         this.onReadyCallbacks = [];
         this.scheduledCallbacks = [];
         this._children = [];
-
-        for (const child of this._children) {
-            child.delete();
-        }
 
         this._deleted = true;
     }

@@ -1750,6 +1750,7 @@ var Sprite = (function () {
                 clone.addChild(childClone);
                 childClone.x = child.x;
                 childClone.y = child.y;
+                childClone.direction = child.direction;
             }
         }
         catch (e_21_1) { e_21 = { error: e_21_1 }; }
@@ -1803,17 +1804,6 @@ var Sprite = (function () {
         this.eventEmitter.clearAll();
         this.removeCollider();
         this.scheduledCallbackExecutor = null;
-        var props = Object.keys(this);
-        for (var i = 0; i < props.length; i++) {
-            delete this[props[i]];
-        }
-        this.costumes = [];
-        this.costumeNames = [];
-        this.sounds = [];
-        this.soundNames = [];
-        this.onReadyCallbacks = [];
-        this.scheduledCallbacks = [];
-        this._children = [];
         try {
             for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
                 var child = _c.value;
@@ -1827,6 +1817,17 @@ var Sprite = (function () {
             }
             finally { if (e_22) throw e_22.error; }
         }
+        var props = Object.keys(this);
+        for (var i = 0; i < props.length; i++) {
+            delete this[props[i]];
+        }
+        this.costumes = [];
+        this.costumeNames = [];
+        this.sounds = [];
+        this.soundNames = [];
+        this.onReadyCallbacks = [];
+        this.scheduledCallbacks = [];
+        this._children = [];
         this._deleted = true;
     };
     Sprite.prototype.run = function () {
