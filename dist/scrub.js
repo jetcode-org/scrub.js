@@ -1,726 +1,3 @@
-var __values = (this && this.__values) || function(o) {
-    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
-    if (m) return m.call(o);
-    if (o && typeof o.length === "number") return {
-        next: function () {
-            if (o && i >= o.length) o = void 0;
-            return { value: o && o[i++], done: !o };
-        }
-    };
-    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
-};
-var ComplexSprite = (function () {
-    function ComplexSprite(stage, layer) {
-        if (stage === void 0) { stage = null; }
-        if (layer === void 0) { layer = 1; }
-        this.name = 'No Name';
-        this.game = null;
-        this.stage = null;
-        this._children = [];
-        this._x = 0;
-        this._y = 0;
-        this._direction = 0;
-        this._rotateStyle = 'normal';
-        this._pivotOffsetX = 0;
-        this._pivotOffsetY = 0;
-        this._collidedSprite = null;
-        this._parentComplexSprite = null;
-        this._size = 100;
-        this.scheduledCallbacks = [];
-        this._centerDistance = 0;
-        this._centerAngle = 0;
-        this._deleted = false;
-        this._hidden = false;
-        if (!Registry.getInstance().has('game')) {
-            throw new Error('You need create Game instance before Stage instance.');
-        }
-        this.game = Registry.getInstance().get('game');
-        var complexSprite = this;
-        if (this.game.displayErrors) {
-            complexSprite = this.game.validatorFactory.createValidator(this, 'ComplexSprite');
-        }
-        complexSprite.stage = stage;
-        if (!this.stage) {
-            complexSprite.stage = this.game.getLastStage();
-        }
-        if (!complexSprite.stage) {
-            complexSprite.game.throwError(ErrorMessages.NEED_CREATE_STAGE_BEFORE_SPRITE);
-        }
-        complexSprite._layer = layer;
-        complexSprite._x = complexSprite.game.width / 2;
-        complexSprite._y = complexSprite.game.height / 2;
-        return complexSprite;
-    }
-    Object.defineProperty(ComplexSprite.prototype, "x", {
-        get: function () {
-            return this._x;
-        },
-        set: function (value) {
-            var e_1, _a;
-            this._x = value;
-            this.updateCenterParams();
-            try {
-                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var child = _c.value;
-                    if (child.collider) {
-                        child.updateColliderPosition();
-                    }
-                }
-            }
-            catch (e_1_1) { e_1 = { error: e_1_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_1) throw e_1.error; }
-            }
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(ComplexSprite.prototype, "absoluteX", {
-        get: function () {
-            if (this._parentComplexSprite) {
-                if (this.rotateStyle === 'leftRight' || this.rotateStyle === 'none') {
-                    var leftRightMultiplier = this._direction > 180 && this.rotateStyle === 'leftRight' ? -1 : 1;
-                    return this._parentComplexSprite.absoluteX + this._x * leftRightMultiplier * this.size / 100;
-                }
-                else {
-                    return this._parentComplexSprite.absoluteX + this.distanceToParent * Math.cos(this.angleToParent - this._parentComplexSprite.angleRadians) * this.size / 100;
-                }
-            }
-            return this._x;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(ComplexSprite.prototype, "y", {
-        get: function () {
-            return this._y;
-        },
-        set: function (value) {
-            var e_2, _a;
-            this._y = value;
-            try {
-                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var child = _c.value;
-                    if (child.collider) {
-                        child.updateColliderPosition();
-                    }
-                }
-            }
-            catch (e_2_1) { e_2 = { error: e_2_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_2) throw e_2.error; }
-            }
-            this.updateCenterParams();
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(ComplexSprite.prototype, "absoluteY", {
-        get: function () {
-            if (this._parentComplexSprite) {
-                if (this.rotateStyle === 'leftRight' || this.rotateStyle === 'none') {
-                    return this._parentComplexSprite.absoluteY + this._y;
-                }
-                else {
-                    return this._parentComplexSprite.absoluteY - this.distanceToParent * Math.sin(this.angleToParent - this._parentComplexSprite.angleRadians) * this.size / 100;
-                }
-            }
-            return this._y;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(ComplexSprite.prototype, "angleToParent", {
-        get: function () {
-            return -Math.atan2(this.y, this.x);
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(ComplexSprite.prototype, "distanceToParent", {
-        get: function () {
-            return Math.hypot(this.x, this.y);
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(ComplexSprite.prototype, "direction", {
-        get: function () {
-            return this._direction;
-        },
-        set: function (value) {
-            var e_3, _a;
-            var direction = value;
-            direction = direction % 360;
-            if (direction < 0) {
-                direction += 360;
-            }
-            this._direction = direction;
-            try {
-                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var child = _c.value;
-                    child.direction = direction;
-                }
-            }
-            catch (e_3_1) { e_3 = { error: e_3_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_3) throw e_3.error; }
-            }
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(ComplexSprite.prototype, "angleRadians", {
-        get: function () {
-            return this._direction * Math.PI / 180;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(ComplexSprite.prototype, "layer", {
-        get: function () {
-            return this._layer;
-        },
-        set: function (newLayer) {
-            var e_4, _a;
-            this._layer = newLayer;
-            try {
-                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var child = _c.value;
-                    child.layer = this._layer;
-                }
-            }
-            catch (e_4_1) { e_4 = { error: e_4_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_4) throw e_4.error; }
-            }
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(ComplexSprite.prototype, "parent", {
-        get: function () {
-            return this._parentComplexSprite;
-        },
-        set: function (value) {
-            this._parentComplexSprite = value;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(ComplexSprite.prototype, "size", {
-        get: function () {
-            return this._size;
-        },
-        set: function (value) {
-            var e_5, _a;
-            this._size = value;
-            try {
-                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var child = _c.value;
-                    child.size = value;
-                }
-            }
-            catch (e_5_1) { e_5 = { error: e_5_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_5) throw e_5.error; }
-            }
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(ComplexSprite.prototype, "rotateStyle", {
-        get: function () {
-            return this._rotateStyle;
-        },
-        set: function (value) {
-            var e_6, _a;
-            this._rotateStyle = value;
-            try {
-                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var child = _c.value;
-                    child.rotateStyle = value;
-                }
-            }
-            catch (e_6_1) { e_6 = { error: e_6_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_6) throw e_6.error; }
-            }
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(ComplexSprite.prototype, "otherSprite", {
-        get: function () {
-            if (!this._collidedSprite) {
-                return null;
-            }
-            return this._collidedSprite.collisionResult.b;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(ComplexSprite.prototype, "otherMainSprite", {
-        get: function () {
-            if (!this._collidedSprite) {
-                return null;
-            }
-            return this._collidedSprite.collisionResult.b.getMainSprite();
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(ComplexSprite.prototype, "hidden", {
-        get: function () {
-            return this._hidden;
-        },
-        set: function (value) {
-            var e_7, _a;
-            this._hidden = value;
-            try {
-                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var child = _c.value;
-                    child.hidden = value;
-                }
-            }
-            catch (e_7_1) { e_7 = { error: e_7_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_7) throw e_7.error; }
-            }
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(ComplexSprite.prototype, "collidedSprite", {
-        get: function () {
-            return this._collidedSprite;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(ComplexSprite.prototype, "deleted", {
-        get: function () {
-            return this._deleted;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(ComplexSprite.prototype, "overlap", {
-        get: function () {
-            if (!this._collidedSprite.collisionResult.collision) {
-                return 0;
-            }
-            return this._collidedSprite.collisionResult.overlap;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(ComplexSprite.prototype, "overlapX", {
-        get: function () {
-            if (!this._collidedSprite.collisionResult.collision) {
-                return 0;
-            }
-            return this._collidedSprite.collisionResult.overlap_x * this._collidedSprite.collisionResult.overlap;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(ComplexSprite.prototype, "overlapY", {
-        get: function () {
-            if (!this._collidedSprite.collisionResult.collision) {
-                return 0;
-            }
-            return this._collidedSprite.collisionResult.overlap_y * this._collidedSprite.collisionResult.overlap;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(ComplexSprite.prototype, "pivotOffsetX", {
-        get: function () {
-            return this._pivotOffsetX;
-        },
-        set: function (value) {
-            var prevX = this.x;
-            this._pivotOffsetX = value;
-            this.updateCenterParams();
-            this.x = prevX;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(ComplexSprite.prototype, "pivotOffsetY", {
-        get: function () {
-            return this._pivotOffsetY;
-        },
-        set: function (value) {
-            var prevY = this.y;
-            this._pivotOffsetY = value;
-            this.updateCenterParams();
-            this.y = prevY;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    ComplexSprite.prototype.addChild = function (child) {
-        if (!this._children.includes(child)) {
-            this._children.push(child);
-            child.parent = this;
-            child.layer = this.layer;
-            child.x = 0;
-            child.y = 0;
-            child.direction = this.direction;
-        }
-    };
-    ComplexSprite.prototype.removeChild = function (child) {
-        var foundChildIndex = this._children.indexOf(child);
-        if (foundChildIndex > -1) {
-            var child_1 = this._children[foundChildIndex];
-            child_1.parent = null;
-            this._children.splice(foundChildIndex, 1);
-        }
-    };
-    ComplexSprite.prototype.getChildren = function () {
-        return this._children;
-    };
-    ComplexSprite.prototype.move = function (steps) {
-        var angleRadians = this.angleRadians;
-        this.x += (steps * Math.sin(angleRadians));
-        this.y -= (steps * Math.cos(angleRadians));
-    };
-    ComplexSprite.prototype.touchSprite = function (sprite) {
-        var e_8, _a;
-        if (!this._deleted && !this._hidden) {
-            this._collidedSprite = null;
-            try {
-                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var child = _c.value;
-                    if (child.toucheSprite(sprite)) {
-                        this._collidedSprite = child;
-                        return true;
-                    }
-                }
-            }
-            catch (e_8_1) { e_8 = { error: e_8_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_8) throw e_8.error; }
-            }
-        }
-        return false;
-    };
-    ComplexSprite.prototype.touchTag = function (nameOfTag) {
-        var e_9, _a;
-        if (!this._deleted && !this._hidden) {
-            try {
-                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var child = _c.value;
-                    if (child.touchTag(nameOfTag)) {
-                        this._collidedSprite = child;
-                        return true;
-                    }
-                }
-            }
-            catch (e_9_1) { e_9 = { error: e_9_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_9) throw e_9.error; }
-            }
-        }
-        return false;
-    };
-    ComplexSprite.prototype.touchTagAll = function (nameOfTag) {
-        var e_10, _a, e_11, _b;
-        var collidedSprites = [];
-        if (!this._deleted && !this._hidden) {
-            try {
-                for (var _c = __values(this._children), _d = _c.next(); !_d.done; _d = _c.next()) {
-                    var child = _d.value;
-                    var collision = child.touchTagAll(nameOfTag);
-                    if (!collision.length) {
-                        try {
-                            for (var collision_1 = (e_11 = void 0, __values(collision)), collision_1_1 = collision_1.next(); !collision_1_1.done; collision_1_1 = collision_1.next()) {
-                                var sprite = collision_1_1.value;
-                                collidedSprites.push(sprite);
-                            }
-                        }
-                        catch (e_11_1) { e_11 = { error: e_11_1 }; }
-                        finally {
-                            try {
-                                if (collision_1_1 && !collision_1_1.done && (_b = collision_1.return)) _b.call(collision_1);
-                            }
-                            finally { if (e_11) throw e_11.error; }
-                        }
-                    }
-                }
-            }
-            catch (e_10_1) { e_10 = { error: e_10_1 }; }
-            finally {
-                try {
-                    if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
-                }
-                finally { if (e_10) throw e_10.error; }
-            }
-        }
-        if (!collidedSprites.length) {
-            return collidedSprites;
-        }
-        return false;
-    };
-    ComplexSprite.prototype.pointForward = function (object) {
-        var absoluteX = object.absoluteX ? object.absoluteX : object.x;
-        var absoluteY = object.absoluteY ? object.absoluteY : object.y;
-        this.direction = (Math.atan2(this.absoluteY - absoluteY, this.absoluteX - absoluteX) / Math.PI * 180) - 90;
-    };
-    ComplexSprite.prototype.getDistanceTo = function (object) {
-        var absoluteX = object.absoluteX ? object.absoluteX : object.x;
-        var absoluteY = object.absoluteY ? object.absoluteY : object.y;
-        return Math.sqrt((Math.abs(this.absoluteX - absoluteX)) + (Math.abs(this.absoluteY - absoluteY)));
-    };
-    ComplexSprite.prototype.touchMouse = function () {
-        var e_12, _a;
-        try {
-            for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                var child = _c.value;
-                if (child.touchMousePoint(child.game.getMousePoint())) {
-                    this._collidedSprite = child.otherSprite;
-                    return true;
-                }
-            }
-        }
-        catch (e_12_1) { e_12 = { error: e_12_1 }; }
-        finally {
-            try {
-                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-            }
-            finally { if (e_12) throw e_12.error; }
-        }
-        return false;
-    };
-    ComplexSprite.prototype.updateCenterParams = function () {
-        this._centerDistance = Math.hypot(this._pivotOffsetX, this._pivotOffsetY);
-        this._centerAngle = -Math.atan2(-this._pivotOffsetY, -this._pivotOffsetX);
-    };
-    ComplexSprite.prototype.getMainSprite = function () {
-        if (this._parentComplexSprite) {
-            return this._parentComplexSprite.getMainSprite();
-        }
-        return this;
-    };
-    ComplexSprite.prototype.createClone = function (stage) {
-        var e_13, _a;
-        if (stage === void 0) { stage = null; }
-        if (!stage) {
-            stage = this.stage;
-        }
-        var clone = new ComplexSprite(stage);
-        try {
-            for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                var child = _c.value;
-                var childClone = child.createClone();
-                clone.addChild(childClone);
-                childClone.x = child.x;
-                childClone.y = child.y;
-            }
-        }
-        catch (e_13_1) { e_13 = { error: e_13_1 }; }
-        finally {
-            try {
-                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-            }
-            finally { if (e_13) throw e_13.error; }
-        }
-        clone.x = this.x;
-        clone.y = this.y;
-        clone.direction = this.direction;
-        clone.size = this.size;
-        clone.layer = this.layer;
-        clone.parent = null;
-        return clone;
-    };
-    ComplexSprite.prototype.addTag = function (nameOfTag) {
-        var e_14, _a;
-        try {
-            for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                var child = _c.value;
-                child.addTag(nameOfTag);
-            }
-        }
-        catch (e_14_1) { e_14 = { error: e_14_1 }; }
-        finally {
-            try {
-                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-            }
-            finally { if (e_14) throw e_14.error; }
-        }
-    };
-    ComplexSprite.prototype.removeTag = function (nameOfTag) {
-        var e_15, _a;
-        try {
-            for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                var child = _c.value;
-                child.removeTag(nameOfTag);
-            }
-        }
-        catch (e_15_1) { e_15 = { error: e_15_1 }; }
-        finally {
-            try {
-                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-            }
-            finally { if (e_15) throw e_15.error; }
-        }
-    };
-    ComplexSprite.prototype.delete = function () {
-        var e_16, _a;
-        try {
-            for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                var child = _c.value;
-                child.delete();
-            }
-        }
-        catch (e_16_1) { e_16 = { error: e_16_1 }; }
-        finally {
-            try {
-                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-            }
-            finally { if (e_16) throw e_16.error; }
-        }
-        this._deleted = true;
-    };
-    ComplexSprite.prototype.touchEdge = function () {
-        var e_17, _a;
-        try {
-            for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                var child = _c.value;
-                if (child.touchEdge()) {
-                    this._collidedSprite = child;
-                    return true;
-                }
-            }
-        }
-        catch (e_17_1) { e_17 = { error: e_17_1 }; }
-        finally {
-            try {
-                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-            }
-            finally { if (e_17) throw e_17.error; }
-        }
-        return false;
-    };
-    ComplexSprite.prototype.touchTopEdge = function () {
-        var e_18, _a;
-        try {
-            for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                var child = _c.value;
-                if (child.touchTopEdge()) {
-                    this._collidedSprite = child;
-                    return true;
-                }
-            }
-        }
-        catch (e_18_1) { e_18 = { error: e_18_1 }; }
-        finally {
-            try {
-                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-            }
-            finally { if (e_18) throw e_18.error; }
-        }
-        return false;
-    };
-    ComplexSprite.prototype.touchBottomEdge = function () {
-        var e_19, _a;
-        try {
-            for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                var child = _c.value;
-                if (child.touchBottomEdge()) {
-                    this._collidedSprite = child;
-                    return true;
-                }
-            }
-        }
-        catch (e_19_1) { e_19 = { error: e_19_1 }; }
-        finally {
-            try {
-                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-            }
-            finally { if (e_19) throw e_19.error; }
-        }
-        return false;
-    };
-    ComplexSprite.prototype.touchLeftEdge = function () {
-        var e_20, _a;
-        try {
-            for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                var child = _c.value;
-                if (child.touchLeftEdge()) {
-                    this._collidedSprite = child;
-                    return true;
-                }
-            }
-        }
-        catch (e_20_1) { e_20 = { error: e_20_1 }; }
-        finally {
-            try {
-                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-            }
-            finally { if (e_20) throw e_20.error; }
-        }
-        return false;
-    };
-    ComplexSprite.prototype.touchRightEdge = function () {
-        var e_21, _a;
-        try {
-            for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                var child = _c.value;
-                if (child.touchRightEdge()) {
-                    this._collidedSprite = child;
-                    return true;
-                }
-            }
-        }
-        catch (e_21_1) { e_21 = { error: e_21_1 }; }
-        finally {
-            try {
-                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-            }
-            finally { if (e_21) throw e_21.error; }
-        }
-        return false;
-    };
-    ComplexSprite.prototype.bounceOnEdge = function () {
-        if (this.touchTopEdge() || this.touchBottomEdge()) {
-            this.direction = 180 - this.direction;
-        }
-        if (this.touchLeftEdge() || this.touchRightEdge()) {
-            this.direction *= -1;
-        }
-    };
-    return ComplexSprite;
-}());
 var Costume = (function () {
     function Costume() {
         this.ready = false;
@@ -809,6 +86,17 @@ var EventEmitter = (function () {
     };
     return EventEmitter;
 }());
+var __values = (this && this.__values) || function(o) {
+    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+    if (m) return m.call(o);
+    if (o && typeof o.length === "number") return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
+        }
+    };
+    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+};
 var Game = (function () {
     function Game(width, height, canvasId, displayErrors, locale) {
         if (width === void 0) { width = null; }
@@ -878,7 +166,7 @@ var Game = (function () {
         return null;
     };
     Game.prototype.run = function (stage) {
-        var e_22, _a;
+        var e_1, _a;
         if (stage === void 0) { stage = null; }
         if (!stage && this.stages.length) {
             stage = this.stages[0];
@@ -893,12 +181,12 @@ var Game = (function () {
                     inStage.ready();
                 }
             }
-            catch (e_22_1) { e_22 = { error: e_22_1 }; }
+            catch (e_1_1) { e_1 = { error: e_1_1 }; }
             finally {
                 try {
                     if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
                 }
-                finally { if (e_22) throw e_22.error; }
+                finally { if (e_1) throw e_1.error; }
             }
         }
         if (this.activeStage && this.activeStage.running) {
@@ -1016,7 +304,7 @@ var Game = (function () {
         });
     };
     Game.prototype.tryDoOnReady = function () {
-        var e_23, _a;
+        var e_2, _a;
         if (this.isReady() && this.onReadyPending) {
             this.onReadyPending = false;
             if (this.onReadyCallbacks.length) {
@@ -1026,12 +314,12 @@ var Game = (function () {
                         callback();
                     }
                 }
-                catch (e_23_1) { e_23 = { error: e_23_1 }; }
+                catch (e_2_1) { e_2 = { error: e_2_1 }; }
                 finally {
                     try {
                         if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
                     }
-                    finally { if (e_23) throw e_23.error; }
+                    finally { if (e_2) throw e_2.error; }
                 }
                 this.onReadyCallbacks = [];
             }
@@ -1340,7 +628,7 @@ var MultiplayerControl = (function () {
             if (_this.userKeydownCallbacks.has(char)) {
                 var callback_1 = _this.userKeydownCallbacks.get(char)[0];
                 var block_1 = function (isBlock, chars, mouse) {
-                    var e_24, _a;
+                    var e_3, _a;
                     if (chars === void 0) { chars = [char]; }
                     if (mouse === void 0) { mouse = false; }
                     if (mouse) {
@@ -1352,12 +640,12 @@ var MultiplayerControl = (function () {
                             _this.userLockedChars[char_1.toUpperCase()] = isBlock;
                         }
                     }
-                    catch (e_24_1) { e_24 = { error: e_24_1 }; }
+                    catch (e_3_1) { e_3 = { error: e_3_1 }; }
                     finally {
                         try {
                             if (chars_1_1 && !chars_1_1.done && (_a = chars_1.return)) _a.call(chars_1);
                         }
-                        finally { if (e_24) throw e_24.error; }
+                        finally { if (e_3) throw e_3.error; }
                     }
                 };
                 var attempts_1 = 0;
@@ -1390,7 +678,7 @@ var MultiplayerControl = (function () {
                 var mouseY_1 = data['mouseY'];
                 var syncData_1 = data['sync'];
                 var block_2 = function (isBlock, chars, mouse) {
-                    var e_25, _a;
+                    var e_4, _a;
                     if (chars === void 0) { chars = []; }
                     if (mouse === void 0) { mouse = true; }
                     if (mouse) {
@@ -1402,12 +690,12 @@ var MultiplayerControl = (function () {
                             _this.userLockedChars[char.toUpperCase()] = isBlock;
                         }
                     }
-                    catch (e_25_1) { e_25 = { error: e_25_1 }; }
+                    catch (e_4_1) { e_4 = { error: e_4_1 }; }
                     finally {
                         try {
                             if (chars_2_1 && !chars_2_1.done && (_a = chars_2.return)) _a.call(chars_2);
                         }
-                        finally { if (e_25) throw e_25.error; }
+                        finally { if (e_4) throw e_4.error; }
                     }
                 };
                 var attempts_2 = 0;
@@ -1476,7 +764,7 @@ var MultiplayerControl = (function () {
         document.addEventListener('mousedown', this.mousedownCallback);
     };
     MultiplayerControl.prototype.stop = function () {
-        var e_26, _a;
+        var e_5, _a;
         if (this.keydownCallback) {
             document.removeEventListener('keydown', this.keydownCallback);
         }
@@ -1486,12 +774,12 @@ var MultiplayerControl = (function () {
                 this.connection.disconnect(JetcodeSocket.RECEIVE_DATA, connection);
             }
         }
-        catch (e_26_1) { e_26 = { error: e_26_1 }; }
+        catch (e_5_1) { e_5 = { error: e_5_1 }; }
         finally {
             try {
                 if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
             }
-            finally { if (e_26) throw e_26.error; }
+            finally { if (e_5) throw e_5.error; }
         }
     };
     MultiplayerControl.prototype.keyDown = function (char, callback, syncPackName, syncData) {
@@ -1531,15 +819,23 @@ var __read = (this && this.__read) || function (o, n) {
     }
     return ar;
 };
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
 var Sprite = (function () {
     function Sprite(stage, layer, costumePaths, soundPaths) {
-        var e_27, _a, e_28, _b;
+        var e_6, _a, e_7, _b;
         if (stage === void 0) { stage = null; }
         if (layer === void 0) { layer = 1; }
         if (costumePaths === void 0) { costumePaths = []; }
         if (soundPaths === void 0) { soundPaths = []; }
         this.name = 'No name';
-        this.rotateStyle = 'normal';
         this.game = null;
         this.costumeIndex = null;
         this.costume = null;
@@ -1560,6 +856,7 @@ var Sprite = (function () {
         this._defaultColliderNone = false;
         this._direction = 0;
         this._size = 100;
+        this._rotateStyle = 'normal';
         this._hidden = false;
         this._opacity = null;
         this._filter = null;
@@ -1575,8 +872,10 @@ var Sprite = (function () {
         this._centerDistance = 0;
         this._centerAngle = 0;
         this._tags = [];
-        this._parentComplexSprite = null;
+        this._parentSprite = null;
         this.currentColliderName = null;
+        this._children = [];
+        this._collidedSprite = null;
         if (!Registry.getInstance().has('game')) {
             throw new Error('You need create Game instance before Stage instance.');
         }
@@ -1604,12 +903,12 @@ var Sprite = (function () {
                 sprite.addCostume(costumePath);
             }
         }
-        catch (e_27_1) { e_27 = { error: e_27_1 }; }
+        catch (e_6_1) { e_6 = { error: e_6_1 }; }
         finally {
             try {
                 if (costumePaths_1_1 && !costumePaths_1_1.done && (_a = costumePaths_1.return)) _a.call(costumePaths_1);
             }
-            finally { if (e_27) throw e_27.error; }
+            finally { if (e_6) throw e_6.error; }
         }
         try {
             for (var soundPaths_1 = __values(soundPaths), soundPaths_1_1 = soundPaths_1.next(); !soundPaths_1_1.done; soundPaths_1_1 = soundPaths_1.next()) {
@@ -1617,12 +916,12 @@ var Sprite = (function () {
                 sprite.addSound(soundPath);
             }
         }
-        catch (e_28_1) { e_28 = { error: e_28_1 }; }
+        catch (e_7_1) { e_7 = { error: e_7_1 }; }
         finally {
             try {
                 if (soundPaths_1_1 && !soundPaths_1_1.done && (_b = soundPaths_1.return)) _b.call(soundPaths_1);
             }
-            finally { if (e_28) throw e_28.error; }
+            finally { if (e_7) throw e_7.error; }
         }
         sprite.scheduledCallbackExecutor = new ScheduledCallbackExecutor(sprite);
         sprite.stage.addSprite(sprite);
@@ -1779,7 +1078,7 @@ var Sprite = (function () {
             this.game.throwErrorRaw('The image inside the costume was not found.');
         }
         var direction = 0;
-        if (withRotation && this.rotateStyle === 'normal') {
+        if (withRotation && this._rotateStyle === 'normal') {
             direction = this.direction;
         }
         this.stage.stampImage(costume.image, this.x, this.y, direction);
@@ -1916,6 +1215,30 @@ var Sprite = (function () {
         this.sounds.push(sound);
         this.soundNames.push(name);
     };
+    Sprite.prototype.addChild = function (child) {
+        if (!this._children.includes(child)) {
+            this._children.push(child);
+            child.parent = this;
+            child.layer = this.layer;
+            child.x = 0;
+            child.y = 0;
+            child.direction = this.direction;
+        }
+        child.parent = this;
+        return this;
+    };
+    Sprite.prototype.removeChild = function (child) {
+        var foundChildIndex = this._children.indexOf(child);
+        if (foundChildIndex > -1) {
+            var child_1 = this._children[foundChildIndex];
+            child_1.parent = null;
+            this._children.splice(foundChildIndex, 1);
+        }
+        return this;
+    };
+    Sprite.prototype.getChildren = function () {
+        return this._children;
+    };
     Sprite.prototype.move = function (steps) {
         var angleRadians = this.angleRadians;
         this.x += (steps * Math.sin(angleRadians));
@@ -1930,42 +1253,63 @@ var Sprite = (function () {
         }
     };
     Sprite.prototype.touchSprite = function (sprite) {
-        var e_29, _a;
-        if (sprite instanceof Sprite) {
-            if (sprite.hidden ||
-                this.hidden ||
-                sprite.stopped ||
-                this.stopped ||
-                sprite.deleted ||
-                this.deleted) {
-                return false;
-            }
-            var collider = this.collider;
-            var otherCollider = sprite.collider;
-            return collider && otherCollider && collider.collides(otherCollider, this.collisionResult);
-        }
-        if (sprite instanceof ComplexSprite) {
-            try {
-                for (var _b = __values(sprite.getChildren()), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var child = _c.value;
-                    if (this.touchSprite(child)) {
-                        return true;
-                    }
-                }
-            }
-            catch (e_29_1) { e_29 = { error: e_29_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_29) throw e_29.error; }
-            }
+        var e_8, _a, e_9, _b;
+        this._collidedSprite = null;
+        if (sprite.hidden ||
+            this.hidden ||
+            sprite.stopped ||
+            this.stopped ||
+            sprite.deleted ||
+            this.deleted) {
             return false;
         }
+        var collider = this.collider;
+        var otherCollider = sprite.collider;
+        var isTouch = collider && otherCollider && collider.collides(otherCollider, this.collisionResult);
+        if (isTouch) {
+            return true;
+        }
+        try {
+            for (var _c = __values(this._children), _d = _c.next(); !_d.done; _d = _c.next()) {
+                var child = _d.value;
+                if (otherCollider && child.touchSprite(sprite)) {
+                    this._collidedSprite = child;
+                    return true;
+                }
+                try {
+                    for (var _e = (e_9 = void 0, __values(sprite.getChildren())), _f = _e.next(); !_f.done; _f = _e.next()) {
+                        var otherChild = _f.value;
+                        if (collider && this.touchSprite(otherChild)) {
+                            this._collidedSprite = child;
+                            return true;
+                        }
+                        if (child.touchSprite(otherChild)) {
+                            this._collidedSprite = child;
+                            return true;
+                        }
+                    }
+                }
+                catch (e_9_1) { e_9 = { error: e_9_1 }; }
+                finally {
+                    try {
+                        if (_f && !_f.done && (_b = _e.return)) _b.call(_e);
+                    }
+                    finally { if (e_9) throw e_9.error; }
+                }
+            }
+        }
+        catch (e_8_1) { e_8 = { error: e_8_1 }; }
+        finally {
+            try {
+                if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
+            }
+            finally { if (e_8) throw e_8.error; }
+        }
+        return false;
     };
     Sprite.prototype.touchSprites = function (sprites) {
-        var e_30, _a;
-        if (this.hidden || this.stopped || this.deleted || !this.collider) {
+        var e_10, _a;
+        if (this.hidden || this.stopped || this.deleted) {
             return false;
         }
         try {
@@ -1976,144 +1320,197 @@ var Sprite = (function () {
                 }
             }
         }
-        catch (e_30_1) { e_30 = { error: e_30_1 }; }
+        catch (e_10_1) { e_10 = { error: e_10_1 }; }
         finally {
             try {
                 if (sprites_1_1 && !sprites_1_1.done && (_a = sprites_1.return)) _a.call(sprites_1);
             }
-            finally { if (e_30) throw e_30.error; }
-        }
-        return false;
-    };
-    Sprite.prototype.touchPotentialSprites = function (sprites) {
-        var e_31, _a, e_32, _b;
-        if (this.hidden || this.stopped || this.deleted || !this.collider) {
-            return false;
-        }
-        var potentials = this.collider.potentials();
-        if (!potentials.length) {
-            return false;
-        }
-        var potentialSprites = [];
-        try {
-            for (var sprites_2 = __values(sprites), sprites_2_1 = sprites_2.next(); !sprites_2_1.done; sprites_2_1 = sprites_2.next()) {
-                var sprite = sprites_2_1.value;
-                if (potentials.indexOf(sprite.collider) > -1) {
-                    potentialSprites.push(sprite);
-                }
-            }
-        }
-        catch (e_31_1) { e_31 = { error: e_31_1 }; }
-        finally {
-            try {
-                if (sprites_2_1 && !sprites_2_1.done && (_a = sprites_2.return)) _a.call(sprites_2);
-            }
-            finally { if (e_31) throw e_31.error; }
-        }
-        try {
-            for (var potentialSprites_1 = __values(potentialSprites), potentialSprites_1_1 = potentialSprites_1.next(); !potentialSprites_1_1.done; potentialSprites_1_1 = potentialSprites_1.next()) {
-                var potentialSprite = potentialSprites_1_1.value;
-                if (this.touchSprite(potentialSprite)) {
-                    return true;
-                }
-            }
-        }
-        catch (e_32_1) { e_32 = { error: e_32_1 }; }
-        finally {
-            try {
-                if (potentialSprites_1_1 && !potentialSprites_1_1.done && (_b = potentialSprites_1.return)) _b.call(potentialSprites_1);
-            }
-            finally { if (e_32) throw e_32.error; }
+            finally { if (e_10) throw e_10.error; }
         }
         return false;
     };
     Sprite.prototype.touchEdge = function () {
-        if (this.hidden || this.stopped || this.deleted || !this.collider) {
+        var e_11, _a;
+        var result = this.getPureCollisionResult();
+        this._collidedSprite = null;
+        if (this.hidden || this.stopped || this.deleted) {
             return false;
         }
-        var result = this.getPureCollisionResult();
-        var gameWidth = this.game.width;
-        var gameHeight = this.game.height;
-        if (this.topY < 0) {
-            result.collision = true;
-            result.overlap = -this.topY;
-            result.overlap_y = -1;
-            return true;
+        if (this.collider) {
+            var gameWidth = this.game.width;
+            var gameHeight = this.game.height;
+            if (this.topY < 0) {
+                result.collision = true;
+                result.overlap = -this.topY;
+                result.overlap_y = -1;
+                return true;
+            }
+            if (this.bottomY > gameHeight) {
+                result.collision = true;
+                result.overlap = this.bottomY - gameHeight;
+                result.overlap_y = 1;
+                return true;
+            }
+            if (this.leftX < 0) {
+                result.collision = true;
+                result.overlap = -this.leftX;
+                result.overlap_x = -1;
+                return true;
+            }
+            if (this.rightX > gameWidth) {
+                result.collision = true;
+                result.overlap = this.rightX - gameWidth;
+                result.overlap_x = 1;
+                return true;
+            }
         }
-        if (this.bottomY > gameHeight) {
-            result.collision = true;
-            result.overlap = this.bottomY - gameHeight;
-            result.overlap_y = 1;
-            return true;
+        try {
+            for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                var child = _c.value;
+                if (child.touchEdge()) {
+                    this._collidedSprite = child;
+                    return true;
+                }
+            }
         }
-        if (this.leftX < 0) {
-            result.collision = true;
-            result.overlap = -this.leftX;
-            result.overlap_x = -1;
-            return true;
-        }
-        if (this.rightX > gameWidth) {
-            result.collision = true;
-            result.overlap = this.rightX - gameWidth;
-            result.overlap_x = 1;
-            return true;
+        catch (e_11_1) { e_11 = { error: e_11_1 }; }
+        finally {
+            try {
+                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            }
+            finally { if (e_11) throw e_11.error; }
         }
         return false;
     };
     Sprite.prototype.touchTopEdge = function () {
+        var e_12, _a;
         this.clearCollisionResult();
-        if (this.hidden || this.stopped || this.deleted || !this.collider) {
+        this._collidedSprite = null;
+        if (this.hidden || this.stopped || this.deleted) {
             return false;
         }
-        if (this.topY < 0) {
+        if (this.collider && this.topY < 0) {
             this.collisionResult.collision = true;
             this.collisionResult.overlap = -this.topY;
             this.collisionResult.overlap_y = -1;
             return true;
         }
+        try {
+            for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                var child = _c.value;
+                if (child.touchTopEdge()) {
+                    this._collidedSprite = child;
+                    return true;
+                }
+            }
+        }
+        catch (e_12_1) { e_12 = { error: e_12_1 }; }
+        finally {
+            try {
+                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            }
+            finally { if (e_12) throw e_12.error; }
+        }
         return false;
     };
     Sprite.prototype.touchBottomEdge = function () {
+        var e_13, _a;
         this.clearCollisionResult();
-        if (this.hidden || this.stopped || this.deleted || !this.collider) {
+        this._collidedSprite = null;
+        if (this.hidden || this.stopped || this.deleted) {
             return false;
         }
-        if (this.bottomY > this.game.height) {
+        if (this.collider && this.bottomY > this.game.height) {
             this.collisionResult.collision = true;
             this.collisionResult.overlap = this.bottomY - this.game.height;
             this.collisionResult.overlap_y = 1;
             return true;
         }
+        try {
+            for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                var child = _c.value;
+                if (child.touchBottomEdge()) {
+                    this._collidedSprite = child;
+                    return true;
+                }
+            }
+        }
+        catch (e_13_1) { e_13 = { error: e_13_1 }; }
+        finally {
+            try {
+                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            }
+            finally { if (e_13) throw e_13.error; }
+        }
         return false;
     };
     Sprite.prototype.touchLeftEdge = function () {
+        var e_14, _a;
         this.clearCollisionResult();
-        if (this.hidden || this.stopped || this.deleted || !this.collider) {
+        this._collidedSprite = null;
+        if (this.hidden || this.stopped || this.deleted) {
             return false;
         }
-        if (this.leftX < 0) {
+        if (this.collider && this.leftX < 0) {
             this.collisionResult.collision = true;
             this.collisionResult.overlap = -this.leftX;
             this.collisionResult.overlap_x = -1;
             return true;
         }
+        try {
+            for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                var child = _c.value;
+                if (child.touchLeftEdge()) {
+                    this._collidedSprite = child;
+                    return true;
+                }
+            }
+        }
+        catch (e_14_1) { e_14 = { error: e_14_1 }; }
+        finally {
+            try {
+                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            }
+            finally { if (e_14) throw e_14.error; }
+        }
         return false;
     };
     Sprite.prototype.touchRightEdge = function () {
+        var e_15, _a;
         this.clearCollisionResult();
-        if (this.hidden || this.stopped || this.deleted || !this.collider) {
+        this._collidedSprite = null;
+        if (this.hidden || this.stopped || this.deleted) {
             return false;
         }
-        if (this.rightX > this.game.width) {
+        if (this.collider && this.rightX > this.game.width) {
             this.collisionResult.collision = true;
             this.collisionResult.overlap = this.rightX - this.game.width;
             this.collisionResult.overlap_x = 1;
             return true;
         }
+        try {
+            for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                var child = _c.value;
+                if (child.touchRightEdge()) {
+                    this._collidedSprite = child;
+                    return true;
+                }
+            }
+        }
+        catch (e_15_1) { e_15 = { error: e_15_1 }; }
+        finally {
+            try {
+                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            }
+            finally { if (e_15) throw e_15.error; }
+        }
         return false;
     };
     Object.defineProperty(Sprite.prototype, "overlap", {
         get: function () {
+            if (this._collidedSprite) {
+                return this._collidedSprite.overlap;
+            }
             if (!this.collisionResult.collision) {
                 return 0;
             }
@@ -2124,6 +1521,9 @@ var Sprite = (function () {
     });
     Object.defineProperty(Sprite.prototype, "overlapX", {
         get: function () {
+            if (this._collidedSprite) {
+                return this._collidedSprite.overlapX;
+            }
             if (!this.collisionResult.collision) {
                 return 0;
             }
@@ -2134,6 +1534,9 @@ var Sprite = (function () {
     });
     Object.defineProperty(Sprite.prototype, "overlapY", {
         get: function () {
+            if (this._collidedSprite) {
+                return this._collidedSprite.overlapY;
+            }
             if (!this.collisionResult.collision) {
                 return 0;
             }
@@ -2167,10 +1570,33 @@ var Sprite = (function () {
         return this.touchMousePoint(this.game.getMousePoint());
     };
     Sprite.prototype.touchMousePoint = function (mousePoint) {
-        if (this.hidden || this.stopped || this.deleted || !this.collider) {
+        var e_16, _a;
+        this._collidedSprite = null;
+        if (this.hidden || this.stopped || this.deleted) {
             return false;
         }
-        return this.collider.collides(mousePoint, this.collisionResult);
+        var collider = this.collider;
+        var isTouch = collider && collider.collides(mousePoint, this.collisionResult);
+        if (isTouch) {
+            return true;
+        }
+        try {
+            for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                var child = _c.value;
+                if (child.touchMousePoint(child.game.getMousePoint())) {
+                    this._collidedSprite = child.otherSprite;
+                    return true;
+                }
+            }
+        }
+        catch (e_16_1) { e_16 = { error: e_16_1 }; }
+        finally {
+            try {
+                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            }
+            finally { if (e_16) throw e_16.error; }
+        }
+        return false;
     };
     Sprite.prototype.pointForward = function (object) {
         var absoluteX = object.absoluteX ? object.absoluteX : object.x;
@@ -2208,7 +1634,7 @@ var Sprite = (function () {
         return null;
     };
     Sprite.prototype.createClone = function (stage) {
-        var e_33, _a;
+        var _a, e_17, _b, e_18, _c;
         if (stage === void 0) { stage = null; }
         if (!this.isReady()) {
             this.game.throwError(ErrorMessages.CLONED_NOT_READY);
@@ -2218,7 +1644,7 @@ var Sprite = (function () {
         }
         var clone = new Sprite(stage, this.layer);
         clone.name = this.name;
-        clone.rotateStyle = this.rotateStyle;
+        clone._rotateStyle = this._rotateStyle;
         clone.x = this.x;
         clone.y = this.y;
         clone.pivotOffsetX = this.pivotOffsetX;
@@ -2228,29 +1654,45 @@ var Sprite = (function () {
         clone.hidden = this.hidden;
         clone._deleted = this.deleted;
         clone._stopped = this.stopped;
-        clone._tags = this.tags;
+        (_a = clone._tags).push.apply(_a, __spreadArray([], __read(this.tags), false));
         clone.defaultColliderNone = this.defaultColliderNone;
         for (var i = 0; i < this.costumes.length; i++) {
             clone.cloneCostume(this.costumes[i], this.costumeNames[i]);
         }
         clone.switchCostume(this.costumeIndex);
         try {
-            for (var _b = __values(this.sounds.entries()), _c = _b.next(); !_c.done; _c = _b.next()) {
-                var _d = __read(_c.value, 2), soundIndex = _d[0], sound = _d[1];
+            for (var _d = __values(this.sounds.entries()), _e = _d.next(); !_e.done; _e = _d.next()) {
+                var _f = __read(_e.value, 2), soundIndex = _f[0], sound = _f[1];
                 clone.cloneSound(sound, this.soundNames[soundIndex]);
             }
         }
-        catch (e_33_1) { e_33 = { error: e_33_1 }; }
+        catch (e_17_1) { e_17 = { error: e_17_1 }; }
         finally {
             try {
-                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                if (_e && !_e.done && (_b = _d.return)) _b.call(_d);
             }
-            finally { if (e_33) throw e_33.error; }
+            finally { if (e_17) throw e_17.error; }
         }
         clone.currentColliderName = null;
         clone.cloneCollider(this);
         if (this.currentColliderName) {
             clone.switchCollider(this.currentColliderName);
+        }
+        try {
+            for (var _g = __values(this._children), _h = _g.next(); !_h.done; _h = _g.next()) {
+                var child = _h.value;
+                var childClone = child.createClone();
+                clone.addChild(childClone);
+                childClone.x = child.x;
+                childClone.y = child.y;
+            }
+        }
+        catch (e_18_1) { e_18 = { error: e_18_1 }; }
+        finally {
+            try {
+                if (_h && !_h.done && (_c = _g.return)) _c.call(_g);
+            }
+            finally { if (e_18) throw e_18.error; }
         }
         clone.ready();
         return clone;
@@ -2288,6 +1730,7 @@ var Sprite = (function () {
         this.scheduledCallbacks = this.scheduledCallbacks.filter(this.scheduledCallbackExecutor.execute(Date.now(), diffTime));
     };
     Sprite.prototype.delete = function () {
+        var e_19, _a;
         if (this.deleted) {
             return;
         }
@@ -2305,6 +1748,20 @@ var Sprite = (function () {
         this.soundNames = [];
         this.onReadyCallbacks = [];
         this.scheduledCallbacks = [];
+        this._children = [];
+        try {
+            for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                var child = _c.value;
+                child.delete();
+            }
+        }
+        catch (e_19_1) { e_19 = { error: e_19_1 }; }
+        finally {
+            try {
+                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            }
+            finally { if (e_19) throw e_19.error; }
+        }
         this._deleted = true;
     };
     Sprite.prototype.run = function () {
@@ -2379,7 +1836,7 @@ var Sprite = (function () {
         if (offsetX === void 0) { offsetX = 0; }
         if (offsetY === void 0) { offsetY = 0; }
         var angle = 0;
-        if (this.rotateStyle != 'leftRight') {
+        if (this._rotateStyle != 'leftRight') {
             angle = this.direction * 3.14 / 180;
         }
         var collider = new PolygonCollider(this.x, this.y, [
@@ -2398,7 +1855,7 @@ var Sprite = (function () {
         if (offsetX === void 0) { offsetX = 0; }
         if (offsetY === void 0) { offsetY = 0; }
         var angleRadians = 0;
-        if (this.rotateStyle != 'leftRight') {
+        if (this._rotateStyle != 'leftRight') {
             angleRadians = this.angleRadians;
         }
         var centroid = this.calculateCentroid(points);
@@ -2474,70 +1931,122 @@ var Sprite = (function () {
     Sprite.prototype.getCostumeIndex = function () {
         return this.costumeIndex;
     };
-    Sprite.prototype.touchTag = function (nameOfTag) {
-        var e_34, _a;
-        if (this.hidden || this.stopped || this.deleted || !this.collider) {
+    Sprite.prototype.touchTag = function (tagName) {
+        var e_20, _a, e_21, _b;
+        this._collidedSprite = null;
+        if (this.hidden || this.stopped || this.deleted) {
             return false;
         }
-        var potentialsColliders = this.collider.potentials();
-        if (!potentialsColliders.length) {
-            return false;
-        }
-        try {
-            for (var potentialsColliders_1 = __values(potentialsColliders), potentialsColliders_1_1 = potentialsColliders_1.next(); !potentialsColliders_1_1.done; potentialsColliders_1_1 = potentialsColliders_1.next()) {
-                var potentialCollider = potentialsColliders_1_1.value;
-                var potentialSprite = potentialCollider.parentSprite;
-                if (potentialSprite && potentialSprite.hasTag(nameOfTag)) {
-                    if (!potentialSprite.hidden &&
-                        !potentialSprite.stopped &&
-                        !potentialSprite.deleted &&
-                        potentialSprite.collider &&
-                        this.collider.collides(potentialCollider, this.collisionResult)) {
-                        return true;
+        var collider = this.collider;
+        if (collider) {
+            var potentialsColliders = collider.potentials();
+            if (!potentialsColliders.length) {
+                return false;
+            }
+            try {
+                for (var potentialsColliders_1 = __values(potentialsColliders), potentialsColliders_1_1 = potentialsColliders_1.next(); !potentialsColliders_1_1.done; potentialsColliders_1_1 = potentialsColliders_1.next()) {
+                    var potentialCollider = potentialsColliders_1_1.value;
+                    var potentialSprite = potentialCollider.parentSprite;
+                    if (potentialSprite && potentialSprite.hasTag(tagName)) {
+                        if (!potentialSprite.hidden &&
+                            !potentialSprite.stopped &&
+                            !potentialSprite.deleted &&
+                            potentialSprite.collider &&
+                            collider.collides(potentialCollider, this.collisionResult)) {
+                            return true;
+                        }
                     }
                 }
             }
+            catch (e_20_1) { e_20 = { error: e_20_1 }; }
+            finally {
+                try {
+                    if (potentialsColliders_1_1 && !potentialsColliders_1_1.done && (_a = potentialsColliders_1.return)) _a.call(potentialsColliders_1);
+                }
+                finally { if (e_20) throw e_20.error; }
+            }
         }
-        catch (e_34_1) { e_34 = { error: e_34_1 }; }
+        try {
+            for (var _c = __values(this._children), _d = _c.next(); !_d.done; _d = _c.next()) {
+                var child = _d.value;
+                if (child.touchTag(tagName)) {
+                    this._collidedSprite = child;
+                    return true;
+                }
+            }
+        }
+        catch (e_21_1) { e_21 = { error: e_21_1 }; }
         finally {
             try {
-                if (potentialsColliders_1_1 && !potentialsColliders_1_1.done && (_a = potentialsColliders_1.return)) _a.call(potentialsColliders_1);
+                if (_d && !_d.done && (_b = _c.return)) _b.call(_c);
             }
-            finally { if (e_34) throw e_34.error; }
+            finally { if (e_21) throw e_21.error; }
         }
         return false;
     };
-    Sprite.prototype.touchTagAll = function (nameOfTag) {
-        var e_35, _a;
-        if (this.hidden || this.stopped || this.deleted || !this.collider) {
-            return false;
-        }
-        var potentialsColliders = this.collider.potentials();
-        if (!potentialsColliders.length) {
+    Sprite.prototype.touchTagAll = function (tagName) {
+        var e_22, _a, e_23, _b, e_24, _c;
+        this._collidedSprite = null;
+        if (this.hidden || this.stopped || this.deleted) {
             return false;
         }
         var collidedSprites = [];
+        var collider = this.collider;
+        if (collider) {
+            var potentialsColliders = collider.potentials();
+            if (!potentialsColliders.length) {
+                return false;
+            }
+            try {
+                for (var potentialsColliders_2 = __values(potentialsColliders), potentialsColliders_2_1 = potentialsColliders_2.next(); !potentialsColliders_2_1.done; potentialsColliders_2_1 = potentialsColliders_2.next()) {
+                    var potentialCollider = potentialsColliders_2_1.value;
+                    var potentialSprite = potentialCollider.parentSprite;
+                    if (potentialSprite && potentialSprite.hasTag(tagName)) {
+                        if (!potentialSprite.hidden &&
+                            !potentialSprite.stopped &&
+                            !potentialSprite.deleted &&
+                            potentialSprite.collider &&
+                            collider.collides(potentialCollider, this.collisionResult)) {
+                            collidedSprites.push(potentialSprite);
+                        }
+                    }
+                }
+            }
+            catch (e_22_1) { e_22 = { error: e_22_1 }; }
+            finally {
+                try {
+                    if (potentialsColliders_2_1 && !potentialsColliders_2_1.done && (_a = potentialsColliders_2.return)) _a.call(potentialsColliders_2);
+                }
+                finally { if (e_22) throw e_22.error; }
+            }
+        }
         try {
-            for (var potentialsColliders_2 = __values(potentialsColliders), potentialsColliders_2_1 = potentialsColliders_2.next(); !potentialsColliders_2_1.done; potentialsColliders_2_1 = potentialsColliders_2.next()) {
-                var potentialCollider = potentialsColliders_2_1.value;
-                var potentialSprite = potentialCollider.parentSprite;
-                if (potentialSprite && potentialSprite.hasTag(nameOfTag)) {
-                    if (!potentialSprite.hidden &&
-                        !potentialSprite.stopped &&
-                        !potentialSprite.deleted &&
-                        potentialSprite.collider &&
-                        this.collider.collides(potentialCollider, this.collisionResult)) {
-                        collidedSprites.push(potentialSprite);
+            for (var _d = __values(this._children), _e = _d.next(); !_e.done; _e = _d.next()) {
+                var child = _e.value;
+                var collision = child.touchTagAll(tagName);
+                if (collision && !collision.length) {
+                    try {
+                        for (var collision_1 = (e_24 = void 0, __values(collision)), collision_1_1 = collision_1.next(); !collision_1_1.done; collision_1_1 = collision_1.next()) {
+                            var sprite = collision_1_1.value;
+                            collidedSprites.push(sprite);
+                        }
+                    }
+                    catch (e_24_1) { e_24 = { error: e_24_1 }; }
+                    finally {
+                        try {
+                            if (collision_1_1 && !collision_1_1.done && (_c = collision_1.return)) _c.call(collision_1);
+                        }
+                        finally { if (e_24) throw e_24.error; }
                     }
                 }
             }
         }
-        catch (e_35_1) { e_35 = { error: e_35_1 }; }
+        catch (e_23_1) { e_23 = { error: e_23_1 }; }
         finally {
             try {
-                if (potentialsColliders_2_1 && !potentialsColliders_2_1.done && (_a = potentialsColliders_2.return)) _a.call(potentialsColliders_2);
+                if (_e && !_e.done && (_b = _d.return)) _b.call(_d);
             }
-            finally { if (e_35) throw e_35.error; }
+            finally { if (e_23) throw e_23.error; }
         }
         if (!collidedSprites.length) {
             return collidedSprites;
@@ -2545,49 +2054,97 @@ var Sprite = (function () {
         return false;
     };
     Sprite.prototype.touchAnySprite = function () {
-        var e_36, _a;
-        if (this.hidden || this.stopped || this.deleted || !this.collider) {
+        var e_25, _a, e_26, _b;
+        this._collidedSprite = null;
+        if (this.hidden || this.stopped || this.deleted) {
             return false;
         }
-        var potentialsColliders = this.collider.potentials();
-        if (!potentialsColliders.length) {
-            return false;
+        var collider = this.collider;
+        if (collider) {
+            var potentialsColliders = collider.potentials();
+            if (!potentialsColliders.length) {
+                return false;
+            }
+            try {
+                for (var potentialsColliders_3 = __values(potentialsColliders), potentialsColliders_3_1 = potentialsColliders_3.next(); !potentialsColliders_3_1.done; potentialsColliders_3_1 = potentialsColliders_3.next()) {
+                    var potentialCollider = potentialsColliders_3_1.value;
+                    var potentialSprite = potentialCollider.parentSprite;
+                    if (!potentialSprite.hidden &&
+                        !potentialSprite.stopped &&
+                        !potentialSprite.deleted &&
+                        potentialSprite.collider &&
+                        collider.collides(potentialCollider, this.collisionResult)) {
+                        return true;
+                    }
+                }
+            }
+            catch (e_25_1) { e_25 = { error: e_25_1 }; }
+            finally {
+                try {
+                    if (potentialsColliders_3_1 && !potentialsColliders_3_1.done && (_a = potentialsColliders_3.return)) _a.call(potentialsColliders_3);
+                }
+                finally { if (e_25) throw e_25.error; }
+            }
         }
         try {
-            for (var potentialsColliders_3 = __values(potentialsColliders), potentialsColliders_3_1 = potentialsColliders_3.next(); !potentialsColliders_3_1.done; potentialsColliders_3_1 = potentialsColliders_3.next()) {
-                var potentialCollider = potentialsColliders_3_1.value;
-                var potentialSprite = potentialCollider.parentSprite;
-                if (!potentialSprite.hidden &&
-                    !potentialSprite.stopped &&
-                    !potentialSprite.deleted &&
-                    potentialSprite.collider &&
-                    this.collider.collides(potentialCollider, this.collisionResult)) {
+            for (var _c = __values(this._children), _d = _c.next(); !_d.done; _d = _c.next()) {
+                var child = _d.value;
+                if (child.touchAnySprite()) {
+                    this._collidedSprite = child;
                     return true;
                 }
             }
         }
-        catch (e_36_1) { e_36 = { error: e_36_1 }; }
+        catch (e_26_1) { e_26 = { error: e_26_1 }; }
         finally {
             try {
-                if (potentialsColliders_3_1 && !potentialsColliders_3_1.done && (_a = potentialsColliders_3.return)) _a.call(potentialsColliders_3);
+                if (_d && !_d.done && (_b = _c.return)) _b.call(_c);
             }
-            finally { if (e_36) throw e_36.error; }
+            finally { if (e_26) throw e_26.error; }
         }
         return false;
     };
-    Sprite.prototype.hasTag = function (nameOfTag) {
-        return this._tags.includes(nameOfTag);
+    Sprite.prototype.hasTag = function (tagName) {
+        return this._tags.includes(tagName);
     };
-    Sprite.prototype.addTag = function (nameOfTag) {
-        if (!this.hasTag(nameOfTag)) {
-            this._tags.push(nameOfTag);
+    Sprite.prototype.addTag = function (tagName) {
+        var e_27, _a;
+        if (!this.hasTag(tagName)) {
+            this._tags.push(tagName);
+        }
+        try {
+            for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                var child = _c.value;
+                child.addTag(tagName);
+            }
+        }
+        catch (e_27_1) { e_27 = { error: e_27_1 }; }
+        finally {
+            try {
+                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            }
+            finally { if (e_27) throw e_27.error; }
         }
         return this;
     };
-    Sprite.prototype.removeTag = function (nameOfTag) {
-        var foundIndex = this._tags.indexOf(nameOfTag);
+    Sprite.prototype.removeTag = function (tagName) {
+        var e_28, _a;
+        var foundIndex = this._tags.indexOf(tagName);
         if (foundIndex > -1) {
             this._tags.splice(foundIndex, 1);
+        }
+        try {
+            for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                var child = _c.value;
+                child.addTag(tagName);
+            }
+        }
+        catch (e_28_1) { e_28 = { error: e_28_1 }; }
+        finally {
+            try {
+                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            }
+            finally { if (e_28) throw e_28.error; }
         }
         return this;
     };
@@ -2596,6 +2153,7 @@ var Sprite = (function () {
             return this._direction;
         },
         set: function (direction) {
+            var e_29, _a;
             if ((direction * 0) !== 0) {
                 return;
             }
@@ -2606,7 +2164,7 @@ var Sprite = (function () {
             this._direction = (direction > 360) ? direction - 360 : direction;
             var collider = this.collider;
             if (collider instanceof PolygonCollider) {
-                if (this.rotateStyle == 'leftRight') {
+                if (this._rotateStyle == 'leftRight') {
                     collider.angle = 0;
                 }
                 else {
@@ -2615,6 +2173,19 @@ var Sprite = (function () {
             }
             if (collider) {
                 this.updateColliderPosition(collider);
+            }
+            try {
+                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var child = _c.value;
+                    child.direction = direction;
+                }
+            }
+            catch (e_29_1) { e_29 = { error: e_29_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_29) throw e_29.error; }
             }
         },
         enumerable: false,
@@ -2678,10 +2249,29 @@ var Sprite = (function () {
             return this._x;
         },
         set: function (value) {
+            var e_30, _a;
             this._x = value;
+            if (this._children.length) {
+                this.updateCenterParams();
+            }
             var collider = this.collider;
             if (collider) {
                 this.updateColliderPosition(collider);
+            }
+            try {
+                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var child = _c.value;
+                    if (child.collider) {
+                        child.updateColliderPosition(child.collider);
+                    }
+                }
+            }
+            catch (e_30_1) { e_30 = { error: e_30_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_30) throw e_30.error; }
             }
         },
         enumerable: false,
@@ -2692,10 +2282,29 @@ var Sprite = (function () {
             return this._y;
         },
         set: function (value) {
+            var e_31, _a;
             this._y = value;
+            if (this._children.length) {
+                this.updateCenterParams();
+            }
             var collider = this.collider;
             if (collider) {
                 this.updateColliderPosition(collider);
+            }
+            try {
+                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var child = _c.value;
+                    if (child.collider) {
+                        child.updateColliderPosition(child.collider);
+                    }
+                }
+            }
+            catch (e_31_1) { e_31 = { error: e_31_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_31) throw e_31.error; }
             }
         },
         enumerable: false,
@@ -2703,8 +2312,8 @@ var Sprite = (function () {
     });
     Object.defineProperty(Sprite.prototype, "sourceX", {
         get: function () {
-            if (this.rotateStyle === 'leftRight' || this.rotateStyle === 'none') {
-                var leftRightMultiplier = this._direction > 180 && this.rotateStyle === 'leftRight' ? -1 : 1;
+            if (this._rotateStyle === 'leftRight' || this._rotateStyle === 'none') {
+                var leftRightMultiplier = this._direction > 180 && this._rotateStyle === 'leftRight' ? -1 : 1;
                 return this.absoluteX - this._pivotOffsetX * leftRightMultiplier * this.size / 100;
             }
             return this.absoluteX + Math.cos(this._centerAngle - this.angleRadians) * this._centerDistance * this.size / 100;
@@ -2714,7 +2323,7 @@ var Sprite = (function () {
     });
     Object.defineProperty(Sprite.prototype, "sourceY", {
         get: function () {
-            if (this.rotateStyle === 'leftRight' || this.rotateStyle === 'none') {
+            if (this._rotateStyle === 'leftRight' || this._rotateStyle === 'none') {
                 return this.absoluteY - this._pivotOffsetY * this.size / 100;
             }
             return this.absoluteY - Math.sin(this._centerAngle - this.angleRadians) * this._centerDistance * this.size / 100;
@@ -2738,14 +2347,12 @@ var Sprite = (function () {
     });
     Object.defineProperty(Sprite.prototype, "absoluteX", {
         get: function () {
-            if (this._parentComplexSprite) {
-                if (this.rotateStyle === 'leftRight' || this.rotateStyle === 'none') {
-                    var leftRightMultiplier = this._direction > 180 && this.rotateStyle === 'leftRight' ? -1 : 1;
-                    return this._parentComplexSprite.absoluteX + this._x * leftRightMultiplier * this.size / 100;
+            if (this._parentSprite) {
+                if (this._rotateStyle === 'leftRight' || this._rotateStyle === 'none') {
+                    var leftRightMultiplier = this._direction > 180 && this._rotateStyle === 'leftRight' ? -1 : 1;
+                    return this._parentSprite.absoluteX + this._x * leftRightMultiplier * this.size / 100;
                 }
-                else {
-                    return this._parentComplexSprite.absoluteX + this.distanceToParent * Math.cos(this.angleToParent - this._parentComplexSprite.angleRadians) * this.size / 100;
-                }
+                return this._parentSprite.absoluteX + this.distanceToParent * Math.cos(this.angleToParent - this._parentSprite.angleRadians) * this.size / 100;
             }
             return this._x;
         },
@@ -2754,13 +2361,11 @@ var Sprite = (function () {
     });
     Object.defineProperty(Sprite.prototype, "absoluteY", {
         get: function () {
-            if (this._parentComplexSprite) {
-                if (this.rotateStyle === 'leftRight' || this.rotateStyle === 'none') {
-                    return this._parentComplexSprite.absoluteY + this._y;
+            if (this._parentSprite) {
+                if (this._rotateStyle === 'leftRight' || this._rotateStyle === 'none') {
+                    return this._parentSprite.absoluteY + this._y;
                 }
-                else {
-                    return this._parentComplexSprite.absoluteY - this.distanceToParent * Math.sin(this.angleToParent - this._parentComplexSprite.angleRadians) * this.size / 100;
-                }
+                return this._parentSprite.absoluteY - this.distanceToParent * Math.sin(this.angleToParent - this._parentSprite.angleRadians) * this.size / 100;
             }
             return this._y;
         },
@@ -2804,10 +2409,48 @@ var Sprite = (function () {
             return this._size;
         },
         set: function (value) {
+            var e_32, _a;
             this._size = value;
             var collider = this.collider;
             if (collider) {
                 this.updateColliderSize(collider);
+            }
+            try {
+                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var child = _c.value;
+                    child.size = value;
+                }
+            }
+            catch (e_32_1) { e_32 = { error: e_32_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_32) throw e_32.error; }
+            }
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "rotateStyle", {
+        get: function () {
+            return this._rotateStyle;
+        },
+        set: function (value) {
+            var e_33, _a;
+            this._rotateStyle = value;
+            try {
+                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var child = _c.value;
+                    child.rotateStyle = value;
+                }
+            }
+            catch (e_33_1) { e_33 = { error: e_33_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_33) throw e_33.error; }
             }
         },
         enumerable: false,
@@ -2818,7 +2461,28 @@ var Sprite = (function () {
             return this._hidden;
         },
         set: function (value) {
+            var e_34, _a;
             this._hidden = value;
+            try {
+                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var child = _c.value;
+                    child.hidden = value;
+                }
+            }
+            catch (e_34_1) { e_34 = { error: e_34_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_34) throw e_34.error; }
+            }
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "collidedSprite", {
+        get: function () {
+            return this._collidedSprite;
         },
         enumerable: false,
         configurable: true
@@ -2893,8 +2557,22 @@ var Sprite = (function () {
             return this._layer;
         },
         set: function (newLayer) {
+            var e_35, _a;
             this.stage.changeSpriteLayer(this, this._layer, newLayer);
             this._layer = newLayer;
+            try {
+                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var child = _c.value;
+                    child.layer = child.layer + this._layer;
+                }
+            }
+            catch (e_35_1) { e_35 = { error: e_35_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_35) throw e_35.error; }
+            }
         },
         enumerable: false,
         configurable: true
@@ -2928,10 +2606,10 @@ var Sprite = (function () {
     });
     Object.defineProperty(Sprite.prototype, "parent", {
         get: function () {
-            return this._parentComplexSprite;
+            return this._parentSprite;
         },
         set: function (newParent) {
-            this._parentComplexSprite = newParent;
+            this._parentSprite = newParent;
         },
         enumerable: false,
         configurable: true
@@ -3059,7 +2737,7 @@ var Sprite = (function () {
         this.costumeNames.push(name);
     };
     Sprite.prototype.cloneCollider = function (sprite) {
-        var e_37, _a;
+        var e_36, _a;
         var colliders = sprite.getColliders();
         try {
             for (var colliders_1 = __values(colliders), colliders_1_1 = colliders_1.next(); !colliders_1_1.done; colliders_1_1 = colliders_1.next()) {
@@ -3072,16 +2750,16 @@ var Sprite = (function () {
                 }
             }
         }
-        catch (e_37_1) { e_37 = { error: e_37_1 }; }
+        catch (e_36_1) { e_36 = { error: e_36_1 }; }
         finally {
             try {
                 if (colliders_1_1 && !colliders_1_1.done && (_a = colliders_1.return)) _a.call(colliders_1);
             }
-            finally { if (e_37) throw e_37.error; }
+            finally { if (e_36) throw e_36.error; }
         }
     };
     Sprite.prototype.tryDoOnReady = function () {
-        var e_38, _a;
+        var e_37, _a;
         if (this.onReadyPending && this.isReady()) {
             this.onReadyPending = false;
             if (this.costumes.length && this.costume === null) {
@@ -3107,12 +2785,12 @@ var Sprite = (function () {
                         callback();
                     }
                 }
-                catch (e_38_1) { e_38 = { error: e_38_1 }; }
+                catch (e_37_1) { e_37 = { error: e_37_1 }; }
                 finally {
                     try {
                         if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
                     }
-                    finally { if (e_38) throw e_38.error; }
+                    finally { if (e_37) throw e_37.error; }
                 }
                 this.onReadyCallbacks = [];
             }
@@ -3123,7 +2801,7 @@ var Sprite = (function () {
         }
     };
     Sprite.prototype.calculateCentroid = function (points) {
-        var e_39, _a;
+        var e_38, _a;
         var xSum = 0;
         var ySum = 0;
         try {
@@ -3133,19 +2811,19 @@ var Sprite = (function () {
                 ySum += point[1];
             }
         }
-        catch (e_39_1) { e_39 = { error: e_39_1 }; }
+        catch (e_38_1) { e_38 = { error: e_38_1 }; }
         finally {
             try {
                 if (points_1_1 && !points_1_1.done && (_a = points_1.return)) _a.call(points_1);
             }
-            finally { if (e_39) throw e_39.error; }
+            finally { if (e_38) throw e_38.error; }
         }
         var x = xSum / points.length;
         var y = ySum / points.length;
         return { x: x, y: y };
     };
     Sprite.prototype.calculatePolygonSize = function (points) {
-        var e_40, _a;
+        var e_39, _a;
         var minX = points[0][0];
         var minY = points[0][1];
         var maxX = points[0][0];
@@ -3163,12 +2841,12 @@ var Sprite = (function () {
                     maxY = vertex[1];
             }
         }
-        catch (e_40_1) { e_40 = { error: e_40_1 }; }
+        catch (e_39_1) { e_39 = { error: e_39_1 }; }
         finally {
             try {
                 if (points_2_1 && !points_2_1.done && (_a = points_2.return)) _a.call(points_2);
             }
-            finally { if (e_40) throw e_40.error; }
+            finally { if (e_39) throw e_39.error; }
         }
         var width = maxX - minX;
         var height = maxY - minY;
@@ -3195,13 +2873,14 @@ var Sprite = (function () {
         return this.colliders.entries();
     };
     Sprite.prototype.getMainSprite = function () {
-        if (this._parentComplexSprite) {
-            return this._parentComplexSprite.getMainSprite();
+        if (this._parentSprite) {
+            return this._parentSprite.getMainSprite();
         }
         return this;
     };
-    Sprite.prototype.getParent = function (parent) {
+    Sprite.prototype.setParent = function (parent) {
         parent.addChild(this);
+        return this;
     };
     return Sprite;
 }());
@@ -3255,15 +2934,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
-};
-var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
-    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
-        if (ar || !(i in from)) {
-            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-            ar[i] = from[i];
-        }
-    }
-    return to.concat(ar || Array.prototype.slice.call(from));
 };
 var MultiplayerGame = (function (_super) {
     __extends(MultiplayerGame, _super);
@@ -3360,7 +3030,7 @@ var MultiplayerGame = (function (_super) {
         }
     };
     MultiplayerGame.prototype.stop = function () {
-        var e_41, _a;
+        var e_40, _a;
         _super.prototype.stop.call(this);
         try {
             for (var _b = __values(this.players), _c = _b.next(); !_c.done; _c = _b.next()) {
@@ -3368,12 +3038,12 @@ var MultiplayerGame = (function (_super) {
                 player.delete();
             }
         }
-        catch (e_41_1) { e_41 = { error: e_41_1 }; }
+        catch (e_40_1) { e_40 = { error: e_40_1 }; }
         finally {
             try {
                 if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
             }
-            finally { if (e_41) throw e_41.error; }
+            finally { if (e_40) throw e_40.error; }
         }
         this.players = [];
     };
@@ -3407,13 +3077,13 @@ var MultiplayerGame = (function (_super) {
         return __spreadArray(__spreadArray(__spreadArray([], __read(multiplayerSprites), false), __read(players), false), __read(sharedObjects), false);
     };
     MultiplayerGame.prototype.syncObjects = function (syncData, deltaTime) {
-        var e_42, _a, e_43, _b;
+        var e_41, _a, e_42, _b;
         var gameAllSyncObjects = this.getSyncObjects();
         try {
             for (var _c = __values(Object.entries(syncData)), _d = _c.next(); !_d.done; _d = _c.next()) {
                 var _e = __read(_d.value, 2), syncPackName = _e[0], syncObjectsData = _e[1];
                 try {
-                    for (var gameAllSyncObjects_1 = (e_43 = void 0, __values(gameAllSyncObjects)), gameAllSyncObjects_1_1 = gameAllSyncObjects_1.next(); !gameAllSyncObjects_1_1.done; gameAllSyncObjects_1_1 = gameAllSyncObjects_1.next()) {
+                    for (var gameAllSyncObjects_1 = (e_42 = void 0, __values(gameAllSyncObjects)), gameAllSyncObjects_1_1 = gameAllSyncObjects_1.next(); !gameAllSyncObjects_1_1.done; gameAllSyncObjects_1_1 = gameAllSyncObjects_1.next()) {
                         var syncObject = gameAllSyncObjects_1_1.value;
                         if (syncObjectsData[syncObject.getMultiplayerName()]) {
                             var syncPackData = syncObjectsData[syncObject.getMultiplayerName()];
@@ -3421,25 +3091,25 @@ var MultiplayerGame = (function (_super) {
                         }
                     }
                 }
-                catch (e_43_1) { e_43 = { error: e_43_1 }; }
+                catch (e_42_1) { e_42 = { error: e_42_1 }; }
                 finally {
                     try {
                         if (gameAllSyncObjects_1_1 && !gameAllSyncObjects_1_1.done && (_b = gameAllSyncObjects_1.return)) _b.call(gameAllSyncObjects_1);
                     }
-                    finally { if (e_43) throw e_43.error; }
+                    finally { if (e_42) throw e_42.error; }
                 }
             }
         }
-        catch (e_42_1) { e_42 = { error: e_42_1 }; }
+        catch (e_41_1) { e_41 = { error: e_41_1 }; }
         finally {
             try {
                 if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
             }
-            finally { if (e_42) throw e_42.error; }
+            finally { if (e_41) throw e_41.error; }
         }
     };
     MultiplayerGame.prototype.packSyncData = function (packName, syncObjects) {
-        var e_44, _a;
+        var e_43, _a;
         var syncObjectsData = {};
         try {
             for (var syncObjects_1 = __values(syncObjects), syncObjects_1_1 = syncObjects_1.next(); !syncObjects_1_1.done; syncObjects_1_1 = syncObjects_1.next()) {
@@ -3448,12 +3118,12 @@ var MultiplayerGame = (function (_super) {
                 syncObjectsData[syncObject.getMultiplayerName()]['syncId'] = syncObject.increaseSyncId();
             }
         }
-        catch (e_44_1) { e_44 = { error: e_44_1 }; }
+        catch (e_43_1) { e_43 = { error: e_43_1 }; }
         finally {
             try {
                 if (syncObjects_1_1 && !syncObjects_1_1.done && (_a = syncObjects_1.return)) _a.call(syncObjects_1);
             }
-            finally { if (e_44) throw e_44.error; }
+            finally { if (e_43) throw e_43.error; }
         }
         var result = {};
         result[packName] = syncObjectsData;
@@ -3580,7 +3250,7 @@ var MultiplayerSprite = (function (_super) {
         return Math.random().toString(36).slice(2) + '-' + Math.random().toString(36).slice(2);
     };
     MultiplayerSprite.prototype.getCustomerProperties = function () {
-        var e_45, _a;
+        var e_44, _a;
         var data = {};
         try {
             for (var _b = __values(Object.keys(this)), _c = _b.next(); !_c.done; _c = _b.next()) {
@@ -3591,12 +3261,12 @@ var MultiplayerSprite = (function (_super) {
                 data[key] = this[key];
             }
         }
-        catch (e_45_1) { e_45 = { error: e_45_1 }; }
+        catch (e_44_1) { e_44 = { error: e_44_1 }; }
         finally {
             try {
                 if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
             }
-            finally { if (e_45) throw e_45.error; }
+            finally { if (e_44) throw e_44.error; }
         }
         return data;
     };
@@ -3665,7 +3335,7 @@ var OrphanSharedData = (function () {
         return this.parent.increaseSyncId();
     };
     OrphanSharedData.prototype.getSyncData = function () {
-        var e_46, _a;
+        var e_45, _a;
         var syncData = {};
         try {
             for (var _b = __values(this.properties), _c = _b.next(); !_c.done; _c = _b.next()) {
@@ -3675,12 +3345,12 @@ var OrphanSharedData = (function () {
                 }
             }
         }
-        catch (e_46_1) { e_46 = { error: e_46_1 }; }
+        catch (e_45_1) { e_45 = { error: e_45_1 }; }
         finally {
             try {
                 if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
             }
-            finally { if (e_46) throw e_46.error; }
+            finally { if (e_45) throw e_45.error; }
         }
         return syncData;
     };
@@ -3811,7 +3481,7 @@ var Player = (function () {
         return this.syncId;
     };
     Player.prototype.getSyncData = function () {
-        var e_47, _a;
+        var e_46, _a;
         var data = {};
         try {
             for (var _b = __values(Object.keys(this)), _c = _b.next(); !_c.done; _c = _b.next()) {
@@ -3822,12 +3492,12 @@ var Player = (function () {
                 data[key] = this[key];
             }
         }
-        catch (e_47_1) { e_47 = { error: e_47_1 }; }
+        catch (e_46_1) { e_46 = { error: e_46_1 }; }
         finally {
             try {
                 if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
             }
-            finally { if (e_47) throw e_47.error; }
+            finally { if (e_46) throw e_46.error; }
         }
         return data;
     };
@@ -3941,7 +3611,7 @@ var SharedData = (function () {
         return this.syncId;
     };
     SharedData.prototype.getSyncData = function () {
-        var e_48, _a;
+        var e_47, _a;
         var data = {};
         try {
             for (var _b = __values(Object.keys(this)), _c = _b.next(); !_c.done; _c = _b.next()) {
@@ -3949,12 +3619,12 @@ var SharedData = (function () {
                 data[key] = this[key];
             }
         }
-        catch (e_48_1) { e_48 = { error: e_48_1 }; }
+        catch (e_47_1) { e_47 = { error: e_47_1 }; }
         finally {
             try {
                 if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
             }
-            finally { if (e_48) throw e_48.error; }
+            finally { if (e_47) throw e_47.error; }
         }
         return data;
     };
@@ -4316,7 +3986,7 @@ var Stage = (function () {
         layerDrawings.push(callback);
     };
     Stage.prototype.render = function () {
-        var e_49, _a, e_50, _b, e_51, _c;
+        var e_48, _a, e_49, _b, e_50, _c;
         var _this = this;
         this.update();
         this.collisionSystem.update();
@@ -4333,23 +4003,23 @@ var Stage = (function () {
                 if (this.drawings.has(layer)) {
                     var layerDrawings = this.drawings.get(layer);
                     try {
-                        for (var layerDrawings_1 = (e_50 = void 0, __values(layerDrawings)), layerDrawings_1_1 = layerDrawings_1.next(); !layerDrawings_1_1.done; layerDrawings_1_1 = layerDrawings_1.next()) {
+                        for (var layerDrawings_1 = (e_49 = void 0, __values(layerDrawings)), layerDrawings_1_1 = layerDrawings_1.next(); !layerDrawings_1_1.done; layerDrawings_1_1 = layerDrawings_1.next()) {
                             var drawing = layerDrawings_1_1.value;
                             drawing(this.context, this);
                         }
                     }
-                    catch (e_50_1) { e_50 = { error: e_50_1 }; }
+                    catch (e_49_1) { e_49 = { error: e_49_1 }; }
                     finally {
                         try {
                             if (layerDrawings_1_1 && !layerDrawings_1_1.done && (_b = layerDrawings_1.return)) _b.call(layerDrawings_1);
                         }
-                        finally { if (e_50) throw e_50.error; }
+                        finally { if (e_49) throw e_49.error; }
                     }
                 }
                 if (this.sprites.has(layer)) {
                     var layerSprites = this.sprites.get(layer);
                     var _loop_1 = function (sprite) {
-                        var e_52, _d;
+                        var e_51, _d;
                         if (sprite.hidden) {
                             return "continue";
                         }
@@ -4399,42 +4069,42 @@ var Stage = (function () {
                             this_1.drawSprite(sprite);
                         }
                         try {
-                            for (var _e = (e_52 = void 0, __values(sprite.drawings)), _f = _e.next(); !_f.done; _f = _e.next()) {
+                            for (var _e = (e_51 = void 0, __values(sprite.drawings)), _f = _e.next(); !_f.done; _f = _e.next()) {
                                 var drawing = _f.value;
                                 drawing(this_1.context, sprite);
                             }
                         }
-                        catch (e_52_1) { e_52 = { error: e_52_1 }; }
+                        catch (e_51_1) { e_51 = { error: e_51_1 }; }
                         finally {
                             try {
                                 if (_f && !_f.done && (_d = _e.return)) _d.call(_e);
                             }
-                            finally { if (e_52) throw e_52.error; }
+                            finally { if (e_51) throw e_51.error; }
                         }
                     };
                     var this_1 = this;
                     try {
-                        for (var layerSprites_1 = (e_51 = void 0, __values(layerSprites)), layerSprites_1_1 = layerSprites_1.next(); !layerSprites_1_1.done; layerSprites_1_1 = layerSprites_1.next()) {
+                        for (var layerSprites_1 = (e_50 = void 0, __values(layerSprites)), layerSprites_1_1 = layerSprites_1.next(); !layerSprites_1_1.done; layerSprites_1_1 = layerSprites_1.next()) {
                             var sprite = layerSprites_1_1.value;
                             _loop_1(sprite);
                         }
                     }
-                    catch (e_51_1) { e_51 = { error: e_51_1 }; }
+                    catch (e_50_1) { e_50 = { error: e_50_1 }; }
                     finally {
                         try {
                             if (layerSprites_1_1 && !layerSprites_1_1.done && (_c = layerSprites_1.return)) _c.call(layerSprites_1);
                         }
-                        finally { if (e_51) throw e_51.error; }
+                        finally { if (e_50) throw e_50.error; }
                     }
                 }
             }
         }
-        catch (e_49_1) { e_49 = { error: e_49_1 }; }
+        catch (e_48_1) { e_48 = { error: e_48_1 }; }
         finally {
             try {
                 if (layers_1_1 && !layers_1_1.done && (_a = layers_1.return)) _a.call(layers_1);
             }
-            finally { if (e_49) throw e_49.error; }
+            finally { if (e_48) throw e_48.error; }
         }
         if (this.game.debugCollider) {
             this.context.strokeStyle = this.game.debugColor;
@@ -4470,7 +4140,7 @@ var Stage = (function () {
         return this.addedSprites == this.loadedSprites && this.pendingBackgrounds === 0;
     };
     Stage.prototype.run = function () {
-        var e_53, _a, e_54, _b;
+        var e_52, _a, e_53, _b;
         if (!this._stopped) {
             return;
         }
@@ -4479,58 +4149,58 @@ var Stage = (function () {
             for (var _c = __values(this.sprites.values()), _d = _c.next(); !_d.done; _d = _c.next()) {
                 var layerSprites = _d.value;
                 try {
-                    for (var layerSprites_2 = (e_54 = void 0, __values(layerSprites)), layerSprites_2_1 = layerSprites_2.next(); !layerSprites_2_1.done; layerSprites_2_1 = layerSprites_2.next()) {
+                    for (var layerSprites_2 = (e_53 = void 0, __values(layerSprites)), layerSprites_2_1 = layerSprites_2.next(); !layerSprites_2_1.done; layerSprites_2_1 = layerSprites_2.next()) {
                         var sprite = layerSprites_2_1.value;
                         sprite.run();
                     }
                 }
-                catch (e_54_1) { e_54 = { error: e_54_1 }; }
+                catch (e_53_1) { e_53 = { error: e_53_1 }; }
                 finally {
                     try {
                         if (layerSprites_2_1 && !layerSprites_2_1.done && (_b = layerSprites_2.return)) _b.call(layerSprites_2);
                     }
-                    finally { if (e_54) throw e_54.error; }
+                    finally { if (e_53) throw e_53.error; }
                 }
             }
         }
-        catch (e_53_1) { e_53 = { error: e_53_1 }; }
+        catch (e_52_1) { e_52 = { error: e_52_1 }; }
         finally {
             try {
                 if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
             }
-            finally { if (e_53) throw e_53.error; }
+            finally { if (e_52) throw e_52.error; }
         }
         this.pendingRun = true;
         this.tryDoRun();
     };
     Stage.prototype.ready = function () {
-        var e_55, _a, e_56, _b;
+        var e_54, _a, e_55, _b;
         this.tryDoOnReady();
         this.tryDoRun();
         try {
             for (var _c = __values(this.sprites.values()), _d = _c.next(); !_d.done; _d = _c.next()) {
                 var layerSprites = _d.value;
                 try {
-                    for (var layerSprites_3 = (e_56 = void 0, __values(layerSprites)), layerSprites_3_1 = layerSprites_3.next(); !layerSprites_3_1.done; layerSprites_3_1 = layerSprites_3.next()) {
+                    for (var layerSprites_3 = (e_55 = void 0, __values(layerSprites)), layerSprites_3_1 = layerSprites_3.next(); !layerSprites_3_1.done; layerSprites_3_1 = layerSprites_3.next()) {
                         var sprite = layerSprites_3_1.value;
                         sprite.ready();
                     }
                 }
-                catch (e_56_1) { e_56 = { error: e_56_1 }; }
+                catch (e_55_1) { e_55 = { error: e_55_1 }; }
                 finally {
                     try {
                         if (layerSprites_3_1 && !layerSprites_3_1.done && (_b = layerSprites_3.return)) _b.call(layerSprites_3);
                     }
-                    finally { if (e_56) throw e_56.error; }
+                    finally { if (e_55) throw e_55.error; }
                 }
             }
         }
-        catch (e_55_1) { e_55 = { error: e_55_1 }; }
+        catch (e_54_1) { e_54 = { error: e_54_1 }; }
         finally {
             try {
                 if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
             }
-            finally { if (e_55) throw e_55.error; }
+            finally { if (e_54) throw e_54.error; }
         }
     };
     Stage.prototype.onStart = function (onStartCallback) {
@@ -4540,7 +4210,7 @@ var Stage = (function () {
         this.onReadyCallbacks.push(callback);
     };
     Stage.prototype.stop = function () {
-        var e_57, _a, e_58, _b;
+        var e_56, _a, e_57, _b;
         if (this._stopped) {
             return;
         }
@@ -4550,26 +4220,26 @@ var Stage = (function () {
             for (var _c = __values(this.sprites.values()), _d = _c.next(); !_d.done; _d = _c.next()) {
                 var layerSprites = _d.value;
                 try {
-                    for (var layerSprites_4 = (e_58 = void 0, __values(layerSprites)), layerSprites_4_1 = layerSprites_4.next(); !layerSprites_4_1.done; layerSprites_4_1 = layerSprites_4.next()) {
+                    for (var layerSprites_4 = (e_57 = void 0, __values(layerSprites)), layerSprites_4_1 = layerSprites_4.next(); !layerSprites_4_1.done; layerSprites_4_1 = layerSprites_4.next()) {
                         var sprite = layerSprites_4_1.value;
                         sprite.stop();
                     }
                 }
-                catch (e_58_1) { e_58 = { error: e_58_1 }; }
+                catch (e_57_1) { e_57 = { error: e_57_1 }; }
                 finally {
                     try {
                         if (layerSprites_4_1 && !layerSprites_4_1.done && (_b = layerSprites_4.return)) _b.call(layerSprites_4);
                     }
-                    finally { if (e_58) throw e_58.error; }
+                    finally { if (e_57) throw e_57.error; }
                 }
             }
         }
-        catch (e_57_1) { e_57 = { error: e_57_1 }; }
+        catch (e_56_1) { e_56 = { error: e_56_1 }; }
         finally {
             try {
                 if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
             }
-            finally { if (e_57) throw e_57.error; }
+            finally { if (e_56) throw e_56.error; }
         }
         this.stoppedTime = Date.now();
     };
@@ -4587,7 +4257,7 @@ var Stage = (function () {
         });
     };
     Stage.prototype.tryDoOnReady = function () {
-        var e_59, _a;
+        var e_58, _a;
         if (this.onReadyPending && this.isReady()) {
             this.onReadyPending = false;
             if (this.backgrounds.length && this.backgroundIndex === null) {
@@ -4600,12 +4270,12 @@ var Stage = (function () {
                         callback();
                     }
                 }
-                catch (e_59_1) { e_59 = { error: e_59_1 }; }
+                catch (e_58_1) { e_58 = { error: e_58_1 }; }
                 finally {
                     try {
                         if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
                     }
-                    finally { if (e_59) throw e_59.error; }
+                    finally { if (e_58) throw e_58.error; }
                 }
                 this.onReadyCallbacks = [];
             }
@@ -4615,7 +4285,7 @@ var Stage = (function () {
         }
     };
     Stage.prototype.doOnStart = function () {
-        var e_60, _a;
+        var e_59, _a;
         var _loop_2 = function (callback) {
             setTimeout(function () {
                 callback();
@@ -4627,12 +4297,12 @@ var Stage = (function () {
                 _loop_2(callback);
             }
         }
-        catch (e_60_1) { e_60 = { error: e_60_1 }; }
+        catch (e_59_1) { e_59 = { error: e_59_1 }; }
         finally {
             try {
                 if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
             }
-            finally { if (e_60) throw e_60.error; }
+            finally { if (e_59) throw e_59.error; }
         }
     };
     Stage.prototype.tryDoRun = function () {
@@ -4659,7 +4329,7 @@ var Stage = (function () {
         var _this = this;
         this.scheduledCallbacks = this.scheduledCallbacks.filter(this.scheduledCallbackExecutor.execute(Date.now(), this.diffTime));
         this.sprites.forEach(function (layerSprites, layer) {
-            var e_61, _a;
+            var e_60, _a;
             try {
                 for (var layerSprites_5 = __values(layerSprites), layerSprites_5_1 = layerSprites_5.next(); !layerSprites_5_1.done; layerSprites_5_1 = layerSprites_5.next()) {
                     var sprite = layerSprites_5_1.value;
@@ -4670,12 +4340,12 @@ var Stage = (function () {
                     sprite.update(_this.diffTime);
                 }
             }
-            catch (e_61_1) { e_61 = { error: e_61_1 }; }
+            catch (e_60_1) { e_60 = { error: e_60_1 }; }
             finally {
                 try {
                     if (layerSprites_5_1 && !layerSprites_5_1.done && (_a = layerSprites_5.return)) _a.call(layerSprites_5);
                 }
-                finally { if (e_61) throw e_61.error; }
+                finally { if (e_60) throw e_60.error; }
             }
         });
         this.diffTime = 0;
@@ -5201,7 +4871,7 @@ var CollisionSystem = (function () {
         return new CollisionResult();
     };
     CollisionSystem.prototype.insert = function () {
-        var e_62, _a;
+        var e_61, _a;
         var bodies = [];
         for (var _i = 0; _i < arguments.length; _i++) {
             bodies[_i] = arguments[_i];
@@ -5212,17 +4882,17 @@ var CollisionSystem = (function () {
                 this._bvh.insert(body, false);
             }
         }
-        catch (e_62_1) { e_62 = { error: e_62_1 }; }
+        catch (e_61_1) { e_61 = { error: e_61_1 }; }
         finally {
             try {
                 if (bodies_1_1 && !bodies_1_1.done && (_a = bodies_1.return)) _a.call(bodies_1);
             }
-            finally { if (e_62) throw e_62.error; }
+            finally { if (e_61) throw e_61.error; }
         }
         return this;
     };
     CollisionSystem.prototype.remove = function () {
-        var e_63, _a;
+        var e_62, _a;
         var bodies = [];
         for (var _i = 0; _i < arguments.length; _i++) {
             bodies[_i] = arguments[_i];
@@ -5233,12 +4903,12 @@ var CollisionSystem = (function () {
                 this._bvh.remove(body, false);
             }
         }
-        catch (e_63_1) { e_63 = { error: e_63_1 }; }
+        catch (e_62_1) { e_62 = { error: e_62_1 }; }
         finally {
             try {
                 if (bodies_2_1 && !bodies_2_1.done && (_a = bodies_2.return)) _a.call(bodies_2);
             }
-            finally { if (e_63) throw e_63.error; }
+            finally { if (e_62) throw e_62.error; }
         }
         return this;
     };
@@ -5854,7 +5524,7 @@ var JetcodeSocketConnection = (function () {
         this.connects[action] = this.connects[action].filter(function (cb) { return cb !== callback; });
     };
     JetcodeSocketConnection.prototype.sendData = function (value, parameters) {
-        var e_64, _a;
+        var e_63, _a;
         if (parameters === void 0) { parameters = {}; }
         if (!this.lobbyId) {
             throw new Error('You are not in the lobby!');
@@ -5866,12 +5536,12 @@ var JetcodeSocketConnection = (function () {
                 request += key + '=' + value_1 + '\n';
             }
         }
-        catch (e_64_1) { e_64 = { error: e_64_1 }; }
+        catch (e_63_1) { e_63 = { error: e_63_1 }; }
         finally {
             try {
                 if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
             }
-            finally { if (e_64) throw e_64.error; }
+            finally { if (e_63) throw e_63.error; }
         }
         request += "SendTime=".concat(Date.now(), "\n");
         request += '\n' + value;
@@ -5881,7 +5551,7 @@ var JetcodeSocketConnection = (function () {
         var _this = this;
         if (parameters === void 0) { parameters = {}; }
         return new Promise(function (resolve, reject) {
-            var e_65, _a;
+            var e_64, _a;
             if (!lobbyId) {
                 lobbyId = 0;
             }
@@ -5894,12 +5564,12 @@ var JetcodeSocketConnection = (function () {
                     request += "".concat(key, "=").concat(value, "\n");
                 }
             }
-            catch (e_65_1) { e_65 = { error: e_65_1 }; }
+            catch (e_64_1) { e_64 = { error: e_64_1 }; }
             finally {
                 try {
                     if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
                 }
-                finally { if (e_65) throw e_65.error; }
+                finally { if (e_64) throw e_64.error; }
             }
             _this.socket.send(request);
             _this.connect(JetcodeSocket.JOINED, function (responseParams) {

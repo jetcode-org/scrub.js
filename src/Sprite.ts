@@ -3,7 +3,6 @@ class Sprite {
     eventEmitter: EventEmitter;
     collisionResult: CollisionResult;
     name = 'No name';
-    rotateStyle = 'normal'; // 'normal', 'leftRight', 'none'
 
     private game: Game = null;
     protected costumeIndex = null;
@@ -25,6 +24,7 @@ class Sprite {
     private _defaultColliderNone = false;
     private _direction = 0;
     private _size = 100;
+    private _rotateStyle = 'normal'; // 'normal', 'leftRight', 'none'
     private _hidden = false;
     private _opacity = null;
     private _filter = null;
@@ -42,8 +42,10 @@ class Sprite {
     private _centerDistance = 0;
     private _centerAngle = 0;
     private _tags = [];
-    private _parentComplexSprite = null;
+    private _parentSprite = null;
     private currentColliderName: string|null = null;
+    private _children: Sprite[] = [];
+    private _collidedSprite: Sprite|null = null
 
     constructor(stage: Stage = null, layer = 1, costumePaths = [], soundPaths = []) {
         if (!Registry.getInstance().has('game')) {
@@ -332,7 +334,7 @@ class Sprite {
         }
 
         let direction = 0;
-        if (withRotation && this.rotateStyle === 'normal') {
+        if (withRotation && this._rotateStyle === 'normal') {
             direction = this.direction;
         }
 
@@ -501,6 +503,38 @@ class Sprite {
         this.soundNames.push(name);
     }
 
+    addChild(child: Sprite): this {
+        if (!this._children.includes(child)) {
+            this._children.push(child);
+            child.parent = this;
+            child.layer = this.layer;
+            child.x = 0;
+            child.y = 0;
+            child.direction = this.direction;
+        }
+
+        child.parent = this;
+
+        return this;
+    }
+
+    removeChild(child: Sprite): this {
+        const foundChildIndex = this._children.indexOf(child);
+
+        if (foundChildIndex > -1){
+            const child = this._children[foundChildIndex];
+
+            child.parent = null;
+            this._children.splice(foundChildIndex, 1);
+        }
+
+        return this;
+    }
+
+    getChildren(): Sprite[] {
+        return this._children;
+    }
+
     move(steps): void {
         const angleRadians = this.angleRadians;
 
@@ -518,38 +552,55 @@ class Sprite {
         }
     }
 
-    touchSprite(sprite: Sprite|ComplexSprite): boolean {
-        if (sprite instanceof Sprite) {
-          if (
-            sprite.hidden ||
-            this.hidden ||
-            sprite.stopped ||
-            this.stopped ||
-            sprite.deleted ||
-            this.deleted
-          ) {
+    touchSprite(sprite: Sprite): boolean {
+        this._collidedSprite = null;
+
+        if (
+              sprite.hidden ||
+              this.hidden ||
+              sprite.stopped ||
+              this.stopped ||
+              sprite.deleted ||
+              this.deleted
+        ) {
             return false;
-          }
-
-          const collider = this.collider;
-          const otherCollider = sprite.collider;
-
-          return collider && otherCollider && collider.collides(otherCollider, this.collisionResult);
         }
 
-      if (sprite instanceof ComplexSprite) {
-            for (const child of sprite.getChildren()) {
-                if (this.touchSprite(child)) {
+        const collider = this.collider;
+        const otherCollider = sprite.collider;
+
+        let isTouch = collider && otherCollider && collider.collides(otherCollider, this.collisionResult);
+        if (isTouch) {
+            return true;
+        }
+
+        for (const child of this._children) {
+            if (otherCollider && child.touchSprite(sprite)) {
+                this._collidedSprite = child;
+
+                return true
+            }
+
+            for (const otherChild of sprite.getChildren()) {
+                if (collider && this.touchSprite(otherChild)) {
+                    this._collidedSprite = child;
+
+                    return true
+                }
+
+                if (child.touchSprite(otherChild)) {
+                    this._collidedSprite = child;
+
                     return true
                 }
             }
-
-            return false;
         }
+
+        return false;
     }
 
     touchSprites(sprites: Sprite[]): boolean {
-        if (this.hidden || this.stopped || this.deleted || !this.collider) {
+        if (this.hidden || this.stopped || this.deleted) {
             return false;
         }
 
@@ -562,25 +613,59 @@ class Sprite {
         return false;
     }
 
-    touchPotentialSprites(sprites: Sprite[]): boolean {
-        if (this.hidden || this.stopped || this.deleted || !this.collider) {
+    touchEdge(): boolean {
+        const result = this.getPureCollisionResult();
+        this._collidedSprite = null;
+
+        if (this.hidden || this.stopped || this.deleted) {
             return false;
         }
 
-        const potentials = this.collider.potentials();
-        if (!potentials.length) {
-            return false;
-        }
+        if (this.collider) {
+            const gameWidth = this.game.width;
+            const gameHeight = this.game.height;
 
-        const potentialSprites = [];
-        for (const sprite of sprites) {
-            if (potentials.indexOf(sprite.collider) > -1) {
-                potentialSprites.push(sprite);
+            // top edge
+            if (this.topY < 0) {
+                result.collision = true;
+                result.overlap = -this.topY;
+                result.overlap_y = -1;
+
+                return true;
+            }
+
+            // bottom edge
+            if (this.bottomY > gameHeight) {
+                result.collision = true;
+                result.overlap = this.bottomY - gameHeight;
+                result.overlap_y = 1;
+
+                return true;
+            }
+
+            // left edge
+            if (this.leftX < 0) {
+                result.collision = true;
+                result.overlap = -this.leftX;
+                result.overlap_x = -1;
+
+                return true;
+            }
+
+            // right edge
+            if (this.rightX > gameWidth) {
+                result.collision = true;
+                result.overlap = this.rightX - gameWidth;
+                result.overlap_x = 1;
+
+                return true;
             }
         }
 
-        for (const potentialSprite of potentialSprites) {
-            if (this.touchSprite(potentialSprite)) {
+        for (const child of this._children) {
+            if (child.touchEdge()) {
+                this._collidedSprite = child;
+
                 return true;
             }
         }
@@ -588,62 +673,15 @@ class Sprite {
         return false;
     }
 
-    touchEdge(): boolean {
-        if (this.hidden || this.stopped || this.deleted || !this.collider) {
-            return false;
-        }
-
-        const result = this.getPureCollisionResult();
-        const gameWidth = this.game.width;
-        const gameHeight = this.game.height;
-
-        // top edge
-        if (this.topY < 0) {
-            result.collision = true;
-            result.overlap = -this.topY;
-            result.overlap_y = -1;
-
-            return true;
-        }
-
-        // bottom edge
-        if (this.bottomY > gameHeight) {
-            result.collision = true;
-            result.overlap = this.bottomY - gameHeight;
-            result.overlap_y = 1;
-
-            return true;
-        }
-
-        // left edge
-        if (this.leftX < 0) {
-            result.collision = true;
-            result.overlap = -this.leftX;
-            result.overlap_x = -1;
-
-            return true;
-        }
-
-        // right edge
-        if (this.rightX > gameWidth) {
-            result.collision = true;
-            result.overlap = this.rightX - gameWidth;
-            result.overlap_x = 1;
-
-            return true;
-        }
-
-        return false;
-    }
-
     touchTopEdge(): boolean {
         this.clearCollisionResult();
+        this._collidedSprite = null;
 
-        if (this.hidden || this.stopped || this.deleted || !this.collider) {
+        if (this.hidden || this.stopped || this.deleted) {
             return false;
         }
 
-        if (this.topY < 0) {
+        if (this.collider && this.topY < 0) {
             this.collisionResult.collision = true;
             this.collisionResult.overlap = -this.topY;
             this.collisionResult.overlap_y = -1;
@@ -651,17 +689,26 @@ class Sprite {
             return true;
         }
 
+        for (const child of this._children) {
+            if (child.touchTopEdge()) {
+                this._collidedSprite = child;
+
+                return true;
+            }
+        }
+
         return false;
     }
 
     touchBottomEdge(): boolean {
         this.clearCollisionResult();
+        this._collidedSprite = null;
 
-        if (this.hidden || this.stopped || this.deleted || !this.collider) {
+        if (this.hidden || this.stopped || this.deleted) {
             return false;
         }
 
-        if (this.bottomY > this.game.height) {
+        if (this.collider && this.bottomY > this.game.height) {
             this.collisionResult.collision = true;
             this.collisionResult.overlap = this.bottomY - this.game.height;
             this.collisionResult.overlap_y = 1;
@@ -669,17 +716,26 @@ class Sprite {
             return true;
         }
 
+        for (const child of this._children) {
+            if (child.touchBottomEdge()) {
+                this._collidedSprite = child;
+
+                return true;
+            }
+        }
+
         return false;
     }
 
     touchLeftEdge(): boolean {
         this.clearCollisionResult();
+        this._collidedSprite = null;
 
-        if (this.hidden || this.stopped || this.deleted || !this.collider) {
+        if (this.hidden || this.stopped || this.deleted) {
             return false;
         }
 
-        if (this.leftX < 0) {
+        if (this.collider && this.leftX < 0) {
             this.collisionResult.collision = true;
             this.collisionResult.overlap = -this.leftX;
             this.collisionResult.overlap_x = -1;
@@ -687,17 +743,26 @@ class Sprite {
             return true;
         }
 
+        for (const child of this._children) {
+            if (child.touchLeftEdge()) {
+                this._collidedSprite = child;
+
+                return true;
+            }
+        }
+
         return false;
     }
 
     touchRightEdge(): boolean {
         this.clearCollisionResult();
+        this._collidedSprite = null;
 
-        if (this.hidden || this.stopped || this.deleted || !this.collider) {
+        if (this.hidden || this.stopped || this.deleted) {
             return false;
         }
 
-        if (this.rightX > this.game.width) {
+        if (this.collider && this.rightX > this.game.width) {
             this.collisionResult.collision = true;
             this.collisionResult.overlap = this.rightX - this.game.width;
             this.collisionResult.overlap_x = 1;
@@ -705,10 +770,22 @@ class Sprite {
             return true;
         }
 
+        for (const child of this._children) {
+            if (child.touchRightEdge()) {
+                this._collidedSprite = child;
+
+                return true;
+            }
+        }
+
         return false;
     }
 
     get overlap() {
+        if (this._collidedSprite) {
+            return this._collidedSprite.overlap;
+        }
+
         if (!this.collisionResult.collision) {
             return 0;
         }
@@ -717,6 +794,10 @@ class Sprite {
     }
 
     get overlapX() {
+        if (this._collidedSprite) {
+            return this._collidedSprite.overlapX;
+        }
+
         if (!this.collisionResult.collision) {
             return 0;
         }
@@ -725,6 +806,10 @@ class Sprite {
     }
 
     get overlapY() {
+        if (this._collidedSprite) {
+            return this._collidedSprite.overlapY;
+        }
+
         if (!this.collisionResult.collision) {
             return 0;
         }
@@ -758,11 +843,28 @@ class Sprite {
     }
 
     touchMousePoint(mousePoint: PointCollider): boolean {
-        if (this.hidden || this.stopped || this.deleted || !this.collider) {
+        this._collidedSprite = null;
+
+        if (this.hidden || this.stopped || this.deleted) {
             return false;
         }
 
-        return this.collider.collides(mousePoint, this.collisionResult);
+        const collider = this.collider;
+        const isTouch = collider && collider.collides(mousePoint, this.collisionResult);
+
+        if (isTouch) {
+            return true;
+        }
+
+        for (const child of this._children) {
+            if (child.touchMousePoint(child.game.getMousePoint())){
+                this._collidedSprite = child.otherSprite;
+
+                return true;
+            }
+        }
+
+        return false;
     }
 
     pointForward(object): void {
@@ -820,7 +922,7 @@ class Sprite {
         const clone = new Sprite(stage, this.layer);
 
         clone.name = this.name;
-        clone.rotateStyle = this.rotateStyle;
+        clone._rotateStyle = this._rotateStyle;
 
         clone.x = this.x;
         clone.y = this.y;
@@ -831,7 +933,7 @@ class Sprite {
         clone.hidden = this.hidden;
         clone._deleted = this.deleted;
         clone._stopped = this.stopped;
-        clone._tags = this.tags;
+        clone._tags.push(...this.tags);
         clone.defaultColliderNone = this.defaultColliderNone;
 
         for (let i = 0; i < this.costumes.length; i++) {
@@ -849,6 +951,14 @@ class Sprite {
 
         if (this.currentColliderName) {
             clone.switchCollider(this.currentColliderName);
+        }
+
+        for (const child of this._children) {
+            const childClone = child.createClone();
+            clone.addChild(childClone);
+
+            childClone.x = child.x;
+            childClone.y = child.y;
         }
 
         clone.ready();
@@ -920,6 +1030,11 @@ class Sprite {
         this.soundNames = [];
         this.onReadyCallbacks = [];
         this.scheduledCallbacks = [];
+        this._children = [];
+
+        for (const child of this._children) {
+            child.delete();
+        }
 
         this._deleted = true;
     }
@@ -1007,7 +1122,7 @@ class Sprite {
 
     setRectCollider(colliderName: string, width: number, height: number, offsetX = 0,  offsetY = 0): this {
         let angle = 0;
-        if (this.rotateStyle != 'leftRight') {
+        if (this._rotateStyle != 'leftRight') {
             angle = this.direction * 3.14 / 180; // to radian
         }
 
@@ -1028,7 +1143,7 @@ class Sprite {
 
     setPolygonCollider(colliderName: string, points: [number, number][] = [], offsetX = 0,  offsetY = 0): this {
         let angleRadians = 0;
-        if (this.rotateStyle != 'leftRight') {
+        if (this._rotateStyle != 'leftRight') {
             angleRadians = this.angleRadians;
         }
 
@@ -1124,56 +1239,88 @@ class Sprite {
         return this.costumeIndex;
     }
 
-    touchTag(nameOfTag) {
-        if (this.hidden || this.stopped || this.deleted || !this.collider) {
+    touchTag(tagName: string): boolean {
+        this._collidedSprite = null;
+
+        if (this.hidden || this.stopped || this.deleted) {
             return false;
         }
 
-        const potentialsColliders = this.collider.potentials();
-        if (!potentialsColliders.length) {
-            return false;
-        }
+        const collider = this.collider;
+        if (collider) {
+            const potentialsColliders = collider.potentials();
 
-        for (const potentialCollider of potentialsColliders) {
-            const potentialSprite = potentialCollider.parentSprite;
-            if (potentialSprite && potentialSprite.hasTag(nameOfTag)) {
-                if (
-                    !potentialSprite.hidden &&
-                    !potentialSprite.stopped &&
-                    !potentialSprite.deleted &&
-                    potentialSprite.collider &&
-                    this.collider.collides(potentialCollider, this.collisionResult)
-                ) {
-                    return true;
+            if (!potentialsColliders.length) {
+                return false;
+            }
+
+            for (const potentialCollider of potentialsColliders) {
+                const potentialSprite = potentialCollider.parentSprite;
+
+                if (potentialSprite && potentialSprite.hasTag(tagName)) {
+                    if (
+                        !potentialSprite.hidden &&
+                        !potentialSprite.stopped &&
+                        !potentialSprite.deleted &&
+                        potentialSprite.collider &&
+                        collider.collides(potentialCollider, this.collisionResult)
+                    ) {
+                        return true;
+                    }
                 }
+            }
+        }
+
+        for (const child of this._children) {
+            if (child.touchTag(tagName)) {
+                this._collidedSprite = child;
+
+                return true;
             }
         }
 
         return false;
     }
 
-    touchTagAll(nameOfTag) {
-        if (this.hidden || this.stopped || this.deleted || !this.collider) {
-            return false;
-        }
+    touchTagAll(tagName: string) {
+        this._collidedSprite = null;
 
-        const potentialsColliders = this.collider.potentials();
-        if (!potentialsColliders.length) {
+        if (this.hidden || this.stopped || this.deleted) {
             return false;
         }
 
         const collidedSprites = []
-        for (const potentialCollider of potentialsColliders) {
-            const potentialSprite = potentialCollider.parentSprite;
-            if (potentialSprite && potentialSprite.hasTag(nameOfTag)) {
-                if (
-                    !potentialSprite.hidden &&
-                    !potentialSprite.stopped &&
-                    !potentialSprite.deleted &&
-                    potentialSprite.collider &&
-                    this.collider.collides(potentialCollider, this.collisionResult)
-                ) {
-                    collidedSprites.push(potentialSprite);
+        const collider = this.collider;
+
+        if (collider) {
+            const potentialsColliders = collider.potentials();
+            if (!potentialsColliders.length) {
+                return false;
+            }
+
+            for (const potentialCollider of potentialsColliders) {
+                const potentialSprite = potentialCollider.parentSprite;
+
+                if (potentialSprite && potentialSprite.hasTag(tagName)) {
+                    if (
+                        !potentialSprite.hidden &&
+                        !potentialSprite.stopped &&
+                        !potentialSprite.deleted &&
+                        potentialSprite.collider &&
+                        collider.collides(potentialCollider, this.collisionResult)
+                    ) {
+                        collidedSprites.push(potentialSprite);
+                    }
+                }
+            }
+        }
+
+        for (const child of this._children) {
+            const collision = child.touchTagAll(tagName);
+
+            if (collision && !collision.length) {
+                for (const sprite of collision) {
+                    collidedSprites.push(sprite);
                 }
             }
         }
@@ -1186,23 +1333,38 @@ class Sprite {
     }
 
     touchAnySprite() {
-        if (this.hidden || this.stopped || this.deleted || !this.collider) {
-            return false;
-        }
-        const potentialsColliders = this.collider.potentials();
-        if (!potentialsColliders.length) {
+        this._collidedSprite = null;
+
+        if (this.hidden || this.stopped || this.deleted) {
             return false;
         }
 
-        for (const potentialCollider of potentialsColliders) {
-            const potentialSprite = potentialCollider.parentSprite;
-            if (
-                !potentialSprite.hidden &&
-                !potentialSprite.stopped &&
-                !potentialSprite.deleted &&
-                potentialSprite.collider &&
-                this.collider.collides(potentialCollider, this.collisionResult)
-            ) {
+        const collider = this.collider;
+        if (collider) {
+            const potentialsColliders = collider.potentials();
+            if (!potentialsColliders.length) {
+                return false;
+            }
+
+            for (const potentialCollider of potentialsColliders) {
+                const potentialSprite = potentialCollider.parentSprite;
+
+                if (
+                    !potentialSprite.hidden &&
+                    !potentialSprite.stopped &&
+                    !potentialSprite.deleted &&
+                    potentialSprite.collider &&
+                    collider.collides(potentialCollider, this.collisionResult)
+                ) {
+                    return true;
+                }
+            }
+        }
+
+        for (const child of this._children) {
+            if (child.touchAnySprite()) {
+                this._collidedSprite = child;
+
                 return true;
             }
         }
@@ -1210,29 +1372,37 @@ class Sprite {
         return false;
     }
 
-    hasTag(nameOfTag) {
-        return this._tags.includes(nameOfTag);
+    hasTag(tagName: string): boolean {
+        return this._tags.includes(tagName);
     }
 
-    addTag(nameOfTag): this {
-        if (!this.hasTag(nameOfTag)) {
-            this._tags.push(nameOfTag);
+    addTag(tagName: string): this {
+        if (!this.hasTag(tagName)) {
+            this._tags.push(tagName);
+        }
+
+        for (const child of this._children) {
+            child.addTag(tagName);
         }
 
         return this;
     }
 
-    removeTag(nameOfTag): this {
-        const foundIndex = this._tags.indexOf(nameOfTag);
+    removeTag(tagName: string): this {
+        const foundIndex = this._tags.indexOf(tagName);
 
         if (foundIndex > -1) {
             this._tags.splice(foundIndex, 1);
         }
 
+        for (const child of this._children) {
+            child.addTag(tagName);
+        }
+
         return this;
     }
 
-    set direction (direction: number) {
+    set direction(direction: number) {
         if ((direction * 0) !== 0) { // d is +/-Infinity or NaN
             return;
         }
@@ -1247,7 +1417,7 @@ class Sprite {
 
         const collider = this.collider;
         if (collider instanceof PolygonCollider) {
-            if (this.rotateStyle == 'leftRight') {
+            if (this._rotateStyle == 'leftRight') {
                 collider.angle = 0; // to radian
 
             } else {
@@ -1257,6 +1427,10 @@ class Sprite {
 
         if (collider) {
             this.updateColliderPosition(collider);
+        }
+
+        for (const child of this._children) {
+            child.direction = direction;
         }
     }
 
@@ -1307,9 +1481,19 @@ class Sprite {
     set x(value: number) {
         this._x = value
 
+        if (this._children.length) {
+            this.updateCenterParams();
+        }
+
         const collider = this.collider;
         if (collider) {
             this.updateColliderPosition(collider);
+        }
+
+        for (const child of this._children) {
+            if (child.collider){
+                child.updateColliderPosition(child.collider)
+            }
         }
     }
 
@@ -1320,9 +1504,19 @@ class Sprite {
     set y(value: number) {
         this._y = value;
 
+        if (this._children.length) {
+            this.updateCenterParams();
+        }
+
         const collider = this.collider;
         if (collider) {
             this.updateColliderPosition(collider);
+        }
+
+        for (const child of this._children) {
+            if (child.collider){
+                child.updateColliderPosition(child.collider)
+            }
         }
     }
 
@@ -1331,8 +1525,8 @@ class Sprite {
     }
 
     get sourceX() {
-        if (this.rotateStyle === 'leftRight' || this.rotateStyle === 'none') {
-            const leftRightMultiplier = this._direction > 180 && this.rotateStyle === 'leftRight' ? -1 : 1;
+        if (this._rotateStyle === 'leftRight' || this._rotateStyle === 'none') {
+            const leftRightMultiplier = this._direction > 180 && this._rotateStyle === 'leftRight' ? -1 : 1;
 
             return this.absoluteX - this._pivotOffsetX * leftRightMultiplier * this.size / 100;
         }
@@ -1341,7 +1535,7 @@ class Sprite {
     }
 
     get sourceY() {
-        if (this.rotateStyle === 'leftRight' || this.rotateStyle === 'none') {
+        if (this._rotateStyle === 'leftRight' || this._rotateStyle === 'none') {
             return this.absoluteY - this._pivotOffsetY * this.size / 100;
         }
 
@@ -1357,28 +1551,26 @@ class Sprite {
     }
 
     get absoluteX() {
-        if (this._parentComplexSprite) {
-            if (this.rotateStyle === 'leftRight' || this.rotateStyle === 'none') {
-                const leftRightMultiplier = this._direction > 180 && this.rotateStyle === 'leftRight' ? -1 : 1;
+        if (this._parentSprite) {
+            if (this._rotateStyle === 'leftRight' || this._rotateStyle === 'none') {
+                const leftRightMultiplier = this._direction > 180 && this._rotateStyle === 'leftRight' ? -1 : 1;
 
-                return this._parentComplexSprite.absoluteX + this._x * leftRightMultiplier * this.size / 100;
+                return this._parentSprite.absoluteX + this._x * leftRightMultiplier * this.size / 100;
             }
-            else {
-                return this._parentComplexSprite.absoluteX + this.distanceToParent * Math.cos(this.angleToParent - this._parentComplexSprite.angleRadians) * this.size / 100;
-            }
+
+            return this._parentSprite.absoluteX + this.distanceToParent * Math.cos(this.angleToParent - this._parentSprite.angleRadians) * this.size / 100;
         }
 
         return this._x;
     }
 
     get absoluteY() {
-        if (this._parentComplexSprite) {
-            if (this.rotateStyle === 'leftRight' || this.rotateStyle === 'none') {
-                return this._parentComplexSprite.absoluteY + this._y;
+        if (this._parentSprite) {
+            if (this._rotateStyle === 'leftRight' || this._rotateStyle === 'none') {
+                return this._parentSprite.absoluteY + this._y;
             }
-            else {
-                return this._parentComplexSprite.absoluteY - this.distanceToParent * Math.sin(this.angleToParent - this._parentComplexSprite.angleRadians) * this.size / 100;
-            }
+
+            return this._parentSprite.absoluteY - this.distanceToParent * Math.sin(this.angleToParent - this._parentSprite.angleRadians) * this.size / 100;
         }
 
         return this._y;
@@ -1415,14 +1607,34 @@ class Sprite {
         if (collider) {
             this.updateColliderSize(collider);
         }
+
+        for (const child of this._children){
+            child.size = value;
+        }
     }
 
     get size(): number {
         return this._size;
     }
 
+    set rotateStyle(value: string) {
+        this._rotateStyle = value;
+
+        for (const child of this._children){
+            child.rotateStyle = value;
+        }
+    }
+
+    get rotateStyle(){
+        return this._rotateStyle;
+    }
+
     set hidden(value: boolean) {
         this._hidden = value;
+
+        for (const child of this._children){
+            child.hidden = value;
+        }
 
         // TODO need test
         // if (value) {
@@ -1437,6 +1649,10 @@ class Sprite {
 
     get hidden(): boolean {
         return this._hidden;
+    }
+
+    get collidedSprite(){
+        return this._collidedSprite;
     }
 
     set opacity(value: number|null) {
@@ -1493,6 +1709,10 @@ class Sprite {
     set layer(newLayer: number) {
         this.stage.changeSpriteLayer(this, this._layer, newLayer);
         this._layer = newLayer;
+
+        for (const child of this._children) {
+            child.layer = child.layer + this._layer;
+        }
     }
 
     get layer(): number {
@@ -1514,15 +1734,16 @@ class Sprite {
         if (!this.collisionResult.collision) {
             return null;
         }
+
         return this.collisionResult.b.parentSprite.getMainSprite();
     }
 
     set parent(newParent) {
-        this._parentComplexSprite = newParent;
+        this._parentSprite = newParent;
     }
 
     get parent(){
-        return this._parentComplexSprite;
+        return this._parentSprite;
     }
 
     get angleToParent(){
@@ -1801,13 +2022,16 @@ class Sprite {
     }
 
     getMainSprite(){
-        if (this._parentComplexSprite){
-            return this._parentComplexSprite.getMainSprite();
+        if (this._parentSprite){
+            return this._parentSprite.getMainSprite();
         }
+
         return this;
     }
 
-    getParent(parent:ComplexSprite){
+    setParent(parent: Sprite): this{
         parent.addChild(this);
+
+        return this;
     }
 }
