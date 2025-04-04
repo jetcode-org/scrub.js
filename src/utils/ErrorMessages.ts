@@ -13,6 +13,7 @@ class ErrorMessages {
   static readonly COSTUME_NAME_NOT_FOUND = 'costume_name_not_found';
   static readonly STAMP_NOT_READY = 'stamp_not_ready';
   static readonly STAMP_COSTUME_NOT_FOUND = 'stamp_costume_not_found';
+  static readonly COLLIDER_NAME_NOT_FOUND = 'collider_name_not_found';
 
   static readonly messages = {
     script_error:  {
@@ -70,6 +71,10 @@ class ErrorMessages {
     stamp_costume_not_found:  {
       'ru': 'Штам не может быть создан, так как костюм с индексом "${costumeIndex}" не найден.',
       'en': 'The stamp cannot be created because the costume with the index "${costumeIndex}" has not been found.'
+    },
+    collider_name_not_found:  {
+      'ru': 'Коллайдер с именем "${colliderName}" не найден.',
+      'en': 'Collider with name "${colliderName}" not found.'
     },
   }
 

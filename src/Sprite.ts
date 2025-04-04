@@ -6,7 +6,6 @@ class Sprite {
     rotateStyle = 'normal'; // 'normal', 'leftRight', 'none'
 
     private game: Game = null;
-    private collider: Collider = null
     protected costumeIndex = null;
     private costume: Costume = null;
     protected stage = null
@@ -14,6 +13,7 @@ class Sprite {
     private costumeNames = [];
     private sounds = [];
     private soundNames = [];
+    private colliders = new Map<string, Collider>;
     private phrase = null;
     private phraseLiveTime = null;
     private _x = 0;
@@ -22,7 +22,7 @@ class Sprite {
     private _centerOffsetY = 0;
     private _width = 0;
     private _height = 0;
-    private _colliderNone = false;
+    private _defaultColliderNone = false;
     private _direction = 0;
     private _size = 100;
     private _hidden = false;
@@ -42,9 +42,8 @@ class Sprite {
     private _centerDistance = 0;
     private _centerAngle = 0;
     private _tags = [];
-    private _colliderOffsetX = 0;
-    private _colliderOffsetY = 0;
     private _parentComplexSprite = null;
+    private currentColliderName: string|null = null;
 
     constructor(stage: Stage = null, layer = 1, costumePaths = [], soundPaths = []) {
         if (!Registry.getInstance().has('game')) {
@@ -519,29 +518,32 @@ class Sprite {
         }
     }
 
-    touchSprite(sprite): boolean {
-        if (sprite instanceof Sprite){
-            if (
-                sprite.hidden ||
-                this.hidden ||
-                sprite.stopped ||
-                this.stopped ||
-                sprite.deleted ||
-                this.deleted ||
-                !sprite.getCollider() ||
-                !this.collider
-            ) {
-                return false;
-            }
+    touchSprite(sprite: Sprite|ComplexSprite): boolean {
+        if (sprite instanceof Sprite) {
+          if (
+            sprite.hidden ||
+            this.hidden ||
+            sprite.stopped ||
+            this.stopped ||
+            sprite.deleted ||
+            this.deleted
+          ) {
+            return false;
+          }
 
-            return this.collider.collides(sprite.getCollider(), this.collisionResult);
+          const collider = this.collider;
+          const otherCollider = sprite.collider;
+
+          return collider && otherCollider && collider.collides(otherCollider, this.collisionResult);
         }
-        if (sprite instanceof ComplexSprite) {
-            for (const child of sprite.getChildren()){
-                if (this.touchSprite(child)){
+
+      if (sprite instanceof ComplexSprite) {
+            for (const child of sprite.getChildren()) {
+                if (this.touchSprite(child)) {
                     return true
                 }
             }
+
             return false;
         }
     }
@@ -572,7 +574,7 @@ class Sprite {
 
         const potentialSprites = [];
         for (const sprite of sprites) {
-            if (potentials.indexOf(sprite.getCollider()) > -1) {
+            if (potentials.indexOf(sprite.collider) > -1) {
                 potentialSprites.push(sprite);
             }
         }
@@ -830,7 +832,7 @@ class Sprite {
         clone._deleted = this.deleted;
         clone._stopped = this.stopped;
         clone._tags = this.tags;
-        clone.colliderNone = this.colliderNone;
+        clone.defaultColliderNone = this.defaultColliderNone;
 
         for (let i = 0; i < this.costumes.length; i++) {
             clone.cloneCostume(this.costumes[i], this.costumeNames[i]);
@@ -842,8 +844,11 @@ class Sprite {
             clone.cloneSound(sound, this.soundNames[soundIndex]);
         }
 
-        if (this.collider) {
-            clone.cloneCollider(this);
+        clone.currentColliderName = null;
+        clone.cloneCollider(this);
+
+        if (this.currentColliderName) {
+            clone.switchCollider(this.currentColliderName);
         }
 
         clone.ready();
@@ -934,67 +939,94 @@ class Sprite {
         return this;
     }
 
-    setColliderOffset(x: number = 0, y: number = 0): this {
-        this.colliderOffsetX = x;
-        this.colliderOffsetY = y;
+    switchCollider(colliderName: string): this {
+        if (!this.colliders.has(colliderName)) {
+            this.game.throwError(ErrorMessages.COLLIDER_NAME_NOT_FOUND, {colliderName});
+        }
+
+        if (this.currentColliderName === colliderName) {
+            return this;
+        }
+
+        const prevCollider = this.collider;
+        if (prevCollider) {
+            this.stage.collisionSystem.remove(prevCollider);
+        }
+
+        this.currentColliderName = colliderName;
+
+        const newCollider = this.collider;
+        this.stage.collisionSystem.insert(newCollider);
+
+        this._width = newCollider.width;
+        this._height = newCollider.height;
 
         return this;
     }
 
-    getCollider(): Collider {
-        return this.collider;
-    }
-
-    setCollider(collider: Collider): void {
-        this.collider = collider;
-        this.stage.collisionSystem.insert(this.collider);
-    }
-
-    removeCollider() {
-        if (this.collider) {
-            this.stage.collisionSystem.remove(this.collider);
-            this.collider = null;
-            this.colliderNone = true;
-        }
-    }
-
-    setRectCollider(width: number, height: number) {
-        const xOffset = this.collider ? this.collider.offset_x : this._colliderOffsetX;
-        const yOffset = this.collider ? this.collider.offset_y : this._colliderOffsetY;
-
-        if (this.collider) {
-            this.removeCollider();
+    getCollider(colliderName: string): Collider {
+        if (!this.colliders.has(colliderName)) {
+            this.game.throwError(ErrorMessages.COLLIDER_NAME_NOT_FOUND, {colliderName});
         }
 
+        return this.colliders.get(colliderName);
+    }
+
+    hasCollider(colliderName: string): boolean {
+        return this.colliders.has(colliderName);
+    }
+
+    get collider(): Collider|null {
+        if (this.currentColliderName && this.colliders.has(this.currentColliderName)) {
+            return this.colliders.get(this.currentColliderName);
+        }
+
+        return null;
+    }
+
+    setCollider(colliderName: string, collider: Collider, offsetX = 0, offsetY = 0): this {
+        collider.parentSprite = this;
+        collider.offset_x = offsetX;
+        collider.offset_y = offsetY;
+
+        if (this.currentColliderName === colliderName && this.colliders.has(colliderName)) {
+            const prevCollider = this.colliders.get(colliderName);
+            this.stage.collisionSystem.remove(prevCollider);
+            this.currentColliderName = null;
+        }
+
+        this.colliders.set(colliderName, collider);
+        this.updateColliderPosition(collider);
+
+        if (this.isReady() && !this.collider) {
+            this.switchCollider(colliderName);
+        }
+
+        return this;
+    }
+
+    setRectCollider(colliderName: string, width: number, height: number, offsetX = 0,  offsetY = 0): this {
         let angle = 0;
         if (this.rotateStyle != 'leftRight') {
             angle = this.direction * 3.14 / 180; // to radian
         }
 
-        this.collider = new PolygonCollider(this.x, this.y, [
+        const collider = new PolygonCollider(this.x, this.y, [
             [(width / 2) * -1, (height / 2) * -1],
             [width / 2, (height / 2) * -1],
             [width / 2, height / 2],
             [(width / 2) * -1, height / 2]
         ], angle, this.size / 100, this.size / 100);
-        this._width = width;
-        this._height = height;
-        this.collider.parentSprite = this;
-        this.collider.offset_x = xOffset;
-        this.collider.offset_y = yOffset;
 
-        this.stage.collisionSystem.insert(this.collider);
-        this.updateColliderPosition();
+        collider.width = width;
+        collider.height = height;
+
+        this.setCollider(colliderName, collider, offsetX,  offsetY);
+
+        return this;
     }
 
-    setPolygonCollider(points: [number, number][] = []) {
-        const xOffset = this.collider ? this.collider.offset_x : this._colliderOffsetX;
-        const yOffset = this.collider ? this.collider.offset_y : this._colliderOffsetY;
-
-        if (this.collider) {
-            this.removeCollider();
-        }
-
+    setPolygonCollider(colliderName: string, points: [number, number][] = [], offsetX = 0,  offsetY = 0): this {
         let angleRadians = 0;
         if (this.rotateStyle != 'leftRight') {
             angleRadians = this.angleRadians;
@@ -1007,36 +1039,73 @@ class Sprite {
             point[1] - centroid.y
         ]);
 
-        this.collider = new PolygonCollider(this.x, this.y, centeredPoints, angleRadians, this.size / 100, this.size / 100);
-
+        const collider = new PolygonCollider(this.x, this.y, centeredPoints, angleRadians, this.size / 100, this.size / 100);
         const { width, height } = this.calculatePolygonSize(centeredPoints);
-        this._width = width;
-        this._height = height;
-        this.collider.parentSprite = this;
-        this.collider.offset_x = xOffset;
-        this.collider.offset_y = yOffset;
 
-        this.stage.collisionSystem.insert(this.collider);
-        this.updateColliderPosition();
+        collider.width = width;
+        collider.height = height;
+
+        this.setCollider(colliderName, collider, offsetX, offsetY);
+
+        return this;
     }
 
-    setCircleCollider(radius: number) {
-        const xOffset = this.collider ? this.collider.offset_x : this._colliderOffsetX;
-        const yOffset = this.collider ? this.collider.offset_y : this._colliderOffsetY;
+    setCircleCollider(colliderName: string, radius: number, offsetX = 0,  offsetY = 0): this {
+        const collider = new CircleCollider(this.x, this.y, radius, this.size / 100);
 
-        if (this.collider) {
-            this.removeCollider();
+        collider.width = radius * 2;
+        collider.height = radius * 2;
+
+        this.setCollider(colliderName, collider, offsetX, offsetY);
+
+        return this;
+    }
+
+    setCostumeCollider(colliderName: string, costumeIndex = 0, offsetX = 0,  offsetY = 0): this {
+        if (this.costumes[costumeIndex] === undefined) {
+            this.game.throwError(ErrorMessages.COSTUME_INDEX_NOT_FOUND, {costumeIndex});
         }
 
-        this.collider = new CircleCollider(this.x, this.y, radius, this.size / 100);
-        this._width = radius * 2;
-        this._height = radius * 2;
-        this.collider.parentSprite = this;
-        this.collider.offset_x = xOffset;
-        this.collider.offset_y = yOffset;
+        const costume = this.costumes[costumeIndex];
 
-        this.stage.collisionSystem.insert(this.collider);
-        this.updateColliderPosition();
+        this.setRectCollider(colliderName, costume.width, costume.height, offsetX, offsetY);
+
+        return this;
+    }
+
+    removeCollider(colliderName: string = null) {
+        if (colliderName) {
+            this.removeColliderByName(colliderName);
+
+        } else {
+            const collider = this.collider;
+            if (collider) {
+                this.stage.collisionSystem.remove(collider);
+            }
+
+            this.colliders.clear();
+            this.currentColliderName = null;
+            this.defaultColliderNone = true;
+        }
+    }
+
+    removeColliderByName(colliderName: string) {
+        const collider = this.getCollider(colliderName);
+
+        this.colliders.delete(colliderName);
+
+        if (this.colliders.size === 0) {
+            this.defaultColliderNone = true;
+        }
+
+        if (colliderName === this.currentColliderName) {
+            this.stage.collisionSystem.remove(collider);
+
+            if (this.colliders.size) {
+                const nextColliderName = this.colliders.keys().next().value;
+                this.switchCollider(nextColliderName);
+            }
+        }
     }
 
     getCostume(): Costume {
@@ -1176,34 +1245,31 @@ class Sprite {
 
         this._direction = (direction > 360) ? direction - 360 : direction;
 
-        if (this.collider instanceof PolygonCollider) {
+        const collider = this.collider;
+        if (collider instanceof PolygonCollider) {
             if (this.rotateStyle == 'leftRight') {
-                this.collider.angle = 0; // to radian
+                collider.angle = 0; // to radian
 
             } else {
-                this.collider.angle = this._direction * 3.14 / 180; // to radian
+                collider.angle = this._direction * 3.14 / 180; // to radian
             }
-
         }
 
-        if (this.collider) {
-            this.updateColliderPosition();
+        if (collider) {
+            this.updateColliderPosition(collider);
         }
-
     }
 
     get direction(): number {
         return this._direction;
     }
 
-    set colliderNone (colliderNone: boolean) {
-        this._colliderNone = colliderNone;
-
-        this.removeCollider();
+    set defaultColliderNone (colliderNone: boolean) {
+        this._defaultColliderNone = colliderNone;
     }
 
-    get colliderNone(): boolean {
-        return this._colliderNone;
+    get defaultColliderNone(): boolean {
+        return this._defaultColliderNone;
     }
 
     get angleRadians(): number {
@@ -1241,8 +1307,9 @@ class Sprite {
     set x(value: number) {
         this._x = value
 
-        if (this.collider instanceof Collider) {
-            this.updateColliderPosition();
+        const collider = this.collider;
+        if (collider) {
+            this.updateColliderPosition(collider);
         }
     }
 
@@ -1253,8 +1320,9 @@ class Sprite {
     set y(value: number) {
         this._y = value;
 
-        if (this.collider instanceof Collider) {
-            this.updateColliderPosition();
+        const collider = this.collider;
+        if (collider) {
+            this.updateColliderPosition(collider);
         }
     }
 
@@ -1317,30 +1385,35 @@ class Sprite {
     }
 
     get rightX(): number {
-        return this.sourceX + this.width / 2 + this.collider.center_offset_x * this.size / 100;
+        const collider = this.collider;
+
+        return this.sourceX + this.width / 2 + (collider ? collider.center_offset_x * this.size / 100 : 0);
     }
 
     get leftX(): number {
-        return this.sourceX - this.width / 2 + this.collider.center_offset_x * this.size / 100;
+        const collider = this.collider;
+
+        return this.sourceX - this.width / 2 + (collider ? collider.center_offset_x * this.size / 100 : 0);
     }
 
     get topY(): number {
-        return this.sourceY - this.height / 2 + this.collider.center_offset_y * this.size / 100;
+        const collider = this.collider;
+
+        return this.sourceY - this.height / 2 + (collider ? collider.center_offset_y * this.size / 100 : 0);
     }
 
     get bottomY(): number {
-        return this.sourceY + this.height / 2 + this.collider.center_offset_y * this.size / 100;
+        const collider = this.collider;
+
+        return this.sourceY + this.height / 2 + (collider ? collider.center_offset_y * this.size / 100 : 0);
     }
 
     set size(value: number) {
         this._size = value;
 
-        if (this.collider instanceof PolygonCollider) {
-            this.collider.scale_x = this._size / 100;
-            this.collider.scale_y = this._size / 100;
-
-        } else if (this.collider instanceof CircleCollider) {
-            this.collider.scale = this._size / 100;
+        const collider = this.collider;
+        if (collider) {
+            this.updateColliderSize(collider);
         }
     }
 
@@ -1442,37 +1515,6 @@ class Sprite {
             return null;
         }
         return this.collisionResult.b.parentSprite.getMainSprite();
-    }
-
-    set colliderOffsetX(value){
-        this._colliderOffsetX = value;
-        if (this.collider) {
-            this.collider.offset_x = value;
-            this.updateColliderPosition()
-        }
-    }
-
-    get colliderOffsetX(){
-        if (this.collider) {
-            return this.collider.offset_x;
-        }
-
-        return this._colliderOffsetX;
-    }
-
-    set colliderOffsetY(value){
-        this._colliderOffsetY = value;
-        if (this.collider) {
-            this.collider.offset_y = value;
-            this.updateColliderPosition()
-        }
-    }
-
-    get colliderOffsetY(){
-        if (this.collider) {
-            return this.collider.offset_y;
-        }
-        return 0;
     }
 
     set parent(newParent) {
@@ -1651,22 +1693,16 @@ class Sprite {
     }
 
     cloneCollider(sprite: Sprite): void {
-        if (!sprite.collider) {
-            return null
+        const colliders = sprite.getColliders();
+        for (const [colliderName, sourceCollider] of colliders) {
+            if (sourceCollider instanceof CircleCollider) {
+                this.setCircleCollider(colliderName, sourceCollider.radius, sourceCollider.offset_x, sourceCollider.offset_y);
+            }
+
+            if (sourceCollider instanceof PolygonCollider) {
+                this.setPolygonCollider(colliderName, sourceCollider.points, sourceCollider.offset_x, sourceCollider.offset_y);
+            }
         }
-
-        const sourceCollider = sprite.getCollider();
-
-        if (sourceCollider instanceof CircleCollider) {
-            this.setCircleCollider(sourceCollider.radius);
-        }
-
-        if (sourceCollider instanceof PolygonCollider) {
-            this.setPolygonCollider(sourceCollider.points);
-        }
-
-        this.collider.offset_x = sprite.collider.offset_x;
-        this.collider.offset_y = sprite.collider.offset_y;
     }
 
     private tryDoOnReady() {
@@ -1677,8 +1713,19 @@ class Sprite {
                 this.switchCostume(0);
             }
 
-            if (!this.collider && !this.colliderNone && this.costumes.length) {
-                this.setColliderFromCostume(this.costumes[0]);
+            if (!this.defaultColliderNone && this.colliders.size === 0 && this.costumes.length) {
+                const colliderName = 'main';
+                this.setCostumeCollider(colliderName, 0);
+                this.switchCollider(colliderName);
+                this.updateColliderPosition(this.collider);
+                this.updateColliderSize(this.collider);
+            }
+
+            if (!this.collider && this.colliders.size) {
+                const colliderName = this.colliders.keys().next().value;
+                this.switchCollider(colliderName);
+                this.updateColliderPosition(this.collider);
+                this.updateColliderSize(this.collider);
             }
 
             if (this.onReadyCallbacks.length) {
@@ -1693,15 +1740,6 @@ class Sprite {
                 stageId: this.stage.id
             });
         }
-    }
-
-    private setColliderFromCostume(costume: Costume) {
-        this.setRectCollider(
-            costume.width,
-            costume.height
-        );
-
-        this.updateColliderPosition();
     }
 
     private calculateCentroid(points: [number, number][]): { x: number; y: number } {
@@ -1743,9 +1781,23 @@ class Sprite {
         this._centerAngle = -Math.atan2(-this._centerOffsetY , -this._centerOffsetX);
     }
 
-    updateColliderPosition(): void {
-            this.collider.x = this.sourceX + this.collider.center_offset_x * this.size / 100;
-            this.collider.y = this.sourceY + this.collider.center_offset_y * this.size / 100;
+    private updateColliderPosition(collider: Collider): void {
+        collider.x = this.sourceX + collider.center_offset_x * this.size / 100;
+        collider.y = this.sourceY + collider.center_offset_y * this.size / 100;
+    }
+
+    private updateColliderSize(collider: Collider): void {
+        if (collider instanceof PolygonCollider) {
+            collider.scale_x = this.size / 100;
+            collider.scale_y = this.size / 100;
+
+        } else if (collider instanceof CircleCollider) {
+            collider.scale = this.size / 100;
+        }
+    }
+
+    private getColliders(): IterableIterator<[string, Collider]> {
+        return this.colliders.entries();
     }
 
     getMainSprite(){

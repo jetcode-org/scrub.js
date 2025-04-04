@@ -35,7 +35,7 @@ class PolygonCollider extends Collider {
     protected _normals = null;
     protected _dirty_coords = true;
     protected _dirty_normals = true;
-	protected _origin_points = null;
+	  protected _origin_points = null;
 
 	/**
 	 * @constructor

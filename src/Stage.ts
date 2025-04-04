@@ -42,7 +42,6 @@ class Stage {
         stage.id = Symbol();
         stage.eventEmitter = new EventEmitter();
 
-
         stage.collisionSystem = new CollisionSystem();
         stage.canvas = stage.game.canvas;
         stage.context = stage.game.context;
