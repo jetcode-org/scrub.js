@@ -320,7 +320,7 @@ class Stage {
         const dstY = sprite.imageCenterY - sprite.sourceHeight / 2;
         const dstWidth = sprite.sourceWidth;
         const dstHeight = sprite.sourceHeight;
-        const direction = sprite.absoluteDirection;
+        const direction = sprite.globalDirection;
         const rotateStyle = sprite.rotateStyle;
         let colliderOffsetX = (sprite.sourceWidth - costume.width * sprite.size / 100) / 2;
         let colliderOffsetY = (sprite.sourceHeight - costume.height * sprite.size / 100) / 2;
@@ -345,7 +345,7 @@ class Stage {
 
         if (rotateStyle === 'normal' && direction !== 0) {
             this.context.translate(dstX + dstWidth / 2, dstY + dstHeight / 2);
-            this.context.rotate(sprite.absoluteAngleRadians);
+            this.context.rotate(sprite.globalAngleRadians);
             this.context.translate(-dstX - dstWidth / 2, -dstY - dstHeight / 2);
         }
 
@@ -498,10 +498,10 @@ class Stage {
                             this.context.fillText("yOffset: " + sprite.pivotOffsetY, x, y);
                             // this.context.font = '40px Arial';
                             this.context.beginPath();
-                            this.context.moveTo(sprite.absoluteX - 2, sprite.absoluteY);
-                            this.context.lineTo(sprite.absoluteX + 2, sprite.absoluteY);
-                            this.context.moveTo(sprite.absoluteX, sprite.absoluteY - 2);
-                            this.context.lineTo(sprite.absoluteX, sprite.absoluteY + 2);
+                            this.context.moveTo(sprite.globalX - 2, sprite.globalY);
+                            this.context.lineTo(sprite.globalX + 2, sprite.globalY);
+                            this.context.moveTo(sprite.globalX, sprite.globalY - 2);
+                            this.context.lineTo(sprite.globalX, sprite.globalY + 2);
                             this.context.stroke()
                         };
 

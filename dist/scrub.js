@@ -1268,7 +1268,7 @@ var Sprite = (function () {
         return this._children;
     };
     Sprite.prototype.move = function (steps) {
-        var angleRadians = this.absoluteAngleRadians;
+        var angleRadians = this.globalAngleRadians;
         this.x += (steps * Math.sin(angleRadians));
         this.y -= (steps * Math.cos(angleRadians));
     };
@@ -1664,14 +1664,14 @@ var Sprite = (function () {
         return false;
     };
     Sprite.prototype.pointForward = function (object) {
-        var absoluteX = object.absoluteX ? object.absoluteX : object.x;
-        var absoluteY = object.absoluteY ? object.absoluteY : object.y;
-        this.direction = (Math.atan2(this.absoluteY - absoluteY, this.absoluteX - absoluteX) / Math.PI * 180) - 90;
+        var globalX = object.globalX ? object.globalX : object.x;
+        var globalY = object.globalY ? object.globalY : object.y;
+        this.direction = (Math.atan2(this.globalY - globalY, this.globalX - globalX) / Math.PI * 180) - 90;
     };
     Sprite.prototype.getDistanceTo = function (object) {
-        var absoluteX = object.absoluteX ? object.absoluteX : object.x;
-        var absoluteY = object.absoluteY ? object.absoluteY : object.y;
-        return Math.sqrt((Math.abs(this.absoluteX - absoluteX)) + (Math.abs(this.absoluteY - absoluteY)));
+        var globalX = object.globalX ? object.globalX : object.x;
+        var globalY = object.globalY ? object.globalY : object.y;
+        return Math.sqrt((Math.abs(this.globalX - globalX)) + (Math.abs(this.globalY - globalY)));
     };
     Sprite.prototype.say = function (text, time) {
         if (time === void 0) { time = null; }
@@ -1903,7 +1903,7 @@ var Sprite = (function () {
         if (offsetY === void 0) { offsetY = 0; }
         var angle = 0;
         if (this._rotateStyle != 'leftRight') {
-            angle = this.absoluteAngleRadians;
+            angle = this.globalAngleRadians;
         }
         var collider = new PolygonCollider(this.x, this.y, [
             [(width / 2) * -1, (height / 2) * -1],
@@ -1922,7 +1922,7 @@ var Sprite = (function () {
         if (offsetY === void 0) { offsetY = 0; }
         var angleRadians = 0;
         if (this._rotateStyle != 'leftRight') {
-            angleRadians = this.absoluteAngleRadians;
+            angleRadians = this.globalAngleRadians;
         }
         var centroid = this.calculateCentroid(points);
         var centeredPoints = points.map(function (point) { return [
@@ -2255,7 +2255,7 @@ var Sprite = (function () {
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(Sprite.prototype, "absoluteDirection", {
+    Object.defineProperty(Sprite.prototype, "globalDirection", {
         get: function () {
             return this._parentSprite ? this._parentSprite.direction + this.direction : this.direction;
         },
@@ -2272,9 +2272,9 @@ var Sprite = (function () {
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(Sprite.prototype, "absoluteAngleRadians", {
+    Object.defineProperty(Sprite.prototype, "globalAngleRadians", {
         get: function () {
-            return this.absoluteDirection * Math.PI / 180;
+            return this.globalDirection * Math.PI / 180;
         },
         enumerable: false,
         configurable: true
@@ -2296,7 +2296,7 @@ var Sprite = (function () {
     Object.defineProperty(Sprite.prototype, "width", {
         get: function () {
             if (this.collider instanceof PolygonCollider) {
-                var angleRadians = this.absoluteAngleRadians;
+                var angleRadians = this.globalAngleRadians;
                 return Math.abs(this.sourceWidth * Math.cos(angleRadians)) + Math.abs(this.sourceHeight * Math.sin(angleRadians));
             }
             return this.sourceWidth;
@@ -2307,7 +2307,7 @@ var Sprite = (function () {
     Object.defineProperty(Sprite.prototype, "height", {
         get: function () {
             if (this.collider instanceof PolygonCollider) {
-                var angleRadians = this.absoluteAngleRadians;
+                var angleRadians = this.globalAngleRadians;
                 return Math.abs(this.sourceWidth * Math.sin(angleRadians)) + Math.abs(this.sourceHeight * Math.cos(angleRadians));
             }
             return this.sourceHeight;
@@ -2385,9 +2385,9 @@ var Sprite = (function () {
         get: function () {
             if (this._rotateStyle === 'leftRight' || this._rotateStyle === 'none') {
                 var leftRightMultiplier = this._direction > 180 && this._rotateStyle === 'leftRight' ? -1 : 1;
-                return this.absoluteX - this._pivotOffsetX * leftRightMultiplier * this.size / 100;
+                return this.globalX - this._pivotOffsetX * leftRightMultiplier * this.size / 100;
             }
-            return this.absoluteX + Math.cos(this._centerAngle - this.absoluteAngleRadians) * this._centerDistance * this.size / 100;
+            return this.globalX + Math.cos(this._centerAngle - this.globalAngleRadians) * this._centerDistance * this.size / 100;
         },
         enumerable: false,
         configurable: true
@@ -2395,9 +2395,9 @@ var Sprite = (function () {
     Object.defineProperty(Sprite.prototype, "imageCenterY", {
         get: function () {
             if (this._rotateStyle === 'leftRight' || this._rotateStyle === 'none') {
-                return this.absoluteY - this._pivotOffsetY * this.size / 100;
+                return this.globalY - this._pivotOffsetY * this.size / 100;
             }
-            return this.absoluteY - Math.sin(this._centerAngle - this.absoluteAngleRadians) * this._centerDistance * this.size / 100;
+            return this.globalY - Math.sin(this._centerAngle - this.globalAngleRadians) * this._centerDistance * this.size / 100;
         },
         enumerable: false,
         configurable: true
@@ -2416,27 +2416,27 @@ var Sprite = (function () {
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(Sprite.prototype, "absoluteX", {
+    Object.defineProperty(Sprite.prototype, "globalX", {
         get: function () {
             if (this._parentSprite) {
                 if (this._rotateStyle === 'leftRight' || this._rotateStyle === 'none') {
                     var leftRightMultiplier = this._direction > 180 && this._rotateStyle === 'leftRight' ? -1 : 1;
                     return this._parentSprite.imageCenterX + this._x * leftRightMultiplier * this.size / 100;
                 }
-                return this._parentSprite.imageCenterX + this.distanceToParent * Math.cos(this.angleToParent - this._parentSprite.absoluteAngleRadians) * this.size / 100;
+                return this._parentSprite.imageCenterX + this.distanceToParent * Math.cos(this.angleToParent - this._parentSprite.globalAngleRadians) * this.size / 100;
             }
             return this._x;
         },
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(Sprite.prototype, "absoluteY", {
+    Object.defineProperty(Sprite.prototype, "globalY", {
         get: function () {
             if (this._parentSprite) {
                 if (this._rotateStyle === 'leftRight' || this._rotateStyle === 'none') {
                     return this._parentSprite.imageCenterY + this._y;
                 }
-                return this._parentSprite.imageCenterY - this.distanceToParent * Math.sin(this.angleToParent - this._parentSprite.absoluteAngleRadians) * this.size / 100;
+                return this._parentSprite.imageCenterY - this.distanceToParent * Math.sin(this.angleToParent - this._parentSprite.globalAngleRadians) * this.size / 100;
             }
             return this._y;
         },
@@ -2938,7 +2938,7 @@ var Sprite = (function () {
                 collider.angle = 0;
             }
             else {
-                collider.angle = this.absoluteAngleRadians;
+                collider.angle = this.globalAngleRadians;
             }
         }
         if (collider) {
@@ -4001,7 +4001,7 @@ var Stage = (function () {
         var dstY = sprite.imageCenterY - sprite.sourceHeight / 2;
         var dstWidth = sprite.sourceWidth;
         var dstHeight = sprite.sourceHeight;
-        var direction = sprite.absoluteDirection;
+        var direction = sprite.globalDirection;
         var rotateStyle = sprite.rotateStyle;
         var colliderOffsetX = (sprite.sourceWidth - costume.width * sprite.size / 100) / 2;
         var colliderOffsetY = (sprite.sourceHeight - costume.height * sprite.size / 100) / 2;
@@ -4020,7 +4020,7 @@ var Stage = (function () {
         }
         if (rotateStyle === 'normal' && direction !== 0) {
             this.context.translate(dstX + dstWidth / 2, dstY + dstHeight / 2);
-            this.context.rotate(sprite.absoluteAngleRadians);
+            this.context.rotate(sprite.globalAngleRadians);
             this.context.translate(-dstX - dstWidth / 2, -dstY - dstHeight / 2);
         }
         if (rotateStyle === 'leftRight' && direction > 180) {
@@ -4129,10 +4129,10 @@ var Stage = (function () {
                                 y += 20;
                                 _this.context.fillText("yOffset: " + sprite.pivotOffsetY, x, y);
                                 _this.context.beginPath();
-                                _this.context.moveTo(sprite.absoluteX - 2, sprite.absoluteY);
-                                _this.context.lineTo(sprite.absoluteX + 2, sprite.absoluteY);
-                                _this.context.moveTo(sprite.absoluteX, sprite.absoluteY - 2);
-                                _this.context.lineTo(sprite.absoluteX, sprite.absoluteY + 2);
+                                _this.context.moveTo(sprite.globalX - 2, sprite.globalY);
+                                _this.context.lineTo(sprite.globalX + 2, sprite.globalY);
+                                _this.context.moveTo(sprite.globalX, sprite.globalY - 2);
+                                _this.context.lineTo(sprite.globalX, sprite.globalY + 2);
                                 _this.context.stroke();
                             };
                             if (this_1.game.debugMode === 'hover') {
@@ -4853,7 +4853,7 @@ var Collider = (function () {
                 var leftRightMultiplier = this._parent_sprite._direction > 180 && this._parent_sprite.rotateStyle === 'leftRight' ? -1 : 1;
                 return this._parent_sprite.collider._offset_x * leftRightMultiplier;
             }
-            return this._center_distance * Math.cos(this._center_angle - this._parent_sprite.absoluteAngleRadians);
+            return this._center_distance * Math.cos(this._center_angle - this._parent_sprite.globalAngleRadians);
         },
         enumerable: false,
         configurable: true
@@ -4863,7 +4863,7 @@ var Collider = (function () {
             if (this._parent_sprite.rotateStyle === 'leftRight' || this._parent_sprite.rotateStyle === 'none') {
                 return -this._parent_sprite.collider._offset_y;
             }
-            return -this._center_distance * Math.sin(this._center_angle - this._parent_sprite.absoluteAngleRadians);
+            return -this._center_distance * Math.sin(this._center_angle - this._parent_sprite.globalAngleRadians);
         },
         enumerable: false,
         configurable: true

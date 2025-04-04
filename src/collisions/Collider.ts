@@ -135,7 +135,7 @@ class Collider {
 					return this._parent_sprite.collider._offset_x * leftRightMultiplier;
 			}
 
-			return this._center_distance * Math.cos(this._center_angle - this._parent_sprite.absoluteAngleRadians);
+			return this._center_distance * Math.cos(this._center_angle - this._parent_sprite.globalAngleRadians);
 		}
 
 		get center_offset_y(){
@@ -143,7 +143,7 @@ class Collider {
 						return -this._parent_sprite.collider._offset_y;
 				}
 
-				return -this._center_distance * Math.sin(this._center_angle - this._parent_sprite.absoluteAngleRadians);
+				return -this._center_distance * Math.sin(this._center_angle - this._parent_sprite.globalAngleRadians);
 		}
 
 		/**
