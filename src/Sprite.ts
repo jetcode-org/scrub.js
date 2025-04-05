@@ -510,7 +510,10 @@ class Sprite {
             child.layer = this.layer;
             child.x = 0;
             child.y = 0;
-            child.direction = this.direction;
+            child.direction = 0;
+            for (const tag of this.tags){
+                child.addTag(tag);
+            }
         }
 
         child.parent = this;
@@ -525,6 +528,9 @@ class Sprite {
             const child = this._children[foundChildIndex];
 
             child.parent = null;
+            for (const tag of this.tags){
+                child.removeTag(tag);
+            }
             this._children.splice(foundChildIndex, 1);
         }
 
@@ -536,7 +542,7 @@ class Sprite {
     }
 
     move(steps): void {
-        const angleRadians = this.angleRadians;
+        const angleRadians = this.globalAngleRadians;
 
         this.x += (steps * Math.sin(angleRadians));
         this.y -= (steps * Math.cos(angleRadians));
@@ -574,16 +580,16 @@ class Sprite {
             return true;
         }
 
-        if (!checkChildren) {
-            return false;
-        }
-
         if (collider) {
             for (const otherChild of sprite.getChildren()) {
                 if (this.touchSprite(otherChild, false)) {
                     return true
                 }
             }
+        }
+
+        if (!checkChildren) {
+            return false;
         }
 
         for (const child of this._children) {
@@ -886,17 +892,17 @@ class Sprite {
     }
 
     pointForward(object): void {
-        let absoluteX = object.absoluteX ? object.absoluteX : object.x;
-        let absoluteY = object.absoluteY ? object.absoluteY : object.y;
+        let globalX = object.globalX ? object.globalX : object.x;
+        let globalY = object.globalY ? object.globalY : object.y;
 
-        this.direction = (Math.atan2(this.absoluteY - absoluteY , this.absoluteX - absoluteX) / Math.PI * 180) - 90
+        this.globalDirection = (Math.atan2(this.globalY - globalY , this.globalX - globalX) / Math.PI * 180) - 90
     }
 
     getDistanceTo(object): number {
-        let absoluteX = object.absoluteX ? object.absoluteX : object.x;
-        let absoluteY = object.absoluteY ? object.absoluteY : object.y;
+        let globalX = object.globalX ? object.globalX : object.x;
+        let globalY = object.globalY ? object.globalY : object.y;
 
-        return Math.sqrt((Math.abs(this.absoluteX - absoluteX)) + (Math.abs(this.absoluteY - absoluteY)));
+        return Math.sqrt((Math.abs(this.globalX - globalX)) + (Math.abs(this.globalY - globalY)));
     }
 
     say(text, time = null): void {
@@ -977,6 +983,7 @@ class Sprite {
 
             childClone.x = child.x;
             childClone.y = child.y;
+            childClone.direction = child.direction;
         }
 
         clone.ready();
@@ -1037,6 +1044,10 @@ class Sprite {
         this.removeCollider();
         this.scheduledCallbackExecutor = null;
 
+        for (const child of this._children) {
+            child.delete();
+        }
+
         let props = Object.keys(this);
         for (let i = 0; i < props.length; i++) {
             delete this[props[i]];
@@ -1049,10 +1060,6 @@ class Sprite {
         this.onReadyCallbacks = [];
         this.scheduledCallbacks = [];
         this._children = [];
-
-        for (const child of this._children) {
-            child.delete();
-        }
 
         this._deleted = true;
     }
@@ -1141,7 +1148,7 @@ class Sprite {
     setRectCollider(colliderName: string, width: number, height: number, offsetX = 0,  offsetY = 0): this {
         let angle = 0;
         if (this._rotateStyle != 'leftRight') {
-            angle = this.direction * 3.14 / 180; // to radian
+            angle = this.globalAngleRadians; // to radian
         }
 
         const collider = new PolygonCollider(this.x, this.y, [
@@ -1162,7 +1169,7 @@ class Sprite {
     setPolygonCollider(colliderName: string, points: [number, number][] = [], offsetX = 0,  offsetY = 0): this {
         let angleRadians = 0;
         if (this._rotateStyle != 'leftRight') {
-            angleRadians = this.angleRadians;
+            angleRadians = this.globalAngleRadians;
         }
 
         const centroid = this.calculateCentroid(points);
@@ -1439,27 +1446,23 @@ class Sprite {
 
         this._direction = (direction > 360) ? direction - 360 : direction;
 
-        const collider = this.collider;
-        if (collider instanceof PolygonCollider) {
-            if (this._rotateStyle == 'leftRight') {
-                collider.angle = 0; // to radian
-
-            } else {
-                collider.angle = this._direction * 3.14 / 180; // to radian
-            }
-        }
-
-        if (collider) {
-            this.updateColliderPosition(collider);
-        }
+        this.updateColliderAngle()
 
         for (const child of this._children) {
-            child.direction = direction;
+            child.updateColliderAngle()
         }
     }
 
     get direction(): number {
         return this._direction;
+    }
+
+    set globalDirection(value) {
+        this.direction = this._parentSprite ? value - this._parentSprite.direction : value;
+    }
+
+    get globalDirection(): number{
+        return this._parentSprite ? this._parentSprite.direction + this.direction : this.direction;
     }
 
     set defaultColliderNone (colliderNone: boolean) {
@@ -1470,8 +1473,8 @@ class Sprite {
         return this._defaultColliderNone;
     }
 
-    get angleRadians(): number {
-        return this._direction * Math.PI / 180;
+    get globalAngleRadians(): number {
+        return this.globalDirection * Math.PI / 180;
     }
 
     get sourceWidth(): number {
@@ -1484,7 +1487,7 @@ class Sprite {
 
     get width(): number {
         if (this.collider instanceof PolygonCollider) {
-            const angleRadians = this.angleRadians;
+            const angleRadians = this.globalAngleRadians;
 
             return Math.abs(this.sourceWidth * Math.cos(angleRadians)) + Math.abs(this.sourceHeight * Math.sin(angleRadians));
         }
@@ -1494,7 +1497,7 @@ class Sprite {
 
     get height(): number {
         if (this.collider instanceof PolygonCollider) {
-            const angleRadians = this.angleRadians;
+            const angleRadians = this.globalAngleRadians;
 
             return Math.abs(this.sourceWidth * Math.sin(angleRadians)) + Math.abs(this.sourceHeight * Math.cos(angleRadians));
         }
@@ -1548,22 +1551,22 @@ class Sprite {
         return this._y;
     }
 
-    get sourceX() {
+    get imageCenterX() {
         if (this._rotateStyle === 'leftRight' || this._rotateStyle === 'none') {
             const leftRightMultiplier = this._direction > 180 && this._rotateStyle === 'leftRight' ? -1 : 1;
 
-            return this.absoluteX - this._pivotOffsetX * leftRightMultiplier * this.size / 100;
+            return this.globalX - this._pivotOffsetX * leftRightMultiplier * this.size / 100;
         }
 
-        return this.absoluteX + Math.cos(this._centerAngle - this.angleRadians) * this._centerDistance * this.size / 100;
+        return this.globalX + Math.cos(this._centerAngle - this.globalAngleRadians) * this._centerDistance * this.size / 100;
     }
 
-    get sourceY() {
+    get imageCenterY() {
         if (this._rotateStyle === 'leftRight' || this._rotateStyle === 'none') {
-            return this.absoluteY - this._pivotOffsetY * this.size / 100;
+            return this.globalY - this._pivotOffsetY * this.size / 100;
         }
 
-        return this.absoluteY - Math.sin(this._centerAngle - this.angleRadians) * this._centerDistance * this.size / 100;
+        return this.globalY - Math.sin(this._centerAngle - this.globalAngleRadians) * this._centerDistance * this.size / 100;
     }
 
     get realX(): number {
@@ -1574,27 +1577,27 @@ class Sprite {
         return this.y - this.height / 2;
     }
 
-    get absoluteX() {
+    get globalX() {
         if (this._parentSprite) {
             if (this._rotateStyle === 'leftRight' || this._rotateStyle === 'none') {
                 const leftRightMultiplier = this._direction > 180 && this._rotateStyle === 'leftRight' ? -1 : 1;
 
-                return this._parentSprite.absoluteX + this._x * leftRightMultiplier * this.size / 100;
+                return this._parentSprite.imageCenterX + this._x * leftRightMultiplier * this.size / 100;
             }
 
-            return this._parentSprite.absoluteX + this.distanceToParent * Math.cos(this.angleToParent - this._parentSprite.angleRadians) * this.size / 100;
+            return this._parentSprite.imageCenterX + this.distanceToParent * Math.cos(this.angleToParent - this._parentSprite.globalAngleRadians) * this.size / 100;
         }
 
         return this._x;
     }
 
-    get absoluteY() {
+    get globalY() {
         if (this._parentSprite) {
             if (this._rotateStyle === 'leftRight' || this._rotateStyle === 'none') {
-                return this._parentSprite.absoluteY + this._y;
+                return this._parentSprite.imageCenterY + this._y;
             }
 
-            return this._parentSprite.absoluteY - this.distanceToParent * Math.sin(this.angleToParent - this._parentSprite.angleRadians) * this.size / 100;
+            return this._parentSprite.imageCenterY - this.distanceToParent * Math.sin(this.angleToParent - this._parentSprite.globalAngleRadians) * this.size / 100;
         }
 
         return this._y;
@@ -1603,25 +1606,25 @@ class Sprite {
     get rightX(): number {
         const collider = this.collider;
 
-        return this.sourceX + this.width / 2 + (collider ? collider.center_offset_x * this.size / 100 : 0);
+        return this.imageCenterX + this.width / 2 + (collider ? collider.center_offset_x * this.size / 100 : 0);
     }
 
     get leftX(): number {
         const collider = this.collider;
 
-        return this.sourceX - this.width / 2 + (collider ? collider.center_offset_x * this.size / 100 : 0);
+        return this.imageCenterX - this.width / 2 + (collider ? collider.center_offset_x * this.size / 100 : 0);
     }
 
     get topY(): number {
         const collider = this.collider;
 
-        return this.sourceY - this.height / 2 + (collider ? collider.center_offset_y * this.size / 100 : 0);
+        return this.imageCenterY - this.height / 2 + (collider ? collider.center_offset_y * this.size / 100 : 0);
     }
 
     get bottomY(): number {
         const collider = this.collider;
 
-        return this.sourceY + this.height / 2 + (collider ? collider.center_offset_y * this.size / 100 : 0);
+        return this.imageCenterY + this.height / 2 + (collider ? collider.center_offset_y * this.size / 100 : 0);
     }
 
     set size(value: number) {
@@ -2027,8 +2030,24 @@ class Sprite {
     }
 
     private updateColliderPosition(collider: Collider): void {
-        collider.x = this.sourceX + collider.center_offset_x * this.size / 100;
-        collider.y = this.sourceY + collider.center_offset_y * this.size / 100;
+        collider.x = this.imageCenterX + collider.center_offset_x * this.size / 100;
+        collider.y = this.imageCenterY + collider.center_offset_y * this.size / 100;
+    }
+
+    updateColliderAngle() {
+        const collider = this.collider;
+        if (collider instanceof PolygonCollider) {
+            if (this._rotateStyle == 'leftRight') {
+                collider.angle = 0; // to radian
+
+            } else {
+                collider.angle = this.globalAngleRadians; // to radian
+            }
+        }
+
+        if (collider) {
+            this.updateColliderPosition(collider);
+        }
     }
 
     private updateColliderSize(collider: Collider): void {

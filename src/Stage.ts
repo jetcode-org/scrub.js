@@ -316,11 +316,11 @@ class Stage {
     drawSprite(sprite: Sprite): void {
         const costume = sprite.getCostume();
         const image = costume.image;
-        const dstX = sprite.sourceX - sprite.sourceWidth / 2;
-        const dstY = sprite.sourceY - sprite.sourceHeight / 2;
+        const dstX = sprite.imageCenterX - sprite.sourceWidth / 2;
+        const dstY = sprite.imageCenterY - sprite.sourceHeight / 2;
         const dstWidth = sprite.sourceWidth;
         const dstHeight = sprite.sourceHeight;
-        const direction = sprite.direction;
+        const direction = sprite.globalDirection;
         const rotateStyle = sprite.rotateStyle;
         let colliderOffsetX = (sprite.sourceWidth - costume.width * sprite.size / 100) / 2;
         let colliderOffsetY = (sprite.sourceHeight - costume.height * sprite.size / 100) / 2;
@@ -345,7 +345,7 @@ class Stage {
 
         if (rotateStyle === 'normal' && direction !== 0) {
             this.context.translate(dstX + dstWidth / 2, dstY + dstHeight / 2);
-            this.context.rotate(sprite.angleRadians);
+            this.context.rotate(sprite.globalAngleRadians);
             this.context.translate(-dstX - dstWidth / 2, -dstY - dstHeight / 2);
         }
 
@@ -475,8 +475,8 @@ class Stage {
                     if (this.game.debugMode !== 'none') {
                         const fn = () => {
 
-                            const x = sprite.sourceX - (this.context.measureText(sprite.name).width / 2);
-                            let y = sprite.sourceY + sprite.height + 20;
+                            const x = sprite.imageCenterX - (this.context.measureText(sprite.name).width / 2);
+                            let y = sprite.imageCenterY + sprite.height + 20;
 
                             this.context.fillStyle = this.game.debugColor;
 
@@ -498,10 +498,10 @@ class Stage {
                             this.context.fillText("yOffset: " + sprite.pivotOffsetY, x, y);
                             // this.context.font = '40px Arial';
                             this.context.beginPath();
-                            this.context.moveTo(sprite.absoluteX - 2, sprite.absoluteY);
-                            this.context.lineTo(sprite.absoluteX + 2, sprite.absoluteY);
-                            this.context.moveTo(sprite.absoluteX, sprite.absoluteY - 2);
-                            this.context.lineTo(sprite.absoluteX, sprite.absoluteY + 2);
+                            this.context.moveTo(sprite.globalX - 2, sprite.globalY);
+                            this.context.lineTo(sprite.globalX + 2, sprite.globalY);
+                            this.context.moveTo(sprite.globalX, sprite.globalY - 2);
+                            this.context.lineTo(sprite.globalX, sprite.globalY + 2);
                             this.context.stroke()
                         };
 
