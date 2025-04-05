@@ -23,12 +23,12 @@ class JetcodeSocket {
             'LobbyAutoCreate': true,
             'MaxMembers': 2,
             'MinMembers': 2,
-            'StartGameWithMembers' : 2
+            'StartGameWithMembers': 2
         }
     }
 
     connect(gameToken, lobbyId = null, inParameters = {}) {
-        const parameters = { ...this.defaultParameters, ...inParameters};
+        const parameters = {...this.defaultParameters, ...inParameters};
 
         return new Promise((resolve, reject) => {
             this.socket = new WebSocket(this.socketUrl);

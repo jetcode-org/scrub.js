@@ -2,7 +2,8 @@ class Registry {
     private static instance: Registry;
     private data = {};
 
-    private constructor() {}
+    private constructor() {
+    }
 
     public static getInstance(): Registry {
         if (!this.instance) {
