@@ -1,76 +1,76 @@
 class EventEmitter {
-  private eventTarget: EventTarget;
-  private callbacksMap = new Map<string, {type: string, callback: EventListenerOrEventListenerObject}>();
+    private eventTarget: EventTarget;
+    private callbacksMap = new Map<string, { type: string, callback: EventListenerOrEventListenerObject }>();
 
-  constructor() {
-    this.eventTarget = new EventTarget();
-  }
-
-  once(name: string, type: string, callback: EventListenerOrEventListenerObject): boolean {
-    if (this.callbacksMap.get(name)) {
-      return false;
+    constructor() {
+        this.eventTarget = new EventTarget();
     }
 
-    const wrapper: EventListener = (event) => {
-      if (typeof callback === 'function') {
-        callback(event);
+    once(name: string, type: string, callback: EventListenerOrEventListenerObject): boolean {
+        if (this.callbacksMap.get(name)) {
+            return false;
+        }
 
-      } else {
-        callback.handleEvent(event);
-      }
+        const wrapper: EventListener = (event) => {
+            if (typeof callback === 'function') {
+                callback(event);
 
-      this.eventTarget.removeEventListener(type, wrapper);
-      this.remove(name);
-    };
+            } else {
+                callback.handleEvent(event);
+            }
 
-    this.eventTarget.addEventListener(type, wrapper);
-    this.callbacksMap.set(name, {type, callback: wrapper});
+            this.eventTarget.removeEventListener(type, wrapper);
+            this.remove(name);
+        };
 
-    return true;
-  }
+        this.eventTarget.addEventListener(type, wrapper);
+        this.callbacksMap.set(name, {type, callback: wrapper});
 
-  on(name: string, type: string, callback: EventListenerOrEventListenerObject): boolean {
-    if (this.callbacksMap.get(name)) {
-      return false;
+        return true;
     }
 
-    this.eventTarget.addEventListener(type, callback);
-    this.callbacksMap.set(name, {type, callback});
+    on(name: string, type: string, callback: EventListenerOrEventListenerObject): boolean {
+        if (this.callbacksMap.get(name)) {
+            return false;
+        }
 
-    return true;
-  }
+        this.eventTarget.addEventListener(type, callback);
+        this.callbacksMap.set(name, {type, callback});
 
-  emit(type: string, detail: any) {
-    this.eventTarget.dispatchEvent(new CustomEvent(type, { detail }));
-  }
-
-  remove(name: string): boolean {
-    const item = this.callbacksMap.get(name);
-
-    if (!item) {
-      return false;
+        return true;
     }
 
-    this.eventTarget.removeEventListener(item.type, item.callback);
-    this.callbacksMap.delete(name);
+    emit(type: string, detail: any): void {
+        this.eventTarget.dispatchEvent(new CustomEvent(type, {detail}));
+    }
 
-    return true;
-  }
+    remove(name: string): boolean {
+        const item = this.callbacksMap.get(name);
 
-  removeByType(type: string) {
-    this.callbacksMap.forEach((item, itemName) => {
-      if (type === item.type) {
+        if (!item) {
+            return false;
+        }
+
         this.eventTarget.removeEventListener(item.type, item.callback);
-        this.callbacksMap.delete(itemName);
-      }
-    });
-  }
+        this.callbacksMap.delete(name);
 
-  clearAll(): void {
-    this.callbacksMap.forEach(item => {
-      this.eventTarget.removeEventListener(item.type, item.callback);
-    });
+        return true;
+    }
 
-    this.callbacksMap.clear();
-  }
+    removeByType(type: string): void {
+        this.callbacksMap.forEach((item, itemName) => {
+            if (type === item.type) {
+                this.eventTarget.removeEventListener(item.type, item.callback);
+                this.callbacksMap.delete(itemName);
+            }
+        });
+    }
+
+    clearAll(): void {
+        this.callbacksMap.forEach(item => {
+            this.eventTarget.removeEventListener(item.type, item.callback);
+        });
+
+        this.callbacksMap.clear();
+    }
 }

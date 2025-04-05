@@ -13,12 +13,12 @@ class CollisionResult {
     /**
      * The source body tested
      */
-    a: CircleCollider|PolygonCollider|PointCollider = null;
+    a: CircleCollider | PolygonCollider | PointCollider = null;
 
     /**
      * The target body tested against
      */
-    b: CircleCollider|PolygonCollider|PointCollider = null;
+    b: CircleCollider | PolygonCollider | PointCollider = null;
 
     /**
      * True if A is completely contained within B

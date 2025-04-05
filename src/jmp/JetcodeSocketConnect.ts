@@ -1,6 +1,6 @@
 class JetcodeSocketConnection {
     socket: WebSocket;
-    lobbyId: string|number;
+    lobbyId: string | number;
     memberId: string;
     deltaTime: number;
 
@@ -77,7 +77,7 @@ class JetcodeSocketConnection {
         this.connects[action] = this.connects[action].filter(cb => cb !== callback);
     }
 
-    sendData(value, parameters={}) {
+    sendData(value, parameters = {}) {
         if (!this.lobbyId) {
             throw new Error('You are not in the lobby!');
         }
@@ -121,7 +121,7 @@ class JetcodeSocketConnection {
                     resolve(this.lobbyId);
 
                 } else {
-                    reject(new Error("Couldn't join the lobby"));
+                    reject(new Error('Couldn\'t join the lobby'));
                 }
             });
         });
@@ -158,7 +158,7 @@ class JetcodeSocketConnection {
                 parameters[parameter] = splitted.length > 1 ? splitted[1] : null;
 
             } else if (nextIs === 'value') {
-                value = value + line + "\n";
+                value = value + line + '\n';
             }
         }
 

@@ -117,10 +117,10 @@ class MultiplayerControl {
             const char = KeyboardMap.getChar(event.keyCode);
 
             if (
-              !this.userKeydownCallbacks.has(char) ||
-              this.systemLockedChars[char] === true ||
-              this.userLockedChars[char] === true ||
-              !this.trackedKeys.includes(char)
+                !this.userKeydownCallbacks.has(char) ||
+                this.systemLockedChars[char] === true ||
+                this.userLockedChars[char] === true ||
+                !this.trackedKeys.includes(char)
             ) {
                 return;
             }

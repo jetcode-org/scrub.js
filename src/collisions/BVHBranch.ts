@@ -19,33 +19,33 @@ class BVHBranch {
     protected _bvh_max_x = 0;
     protected _bvh_max_y = 0;
 
-	/**
-	 * Returns a branch from the branch pool or creates a new branch
-	 * @returns {BVHBranch}
-	 */
-	static getBranch() {
-		if(branch_pool.length) {
-			return branch_pool.pop();
-		}
+    /**
+     * Returns a branch from the branch pool or creates a new branch
+     * @returns {BVHBranch}
+     */
+    static getBranch() {
+        if (branch_pool.length) {
+            return branch_pool.pop();
+        }
 
-		return new BVHBranch();
-	}
+        return new BVHBranch();
+    }
 
-	/**
-	 * Releases a branch back into the branch pool
-	 * @param {BVHBranch} branch The branch to release
-	 */
-	static releaseBranch(branch) {
-		branch_pool.push(branch);
-	}
+    /**
+     * Releases a branch back into the branch pool
+     * @param {BVHBranch} branch The branch to release
+     */
+    static releaseBranch(branch) {
+        branch_pool.push(branch);
+    }
 
-	/**
-	 * Sorting callback used to sort branches by deepest first
-	 * @param {BVHBranch} a The first branch
-	 * @param {BVHBranch} b The second branch
-	 * @returns {Number}
-	 */
-	static sortBranches(a, b) {
-		return a.sort > b.sort ? -1 : 1;
-	}
+    /**
+     * Sorting callback used to sort branches by deepest first
+     * @param {BVHBranch} a The first branch
+     * @param {BVHBranch} b The second branch
+     * @returns {Number}
+     */
+    static sortBranches(a, b) {
+        return a.sort > b.sort ? -1 : 1;
+    }
 }

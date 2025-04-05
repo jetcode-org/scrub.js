@@ -1,6 +1,13 @@
-type DrawingCallbackFunction = (context: CanvasRenderingContext2D, object: Stage|Sprite) => void;
-type ScheduledCallbackFunction = (context: Stage|Sprite, state: ScheduledState) => boolean | void;
+type DrawingCallbackFunction = (context: CanvasRenderingContext2D, object: Stage | Sprite) => void;
+type ScheduledCallbackFunction = (context: Stage | Sprite, state: ScheduledState) => boolean | void;
 type Locale = 'ru' | 'en';
+
+type TransformableObject = {
+    x: number;
+    y: number;
+    globalX?: number;
+    globalY?: number;
+};
 
 type GridCostumeOptions = {
     cols: number,
@@ -71,7 +78,12 @@ class Game {
     private _displayErrors = true;
     private _locale = 'ru';
 
-    constructor(width: number = null, height: number = null, canvasId: string = null, displayErrors = true, locale: Locale = 'ru') {
+    constructor(width: number = null,
+                height: number = null,
+                canvasId: string = null,
+                displayErrors = true,
+                locale: Locale = 'ru'
+    ) {
         this._displayErrors = displayErrors;
         this._locale = locale;
         this.validatorFactory = new ValidatorFactory(this);
@@ -101,7 +113,7 @@ class Game {
             document.body.appendChild(game.canvas);
         }
 
-        game.canvas.width  = width;
+        game.canvas.width = width;
         game.canvas.height = height;
         game.styles = new Styles(game.canvas, width, height);
         game.mouse = new Mouse(game);
@@ -114,11 +126,13 @@ class Game {
         return game;
     }
 
-    addStage(stage: Stage) {
+    addStage(stage: Stage): this {
         this.stages.push(stage);
+
+        return this;
     }
 
-    getLastStage(): Stage|null {
+    getLastStage(): Stage | null {
         if (!this.stages.length) {
             return null;
         }
@@ -126,7 +140,7 @@ class Game {
         return this.stages[this.stages.length - 1];
     }
 
-    getActiveStage(): Stage|null {
+    getActiveStage(): Stage | null {
         if (this.activeStage) {
             return this.activeStage;
         }
@@ -160,11 +174,11 @@ class Game {
         this.tryDoRun();
     }
 
-    isReady() {
+    isReady(): boolean {
         return this.loadedStages == this.stages.length;
     }
 
-    onReady(callback) {
+    onReady(callback): void {
         this.onReadyCallbacks.push(callback);
     }
 
@@ -235,19 +249,19 @@ class Game {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    throwError(messageId: string, variables: {} | null = null) {
+    throwError(messageId: string, variables: {} | null = null): void {
         const message = ErrorMessages.getMessage(messageId, this.locale, variables);
 
         this.throwErrorRaw(message);
     }
 
-    throwErrorRaw(message: string) {
+    throwErrorRaw(message: string): void {
         this.reportError(message);
 
         throw new Error(message);
     }
 
-    private reportError(message) {
+    private reportError(message): void {
         if (this._displayErrors && !this.reportedError) {
             alert(message);
 
@@ -255,7 +269,7 @@ class Game {
         }
     }
 
-    private addListeners() {
+    private addListeners(): void {
         this.eventEmitter.on(Game.STAGE_READY_EVENT, Game.STAGE_READY_EVENT, (event: CustomEvent) => {
             this.loadedStages++;
             this.tryDoOnReady();
@@ -275,7 +289,7 @@ class Game {
         });
     }
 
-    private tryDoOnReady() {
+    private tryDoOnReady(): void {
         if (this.isReady() && this.onReadyPending) {
             this.onReadyPending = false;
 
@@ -290,7 +304,7 @@ class Game {
         }
     }
 
-    private tryDoRun() {
+    private tryDoRun(): void {
         if (this.pendingRun && !this.running && this.isReady()) {
             this.running = true;
             this.pendingRun = false;
