@@ -178,7 +178,7 @@ class Game {
         return this.loadedStages == this.stages.length;
     }
 
-    onReady(callback): void {
+    onReady(callback: CallableFunction): void {
         this.onReadyCallbacks.push(callback);
     }
 
@@ -222,11 +222,11 @@ class Game {
         return this.keyboard.keyPressed(char);
     }
 
-    keyDown(char: string, callback): void {
+    keyDown(char: string, callback: CallableFunction): void {
         this.keyboard.keyDown(char, callback);
     }
 
-    keyUp(char: string, callback): void {
+    keyUp(char: string, callback: CallableFunction): void {
         this.keyboard.keyUp(char, callback);
     }
 

@@ -254,7 +254,7 @@ class Stage {
         }
     }
 
-    pauseSound(soundIndex: number): void {
+    pauseSound(soundIndex = 0): void {
         const sound = this.sounds[soundIndex];
 
         if (!(sound instanceof Audio)) {
@@ -326,7 +326,7 @@ class Stage {
         return this;
     }
 
-    getSprites() {
+    getSprites(): Sprite[] {
         return Array.from(this.sprites.values()).reduce((accumulator, currentValue) => accumulator.concat(currentValue), []);
     }
 

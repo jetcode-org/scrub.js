@@ -832,7 +832,6 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
 var Sprite = (function () {
     function Sprite(stage, layer, costumePaths, soundPaths) {
         var e_6, _a, e_7, _b;
-        if (stage === void 0) { stage = null; }
         if (layer === void 0) { layer = 1; }
         if (costumePaths === void 0) { costumePaths = []; }
         if (soundPaths === void 0) { soundPaths = []; }
@@ -1115,7 +1114,6 @@ var Sprite = (function () {
         return this;
     };
     Sprite.prototype.removeCollider = function (colliderName) {
-        if (colliderName === void 0) { colliderName = null; }
         if (colliderName) {
             this.removeColliderByName(colliderName);
         }
@@ -1495,7 +1493,6 @@ var Sprite = (function () {
     };
     Sprite.prototype.nextCostume = function (minCostume, maxCostume) {
         if (minCostume === void 0) { minCostume = 0; }
-        if (maxCostume === void 0) { maxCostume = null; }
         if (this.deleted) {
             return;
         }
@@ -1516,7 +1513,6 @@ var Sprite = (function () {
     };
     Sprite.prototype.prevCostume = function (minCostume, maxCostume) {
         if (minCostume === void 0) { minCostume = 0; }
-        if (maxCostume === void 0) { maxCostume = null; }
         if (this.deleted) {
             return;
         }
@@ -1654,7 +1650,6 @@ var Sprite = (function () {
     };
     Sprite.prototype.addSound = function (soundPath, name) {
         var _this = this;
-        if (name === void 0) { name = null; }
         if (!name) {
             name = 'No name ' + this.sounds.length;
         }
@@ -1690,8 +1685,6 @@ var Sprite = (function () {
     };
     Sprite.prototype.playSound = function (soundIndex, volume, currentTime) {
         if (soundIndex === void 0) { soundIndex = 0; }
-        if (volume === void 0) { volume = null; }
-        if (currentTime === void 0) { currentTime = null; }
         if (!this.isReady()) {
             this.game.throwError(ErrorMessages.SOUND_USE_NOT_READY);
         }
@@ -1700,10 +1693,10 @@ var Sprite = (function () {
             this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, { soundIndex: soundIndex });
         }
         sound.play();
-        if (volume !== null) {
+        if (volume !== undefined) {
             sound.volume = volume;
         }
-        if (currentTime !== null) {
+        if (currentTime !== undefined) {
             sound.currentTime = currentTime;
         }
     };
@@ -1718,8 +1711,6 @@ var Sprite = (function () {
         sound.pause();
     };
     Sprite.prototype.playSoundByName = function (soundName, volume, currentTime) {
-        if (volume === void 0) { volume = null; }
-        if (currentTime === void 0) { currentTime = null; }
         if (!this.isReady()) {
             this.game.throwError(ErrorMessages.SOUND_USE_NOT_READY);
         }
@@ -1744,7 +1735,6 @@ var Sprite = (function () {
         this.soundNames.push(name);
     };
     Sprite.prototype.stamp = function (costumeIndex, withRotation) {
-        if (costumeIndex === void 0) { costumeIndex = null; }
         if (withRotation === void 0) { withRotation = true; }
         if (!this.isReady()) {
             this.game.throwError(ErrorMessages.STAMP_NOT_READY);
@@ -1872,7 +1862,6 @@ var Sprite = (function () {
         configurable: true
     });
     Sprite.prototype.say = function (text, time) {
-        if (time === void 0) { time = null; }
         this.phrase = this.name + ': ' + text;
         this.phraseLiveTime = null;
         if (time) {
@@ -2340,9 +2329,9 @@ var Sprite = (function () {
     };
     Sprite.prototype.touchMouse = function (checkChildren) {
         if (checkChildren === void 0) { checkChildren = true; }
-        return this.touchMousePoint(this.game.getMousePoint(), checkChildren);
+        return this.touchPoint(this.game.getMousePoint(), checkChildren);
     };
-    Sprite.prototype.touchMousePoint = function (mousePoint, checkChildren) {
+    Sprite.prototype.touchPoint = function (point, checkChildren) {
         var e_26, _a;
         if (checkChildren === void 0) { checkChildren = true; }
         this._collidedSprite = null;
@@ -2350,7 +2339,7 @@ var Sprite = (function () {
             return false;
         }
         var collider = this.collider;
-        var isTouch = collider && collider.collides(mousePoint, this.collisionResult);
+        var isTouch = collider && collider.collides(point, this.collisionResult);
         if (isTouch) {
             return true;
         }
@@ -2358,7 +2347,7 @@ var Sprite = (function () {
             try {
                 for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
                     var child = _c.value;
-                    if (child.touchMousePoint(child.game.getMousePoint())) {
+                    if (child.touchPoint(child.game.getMousePoint())) {
                         this._collidedSprite = child.otherSprite;
                         return true;
                     }
@@ -2825,8 +2814,6 @@ var Sprite = (function () {
         this.repeat(callback, 1, null, timeout, undefined);
     };
     Sprite.prototype.repeat = function (callback, repeat, interval, timeout, finishCallback) {
-        if (interval === void 0) { interval = null; }
-        if (timeout === void 0) { timeout = null; }
         var state = new ScheduledState(interval, repeat, 0);
         if (timeout) {
             timeout = Date.now() + timeout;
@@ -2835,8 +2822,6 @@ var Sprite = (function () {
         return state;
     };
     Sprite.prototype.forever = function (callback, interval, timeout, finishCallback) {
-        if (interval === void 0) { interval = null; }
-        if (timeout === void 0) { timeout = null; }
         var state = new ScheduledState(interval);
         if (timeout) {
             timeout = Date.now() + timeout;
@@ -2861,7 +2846,6 @@ var Sprite = (function () {
     };
     Sprite.prototype.createClone = function (stage) {
         var _a, e_39, _b, e_40, _c;
-        if (stage === void 0) { stage = null; }
         if (!this.isReady()) {
             this.game.throwError(ErrorMessages.CLONED_NOT_READY);
         }
@@ -3969,6 +3953,7 @@ var Stage = (function () {
         }
     };
     Stage.prototype.pauseSound = function (soundIndex) {
+        if (soundIndex === void 0) { soundIndex = 0; }
         var sound = this.sounds[soundIndex];
         if (!(sound instanceof Audio)) {
             this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, { soundIndex: soundIndex });
