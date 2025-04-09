@@ -47,7 +47,7 @@ class Sprite {
     private _drawings: DrawingCallbackFunction[] = [];
     private _tags: string[] = [];
 
-    constructor(stage?: Stage, layer = 1, costumePaths = [], soundPaths = []) {
+    constructor(stage?: Stage, layer = 0, costumePaths = [], soundPaths = []) {
         if (!Registry.getInstance().has('game')) {
             throw new Error('You need create Game instance before Stage instance.');
         }
@@ -249,7 +249,7 @@ class Sprite {
         return this;
     }
 
-    setPolygonCollider(colliderName: string, points: [number, number][] = [], offsetX = 0, offsetY = 0): this {
+    setPolygonCollider(colliderName: string, points: [number, number][], offsetX = 0, offsetY = 0): this {
         let angleRadians = 0;
         if (this._rotateStyle != 'leftRight') {
             angleRadians = this.globalAngleRadians;
