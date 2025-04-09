@@ -1421,13 +1421,7 @@ class Sprite {
             return;
         }
 
-        direction = direction % 360;
-
-        if (direction < 0) {
-            direction += 360;
-        }
-
-        this._direction = (direction > 360) ? direction - 360 : direction;
+        this._direction = direction;
 
         this.updateColliderAngle()
 

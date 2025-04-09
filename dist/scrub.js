@@ -2141,11 +2141,7 @@ var Sprite = (function () {
             if ((direction * 0) !== 0) {
                 return;
             }
-            direction = direction % 360;
-            if (direction < 0) {
-                direction += 360;
-            }
-            this._direction = (direction > 360) ? direction - 360 : direction;
+            this._direction = direction;
             this.updateColliderAngle();
             try {
                 for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
