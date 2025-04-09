@@ -6,27 +6,27 @@ class Stage {
     collisionSystem: CollisionSystem;
 
     private game: Game;
-    private scheduledCallbackExecutor: ScheduledCallbackExecutor;
     private background: HTMLCanvasElement = null;
     private backgroundIndex = null;
     private backgrounds = [];
-    private sprites = new Map<number, Sprite[]>();
-    private drawings = new Map<number, DrawingCallbackFunction[]>();
     private sounds = [];
     private soundNames = [];
+    private sprites = new Map<number, Sprite[]>();
+    private drawings = new Map<number, DrawingCallbackFunction[]>();
     private addedSprites = 0;
     private loadedSprites = 0;
     private pendingBackgrounds = 0;
-    private pendingSounds = 0;
+    private pendingSounds =  0;
     private pendingRun = false;
-    private onReadyPending = true;
     private onReadyCallbacks = [];
     private onStartCallbacks = [];
+    private onReadyPending = true;
     private scheduledCallbacks: Array<ScheduledCallbackItem> = [];
     private _stopped = true;
     private _running = false;
     private stoppedTime = null;
     private diffTime = null;
+    private scheduledCallbackExecutor: ScheduledCallbackExecutor;
 
     constructor(background: string = null) {
         if (!Registry.getInstance().has('game')) {
@@ -60,38 +60,6 @@ class Stage {
         return stage;
     }
 
-    /**
-     * Events
-     */
-
-    onStart(onStartCallback: CallableFunction): void {
-        this.onStartCallbacks.push(onStartCallback);
-    }
-
-    onReady(callback: CallableFunction): void {
-        this.onReadyCallbacks.push(callback);
-    }
-
-    /**
-     * States
-     */
-
-    get running(): boolean {
-        return this._running;
-    }
-
-    get stopped(): boolean {
-        return this._stopped;
-    }
-
-    isReady(): boolean {
-        return this.addedSprites == this.loadedSprites && this.pendingBackgrounds === 0;
-    }
-
-    /**
-     * Dimensions
-     */
-
     get width(): number {
         return this.canvas.width;
     }
@@ -100,9 +68,13 @@ class Stage {
         return this.canvas.height;
     }
 
-    /**
-     * Backgrounds
-     */
+    get running(): boolean {
+        return this._running;
+    }
+
+    get stopped(): boolean {
+        return this._stopped;
+    }
 
     set backgroundColor(color: string) {
         this.drawBackground((context, stage) => {
@@ -125,6 +97,67 @@ class Stage {
         this.pendingBackgrounds--;
 
         return this;
+    }
+
+    addSprite(sprite: Sprite): this {
+        let layerSprites: Sprite[];
+
+        if (this.sprites.has(sprite.layer)) {
+            layerSprites = this.sprites.get(sprite.layer);
+
+        } else {
+            layerSprites = [];
+            this.sprites.set(sprite.layer, layerSprites);
+        }
+
+        layerSprites.push(sprite);
+        this.addedSprites++;
+
+        return this;
+    }
+
+    removeSprite(sprite: Sprite, layer: number): this {
+        if (!this.sprites.has(layer)) {
+            this.game.throwErrorRaw('The layer "' + layer + '" not defined in the stage.');
+        }
+
+        const layerSprites = this.sprites.get(layer);
+        layerSprites.splice(layerSprites.indexOf(sprite), 1);
+
+        if (!layerSprites.length) {
+            this.sprites.delete(layer);
+        }
+
+        if (sprite.deleted || sprite.isReady()) {
+            this.loadedSprites--;
+        }
+
+        this.addedSprites--;
+
+        return this;
+    }
+
+    changeSpriteLayer(sprite: Sprite, fromLayer: number, toLayer: number): void {
+        if (!this.sprites.has(fromLayer)) {
+            this.game.throwErrorRaw('The layer "' + fromLayer + '" not defined in the stage.');
+        }
+
+        const fromLayerSprites = this.sprites.get(fromLayer);
+        fromLayerSprites.splice(fromLayerSprites.indexOf(sprite), 1);
+
+        if (!fromLayerSprites.length) {
+            this.sprites.delete(fromLayer);
+        }
+
+        let toLayerSprites = [];
+        if (this.sprites.has(toLayer)) {
+            toLayerSprites = this.sprites.get(toLayer);
+
+        } else {
+            this.sprites.set(toLayer, toLayerSprites);
+        }
+
+        toLayerSprites.push(sprite);
     }
 
     addBackground(backgroundPath: string): this {
@@ -185,10 +218,6 @@ class Stage {
         }
     }
 
-    /**
-     * Sounds
-     */
-
     addSound(soundPath: string, name: string = null): this {
         if (!name) {
             name = 'No name ' + this.sounds.length;
@@ -203,7 +232,7 @@ class Stage {
 
         sound.load();
 
-        const onLoadSound = () => {
+        const onLoadSound =  () => {
             this.pendingSounds--;
             this.tryDoOnReady();
 
@@ -254,7 +283,7 @@ class Stage {
         }
     }
 
-    pauseSound(soundIndex = 0): void {
+    pauseSound(soundIndex: number): void {
         const sound = this.sounds[soundIndex];
 
         if (!(sound instanceof Audio)) {
@@ -284,87 +313,14 @@ class Stage {
         this.pauseSound(soundIndex);
     }
 
-    /**
-     * Sprite management
-     */
-
-    addSprite(sprite: Sprite): this {
-        let layerSprites: Sprite[];
-
-        if (this.sprites.has(sprite.layer)) {
-            layerSprites = this.sprites.get(sprite.layer);
-
-        } else {
-            layerSprites = [];
-            this.sprites.set(sprite.layer, layerSprites);
-        }
-
-        layerSprites.push(sprite);
-        this.addedSprites++;
-
-        return this;
-    }
-
-    removeSprite(sprite: Sprite, layer: number): this {
-        if (!this.sprites.has(layer)) {
-            this.game.throwErrorRaw('The layer "' + layer + '" not defined in the stage.');
-        }
-
-        const layerSprites = this.sprites.get(layer);
-        layerSprites.splice(layerSprites.indexOf(sprite), 1);
-
-        if (!layerSprites.length) {
-            this.sprites.delete(layer);
-        }
-
-        if (sprite.deleted || sprite.isReady()) {
-            this.loadedSprites--;
-        }
-
-        this.addedSprites--;
-
-        return this;
-    }
-
-    getSprites(): Sprite[] {
-        return Array.from(this.sprites.values()).reduce((accumulator, currentValue) => accumulator.concat(currentValue), []);
-    }
-
-    changeSpriteLayer(sprite: Sprite, fromLayer: number, toLayer: number): void {
-        if (!this.sprites.has(fromLayer)) {
-            this.game.throwErrorRaw('The layer "' + fromLayer + '" not defined in the stage.');
-        }
-
-        const fromLayerSprites = this.sprites.get(fromLayer);
-        fromLayerSprites.splice(fromLayerSprites.indexOf(sprite), 1);
-
-        if (!fromLayerSprites.length) {
-            this.sprites.delete(fromLayer);
-        }
-
-        let toLayerSprites = [];
-        if (this.sprites.has(toLayer)) {
-            toLayerSprites = this.sprites.get(toLayer);
-
-        } else {
-            this.sprites.set(toLayer, toLayerSprites);
-        }
-
-        toLayerSprites.push(sprite);
-    }
-
-    /**
-     * Draw
-     */
-
     drawSprite(sprite: Sprite): void {
         const costume = sprite.getCostume();
         const image = costume.image;
-        const dstX = sprite.imageCenterX - sprite.sourceWidth / 2;
-        const dstY = sprite.imageCenterY - sprite.sourceHeight / 2;
+        const dstX = sprite.sourceX - sprite.sourceWidth / 2;
+        const dstY = sprite.sourceY - sprite.sourceHeight / 2;
         const dstWidth = sprite.sourceWidth;
         const dstHeight = sprite.sourceHeight;
-        const direction = sprite.globalDirection;
+        const direction = sprite.absoluteDirection;
         const rotateStyle = sprite.rotateStyle;
         let colliderOffsetX = (sprite.sourceWidth - costume.width * sprite.size / 100) / 2;
         let colliderOffsetY = (sprite.sourceHeight - costume.height * sprite.size / 100) / 2;
@@ -389,7 +345,7 @@ class Stage {
 
         if (rotateStyle === 'normal' && direction !== 0) {
             this.context.translate(dstX + dstWidth / 2, dstY + dstHeight / 2);
-            this.context.rotate(sprite.globalAngleRadians);
+            this.context.rotate(sprite.absoluteAngleRadians);
             this.context.translate(-dstX - dstWidth / 2, -dstY - dstHeight / 2);
         }
 
@@ -430,7 +386,7 @@ class Stage {
         }
     }
 
-    stampImage(stampImage: HTMLCanvasElement | HTMLImageElement, x: number, y: number, direction = 0): void {
+    stampImage(stampImage: HTMLCanvasElement|HTMLImageElement, x: number, y: number, direction = 0) {
         if (this.background instanceof HTMLCanvasElement) {
             const backgroundCanvas = document.createElement('canvas');
             const context = backgroundCanvas.getContext('2d');
@@ -485,47 +441,6 @@ class Stage {
         layerDrawings.push(callback);
     }
 
-    /**
-     * Schedulers and render
-     */
-
-    timeout(callback: ScheduledCallbackFunction, timeout: number): void {
-        this.repeat(callback, 1, null, timeout, undefined);
-    }
-
-    repeat(callback: ScheduledCallbackFunction,
-           repeat: number,
-           interval: number = null,
-           timeout: number = null,
-           finishCallback?: ScheduledCallbackFunction
-    ): ScheduledState {
-        const state = new ScheduledState(interval, repeat, 0);
-
-        if (timeout) {
-            timeout = Date.now() + timeout;
-        }
-
-        this.scheduledCallbacks.push(new ScheduledCallbackItem(callback, state, timeout, finishCallback));
-
-        return state;
-    }
-
-    forever(callback: ScheduledCallbackFunction,
-            interval: number = null,
-            timeout: number = null,
-            finishCallback?: ScheduledCallbackFunction
-    ): ScheduledState {
-        const state = new ScheduledState(interval);
-
-        if (timeout) {
-            timeout = Date.now() + timeout;
-        }
-
-        this.scheduledCallbacks.push(new ScheduledCallbackItem(callback, state, timeout, finishCallback));
-
-        return state;
-    }
-
     render(): void {
         this.update();
         this.collisionSystem.update();
@@ -540,7 +455,7 @@ class Stage {
         layers = layers.filter((item, pos) => layers.indexOf(item) === pos);
         layers = layers.sort((a, b) => a - b);
 
-        for (const layer of layers) {
+        for(const layer of layers) {
             if (this.drawings.has(layer)) {
                 const layerDrawings = this.drawings.get(layer);
 
@@ -560,8 +475,8 @@ class Stage {
                     if (this.game.debugMode !== 'none') {
                         const fn = () => {
 
-                            const x = sprite.imageCenterX - (this.context.measureText(sprite.name).width / 2);
-                            let y = sprite.imageCenterY + sprite.height + 20;
+                            const x = sprite.sourceX - (this.context.measureText(sprite.name).width / 2);
+                            let y = sprite.sourceY + sprite.height + 20;
 
                             this.context.fillStyle = this.game.debugColor;
 
@@ -570,23 +485,23 @@ class Stage {
                             y += 20;
 
                             this.context.font = '14px Arial';
-                            this.context.fillText('x: ' + sprite.x, x, y);
+                            this.context.fillText("x: " + sprite.x, x, y);
                             y += 20;
-                            this.context.fillText('y: ' + sprite.y, x, y);
+                            this.context.fillText("y: " + sprite.y, x, y);
                             y += 20;
-                            this.context.fillText('direction: ' + sprite.direction, x, y);
+                            this.context.fillText("direction: " + sprite.direction, x, y);
                             y += 20;
-                            this.context.fillText('costume: ' + sprite.getCostumeName(), x, y);
+                            this.context.fillText("costume: " + sprite.getCostumeName(), x, y);
                             y += 20;
-                            this.context.fillText('xOffset: ' + sprite.pivotOffsetX, x, y);
+                            this.context.fillText("xOffset: " + sprite.pivotOffsetX, x, y);
                             y += 20;
-                            this.context.fillText('yOffset: ' + sprite.pivotOffsetY, x, y);
+                            this.context.fillText("yOffset: " + sprite.pivotOffsetY, x, y);
                             // this.context.font = '40px Arial';
                             this.context.beginPath();
-                            this.context.moveTo(sprite.globalX - 2, sprite.globalY);
-                            this.context.lineTo(sprite.globalX + 2, sprite.globalY);
-                            this.context.moveTo(sprite.globalX, sprite.globalY - 2);
-                            this.context.lineTo(sprite.globalX, sprite.globalY + 2);
+                            this.context.moveTo(sprite.absoluteX - 2, sprite.absoluteY);
+                            this.context.lineTo(sprite.absoluteX + 2, sprite.absoluteY);
+                            this.context.moveTo(sprite.absoluteX, sprite.absoluteY - 2);
+                            this.context.lineTo(sprite.absoluteX, sprite.absoluteY + 2);
                             this.context.stroke()
                         };
 
@@ -627,28 +542,37 @@ class Stage {
         }
     }
 
-    private update(): void {
-        this.scheduledCallbacks = this.scheduledCallbacks.filter(
-            this.scheduledCallbackExecutor.execute(Date.now(), this.diffTime)
-        );
-
-        this.sprites.forEach((layerSprites, layer) => {
-            for (const sprite of layerSprites) {
-                if (sprite.deleted) {
-                    this.removeSprite(sprite, layer);
-                    return;
-                }
-
-                sprite.update(this.diffTime);
-            }
-        });
-
-        this.diffTime = 0;
+    timeout(callback: ScheduledCallbackFunction, timeout: number): void {
+        this.repeat(callback, 1, null, timeout, undefined);
     }
 
-    /**
-     * Run and stop
-     */
+    repeat(callback: ScheduledCallbackFunction, repeat: number, interval: number = null, timeout: number = null, finishCallback?: ScheduledCallbackFunction): ScheduledState {
+        const state = new ScheduledState(interval, repeat, 0);
+
+        if (timeout) {
+            timeout = Date.now() + timeout;
+        }
+
+        this.scheduledCallbacks.push(new ScheduledCallbackItem(callback, state, timeout, finishCallback));
+
+        return state;
+    }
+
+    forever(callback: ScheduledCallbackFunction, interval: number = null, timeout: number = null, finishCallback?: ScheduledCallbackFunction): ScheduledState {
+        const state = new ScheduledState(interval);
+
+        if (timeout) {
+            timeout = Date.now() + timeout;
+        }
+
+        this.scheduledCallbacks.push(new ScheduledCallbackItem(callback, state, timeout, finishCallback));
+
+        return state;
+    }
+
+    isReady() {
+        return this.addedSprites == this.loadedSprites && this.pendingBackgrounds === 0;
+    }
 
     run(): void {
         if (!this._stopped) {
@@ -657,7 +581,7 @@ class Stage {
 
         this._stopped = false;
 
-        for (const layerSprites of this.sprites.values()) {
+        for(const layerSprites of this.sprites.values()) {
             for (const sprite of layerSprites) {
                 sprite.run();
             }
@@ -671,11 +595,19 @@ class Stage {
         this.tryDoOnReady();
         this.tryDoRun();
 
-        for (const layerSprites of this.sprites.values()) {
+        for(const layerSprites of this.sprites.values()) {
             for (const sprite of layerSprites) {
                 sprite.ready();
             }
         }
+    }
+
+    onStart(onStartCallback) {
+        this.onStartCallbacks.push(onStartCallback);
+    }
+
+    onReady(callback) {
+        this.onReadyCallbacks.push(callback);
     }
 
     stop(): void {
@@ -686,7 +618,7 @@ class Stage {
         this._running = false;
         this._stopped = true;
 
-        for (const layerSprites of this.sprites.values()) {
+        for(const layerSprites of this.sprites.values()) {
             for (const sprite of layerSprites) {
                 sprite.stop();
             }
@@ -695,7 +627,21 @@ class Stage {
         this.stoppedTime = Date.now();
     }
 
-    private tryDoOnReady(): void {
+    getSprites() {
+        return Array.from(this.sprites.values()).reduce((accumulator, currentValue) => accumulator.concat(currentValue), []);
+    }
+
+    private addListeners() {
+        this.eventEmitter.on(Game.SPRITE_READY_EVENT, Game.SPRITE_READY_EVENT, (event: CustomEvent) => {
+            if (this.id == event.detail.stageId) {
+                this.loadedSprites++;
+                this.tryDoOnReady();
+                this.tryDoRun();
+            }
+        });
+    }
+
+    private tryDoOnReady() {
         if (this.onReadyPending && this.isReady()) {
             this.onReadyPending = false;
 
@@ -716,7 +662,7 @@ class Stage {
         }
     }
 
-    private doOnStart(): void {
+    private doOnStart() {
         for (const callback of this.onStartCallbacks) {
             setTimeout(() => {
                 callback();
@@ -724,7 +670,7 @@ class Stage {
         }
     }
 
-    private tryDoRun(): void {
+    private tryDoRun() {
         if (this.pendingRun && !this._running && this.isReady()) {
             this._running = true;
             this.pendingRun = false;
@@ -748,13 +694,22 @@ class Stage {
         }
     }
 
-    private addListeners(): void {
-        this.eventEmitter.on(Game.SPRITE_READY_EVENT, Game.SPRITE_READY_EVENT, (event: CustomEvent) => {
-            if (this.id == event.detail.stageId) {
-                this.loadedSprites++;
-                this.tryDoOnReady();
-                this.tryDoRun();
+    private update() {
+        this.scheduledCallbacks = this.scheduledCallbacks.filter(
+          this.scheduledCallbackExecutor.execute(Date.now(), this.diffTime)
+        );
+
+        this.sprites.forEach((layerSprites, layer) => {
+            for (const sprite of layerSprites) {
+                if (sprite.deleted) {
+                    this.removeSprite(sprite, layer);
+                    return;
+                }
+
+                sprite.update(this.diffTime);
             }
         });
+
+        this.diffTime = 0;
     }
 }

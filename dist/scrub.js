@@ -152,7 +152,6 @@ var Game = (function () {
     }
     Game.prototype.addStage = function (stage) {
         this.stages.push(stage);
-        return this;
     };
     Game.prototype.getLastStage = function () {
         if (!this.stages.length) {
@@ -346,262 +345,262 @@ var KeyboardMap = (function () {
         return KeyboardMap.map[keyCode];
     };
     KeyboardMap.map = [
-        '',
-        '',
-        '',
-        'CANCEL',
-        '',
-        '',
-        'HELP',
-        '',
-        'BACK_SPACE',
-        'TAB',
-        '',
-        '',
-        'CLEAR',
-        'ENTER',
-        'ENTER_SPECIAL',
-        '',
-        'SHIFT',
-        'CONTROL',
-        'ALT',
-        'PAUSE',
-        'CAPS_LOCK',
-        'KANA',
-        'EISU',
-        'JUNJA',
-        'FINAL',
-        'HANJA',
-        '',
-        'ESCAPE',
-        'CONVERT',
-        'NONCONVERT',
-        'ACCEPT',
-        'MODECHANGE',
-        'SPACE',
-        'PAGE_UP',
-        'PAGE_DOWN',
-        'END',
-        'HOME',
-        'LEFT',
-        'UP',
-        'RIGHT',
-        'DOWN',
-        'SELECT',
-        'PRINT',
-        'EXECUTE',
-        'PRINTSCREEN',
-        'INSERT',
-        'DELETE',
-        '',
-        '0',
-        '1',
-        '2',
-        '3',
-        '4',
-        '5',
-        '6',
-        '7',
-        '8',
-        '9',
-        'COLON',
-        'SEMICOLON',
-        'LESS_THAN',
-        'EQUALS',
-        'GREATER_THAN',
-        'QUESTION_MARK',
-        'AT',
-        'A',
-        'B',
-        'C',
-        'D',
-        'E',
-        'F',
-        'G',
-        'H',
-        'I',
-        'J',
-        'K',
-        'L',
-        'M',
-        'N',
-        'O',
-        'P',
-        'Q',
-        'R',
-        'S',
-        'T',
-        'U',
-        'V',
-        'W',
-        'X',
-        'Y',
-        'Z',
-        'OS_KEY',
-        '',
-        'CONTEXT_MENU',
-        '',
-        'SLEEP',
-        'NUMPAD0',
-        'NUMPAD1',
-        'NUMPAD2',
-        'NUMPAD3',
-        'NUMPAD4',
-        'NUMPAD5',
-        'NUMPAD6',
-        'NUMPAD7',
-        'NUMPAD8',
-        'NUMPAD9',
-        'MULTIPLY',
-        'ADD',
-        'SEPARATOR',
-        'SUBTRACT',
-        'DECIMAL',
-        'DIVIDE',
-        'F1',
-        'F2',
-        'F3',
-        'F4',
-        'F5',
-        'F6',
-        'F7',
-        'F8',
-        'F9',
-        'F10',
-        'F11',
-        'F12',
-        'F13',
-        'F14',
-        'F15',
-        'F16',
-        'F17',
-        'F18',
-        'F19',
-        'F20',
-        'F21',
-        'F22',
-        'F23',
-        'F24',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        'NUM_LOCK',
-        'SCROLL_LOCK',
-        'WIN_OEM_FJ_JISHO',
-        'WIN_OEM_FJ_MASSHOU',
-        'WIN_OEM_FJ_TOUROKU',
-        'WIN_OEM_FJ_LOYA',
-        'WIN_OEM_FJ_ROYA',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        'CIRCUMFLEX',
-        'EXCLAMATION',
-        'DOUBLE_QUOTE',
-        'HASH',
-        'DOLLAR',
-        'PERCENT',
-        'AMPERSAND',
-        'UNDERSCORE',
-        'OPEN_PAREN',
-        'CLOSE_PAREN',
-        'ASTERISK',
-        'PLUS',
-        'PIPE',
-        'HYPHEN_MINUS',
-        'OPEN_CURLY_BRACKET',
-        'CLOSE_CURLY_BRACKET',
-        'TILDE',
-        '',
-        '',
-        '',
-        '',
-        'VOLUME_MUTE',
-        'VOLUME_DOWN',
-        'VOLUME_UP',
-        '',
-        '',
-        'SEMICOLON',
-        'EQUALS',
-        'COMMA',
-        'MINUS',
-        'PERIOD',
-        'SLASH',
-        'BACK_QUOTE',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        'OPEN_BRACKET',
-        'BACK_SLASH',
-        'CLOSE_BRACKET',
-        'QUOTE',
-        '',
-        'META',
-        'ALTGR',
-        '',
-        'WIN_ICO_HELP',
-        'WIN_ICO_00',
-        '',
-        'WIN_ICO_CLEAR',
-        '',
-        '',
-        'WIN_OEM_RESET',
-        'WIN_OEM_JUMP',
-        'WIN_OEM_PA1',
-        'WIN_OEM_PA2',
-        'WIN_OEM_PA3',
-        'WIN_OEM_WSCTRL',
-        'WIN_OEM_CUSEL',
-        'WIN_OEM_ATTN',
-        'WIN_OEM_FINISH',
-        'WIN_OEM_COPY',
-        'WIN_OEM_AUTO',
-        'WIN_OEM_ENLW',
-        'WIN_OEM_BACKTAB',
-        'ATTN',
-        'CRSEL',
-        'EXSEL',
-        'EREOF',
-        'PLAY',
-        'ZOOM',
-        '',
-        'PA1',
-        'WIN_OEM_CLEAR',
-        ''
+        "",
+        "",
+        "",
+        "CANCEL",
+        "",
+        "",
+        "HELP",
+        "",
+        "BACK_SPACE",
+        "TAB",
+        "",
+        "",
+        "CLEAR",
+        "ENTER",
+        "ENTER_SPECIAL",
+        "",
+        "SHIFT",
+        "CONTROL",
+        "ALT",
+        "PAUSE",
+        "CAPS_LOCK",
+        "KANA",
+        "EISU",
+        "JUNJA",
+        "FINAL",
+        "HANJA",
+        "",
+        "ESCAPE",
+        "CONVERT",
+        "NONCONVERT",
+        "ACCEPT",
+        "MODECHANGE",
+        "SPACE",
+        "PAGE_UP",
+        "PAGE_DOWN",
+        "END",
+        "HOME",
+        "LEFT",
+        "UP",
+        "RIGHT",
+        "DOWN",
+        "SELECT",
+        "PRINT",
+        "EXECUTE",
+        "PRINTSCREEN",
+        "INSERT",
+        "DELETE",
+        "",
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "COLON",
+        "SEMICOLON",
+        "LESS_THAN",
+        "EQUALS",
+        "GREATER_THAN",
+        "QUESTION_MARK",
+        "AT",
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H",
+        "I",
+        "J",
+        "K",
+        "L",
+        "M",
+        "N",
+        "O",
+        "P",
+        "Q",
+        "R",
+        "S",
+        "T",
+        "U",
+        "V",
+        "W",
+        "X",
+        "Y",
+        "Z",
+        "OS_KEY",
+        "",
+        "CONTEXT_MENU",
+        "",
+        "SLEEP",
+        "NUMPAD0",
+        "NUMPAD1",
+        "NUMPAD2",
+        "NUMPAD3",
+        "NUMPAD4",
+        "NUMPAD5",
+        "NUMPAD6",
+        "NUMPAD7",
+        "NUMPAD8",
+        "NUMPAD9",
+        "MULTIPLY",
+        "ADD",
+        "SEPARATOR",
+        "SUBTRACT",
+        "DECIMAL",
+        "DIVIDE",
+        "F1",
+        "F2",
+        "F3",
+        "F4",
+        "F5",
+        "F6",
+        "F7",
+        "F8",
+        "F9",
+        "F10",
+        "F11",
+        "F12",
+        "F13",
+        "F14",
+        "F15",
+        "F16",
+        "F17",
+        "F18",
+        "F19",
+        "F20",
+        "F21",
+        "F22",
+        "F23",
+        "F24",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "NUM_LOCK",
+        "SCROLL_LOCK",
+        "WIN_OEM_FJ_JISHO",
+        "WIN_OEM_FJ_MASSHOU",
+        "WIN_OEM_FJ_TOUROKU",
+        "WIN_OEM_FJ_LOYA",
+        "WIN_OEM_FJ_ROYA",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "CIRCUMFLEX",
+        "EXCLAMATION",
+        "DOUBLE_QUOTE",
+        "HASH",
+        "DOLLAR",
+        "PERCENT",
+        "AMPERSAND",
+        "UNDERSCORE",
+        "OPEN_PAREN",
+        "CLOSE_PAREN",
+        "ASTERISK",
+        "PLUS",
+        "PIPE",
+        "HYPHEN_MINUS",
+        "OPEN_CURLY_BRACKET",
+        "CLOSE_CURLY_BRACKET",
+        "TILDE",
+        "",
+        "",
+        "",
+        "",
+        "VOLUME_MUTE",
+        "VOLUME_DOWN",
+        "VOLUME_UP",
+        "",
+        "",
+        "SEMICOLON",
+        "EQUALS",
+        "COMMA",
+        "MINUS",
+        "PERIOD",
+        "SLASH",
+        "BACK_QUOTE",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "OPEN_BRACKET",
+        "BACK_SLASH",
+        "CLOSE_BRACKET",
+        "QUOTE",
+        "",
+        "META",
+        "ALTGR",
+        "",
+        "WIN_ICO_HELP",
+        "WIN_ICO_00",
+        "",
+        "WIN_ICO_CLEAR",
+        "",
+        "",
+        "WIN_OEM_RESET",
+        "WIN_OEM_JUMP",
+        "WIN_OEM_PA1",
+        "WIN_OEM_PA2",
+        "WIN_OEM_PA3",
+        "WIN_OEM_WSCTRL",
+        "WIN_OEM_CUSEL",
+        "WIN_OEM_ATTN",
+        "WIN_OEM_FINISH",
+        "WIN_OEM_COPY",
+        "WIN_OEM_AUTO",
+        "WIN_OEM_ENLW",
+        "WIN_OEM_BACKTAB",
+        "ATTN",
+        "CRSEL",
+        "EXSEL",
+        "EREOF",
+        "PLAY",
+        "ZOOM",
+        "",
+        "PA1",
+        "WIN_OEM_CLEAR",
+        ""
     ];
     return KeyboardMap;
 }());
@@ -832,21 +831,19 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
 var Sprite = (function () {
     function Sprite(stage, layer, costumePaths, soundPaths) {
         var e_6, _a, e_7, _b;
+        if (stage === void 0) { stage = null; }
         if (layer === void 0) { layer = 1; }
         if (costumePaths === void 0) { costumePaths = []; }
         if (soundPaths === void 0) { soundPaths = []; }
         this.name = 'No name';
         this.game = null;
-        this.stage = null;
-        this._parentSprite = null;
-        this._collidedSprite = null;
         this.costumeIndex = null;
         this.costume = null;
+        this.stage = null;
         this.costumes = [];
         this.costumeNames = [];
         this.sounds = [];
         this.soundNames = [];
-        this.currentColliderName = null;
         this.colliders = new Map;
         this.phrase = null;
         this.phraseLiveTime = null;
@@ -859,23 +856,26 @@ var Sprite = (function () {
         this._defaultColliderNone = false;
         this._direction = 0;
         this._size = 100;
-        this._centerDistance = 0;
-        this._centerAngle = 0;
         this._rotateStyle = 'normal';
         this._hidden = false;
         this._opacity = null;
         this._filter = null;
         this._deleted = false;
         this._stopped = true;
-        this.pendingCostumeGrids = 0;
-        this.pendingCostumes = 0;
-        this.pendingSounds = 0;
-        this._children = [];
         this.onReadyCallbacks = [];
         this.onReadyPending = true;
         this.scheduledCallbacks = [];
         this._drawings = [];
+        this.pendingCostumeGrids = 0;
+        this.pendingCostumes = 0;
+        this.pendingSounds = 0;
+        this._centerDistance = 0;
+        this._centerAngle = 0;
         this._tags = [];
+        this._parentSprite = null;
+        this.currentColliderName = null;
+        this._children = [];
+        this._collidedSprite = null;
         if (!Registry.getInstance().has('game')) {
             throw new Error('You need create Game instance before Stage instance.');
         }
@@ -927,413 +927,12 @@ var Sprite = (function () {
         sprite.stage.addSprite(sprite);
         return sprite;
     }
-    Sprite.prototype.onReady = function (callback) {
-        this.onReadyCallbacks.push(callback);
-    };
     Sprite.prototype.isReady = function () {
         return this.pendingCostumes === 0 && this.pendingCostumeGrids === 0 && this.pendingSounds === 0;
     };
-    Object.defineProperty(Sprite.prototype, "deleted", {
-        get: function () {
-            return this._deleted;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "stopped", {
-        get: function () {
-            return this._stopped;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Sprite.prototype.setParent = function (parent) {
-        parent.addChild(this);
-        return this;
+    Sprite.prototype.onReady = function (callback) {
+        this.onReadyCallbacks.push(callback);
     };
-    Sprite.prototype.addChild = function (child) {
-        var e_8, _a;
-        if (!this._children.includes(child)) {
-            this._children.push(child);
-            child.parent = this;
-            child.layer = this.layer;
-            child.x = 0;
-            child.y = 0;
-            child.direction = 0;
-            try {
-                for (var _b = __values(this.tags), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var tag = _c.value;
-                    child.addTag(tag);
-                }
-            }
-            catch (e_8_1) { e_8 = { error: e_8_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_8) throw e_8.error; }
-            }
-        }
-        child.parent = this;
-        return this;
-    };
-    Sprite.prototype.removeChild = function (child) {
-        var e_9, _a;
-        var foundChildIndex = this._children.indexOf(child);
-        if (foundChildIndex > -1) {
-            var child_1 = this._children[foundChildIndex];
-            child_1.parent = null;
-            try {
-                for (var _b = __values(this.tags), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var tag = _c.value;
-                    child_1.removeTag(tag);
-                }
-            }
-            catch (e_9_1) { e_9 = { error: e_9_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_9) throw e_9.error; }
-            }
-            this._children.splice(foundChildIndex, 1);
-        }
-        return this;
-    };
-    Sprite.prototype.getChildren = function () {
-        return this._children;
-    };
-    Object.defineProperty(Sprite.prototype, "parent", {
-        get: function () {
-            return this._parentSprite;
-        },
-        set: function (newParent) {
-            this._parentSprite = newParent;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Sprite.prototype.getMainSprite = function () {
-        if (this._parentSprite) {
-            return this._parentSprite.getMainSprite();
-        }
-        return this;
-    };
-    Sprite.prototype.switchCollider = function (colliderName) {
-        if (!this.colliders.has(colliderName)) {
-            this.game.throwError(ErrorMessages.COLLIDER_NAME_NOT_FOUND, { colliderName: colliderName });
-        }
-        if (this.currentColliderName === colliderName) {
-            return this;
-        }
-        var prevCollider = this.collider;
-        if (prevCollider) {
-            this.stage.collisionSystem.remove(prevCollider);
-        }
-        this.currentColliderName = colliderName;
-        var newCollider = this.collider;
-        this.stage.collisionSystem.insert(newCollider);
-        this._width = newCollider.width;
-        this._height = newCollider.height;
-        return this;
-    };
-    Sprite.prototype.setCollider = function (colliderName, collider, offsetX, offsetY) {
-        if (offsetX === void 0) { offsetX = 0; }
-        if (offsetY === void 0) { offsetY = 0; }
-        collider.parentSprite = this;
-        collider.offset_x = offsetX;
-        collider.offset_y = offsetY;
-        if (this.currentColliderName === colliderName && this.colliders.has(colliderName)) {
-            var prevCollider = this.colliders.get(colliderName);
-            this.stage.collisionSystem.remove(prevCollider);
-            this.currentColliderName = null;
-        }
-        this.colliders.set(colliderName, collider);
-        this.updateColliderPosition(collider);
-        if (this.isReady() && !this.collider) {
-            this.switchCollider(colliderName);
-        }
-        return this;
-    };
-    Sprite.prototype.setRectCollider = function (colliderName, width, height, offsetX, offsetY) {
-        if (offsetX === void 0) { offsetX = 0; }
-        if (offsetY === void 0) { offsetY = 0; }
-        var angle = 0;
-        if (this._rotateStyle != 'leftRight') {
-            angle = this.globalAngleRadians;
-        }
-        var collider = new PolygonCollider(this.x, this.y, [
-            [(width / 2) * -1, (height / 2) * -1],
-            [width / 2, (height / 2) * -1],
-            [width / 2, height / 2],
-            [(width / 2) * -1, height / 2]
-        ], angle, this.size / 100, this.size / 100);
-        collider.width = width;
-        collider.height = height;
-        this.setCollider(colliderName, collider, offsetX, offsetY);
-        return this;
-    };
-    Sprite.prototype.setPolygonCollider = function (colliderName, points, offsetX, offsetY) {
-        if (points === void 0) { points = []; }
-        if (offsetX === void 0) { offsetX = 0; }
-        if (offsetY === void 0) { offsetY = 0; }
-        var angleRadians = 0;
-        if (this._rotateStyle != 'leftRight') {
-            angleRadians = this.globalAngleRadians;
-        }
-        var centroid = this.calculateCentroid(points);
-        var centeredPoints = points.map(function (point) { return [
-            point[0] - centroid.x,
-            point[1] - centroid.y
-        ]; });
-        var collider = new PolygonCollider(this.x, this.y, centeredPoints, angleRadians, this.size / 100, this.size / 100);
-        var _a = this.calculatePolygonSize(centeredPoints), width = _a.width, height = _a.height;
-        collider.width = width;
-        collider.height = height;
-        this.setCollider(colliderName, collider, offsetX, offsetY);
-        return this;
-    };
-    Sprite.prototype.setCircleCollider = function (colliderName, radius, offsetX, offsetY) {
-        if (offsetX === void 0) { offsetX = 0; }
-        if (offsetY === void 0) { offsetY = 0; }
-        var collider = new CircleCollider(this.x, this.y, radius, this.size / 100);
-        collider.width = radius * 2;
-        collider.height = radius * 2;
-        this.setCollider(colliderName, collider, offsetX, offsetY);
-        return this;
-    };
-    Sprite.prototype.setCostumeCollider = function (colliderName, costumeIndex, offsetX, offsetY) {
-        if (costumeIndex === void 0) { costumeIndex = 0; }
-        if (offsetX === void 0) { offsetX = 0; }
-        if (offsetY === void 0) { offsetY = 0; }
-        if (this.costumes[costumeIndex] === undefined) {
-            this.game.throwError(ErrorMessages.COSTUME_INDEX_NOT_FOUND, { costumeIndex: costumeIndex });
-        }
-        var costume = this.costumes[costumeIndex];
-        this.setRectCollider(colliderName, costume.width, costume.height, offsetX, offsetY);
-        return this;
-    };
-    Sprite.prototype.removeCollider = function (colliderName) {
-        if (colliderName) {
-            this.removeColliderByName(colliderName);
-        }
-        else {
-            var collider = this.collider;
-            if (collider) {
-                this.stage.collisionSystem.remove(collider);
-            }
-            this.colliders.clear();
-            this.currentColliderName = null;
-            this.defaultColliderNone = true;
-        }
-        return this;
-    };
-    Sprite.prototype.removeColliderByName = function (colliderName) {
-        var collider = this.getCollider(colliderName);
-        this.colliders.delete(colliderName);
-        if (this.colliders.size === 0) {
-            this.defaultColliderNone = true;
-        }
-        if (colliderName === this.currentColliderName) {
-            this.stage.collisionSystem.remove(collider);
-            if (this.colliders.size) {
-                var nextColliderName = this.colliders.keys().next().value;
-                this.switchCollider(nextColliderName);
-            }
-        }
-        return this;
-    };
-    Sprite.prototype.getCollider = function (colliderName) {
-        if (!this.colliders.has(colliderName)) {
-            this.game.throwError(ErrorMessages.COLLIDER_NAME_NOT_FOUND, { colliderName: colliderName });
-        }
-        return this.colliders.get(colliderName);
-    };
-    Sprite.prototype.hasCollider = function (colliderName) {
-        return this.colliders.has(colliderName);
-    };
-    Object.defineProperty(Sprite.prototype, "collider", {
-        get: function () {
-            if (this.currentColliderName && this.colliders.has(this.currentColliderName)) {
-                return this.colliders.get(this.currentColliderName);
-            }
-            return null;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "collidedSprite", {
-        get: function () {
-            return this._collidedSprite;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "defaultColliderNone", {
-        get: function () {
-            return this._defaultColliderNone;
-        },
-        set: function (colliderNone) {
-            this._defaultColliderNone = colliderNone;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Sprite.prototype.getColliders = function () {
-        return this.colliders.entries();
-    };
-    Sprite.prototype.cloneCollider = function (sprite) {
-        var e_10, _a;
-        var colliders = sprite.getColliders();
-        try {
-            for (var colliders_1 = __values(colliders), colliders_1_1 = colliders_1.next(); !colliders_1_1.done; colliders_1_1 = colliders_1.next()) {
-                var _b = __read(colliders_1_1.value, 2), colliderName = _b[0], sourceCollider = _b[1];
-                if (sourceCollider instanceof CircleCollider) {
-                    this.setCircleCollider(colliderName, sourceCollider.radius, sourceCollider.offset_x, sourceCollider.offset_y);
-                }
-                if (sourceCollider instanceof PolygonCollider) {
-                    this.setPolygonCollider(colliderName, sourceCollider.points, sourceCollider.offset_x, sourceCollider.offset_y);
-                }
-            }
-        }
-        catch (e_10_1) { e_10 = { error: e_10_1 }; }
-        finally {
-            try {
-                if (colliders_1_1 && !colliders_1_1.done && (_a = colliders_1.return)) _a.call(colliders_1);
-            }
-            finally { if (e_10) throw e_10.error; }
-        }
-    };
-    Sprite.prototype.calculateCentroid = function (points) {
-        var e_11, _a;
-        var xSum = 0;
-        var ySum = 0;
-        try {
-            for (var points_1 = __values(points), points_1_1 = points_1.next(); !points_1_1.done; points_1_1 = points_1.next()) {
-                var point = points_1_1.value;
-                xSum += point[0];
-                ySum += point[1];
-            }
-        }
-        catch (e_11_1) { e_11 = { error: e_11_1 }; }
-        finally {
-            try {
-                if (points_1_1 && !points_1_1.done && (_a = points_1.return)) _a.call(points_1);
-            }
-            finally { if (e_11) throw e_11.error; }
-        }
-        var x = xSum / points.length;
-        var y = ySum / points.length;
-        return { x: x, y: y };
-    };
-    Sprite.prototype.calculatePolygonSize = function (points) {
-        var e_12, _a;
-        var minX = points[0][0];
-        var minY = points[0][1];
-        var maxX = points[0][0];
-        var maxY = points[0][1];
-        try {
-            for (var points_2 = __values(points), points_2_1 = points_2.next(); !points_2_1.done; points_2_1 = points_2.next()) {
-                var vertex = points_2_1.value;
-                if (vertex[0] < minX)
-                    minX = vertex[0];
-                if (vertex[0] > maxX)
-                    maxX = vertex[0];
-                if (vertex[1] < minY)
-                    minY = vertex[1];
-                if (vertex[1] > maxY)
-                    maxY = vertex[1];
-            }
-        }
-        catch (e_12_1) { e_12 = { error: e_12_1 }; }
-        finally {
-            try {
-                if (points_2_1 && !points_2_1.done && (_a = points_2.return)) _a.call(points_2);
-            }
-            finally { if (e_12) throw e_12.error; }
-        }
-        var width = maxX - minX;
-        var height = maxY - minY;
-        return { width: width, height: height };
-    };
-    Sprite.prototype.updateColliderPosition = function (collider) {
-        collider.x = this.imageCenterX + collider.center_offset_x * this.size / 100;
-        collider.y = this.imageCenterY + collider.center_offset_y * this.size / 100;
-    };
-    Sprite.prototype.updateColliderAngle = function () {
-        var collider = this.collider;
-        if (collider instanceof PolygonCollider) {
-            if (this._rotateStyle == 'leftRight') {
-                collider.angle = 0;
-            }
-            else {
-                collider.angle = this.globalAngleRadians;
-            }
-        }
-        if (collider) {
-            this.updateColliderPosition(collider);
-        }
-    };
-    Sprite.prototype.updateColliderSize = function (collider) {
-        if (collider instanceof PolygonCollider) {
-            collider.scale_x = this.size / 100;
-            collider.scale_y = this.size / 100;
-        }
-        else if (collider instanceof CircleCollider) {
-            collider.scale = this.size / 100;
-        }
-    };
-    Sprite.prototype.addTag = function (tagName) {
-        var e_13, _a;
-        if (!this.hasTag(tagName)) {
-            this._tags.push(tagName);
-        }
-        try {
-            for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                var child = _c.value;
-                child.addTag(tagName);
-            }
-        }
-        catch (e_13_1) { e_13 = { error: e_13_1 }; }
-        finally {
-            try {
-                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-            }
-            finally { if (e_13) throw e_13.error; }
-        }
-        return this;
-    };
-    Sprite.prototype.removeTag = function (tagName) {
-        var e_14, _a;
-        var foundIndex = this._tags.indexOf(tagName);
-        if (foundIndex > -1) {
-            this._tags.splice(foundIndex, 1);
-        }
-        try {
-            for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                var child = _c.value;
-                child.addTag(tagName);
-            }
-        }
-        catch (e_14_1) { e_14 = { error: e_14_1 }; }
-        finally {
-            try {
-                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-            }
-            finally { if (e_14) throw e_14.error; }
-        }
-        return this;
-    };
-    Sprite.prototype.hasTag = function (tagName) {
-        return this._tags.includes(tagName);
-    };
-    Object.defineProperty(Sprite.prototype, "tags", {
-        get: function () {
-            return this._tags;
-        },
-        enumerable: false,
-        configurable: true
-    });
     Sprite.prototype.addCostume = function (costumePath, options) {
         var _this = this;
         var _a;
@@ -1464,24 +1063,37 @@ var Sprite = (function () {
         }
         return this;
     };
+    Sprite.prototype.stamp = function (costumeIndex, withRotation) {
+        if (costumeIndex === void 0) { costumeIndex = null; }
+        if (withRotation === void 0) { withRotation = true; }
+        if (!this.isReady()) {
+            this.game.throwError(ErrorMessages.STAMP_NOT_READY);
+        }
+        costumeIndex = costumeIndex !== null && costumeIndex !== void 0 ? costumeIndex : this.costumeIndex;
+        if (!this.costumes[costumeIndex]) {
+            this.game.throwError(ErrorMessages.STAMP_COSTUME_NOT_FOUND, { costumeIndex: costumeIndex });
+        }
+        var costume = this.costumes[costumeIndex];
+        if (!(costume.image instanceof HTMLCanvasElement)) {
+            this.game.throwErrorRaw('The image inside the costume was not found.');
+        }
+        var direction = 0;
+        if (withRotation && this._rotateStyle === 'normal') {
+            direction = this.direction;
+        }
+        this.stage.stampImage(costume.image, this.x, this.y, direction);
+    };
     Sprite.prototype.switchCostume = function (costumeIndex) {
         if (this.deleted) {
             return;
-        }
-        if (!this.isReady()) {
-            this.game.throwError(ErrorMessages.COSTUME_SWITCH_NOT_READY);
         }
         var costume = this.costumes[costumeIndex];
         if (costume instanceof Costume && costume.ready) {
             this.costumeIndex = costumeIndex;
             this.costume = costume;
         }
-        return this;
     };
     Sprite.prototype.switchCostumeByName = function (costumeName) {
-        if (!this.isReady()) {
-            this.game.throwError(ErrorMessages.COSTUME_SWITCH_NOT_READY);
-        }
         var costumeIndex = this.costumeNames.indexOf(costumeName);
         if (costumeIndex > -1) {
             this.switchCostume(costumeIndex);
@@ -1489,15 +1101,12 @@ var Sprite = (function () {
         else {
             this.game.throwError(ErrorMessages.COSTUME_NAME_NOT_FOUND, { costumeName: costumeName });
         }
-        return this;
     };
     Sprite.prototype.nextCostume = function (minCostume, maxCostume) {
         if (minCostume === void 0) { minCostume = 0; }
+        if (maxCostume === void 0) { maxCostume = null; }
         if (this.deleted) {
             return;
-        }
-        if (!this.isReady()) {
-            this.game.throwError(ErrorMessages.COSTUME_SWITCH_NOT_READY);
         }
         var maxCostumeIndex = this.costumes.length - 1;
         minCostume = Math.min(maxCostumeIndex, Math.max(0, minCostume));
@@ -1509,15 +1118,12 @@ var Sprite = (function () {
         if (nextCostumeIndex !== this.costumeIndex) {
             this.switchCostume(nextCostumeIndex);
         }
-        return nextCostumeIndex;
     };
     Sprite.prototype.prevCostume = function (minCostume, maxCostume) {
         if (minCostume === void 0) { minCostume = 0; }
+        if (maxCostume === void 0) { maxCostume = null; }
         if (this.deleted) {
             return;
-        }
-        if (!this.isReady()) {
-            this.game.throwError(ErrorMessages.COSTUME_SWITCH_NOT_READY);
         }
         var maxCostumeIndex = this.costumes.length - 1;
         minCostume = Math.min(maxCostumeIndex, Math.max(0, minCostume));
@@ -1529,7 +1135,854 @@ var Sprite = (function () {
         if (prevCostumeIndex !== this.costumeIndex) {
             this.switchCostume(prevCostumeIndex);
         }
-        return prevCostumeIndex;
+    };
+    Sprite.prototype.addSound = function (soundPath, name) {
+        var _this = this;
+        if (name === void 0) { name = null; }
+        if (!name) {
+            name = 'No name ' + this.sounds.length;
+        }
+        var sound = new Audio();
+        sound.src = soundPath;
+        this.sounds.push(sound);
+        this.soundNames.push(name);
+        this.pendingSounds++;
+        sound.load();
+        var onLoadSound = function () {
+            _this.pendingSounds--;
+            _this.tryDoOnReady();
+            sound.removeEventListener('loadedmetadata', onLoadSound);
+        };
+        sound.addEventListener('loadedmetadata', onLoadSound);
+        return this;
+    };
+    Sprite.prototype.removeSound = function (soundIndex) {
+        if (soundIndex === void 0) { soundIndex = 0; }
+        if (this.sounds[soundIndex] === undefined) {
+            this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, { soundIndex: soundIndex });
+        }
+        this.sounds.splice(soundIndex, 1);
+        return this;
+    };
+    Sprite.prototype.removeSoundByName = function (soundName) {
+        var soundIndex = this.soundNames.indexOf(soundName);
+        if (soundIndex < 0) {
+            this.game.throwError(ErrorMessages.SOUND_NAME_NOT_FOUND, { soundName: soundName });
+        }
+        this.sounds.splice(soundIndex, 1);
+        return this;
+    };
+    Sprite.prototype.playSound = function (soundIndex, volume, currentTime) {
+        if (soundIndex === void 0) { soundIndex = 0; }
+        if (volume === void 0) { volume = null; }
+        if (currentTime === void 0) { currentTime = null; }
+        var sound = this.sounds[soundIndex];
+        if (!(sound instanceof Audio)) {
+            this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, { soundIndex: soundIndex });
+        }
+        sound.play();
+        if (volume !== null) {
+            sound.volume = volume;
+        }
+        if (currentTime !== null) {
+            sound.currentTime = currentTime;
+        }
+    };
+    Sprite.prototype.pauseSound = function (soundIndex) {
+        var sound = this.sounds[soundIndex];
+        if (!(sound instanceof Audio)) {
+            this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, { soundIndex: soundIndex });
+        }
+        sound.pause();
+    };
+    Sprite.prototype.playSoundByName = function (soundName, volume, currentTime) {
+        if (volume === void 0) { volume = null; }
+        if (currentTime === void 0) { currentTime = null; }
+        var soundIndex = this.soundNames.indexOf(soundName);
+        if (soundIndex < 0) {
+            this.game.throwError(ErrorMessages.SOUND_NAME_NOT_FOUND, { soundName: soundName });
+        }
+        this.playSound(soundIndex, volume, currentTime);
+    };
+    Sprite.prototype.pauseSoundByName = function (soundName) {
+        var soundIndex = this.soundNames.indexOf(soundName);
+        if (soundIndex < 0) {
+            this.game.throwError(ErrorMessages.SOUND_NAME_NOT_FOUND, { soundName: soundName });
+        }
+        this.pauseSound(soundIndex);
+    };
+    Sprite.prototype.cloneSound = function (sound, name) {
+        this.sounds.push(sound);
+        this.soundNames.push(name);
+    };
+    Sprite.prototype.addChild = function (child) {
+        var e_8, _a;
+        if (!this._children.includes(child)) {
+            this._children.push(child);
+            child.parent = this;
+            child.layer = this.layer;
+            child.x = 0;
+            child.y = 0;
+            child.direction = 0;
+            try {
+                for (var _b = __values(this.tags), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var tag = _c.value;
+                    child.addTag(tag);
+                }
+            }
+            catch (e_8_1) { e_8 = { error: e_8_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_8) throw e_8.error; }
+            }
+        }
+        child.parent = this;
+        return this;
+    };
+    Sprite.prototype.removeChild = function (child) {
+        var e_9, _a;
+        var foundChildIndex = this._children.indexOf(child);
+        if (foundChildIndex > -1) {
+            var child_1 = this._children[foundChildIndex];
+            child_1.parent = null;
+            try {
+                for (var _b = __values(this.tags), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var tag = _c.value;
+                    child_1.removeTag(tag);
+                }
+            }
+            catch (e_9_1) { e_9 = { error: e_9_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_9) throw e_9.error; }
+            }
+            this._children.splice(foundChildIndex, 1);
+        }
+        return this;
+    };
+    Sprite.prototype.getChildren = function () {
+        return this._children;
+    };
+    Sprite.prototype.move = function (steps) {
+        var angleRadians = this.absoluteAngleRadians;
+        this.x += (steps * Math.sin(angleRadians));
+        this.y -= (steps * Math.cos(angleRadians));
+    };
+    Sprite.prototype.bounceOnEdge = function () {
+        if (this.touchTopEdge() || this.touchBottomEdge()) {
+            this.direction = 180 - this.direction;
+        }
+        if (this.touchLeftEdge() || this.touchRightEdge()) {
+            this.direction *= -1;
+        }
+    };
+    Sprite.prototype.touchSprite = function (sprite, checkChildren) {
+        var e_10, _a, e_11, _b, e_12, _c;
+        if (checkChildren === void 0) { checkChildren = true; }
+        this._collidedSprite = null;
+        if (sprite.hidden ||
+            this.hidden ||
+            sprite.stopped ||
+            this.stopped ||
+            sprite.deleted ||
+            this.deleted) {
+            return false;
+        }
+        var collider = this.collider;
+        var otherCollider = sprite.collider;
+        var isTouch = collider && otherCollider && collider.collides(otherCollider, this.collisionResult);
+        if (isTouch) {
+            return true;
+        }
+        if (collider) {
+            try {
+                for (var _d = __values(sprite.getChildren()), _e = _d.next(); !_e.done; _e = _d.next()) {
+                    var otherChild = _e.value;
+                    if (this.touchSprite(otherChild, false)) {
+                        return true;
+                    }
+                }
+            }
+            catch (e_10_1) { e_10 = { error: e_10_1 }; }
+            finally {
+                try {
+                    if (_e && !_e.done && (_a = _d.return)) _a.call(_d);
+                }
+                finally { if (e_10) throw e_10.error; }
+            }
+        }
+        if (!checkChildren) {
+            return false;
+        }
+        try {
+            for (var _f = __values(this._children), _g = _f.next(); !_g.done; _g = _f.next()) {
+                var child = _g.value;
+                if (otherCollider && child.touchSprite(sprite)) {
+                    this._collidedSprite = child;
+                    return true;
+                }
+                try {
+                    for (var _h = (e_12 = void 0, __values(sprite.getChildren())), _j = _h.next(); !_j.done; _j = _h.next()) {
+                        var otherChild = _j.value;
+                        if (child.touchSprite(otherChild)) {
+                            this._collidedSprite = child;
+                            return true;
+                        }
+                    }
+                }
+                catch (e_12_1) { e_12 = { error: e_12_1 }; }
+                finally {
+                    try {
+                        if (_j && !_j.done && (_c = _h.return)) _c.call(_h);
+                    }
+                    finally { if (e_12) throw e_12.error; }
+                }
+            }
+        }
+        catch (e_11_1) { e_11 = { error: e_11_1 }; }
+        finally {
+            try {
+                if (_g && !_g.done && (_b = _f.return)) _b.call(_f);
+            }
+            finally { if (e_11) throw e_11.error; }
+        }
+        return false;
+    };
+    Sprite.prototype.touchSprites = function (sprites, checkChildren) {
+        var e_13, _a;
+        if (checkChildren === void 0) { checkChildren = true; }
+        if (this.hidden || this.stopped || this.deleted) {
+            return false;
+        }
+        try {
+            for (var sprites_1 = __values(sprites), sprites_1_1 = sprites_1.next(); !sprites_1_1.done; sprites_1_1 = sprites_1.next()) {
+                var sprite = sprites_1_1.value;
+                if (this.touchSprite(sprite, checkChildren)) {
+                    return true;
+                }
+            }
+        }
+        catch (e_13_1) { e_13 = { error: e_13_1 }; }
+        finally {
+            try {
+                if (sprites_1_1 && !sprites_1_1.done && (_a = sprites_1.return)) _a.call(sprites_1);
+            }
+            finally { if (e_13) throw e_13.error; }
+        }
+        return false;
+    };
+    Sprite.prototype.touchEdge = function (checkChildren) {
+        var e_14, _a;
+        if (checkChildren === void 0) { checkChildren = true; }
+        var result = this.getPureCollisionResult();
+        this._collidedSprite = null;
+        if (this.hidden || this.stopped || this.deleted) {
+            return false;
+        }
+        if (this.collider) {
+            var gameWidth = this.game.width;
+            var gameHeight = this.game.height;
+            if (this.topY < 0) {
+                result.collision = true;
+                result.overlap = -this.topY;
+                result.overlap_y = -1;
+                return true;
+            }
+            if (this.bottomY > gameHeight) {
+                result.collision = true;
+                result.overlap = this.bottomY - gameHeight;
+                result.overlap_y = 1;
+                return true;
+            }
+            if (this.leftX < 0) {
+                result.collision = true;
+                result.overlap = -this.leftX;
+                result.overlap_x = -1;
+                return true;
+            }
+            if (this.rightX > gameWidth) {
+                result.collision = true;
+                result.overlap = this.rightX - gameWidth;
+                result.overlap_x = 1;
+                return true;
+            }
+        }
+        if (checkChildren) {
+            try {
+                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var child = _c.value;
+                    if (child.touchEdge()) {
+                        this._collidedSprite = child;
+                        return true;
+                    }
+                }
+            }
+            catch (e_14_1) { e_14 = { error: e_14_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_14) throw e_14.error; }
+            }
+        }
+        return false;
+    };
+    Sprite.prototype.touchTopEdge = function (checkChildren) {
+        var e_15, _a;
+        if (checkChildren === void 0) { checkChildren = true; }
+        this.clearCollisionResult();
+        this._collidedSprite = null;
+        if (this.hidden || this.stopped || this.deleted) {
+            return false;
+        }
+        if (this.collider && this.topY < 0) {
+            this.collisionResult.collision = true;
+            this.collisionResult.overlap = -this.topY;
+            this.collisionResult.overlap_y = -1;
+            return true;
+        }
+        if (checkChildren) {
+            try {
+                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var child = _c.value;
+                    if (child.touchTopEdge()) {
+                        this._collidedSprite = child;
+                        return true;
+                    }
+                }
+            }
+            catch (e_15_1) { e_15 = { error: e_15_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_15) throw e_15.error; }
+            }
+        }
+        return false;
+    };
+    Sprite.prototype.touchBottomEdge = function (checkChildren) {
+        var e_16, _a;
+        if (checkChildren === void 0) { checkChildren = true; }
+        this.clearCollisionResult();
+        this._collidedSprite = null;
+        if (this.hidden || this.stopped || this.deleted) {
+            return false;
+        }
+        if (this.collider && this.bottomY > this.game.height) {
+            this.collisionResult.collision = true;
+            this.collisionResult.overlap = this.bottomY - this.game.height;
+            this.collisionResult.overlap_y = 1;
+            return true;
+        }
+        if (checkChildren) {
+            try {
+                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var child = _c.value;
+                    if (child.touchBottomEdge()) {
+                        this._collidedSprite = child;
+                        return true;
+                    }
+                }
+            }
+            catch (e_16_1) { e_16 = { error: e_16_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_16) throw e_16.error; }
+            }
+        }
+        return false;
+    };
+    Sprite.prototype.touchLeftEdge = function (checkChildren) {
+        var e_17, _a;
+        if (checkChildren === void 0) { checkChildren = true; }
+        this.clearCollisionResult();
+        this._collidedSprite = null;
+        if (this.hidden || this.stopped || this.deleted) {
+            return false;
+        }
+        if (this.collider && this.leftX < 0) {
+            this.collisionResult.collision = true;
+            this.collisionResult.overlap = -this.leftX;
+            this.collisionResult.overlap_x = -1;
+            return true;
+        }
+        if (checkChildren) {
+            try {
+                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var child = _c.value;
+                    if (child.touchLeftEdge()) {
+                        this._collidedSprite = child;
+                        return true;
+                    }
+                }
+            }
+            catch (e_17_1) { e_17 = { error: e_17_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_17) throw e_17.error; }
+            }
+        }
+        return false;
+    };
+    Sprite.prototype.touchRightEdge = function (checkChildren) {
+        var e_18, _a;
+        if (checkChildren === void 0) { checkChildren = true; }
+        this.clearCollisionResult();
+        this._collidedSprite = null;
+        if (this.hidden || this.stopped || this.deleted) {
+            return false;
+        }
+        if (this.collider && this.rightX > this.game.width) {
+            this.collisionResult.collision = true;
+            this.collisionResult.overlap = this.rightX - this.game.width;
+            this.collisionResult.overlap_x = 1;
+            return true;
+        }
+        if (checkChildren) {
+            try {
+                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var child = _c.value;
+                    if (child.touchRightEdge()) {
+                        this._collidedSprite = child;
+                        return true;
+                    }
+                }
+            }
+            catch (e_18_1) { e_18 = { error: e_18_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_18) throw e_18.error; }
+            }
+        }
+        return false;
+    };
+    Object.defineProperty(Sprite.prototype, "overlap", {
+        get: function () {
+            if (this._collidedSprite) {
+                return this._collidedSprite.overlap;
+            }
+            if (!this.collisionResult.collision) {
+                return 0;
+            }
+            return this.collisionResult.overlap;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "overlapX", {
+        get: function () {
+            if (this._collidedSprite) {
+                return this._collidedSprite.overlapX;
+            }
+            if (!this.collisionResult.collision) {
+                return 0;
+            }
+            return this.collisionResult.overlap_x * this.collisionResult.overlap;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "overlapY", {
+        get: function () {
+            if (this._collidedSprite) {
+                return this._collidedSprite.overlapY;
+            }
+            if (!this.collisionResult.collision) {
+                return 0;
+            }
+            return this.collisionResult.overlap_y * this.collisionResult.overlap;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "drawings", {
+        get: function () {
+            return this._drawings;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Sprite.prototype.clearCollisionResult = function () {
+        this.collisionResult.collision = false;
+        this.collisionResult.a = null;
+        this.collisionResult.b = null;
+        this.collisionResult.a_in_b = false;
+        this.collisionResult.b_in_a = false;
+        this.collisionResult.overlap = 0;
+        this.collisionResult.overlap_x = 0;
+        this.collisionResult.overlap_y = 0;
+    };
+    Sprite.prototype.getPureCollisionResult = function () {
+        this.clearCollisionResult();
+        return this.collisionResult;
+    };
+    Sprite.prototype.touchMouse = function (checkChildren) {
+        if (checkChildren === void 0) { checkChildren = true; }
+        return this.touchMousePoint(this.game.getMousePoint(), checkChildren);
+    };
+    Sprite.prototype.touchMousePoint = function (mousePoint, checkChildren) {
+        var e_19, _a;
+        if (checkChildren === void 0) { checkChildren = true; }
+        this._collidedSprite = null;
+        if (this.hidden || this.stopped || this.deleted) {
+            return false;
+        }
+        var collider = this.collider;
+        var isTouch = collider && collider.collides(mousePoint, this.collisionResult);
+        if (isTouch) {
+            return true;
+        }
+        if (checkChildren) {
+            try {
+                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var child = _c.value;
+                    if (child.touchMousePoint(child.game.getMousePoint())) {
+                        this._collidedSprite = child.otherSprite;
+                        return true;
+                    }
+                }
+            }
+            catch (e_19_1) { e_19 = { error: e_19_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_19) throw e_19.error; }
+            }
+        }
+        return false;
+    };
+    Sprite.prototype.pointForward = function (object) {
+        var absoluteX = object.absoluteX ? object.absoluteX : object.x;
+        var absoluteY = object.absoluteY ? object.absoluteY : object.y;
+        this.direction = (Math.atan2(this.absoluteY - absoluteY, this.absoluteX - absoluteX) / Math.PI * 180) - 90;
+    };
+    Sprite.prototype.getDistanceTo = function (object) {
+        var absoluteX = object.absoluteX ? object.absoluteX : object.x;
+        var absoluteY = object.absoluteY ? object.absoluteY : object.y;
+        return Math.sqrt((Math.abs(this.absoluteX - absoluteX)) + (Math.abs(this.absoluteY - absoluteY)));
+    };
+    Sprite.prototype.say = function (text, time) {
+        if (time === void 0) { time = null; }
+        this.phrase = this.name + ': ' + text;
+        this.phraseLiveTime = null;
+        if (time) {
+            var currentTime = (new Date()).getTime();
+            this.phraseLiveTime = currentTime + time;
+        }
+    };
+    Sprite.prototype.getPhrase = function () {
+        if (this.phrase) {
+            if (this.phraseLiveTime === null) {
+                return this.phrase;
+            }
+            var currentTime = (new Date()).getTime();
+            if (this.phraseLiveTime > currentTime) {
+                return this.phrase;
+            }
+            else {
+                this.phrase = null;
+                this.phraseLiveTime = null;
+            }
+        }
+        return null;
+    };
+    Sprite.prototype.createClone = function (stage) {
+        var _a, e_20, _b, e_21, _c;
+        if (stage === void 0) { stage = null; }
+        if (!this.isReady()) {
+            this.game.throwError(ErrorMessages.CLONED_NOT_READY);
+        }
+        if (!stage) {
+            stage = this.stage;
+        }
+        var clone = new Sprite(stage, this.layer);
+        clone.name = this.name;
+        clone._rotateStyle = this._rotateStyle;
+        clone.x = this.x;
+        clone.y = this.y;
+        clone.pivotOffsetX = this.pivotOffsetX;
+        clone.pivotOffsetY = this.pivotOffsetY;
+        clone.direction = this.direction;
+        clone.size = this.size;
+        clone.hidden = this.hidden;
+        clone._deleted = this.deleted;
+        clone._stopped = this.stopped;
+        (_a = clone._tags).push.apply(_a, __spreadArray([], __read(this.tags), false));
+        clone.defaultColliderNone = this.defaultColliderNone;
+        for (var i = 0; i < this.costumes.length; i++) {
+            clone.cloneCostume(this.costumes[i], this.costumeNames[i]);
+        }
+        clone.switchCostume(this.costumeIndex);
+        try {
+            for (var _d = __values(this.sounds.entries()), _e = _d.next(); !_e.done; _e = _d.next()) {
+                var _f = __read(_e.value, 2), soundIndex = _f[0], sound = _f[1];
+                clone.cloneSound(sound, this.soundNames[soundIndex]);
+            }
+        }
+        catch (e_20_1) { e_20 = { error: e_20_1 }; }
+        finally {
+            try {
+                if (_e && !_e.done && (_b = _d.return)) _b.call(_d);
+            }
+            finally { if (e_20) throw e_20.error; }
+        }
+        clone.currentColliderName = null;
+        clone.cloneCollider(this);
+        if (this.currentColliderName) {
+            clone.switchCollider(this.currentColliderName);
+        }
+        try {
+            for (var _g = __values(this._children), _h = _g.next(); !_h.done; _h = _g.next()) {
+                var child = _h.value;
+                var childClone = child.createClone();
+                clone.addChild(childClone);
+                childClone.x = child.x;
+                childClone.y = child.y;
+            }
+        }
+        catch (e_21_1) { e_21 = { error: e_21_1 }; }
+        finally {
+            try {
+                if (_h && !_h.done && (_c = _g.return)) _c.call(_g);
+            }
+            finally { if (e_21) throw e_21.error; }
+        }
+        clone.ready();
+        return clone;
+    };
+    Sprite.prototype.timeout = function (callback, timeout) {
+        this.repeat(callback, 1, null, timeout, undefined);
+    };
+    Sprite.prototype.repeat = function (callback, repeat, interval, timeout, finishCallback) {
+        if (interval === void 0) { interval = null; }
+        if (timeout === void 0) { timeout = null; }
+        var state = new ScheduledState(interval, repeat, 0);
+        if (timeout) {
+            timeout = Date.now() + timeout;
+        }
+        this.scheduledCallbacks.push(new ScheduledCallbackItem(callback, state, timeout, finishCallback));
+        return state;
+    };
+    Sprite.prototype.forever = function (callback, interval, timeout, finishCallback) {
+        if (interval === void 0) { interval = null; }
+        if (timeout === void 0) { timeout = null; }
+        var state = new ScheduledState(interval);
+        if (timeout) {
+            timeout = Date.now() + timeout;
+        }
+        this.scheduledCallbacks.push(new ScheduledCallbackItem(callback, state, timeout, finishCallback));
+        return state;
+    };
+    Sprite.prototype.pen = function (callback) {
+        this._drawings.push(callback);
+    };
+    Sprite.prototype.update = function (diffTime) {
+        if (this.deleted) {
+            return;
+        }
+        this.scheduledCallbacks = this.scheduledCallbacks.filter(this.scheduledCallbackExecutor.execute(Date.now(), diffTime));
+    };
+    Sprite.prototype.delete = function () {
+        var e_22, _a;
+        if (this.deleted) {
+            return;
+        }
+        this.stage.removeSprite(this, this.layer);
+        this.eventEmitter.clearAll();
+        this.removeCollider();
+        this.scheduledCallbackExecutor = null;
+        var props = Object.keys(this);
+        for (var i = 0; i < props.length; i++) {
+            delete this[props[i]];
+        }
+        this.costumes = [];
+        this.costumeNames = [];
+        this.sounds = [];
+        this.soundNames = [];
+        this.onReadyCallbacks = [];
+        this.scheduledCallbacks = [];
+        this._children = [];
+        try {
+            for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                var child = _c.value;
+                child.delete();
+            }
+        }
+        catch (e_22_1) { e_22 = { error: e_22_1 }; }
+        finally {
+            try {
+                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            }
+            finally { if (e_22) throw e_22.error; }
+        }
+        this._deleted = true;
+    };
+    Sprite.prototype.run = function () {
+        this._stopped = false;
+    };
+    Sprite.prototype.stop = function () {
+        this._stopped = true;
+    };
+    Sprite.prototype.setPivotOffset = function (x, y) {
+        if (x === void 0) { x = 0; }
+        if (y === void 0) { y = 0; }
+        this.pivotOffsetX = x;
+        this.pivotOffsetY = y;
+        return this;
+    };
+    Sprite.prototype.switchCollider = function (colliderName) {
+        if (!this.colliders.has(colliderName)) {
+            this.game.throwError(ErrorMessages.COLLIDER_NAME_NOT_FOUND, { colliderName: colliderName });
+        }
+        if (this.currentColliderName === colliderName) {
+            return this;
+        }
+        var prevCollider = this.collider;
+        if (prevCollider) {
+            this.stage.collisionSystem.remove(prevCollider);
+        }
+        this.currentColliderName = colliderName;
+        var newCollider = this.collider;
+        this.stage.collisionSystem.insert(newCollider);
+        this._width = newCollider.width;
+        this._height = newCollider.height;
+        return this;
+    };
+    Sprite.prototype.getCollider = function (colliderName) {
+        if (!this.colliders.has(colliderName)) {
+            this.game.throwError(ErrorMessages.COLLIDER_NAME_NOT_FOUND, { colliderName: colliderName });
+        }
+        return this.colliders.get(colliderName);
+    };
+    Sprite.prototype.hasCollider = function (colliderName) {
+        return this.colliders.has(colliderName);
+    };
+    Object.defineProperty(Sprite.prototype, "collider", {
+        get: function () {
+            if (this.currentColliderName && this.colliders.has(this.currentColliderName)) {
+                return this.colliders.get(this.currentColliderName);
+            }
+            return null;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Sprite.prototype.setCollider = function (colliderName, collider, offsetX, offsetY) {
+        if (offsetX === void 0) { offsetX = 0; }
+        if (offsetY === void 0) { offsetY = 0; }
+        collider.parentSprite = this;
+        collider.offset_x = offsetX;
+        collider.offset_y = offsetY;
+        if (this.currentColliderName === colliderName && this.colliders.has(colliderName)) {
+            var prevCollider = this.colliders.get(colliderName);
+            this.stage.collisionSystem.remove(prevCollider);
+            this.currentColliderName = null;
+        }
+        this.colliders.set(colliderName, collider);
+        this.updateColliderPosition(collider);
+        if (this.isReady() && !this.collider) {
+            this.switchCollider(colliderName);
+        }
+        return this;
+    };
+    Sprite.prototype.setRectCollider = function (colliderName, width, height, offsetX, offsetY) {
+        if (offsetX === void 0) { offsetX = 0; }
+        if (offsetY === void 0) { offsetY = 0; }
+        var angle = 0;
+        if (this._rotateStyle != 'leftRight') {
+            angle = this.absoluteAngleRadians;
+        }
+        var collider = new PolygonCollider(this.x, this.y, [
+            [(width / 2) * -1, (height / 2) * -1],
+            [width / 2, (height / 2) * -1],
+            [width / 2, height / 2],
+            [(width / 2) * -1, height / 2]
+        ], angle, this.size / 100, this.size / 100);
+        collider.width = width;
+        collider.height = height;
+        this.setCollider(colliderName, collider, offsetX, offsetY);
+        return this;
+    };
+    Sprite.prototype.setPolygonCollider = function (colliderName, points, offsetX, offsetY) {
+        if (points === void 0) { points = []; }
+        if (offsetX === void 0) { offsetX = 0; }
+        if (offsetY === void 0) { offsetY = 0; }
+        var angleRadians = 0;
+        if (this._rotateStyle != 'leftRight') {
+            angleRadians = this.absoluteAngleRadians;
+        }
+        var centroid = this.calculateCentroid(points);
+        var centeredPoints = points.map(function (point) { return [
+            point[0] - centroid.x,
+            point[1] - centroid.y
+        ]; });
+        var collider = new PolygonCollider(this.x, this.y, centeredPoints, angleRadians, this.size / 100, this.size / 100);
+        var _a = this.calculatePolygonSize(centeredPoints), width = _a.width, height = _a.height;
+        collider.width = width;
+        collider.height = height;
+        this.setCollider(colliderName, collider, offsetX, offsetY);
+        return this;
+    };
+    Sprite.prototype.setCircleCollider = function (colliderName, radius, offsetX, offsetY) {
+        if (offsetX === void 0) { offsetX = 0; }
+        if (offsetY === void 0) { offsetY = 0; }
+        var collider = new CircleCollider(this.x, this.y, radius, this.size / 100);
+        collider.width = radius * 2;
+        collider.height = radius * 2;
+        this.setCollider(colliderName, collider, offsetX, offsetY);
+        return this;
+    };
+    Sprite.prototype.setCostumeCollider = function (colliderName, costumeIndex, offsetX, offsetY) {
+        if (costumeIndex === void 0) { costumeIndex = 0; }
+        if (offsetX === void 0) { offsetX = 0; }
+        if (offsetY === void 0) { offsetY = 0; }
+        if (this.costumes[costumeIndex] === undefined) {
+            this.game.throwError(ErrorMessages.COSTUME_INDEX_NOT_FOUND, { costumeIndex: costumeIndex });
+        }
+        var costume = this.costumes[costumeIndex];
+        this.setRectCollider(colliderName, costume.width, costume.height, offsetX, offsetY);
+        return this;
+    };
+    Sprite.prototype.removeCollider = function (colliderName) {
+        if (colliderName === void 0) { colliderName = null; }
+        if (colliderName) {
+            this.removeColliderByName(colliderName);
+        }
+        else {
+            var collider = this.collider;
+            if (collider) {
+                this.stage.collisionSystem.remove(collider);
+            }
+            this.colliders.clear();
+            this.currentColliderName = null;
+            this.defaultColliderNone = true;
+        }
+    };
+    Sprite.prototype.removeColliderByName = function (colliderName) {
+        var collider = this.getCollider(colliderName);
+        this.colliders.delete(colliderName);
+        if (this.colliders.size === 0) {
+            this.defaultColliderNone = true;
+        }
+        if (colliderName === this.currentColliderName) {
+            this.stage.collisionSystem.remove(collider);
+            if (this.colliders.size) {
+                var nextColliderName = this.colliders.keys().next().value;
+                this.switchCollider(nextColliderName);
+            }
+        }
     };
     Sprite.prototype.getCostume = function () {
         return this.costume;
@@ -1542,6 +1995,711 @@ var Sprite = (function () {
     };
     Sprite.prototype.getCostumeIndex = function () {
         return this.costumeIndex;
+    };
+    Sprite.prototype.touchTag = function (tagName, checkChildren) {
+        var e_23, _a, e_24, _b;
+        if (checkChildren === void 0) { checkChildren = true; }
+        this._collidedSprite = null;
+        if (this.hidden || this.stopped || this.deleted) {
+            return false;
+        }
+        var collider = this.collider;
+        if (collider) {
+            var potentialsColliders = collider.potentials();
+            if (!potentialsColliders.length) {
+                return false;
+            }
+            try {
+                for (var potentialsColliders_1 = __values(potentialsColliders), potentialsColliders_1_1 = potentialsColliders_1.next(); !potentialsColliders_1_1.done; potentialsColliders_1_1 = potentialsColliders_1.next()) {
+                    var potentialCollider = potentialsColliders_1_1.value;
+                    var potentialSprite = potentialCollider.parentSprite;
+                    if (potentialSprite && potentialSprite.hasTag(tagName)) {
+                        if (!potentialSprite.hidden &&
+                            !potentialSprite.stopped &&
+                            !potentialSprite.deleted &&
+                            potentialSprite.collider &&
+                            collider.collides(potentialCollider, this.collisionResult)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            catch (e_23_1) { e_23 = { error: e_23_1 }; }
+            finally {
+                try {
+                    if (potentialsColliders_1_1 && !potentialsColliders_1_1.done && (_a = potentialsColliders_1.return)) _a.call(potentialsColliders_1);
+                }
+                finally { if (e_23) throw e_23.error; }
+            }
+        }
+        if (checkChildren) {
+            try {
+                for (var _c = __values(this._children), _d = _c.next(); !_d.done; _d = _c.next()) {
+                    var child = _d.value;
+                    if (child.touchTag(tagName)) {
+                        this._collidedSprite = child;
+                        return true;
+                    }
+                }
+            }
+            catch (e_24_1) { e_24 = { error: e_24_1 }; }
+            finally {
+                try {
+                    if (_d && !_d.done && (_b = _c.return)) _b.call(_c);
+                }
+                finally { if (e_24) throw e_24.error; }
+            }
+        }
+        return false;
+    };
+    Sprite.prototype.touchTagAll = function (tagName, checkChildren) {
+        var e_25, _a, e_26, _b, e_27, _c;
+        if (checkChildren === void 0) { checkChildren = true; }
+        this._collidedSprite = null;
+        if (this.hidden || this.stopped || this.deleted) {
+            return false;
+        }
+        var collidedSprites = [];
+        var collider = this.collider;
+        if (collider) {
+            var potentialsColliders = collider.potentials();
+            if (!potentialsColliders.length) {
+                return false;
+            }
+            try {
+                for (var potentialsColliders_2 = __values(potentialsColliders), potentialsColliders_2_1 = potentialsColliders_2.next(); !potentialsColliders_2_1.done; potentialsColliders_2_1 = potentialsColliders_2.next()) {
+                    var potentialCollider = potentialsColliders_2_1.value;
+                    var potentialSprite = potentialCollider.parentSprite;
+                    if (potentialSprite && potentialSprite.hasTag(tagName)) {
+                        if (!potentialSprite.hidden &&
+                            !potentialSprite.stopped &&
+                            !potentialSprite.deleted &&
+                            potentialSprite.collider &&
+                            collider.collides(potentialCollider, this.collisionResult)) {
+                            collidedSprites.push(potentialSprite);
+                        }
+                    }
+                }
+            }
+            catch (e_25_1) { e_25 = { error: e_25_1 }; }
+            finally {
+                try {
+                    if (potentialsColliders_2_1 && !potentialsColliders_2_1.done && (_a = potentialsColliders_2.return)) _a.call(potentialsColliders_2);
+                }
+                finally { if (e_25) throw e_25.error; }
+            }
+        }
+        if (checkChildren) {
+            try {
+                for (var _d = __values(this._children), _e = _d.next(); !_e.done; _e = _d.next()) {
+                    var child = _e.value;
+                    var collision = child.touchTagAll(tagName);
+                    if (collision && !collision.length) {
+                        try {
+                            for (var collision_1 = (e_27 = void 0, __values(collision)), collision_1_1 = collision_1.next(); !collision_1_1.done; collision_1_1 = collision_1.next()) {
+                                var sprite = collision_1_1.value;
+                                collidedSprites.push(sprite);
+                            }
+                        }
+                        catch (e_27_1) { e_27 = { error: e_27_1 }; }
+                        finally {
+                            try {
+                                if (collision_1_1 && !collision_1_1.done && (_c = collision_1.return)) _c.call(collision_1);
+                            }
+                            finally { if (e_27) throw e_27.error; }
+                        }
+                    }
+                }
+            }
+            catch (e_26_1) { e_26 = { error: e_26_1 }; }
+            finally {
+                try {
+                    if (_e && !_e.done && (_b = _d.return)) _b.call(_d);
+                }
+                finally { if (e_26) throw e_26.error; }
+            }
+        }
+        if (!collidedSprites.length) {
+            return collidedSprites;
+        }
+        return false;
+    };
+    Sprite.prototype.touchAnySprite = function (checkChildren) {
+        var e_28, _a, e_29, _b;
+        if (checkChildren === void 0) { checkChildren = true; }
+        this._collidedSprite = null;
+        if (this.hidden || this.stopped || this.deleted) {
+            return false;
+        }
+        var collider = this.collider;
+        if (collider) {
+            var potentialsColliders = collider.potentials();
+            if (!potentialsColliders.length) {
+                return false;
+            }
+            try {
+                for (var potentialsColliders_3 = __values(potentialsColliders), potentialsColliders_3_1 = potentialsColliders_3.next(); !potentialsColliders_3_1.done; potentialsColliders_3_1 = potentialsColliders_3.next()) {
+                    var potentialCollider = potentialsColliders_3_1.value;
+                    var potentialSprite = potentialCollider.parentSprite;
+                    if (!potentialSprite.hidden &&
+                        !potentialSprite.stopped &&
+                        !potentialSprite.deleted &&
+                        potentialSprite.collider &&
+                        collider.collides(potentialCollider, this.collisionResult)) {
+                        return true;
+                    }
+                }
+            }
+            catch (e_28_1) { e_28 = { error: e_28_1 }; }
+            finally {
+                try {
+                    if (potentialsColliders_3_1 && !potentialsColliders_3_1.done && (_a = potentialsColliders_3.return)) _a.call(potentialsColliders_3);
+                }
+                finally { if (e_28) throw e_28.error; }
+            }
+        }
+        if (checkChildren) {
+            try {
+                for (var _c = __values(this._children), _d = _c.next(); !_d.done; _d = _c.next()) {
+                    var child = _d.value;
+                    if (child.touchAnySprite()) {
+                        this._collidedSprite = child;
+                        return true;
+                    }
+                }
+            }
+            catch (e_29_1) { e_29 = { error: e_29_1 }; }
+            finally {
+                try {
+                    if (_d && !_d.done && (_b = _c.return)) _b.call(_c);
+                }
+                finally { if (e_29) throw e_29.error; }
+            }
+        }
+        return false;
+    };
+    Sprite.prototype.hasTag = function (tagName) {
+        return this._tags.includes(tagName);
+    };
+    Sprite.prototype.addTag = function (tagName) {
+        var e_30, _a;
+        if (!this.hasTag(tagName)) {
+            this._tags.push(tagName);
+        }
+        try {
+            for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                var child = _c.value;
+                child.addTag(tagName);
+            }
+        }
+        catch (e_30_1) { e_30 = { error: e_30_1 }; }
+        finally {
+            try {
+                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            }
+            finally { if (e_30) throw e_30.error; }
+        }
+        return this;
+    };
+    Sprite.prototype.removeTag = function (tagName) {
+        var e_31, _a;
+        var foundIndex = this._tags.indexOf(tagName);
+        if (foundIndex > -1) {
+            this._tags.splice(foundIndex, 1);
+        }
+        try {
+            for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                var child = _c.value;
+                child.addTag(tagName);
+            }
+        }
+        catch (e_31_1) { e_31 = { error: e_31_1 }; }
+        finally {
+            try {
+                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            }
+            finally { if (e_31) throw e_31.error; }
+        }
+        return this;
+    };
+    Object.defineProperty(Sprite.prototype, "direction", {
+        get: function () {
+            return this._direction;
+        },
+        set: function (direction) {
+            var e_32, _a;
+            if ((direction * 0) !== 0) {
+                return;
+            }
+            direction = direction % 360;
+            if (direction < 0) {
+                direction += 360;
+            }
+            this._direction = (direction > 360) ? direction - 360 : direction;
+            this.updateColliderAngle();
+            try {
+                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var child = _c.value;
+                    child.updateColliderAngle();
+                }
+            }
+            catch (e_32_1) { e_32 = { error: e_32_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_32) throw e_32.error; }
+            }
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "absoluteDirection", {
+        get: function () {
+            return this._parentSprite ? this._parentSprite.direction + this.direction : this.direction;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "defaultColliderNone", {
+        get: function () {
+            return this._defaultColliderNone;
+        },
+        set: function (colliderNone) {
+            this._defaultColliderNone = colliderNone;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "absoluteAngleRadians", {
+        get: function () {
+            return this.absoluteDirection * Math.PI / 180;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "sourceWidth", {
+        get: function () {
+            return this._width * this.size / 100;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "sourceHeight", {
+        get: function () {
+            return this._height * this.size / 100;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "width", {
+        get: function () {
+            if (this.collider instanceof PolygonCollider) {
+                var angleRadians = this.absoluteAngleRadians;
+                return Math.abs(this.sourceWidth * Math.cos(angleRadians)) + Math.abs(this.sourceHeight * Math.sin(angleRadians));
+            }
+            return this.sourceWidth;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "height", {
+        get: function () {
+            if (this.collider instanceof PolygonCollider) {
+                var angleRadians = this.absoluteAngleRadians;
+                return Math.abs(this.sourceWidth * Math.sin(angleRadians)) + Math.abs(this.sourceHeight * Math.cos(angleRadians));
+            }
+            return this.sourceHeight;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "x", {
+        get: function () {
+            return this._x;
+        },
+        set: function (value) {
+            var e_33, _a;
+            this._x = value;
+            if (this._children.length) {
+                this.updateCenterParams();
+            }
+            var collider = this.collider;
+            if (collider) {
+                this.updateColliderPosition(collider);
+            }
+            try {
+                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var child = _c.value;
+                    if (child.collider) {
+                        child.updateColliderPosition(child.collider);
+                    }
+                }
+            }
+            catch (e_33_1) { e_33 = { error: e_33_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_33) throw e_33.error; }
+            }
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "y", {
+        get: function () {
+            return this._y;
+        },
+        set: function (value) {
+            var e_34, _a;
+            this._y = value;
+            if (this._children.length) {
+                this.updateCenterParams();
+            }
+            var collider = this.collider;
+            if (collider) {
+                this.updateColliderPosition(collider);
+            }
+            try {
+                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var child = _c.value;
+                    if (child.collider) {
+                        child.updateColliderPosition(child.collider);
+                    }
+                }
+            }
+            catch (e_34_1) { e_34 = { error: e_34_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_34) throw e_34.error; }
+            }
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "sourceX", {
+        get: function () {
+            if (this._rotateStyle === 'leftRight' || this._rotateStyle === 'none') {
+                var leftRightMultiplier = this._direction > 180 && this._rotateStyle === 'leftRight' ? -1 : 1;
+                return this.absoluteX - this._pivotOffsetX * leftRightMultiplier * this.size / 100;
+            }
+            return this.absoluteX + Math.cos(this._centerAngle - this.absoluteAngleRadians) * this._centerDistance * this.size / 100;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "sourceY", {
+        get: function () {
+            if (this._rotateStyle === 'leftRight' || this._rotateStyle === 'none') {
+                return this.absoluteY - this._pivotOffsetY * this.size / 100;
+            }
+            return this.absoluteY - Math.sin(this._centerAngle - this.absoluteAngleRadians) * this._centerDistance * this.size / 100;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "realX", {
+        get: function () {
+            return this.x - this.width / 2;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "realY", {
+        get: function () {
+            return this.y - this.height / 2;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "absoluteX", {
+        get: function () {
+            if (this._parentSprite) {
+                if (this._rotateStyle === 'leftRight' || this._rotateStyle === 'none') {
+                    var leftRightMultiplier = this._direction > 180 && this._rotateStyle === 'leftRight' ? -1 : 1;
+                    return this._parentSprite.absoluteX + this._x * leftRightMultiplier * this.size / 100;
+                }
+                return this._parentSprite.absoluteX + this.distanceToParent * Math.cos(this.angleToParent - this._parentSprite.absoluteAngleRadians) * this.size / 100;
+            }
+            return this._x;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "absoluteY", {
+        get: function () {
+            if (this._parentSprite) {
+                if (this._rotateStyle === 'leftRight' || this._rotateStyle === 'none') {
+                    return this._parentSprite.absoluteY + this._y;
+                }
+                return this._parentSprite.absoluteY - this.distanceToParent * Math.sin(this.angleToParent - this._parentSprite.absoluteAngleRadians) * this.size / 100;
+            }
+            return this._y;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "rightX", {
+        get: function () {
+            var collider = this.collider;
+            return this.sourceX + this.width / 2 + (collider ? collider.center_offset_x * this.size / 100 : 0);
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "leftX", {
+        get: function () {
+            var collider = this.collider;
+            return this.sourceX - this.width / 2 + (collider ? collider.center_offset_x * this.size / 100 : 0);
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "topY", {
+        get: function () {
+            var collider = this.collider;
+            return this.sourceY - this.height / 2 + (collider ? collider.center_offset_y * this.size / 100 : 0);
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "bottomY", {
+        get: function () {
+            var collider = this.collider;
+            return this.sourceY + this.height / 2 + (collider ? collider.center_offset_y * this.size / 100 : 0);
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "size", {
+        get: function () {
+            return this._size;
+        },
+        set: function (value) {
+            var e_35, _a;
+            this._size = value;
+            var collider = this.collider;
+            if (collider) {
+                this.updateColliderSize(collider);
+            }
+            try {
+                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var child = _c.value;
+                    child.size = value;
+                }
+            }
+            catch (e_35_1) { e_35 = { error: e_35_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_35) throw e_35.error; }
+            }
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "rotateStyle", {
+        get: function () {
+            return this._rotateStyle;
+        },
+        set: function (value) {
+            var e_36, _a;
+            this._rotateStyle = value;
+            try {
+                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var child = _c.value;
+                    child.rotateStyle = value;
+                }
+            }
+            catch (e_36_1) { e_36 = { error: e_36_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_36) throw e_36.error; }
+            }
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "hidden", {
+        get: function () {
+            return this._hidden;
+        },
+        set: function (value) {
+            var e_37, _a;
+            this._hidden = value;
+            try {
+                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var child = _c.value;
+                    child.hidden = value;
+                }
+            }
+            catch (e_37_1) { e_37 = { error: e_37_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_37) throw e_37.error; }
+            }
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "collidedSprite", {
+        get: function () {
+            return this._collidedSprite;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "opacity", {
+        get: function () {
+            return this._opacity;
+        },
+        set: function (value) {
+            if (value === null) {
+                this._opacity = null;
+            }
+            else {
+                this._opacity = Math.min(1, Math.max(0, value));
+            }
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "filter", {
+        get: function () {
+            return this._filter;
+        },
+        set: function (value) {
+            this._filter = value;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "deleted", {
+        get: function () {
+            return this._deleted;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "stopped", {
+        get: function () {
+            return this._stopped;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "pivotOffsetX", {
+        get: function () {
+            return this._pivotOffsetX;
+        },
+        set: function (value) {
+            var prevX = this.x;
+            this._pivotOffsetX = value;
+            this.updateCenterParams();
+            this.x = prevX;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "pivotOffsetY", {
+        get: function () {
+            return this._pivotOffsetY;
+        },
+        set: function (value) {
+            var prevY = this.y;
+            this._pivotOffsetY = value;
+            this.updateCenterParams();
+            this.y = prevY;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "layer", {
+        get: function () {
+            return this._layer;
+        },
+        set: function (newLayer) {
+            var e_38, _a;
+            this.stage.changeSpriteLayer(this, this._layer, newLayer);
+            this._layer = newLayer;
+            try {
+                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var child = _c.value;
+                    child.layer = child.layer + this._layer;
+                }
+            }
+            catch (e_38_1) { e_38 = { error: e_38_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_38) throw e_38.error; }
+            }
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "tags", {
+        get: function () {
+            return this._tags;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "otherSprite", {
+        get: function () {
+            if (!this.collisionResult.collision) {
+                return null;
+            }
+            return this.collisionResult.b.parentSprite;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "otherMainSprite", {
+        get: function () {
+            if (!this.collisionResult.collision) {
+                return null;
+            }
+            return this.collisionResult.b.parentSprite.getMainSprite();
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "parent", {
+        get: function () {
+            return this._parentSprite;
+        },
+        set: function (newParent) {
+            this._parentSprite = newParent;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "angleToParent", {
+        get: function () {
+            return -Math.atan2(this.y, this.x);
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "distanceToParent", {
+        get: function () {
+            return Math.hypot(this.x, this.y);
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Sprite.prototype.ready = function () {
+        this.tryDoOnReady();
     };
     Sprite.prototype.transformImage = function (srcImage, rotate, flipX, flipY, imageX, imageY, imageWidth, imageHeight, imageAlphaColor, imageAlphaTolerance, crop, cropTop, cropRight, cropBottom, cropLeft) {
         if (flipX === void 0) { flipX = false; }
@@ -1648,1303 +2806,30 @@ var Sprite = (function () {
         this.costumes.push(costume);
         this.costumeNames.push(name);
     };
-    Sprite.prototype.addSound = function (soundPath, name) {
-        var _this = this;
-        if (!name) {
-            name = 'No name ' + this.sounds.length;
-        }
-        var sound = new Audio();
-        sound.src = soundPath;
-        this.sounds.push(sound);
-        this.soundNames.push(name);
-        this.pendingSounds++;
-        sound.load();
-        var onLoadSound = function () {
-            _this.pendingSounds--;
-            _this.tryDoOnReady();
-            sound.removeEventListener('loadedmetadata', onLoadSound);
-        };
-        sound.addEventListener('loadedmetadata', onLoadSound);
-        return this;
-    };
-    Sprite.prototype.removeSound = function (soundIndex) {
-        if (soundIndex === void 0) { soundIndex = 0; }
-        if (this.sounds[soundIndex] === undefined) {
-            this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, { soundIndex: soundIndex });
-        }
-        this.sounds.splice(soundIndex, 1);
-        return this;
-    };
-    Sprite.prototype.removeSoundByName = function (soundName) {
-        var soundIndex = this.soundNames.indexOf(soundName);
-        if (soundIndex < 0) {
-            this.game.throwError(ErrorMessages.SOUND_NAME_NOT_FOUND, { soundName: soundName });
-        }
-        this.sounds.splice(soundIndex, 1);
-        return this;
-    };
-    Sprite.prototype.playSound = function (soundIndex, volume, currentTime) {
-        if (soundIndex === void 0) { soundIndex = 0; }
-        if (!this.isReady()) {
-            this.game.throwError(ErrorMessages.SOUND_USE_NOT_READY);
-        }
-        var sound = this.sounds[soundIndex];
-        if (!(sound instanceof Audio)) {
-            this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, { soundIndex: soundIndex });
-        }
-        sound.play();
-        if (volume !== undefined) {
-            sound.volume = volume;
-        }
-        if (currentTime !== undefined) {
-            sound.currentTime = currentTime;
-        }
-    };
-    Sprite.prototype.pauseSound = function (soundIndex) {
-        if (!this.isReady()) {
-            this.game.throwError(ErrorMessages.SOUND_USE_NOT_READY);
-        }
-        var sound = this.sounds[soundIndex];
-        if (!(sound instanceof Audio)) {
-            this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, { soundIndex: soundIndex });
-        }
-        sound.pause();
-    };
-    Sprite.prototype.playSoundByName = function (soundName, volume, currentTime) {
-        if (!this.isReady()) {
-            this.game.throwError(ErrorMessages.SOUND_USE_NOT_READY);
-        }
-        var soundIndex = this.soundNames.indexOf(soundName);
-        if (soundIndex < 0) {
-            this.game.throwError(ErrorMessages.SOUND_NAME_NOT_FOUND, { soundName: soundName });
-        }
-        this.playSound(soundIndex, volume, currentTime);
-    };
-    Sprite.prototype.pauseSoundByName = function (soundName) {
-        if (!this.isReady()) {
-            this.game.throwError(ErrorMessages.SOUND_USE_NOT_READY);
-        }
-        var soundIndex = this.soundNames.indexOf(soundName);
-        if (soundIndex < 0) {
-            this.game.throwError(ErrorMessages.SOUND_NAME_NOT_FOUND, { soundName: soundName });
-        }
-        this.pauseSound(soundIndex);
-    };
-    Sprite.prototype.cloneSound = function (sound, name) {
-        this.sounds.push(sound);
-        this.soundNames.push(name);
-    };
-    Sprite.prototype.stamp = function (costumeIndex, withRotation) {
-        if (withRotation === void 0) { withRotation = true; }
-        if (!this.isReady()) {
-            this.game.throwError(ErrorMessages.STAMP_NOT_READY);
-        }
-        costumeIndex = costumeIndex !== null && costumeIndex !== void 0 ? costumeIndex : this.costumeIndex;
-        if (!this.costumes[costumeIndex]) {
-            this.game.throwError(ErrorMessages.STAMP_COSTUME_NOT_FOUND, { costumeIndex: costumeIndex });
-        }
-        var costume = this.costumes[costumeIndex];
-        if (!(costume.image instanceof HTMLCanvasElement)) {
-            this.game.throwErrorRaw('The image inside the costume was not found.');
-        }
-        var direction = 0;
-        if (withRotation && this._rotateStyle === 'normal') {
-            direction = this.direction;
-        }
-        this.stage.stampImage(costume.image, this.x, this.y, direction);
-    };
-    Sprite.prototype.pen = function (callback) {
-        this._drawings.push(callback);
-    };
-    Object.defineProperty(Sprite.prototype, "drawings", {
-        get: function () {
-            return this._drawings;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "opacity", {
-        get: function () {
-            return this._opacity;
-        },
-        set: function (value) {
-            if (value === null) {
-                this._opacity = null;
-            }
-            else {
-                this._opacity = Math.min(1, Math.max(0, value));
-            }
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "filter", {
-        get: function () {
-            return this._filter;
-        },
-        set: function (value) {
-            this._filter = value;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "rotateStyle", {
-        get: function () {
-            return this._rotateStyle;
-        },
-        set: function (value) {
-            var e_15, _a;
-            this._rotateStyle = value;
-            try {
-                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var child = _c.value;
-                    child.rotateStyle = value;
-                }
-            }
-            catch (e_15_1) { e_15 = { error: e_15_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_15) throw e_15.error; }
-            }
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "layer", {
-        get: function () {
-            return this._layer;
-        },
-        set: function (newLayer) {
-            var e_16, _a;
-            this.stage.changeSpriteLayer(this, this._layer, newLayer);
-            this._layer = newLayer;
-            try {
-                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var child = _c.value;
-                    child.layer = child.layer + this._layer;
-                }
-            }
-            catch (e_16_1) { e_16 = { error: e_16_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_16) throw e_16.error; }
-            }
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "hidden", {
-        get: function () {
-            return this._hidden;
-        },
-        set: function (value) {
-            var e_17, _a;
-            this._hidden = value;
-            try {
-                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var child = _c.value;
-                    child.hidden = value;
-                }
-            }
-            catch (e_17_1) { e_17 = { error: e_17_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_17) throw e_17.error; }
-            }
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Sprite.prototype.say = function (text, time) {
-        this.phrase = this.name + ': ' + text;
-        this.phraseLiveTime = null;
-        if (time) {
-            var currentTime = (new Date()).getTime();
-            this.phraseLiveTime = currentTime + time;
-        }
-    };
-    Sprite.prototype.getPhrase = function () {
-        if (this.phrase) {
-            if (this.phraseLiveTime === null) {
-                return this.phrase;
-            }
-            var currentTime = (new Date()).getTime();
-            if (this.phraseLiveTime > currentTime) {
-                return this.phrase;
-            }
-            else {
-                this.phrase = null;
-                this.phraseLiveTime = null;
-            }
-        }
-        return null;
-    };
-    Sprite.prototype.move = function (steps) {
-        var angleRadians = this.globalAngleRadians;
-        this.x += (steps * Math.sin(angleRadians));
-        this.y -= (steps * Math.cos(angleRadians));
-    };
-    Sprite.prototype.pointForward = function (object) {
-        var globalX = object.globalX ? object.globalX : object.x;
-        var globalY = object.globalY ? object.globalY : object.y;
-        this.globalDirection = (Math.atan2(this.globalY - globalY, this.globalX - globalX) / Math.PI * 180) - 90;
-    };
-    Sprite.prototype.getDistanceTo = function (object) {
-        var globalX = object.globalX ? object.globalX : object.x;
-        var globalY = object.globalY ? object.globalY : object.y;
-        return Math.sqrt((Math.abs(this.globalX - globalX)) + (Math.abs(this.globalY - globalY)));
-    };
-    Sprite.prototype.bounceOnEdge = function () {
-        if (this.touchTopEdge() || this.touchBottomEdge()) {
-            this.direction = 180 - this.direction;
-        }
-        if (this.touchLeftEdge() || this.touchRightEdge()) {
-            this.direction *= -1;
-        }
-    };
-    Object.defineProperty(Sprite.prototype, "x", {
-        get: function () {
-            return this._x;
-        },
-        set: function (value) {
-            var e_18, _a;
-            this._x = value;
-            if (this._children.length) {
-                this.updateCenterParams();
-            }
-            var collider = this.collider;
-            if (collider) {
-                this.updateColliderPosition(collider);
-            }
-            try {
-                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var child = _c.value;
-                    if (child.collider) {
-                        child.updateColliderPosition(child.collider);
-                    }
-                }
-            }
-            catch (e_18_1) { e_18 = { error: e_18_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_18) throw e_18.error; }
-            }
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "y", {
-        get: function () {
-            return this._y;
-        },
-        set: function (value) {
-            var e_19, _a;
-            this._y = value;
-            if (this._children.length) {
-                this.updateCenterParams();
-            }
-            var collider = this.collider;
-            if (collider) {
-                this.updateColliderPosition(collider);
-            }
-            try {
-                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var child = _c.value;
-                    if (child.collider) {
-                        child.updateColliderPosition(child.collider);
-                    }
-                }
-            }
-            catch (e_19_1) { e_19 = { error: e_19_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_19) throw e_19.error; }
-            }
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "globalX", {
-        get: function () {
-            if (this._parentSprite) {
-                if (this._rotateStyle === 'leftRight' || this._rotateStyle === 'none') {
-                    var leftRightMultiplier = this._direction > 180 && this._rotateStyle === 'leftRight' ? -1 : 1;
-                    return this._parentSprite.imageCenterX + this._x * leftRightMultiplier * this.size / 100;
-                }
-                return this._parentSprite.imageCenterX + this.distanceToParent * Math.cos(this.angleToParent - this._parentSprite.globalAngleRadians) * this.size / 100;
-            }
-            return this._x;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "globalY", {
-        get: function () {
-            if (this._parentSprite) {
-                if (this._rotateStyle === 'leftRight' || this._rotateStyle === 'none') {
-                    return this._parentSprite.imageCenterY + this._y;
-                }
-                return this._parentSprite.imageCenterY - this.distanceToParent * Math.sin(this.angleToParent - this._parentSprite.globalAngleRadians) * this.size / 100;
-            }
-            return this._y;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "imageCenterX", {
-        get: function () {
-            if (this._rotateStyle === 'leftRight' || this._rotateStyle === 'none') {
-                var leftRightMultiplier = this._direction > 180 && this._rotateStyle === 'leftRight' ? -1 : 1;
-                return this.globalX - this._pivotOffsetX * leftRightMultiplier * this.size / 100;
-            }
-            return this.globalX + Math.cos(this._centerAngle - this.globalAngleRadians) * this._centerDistance * this.size / 100;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "imageCenterY", {
-        get: function () {
-            if (this._rotateStyle === 'leftRight' || this._rotateStyle === 'none') {
-                return this.globalY - this._pivotOffsetY * this.size / 100;
-            }
-            return this.globalY - Math.sin(this._centerAngle - this.globalAngleRadians) * this._centerDistance * this.size / 100;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "realX", {
-        get: function () {
-            return this.x - this.width / 2;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "realY", {
-        get: function () {
-            return this.y - this.height / 2;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "rightX", {
-        get: function () {
-            var collider = this.collider;
-            return this.imageCenterX + this.width / 2 + (collider ? collider.center_offset_x * this.size / 100 : 0);
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "leftX", {
-        get: function () {
-            var collider = this.collider;
-            return this.imageCenterX - this.width / 2 + (collider ? collider.center_offset_x * this.size / 100 : 0);
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "topY", {
-        get: function () {
-            var collider = this.collider;
-            return this.imageCenterY - this.height / 2 + (collider ? collider.center_offset_y * this.size / 100 : 0);
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "bottomY", {
-        get: function () {
-            var collider = this.collider;
-            return this.imageCenterY + this.height / 2 + (collider ? collider.center_offset_y * this.size / 100 : 0);
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "width", {
-        get: function () {
-            if (this.collider instanceof PolygonCollider) {
-                var angleRadians = this.globalAngleRadians;
-                return Math.abs(this.sourceWidth * Math.cos(angleRadians)) + Math.abs(this.sourceHeight * Math.sin(angleRadians));
-            }
-            return this.sourceWidth;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "height", {
-        get: function () {
-            if (this.collider instanceof PolygonCollider) {
-                var angleRadians = this.globalAngleRadians;
-                return Math.abs(this.sourceWidth * Math.sin(angleRadians)) + Math.abs(this.sourceHeight * Math.cos(angleRadians));
-            }
-            return this.sourceHeight;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "sourceWidth", {
-        get: function () {
-            return this._width * this.size / 100;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "sourceHeight", {
-        get: function () {
-            return this._height * this.size / 100;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "size", {
-        get: function () {
-            return this._size;
-        },
-        set: function (value) {
-            var e_20, _a;
-            this._size = value;
-            var collider = this.collider;
-            if (collider) {
-                this.updateColliderSize(collider);
-            }
-            try {
-                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var child = _c.value;
-                    child.size = value;
-                }
-            }
-            catch (e_20_1) { e_20 = { error: e_20_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_20) throw e_20.error; }
-            }
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "direction", {
-        get: function () {
-            return this._direction;
-        },
-        set: function (direction) {
-            var e_21, _a;
-            if ((direction * 0) !== 0) {
-                return;
-            }
-            direction = direction % 360;
-            if (direction < 0) {
-                direction += 360;
-            }
-            this._direction = (direction > 360) ? direction - 360 : direction;
-            this.updateColliderAngle();
-            try {
-                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var child = _c.value;
-                    child.updateColliderAngle();
-                }
-            }
-            catch (e_21_1) { e_21 = { error: e_21_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_21) throw e_21.error; }
-            }
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "globalDirection", {
-        get: function () {
-            return this._parentSprite ? this._parentSprite.direction + this.direction : this.direction;
-        },
-        set: function (value) {
-            this.direction = this._parentSprite ? value - this._parentSprite.direction : value;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "globalAngleRadians", {
-        get: function () {
-            return this.globalDirection * Math.PI / 180;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "angleToParent", {
-        get: function () {
-            return -Math.atan2(this.y, this.x);
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "distanceToParent", {
-        get: function () {
-            return Math.hypot(this.x, this.y);
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Sprite.prototype.setPivotOffset = function (x, y) {
-        if (x === void 0) { x = 0; }
-        if (y === void 0) { y = 0; }
-        this.pivotOffsetX = x;
-        this.pivotOffsetY = y;
-        return this;
-    };
-    Object.defineProperty(Sprite.prototype, "pivotOffsetX", {
-        get: function () {
-            return this._pivotOffsetX;
-        },
-        set: function (value) {
-            var prevX = this.x;
-            this._pivotOffsetX = value;
-            this.updateCenterParams();
-            this.x = prevX;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "pivotOffsetY", {
-        get: function () {
-            return this._pivotOffsetY;
-        },
-        set: function (value) {
-            var prevY = this.y;
-            this._pivotOffsetY = value;
-            this.updateCenterParams();
-            this.y = prevY;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Sprite.prototype.updateCenterParams = function () {
-        this._centerDistance = Math.hypot(this._pivotOffsetX, this._pivotOffsetY);
-        this._centerAngle = -Math.atan2(-this._pivotOffsetY, -this._pivotOffsetX);
-    };
-    Sprite.prototype.touchSprite = function (sprite, checkChildren) {
-        var e_22, _a, e_23, _b, e_24, _c;
-        if (checkChildren === void 0) { checkChildren = true; }
-        this._collidedSprite = null;
-        if (sprite.hidden ||
-            this.hidden ||
-            sprite.stopped ||
-            this.stopped ||
-            sprite.deleted ||
-            this.deleted) {
-            return false;
-        }
-        var collider = this.collider;
-        var otherCollider = sprite.collider;
-        var isTouch = collider && otherCollider && collider.collides(otherCollider, this.collisionResult);
-        if (isTouch) {
-            return true;
-        }
-        if (collider) {
-            try {
-                for (var _d = __values(sprite.getChildren()), _e = _d.next(); !_e.done; _e = _d.next()) {
-                    var otherChild = _e.value;
-                    if (this.touchSprite(otherChild, false)) {
-                        return true;
-                    }
-                }
-            }
-            catch (e_22_1) { e_22 = { error: e_22_1 }; }
-            finally {
-                try {
-                    if (_e && !_e.done && (_a = _d.return)) _a.call(_d);
-                }
-                finally { if (e_22) throw e_22.error; }
-            }
-        }
-        if (!checkChildren) {
-            return false;
-        }
+    Sprite.prototype.cloneCollider = function (sprite) {
+        var e_39, _a;
+        var colliders = sprite.getColliders();
         try {
-            for (var _f = __values(this._children), _g = _f.next(); !_g.done; _g = _f.next()) {
-                var child = _g.value;
-                if (otherCollider && child.touchSprite(sprite)) {
-                    this._collidedSprite = child;
-                    return true;
+            for (var colliders_1 = __values(colliders), colliders_1_1 = colliders_1.next(); !colliders_1_1.done; colliders_1_1 = colliders_1.next()) {
+                var _b = __read(colliders_1_1.value, 2), colliderName = _b[0], sourceCollider = _b[1];
+                if (sourceCollider instanceof CircleCollider) {
+                    this.setCircleCollider(colliderName, sourceCollider.radius, sourceCollider.offset_x, sourceCollider.offset_y);
                 }
-                try {
-                    for (var _h = (e_24 = void 0, __values(sprite.getChildren())), _j = _h.next(); !_j.done; _j = _h.next()) {
-                        var otherChild = _j.value;
-                        if (child.touchSprite(otherChild)) {
-                            this._collidedSprite = child;
-                            return true;
-                        }
-                    }
+                if (sourceCollider instanceof PolygonCollider) {
+                    this.setPolygonCollider(colliderName, sourceCollider.points, sourceCollider.offset_x, sourceCollider.offset_y);
                 }
-                catch (e_24_1) { e_24 = { error: e_24_1 }; }
-                finally {
-                    try {
-                        if (_j && !_j.done && (_c = _h.return)) _c.call(_h);
-                    }
-                    finally { if (e_24) throw e_24.error; }
-                }
-            }
-        }
-        catch (e_23_1) { e_23 = { error: e_23_1 }; }
-        finally {
-            try {
-                if (_g && !_g.done && (_b = _f.return)) _b.call(_f);
-            }
-            finally { if (e_23) throw e_23.error; }
-        }
-        return false;
-    };
-    Sprite.prototype.touchSprites = function (sprites, checkChildren) {
-        var e_25, _a;
-        if (checkChildren === void 0) { checkChildren = true; }
-        if (this.hidden || this.stopped || this.deleted) {
-            return false;
-        }
-        try {
-            for (var sprites_1 = __values(sprites), sprites_1_1 = sprites_1.next(); !sprites_1_1.done; sprites_1_1 = sprites_1.next()) {
-                var sprite = sprites_1_1.value;
-                if (this.touchSprite(sprite, checkChildren)) {
-                    return true;
-                }
-            }
-        }
-        catch (e_25_1) { e_25 = { error: e_25_1 }; }
-        finally {
-            try {
-                if (sprites_1_1 && !sprites_1_1.done && (_a = sprites_1.return)) _a.call(sprites_1);
-            }
-            finally { if (e_25) throw e_25.error; }
-        }
-        return false;
-    };
-    Sprite.prototype.touchMouse = function (checkChildren) {
-        if (checkChildren === void 0) { checkChildren = true; }
-        return this.touchPoint(this.game.getMousePoint(), checkChildren);
-    };
-    Sprite.prototype.touchPoint = function (point, checkChildren) {
-        var e_26, _a;
-        if (checkChildren === void 0) { checkChildren = true; }
-        this._collidedSprite = null;
-        if (this.hidden || this.stopped || this.deleted) {
-            return false;
-        }
-        var collider = this.collider;
-        var isTouch = collider && collider.collides(point, this.collisionResult);
-        if (isTouch) {
-            return true;
-        }
-        if (checkChildren) {
-            try {
-                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var child = _c.value;
-                    if (child.touchPoint(child.game.getMousePoint())) {
-                        this._collidedSprite = child.otherSprite;
-                        return true;
-                    }
-                }
-            }
-            catch (e_26_1) { e_26 = { error: e_26_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_26) throw e_26.error; }
-            }
-        }
-        return false;
-    };
-    Sprite.prototype.touchEdge = function (checkChildren) {
-        var e_27, _a;
-        if (checkChildren === void 0) { checkChildren = true; }
-        var result = this.getPureCollisionResult();
-        this._collidedSprite = null;
-        if (this.hidden || this.stopped || this.deleted) {
-            return false;
-        }
-        if (this.collider) {
-            var gameWidth = this.game.width;
-            var gameHeight = this.game.height;
-            if (this.topY < 0) {
-                result.collision = true;
-                result.overlap = -this.topY;
-                result.overlap_y = -1;
-                return true;
-            }
-            if (this.bottomY > gameHeight) {
-                result.collision = true;
-                result.overlap = this.bottomY - gameHeight;
-                result.overlap_y = 1;
-                return true;
-            }
-            if (this.leftX < 0) {
-                result.collision = true;
-                result.overlap = -this.leftX;
-                result.overlap_x = -1;
-                return true;
-            }
-            if (this.rightX > gameWidth) {
-                result.collision = true;
-                result.overlap = this.rightX - gameWidth;
-                result.overlap_x = 1;
-                return true;
-            }
-        }
-        if (checkChildren) {
-            try {
-                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var child = _c.value;
-                    if (child.touchEdge()) {
-                        this._collidedSprite = child;
-                        return true;
-                    }
-                }
-            }
-            catch (e_27_1) { e_27 = { error: e_27_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_27) throw e_27.error; }
-            }
-        }
-        return false;
-    };
-    Sprite.prototype.touchTopEdge = function (checkChildren) {
-        var e_28, _a;
-        if (checkChildren === void 0) { checkChildren = true; }
-        this.clearCollisionResult();
-        this._collidedSprite = null;
-        if (this.hidden || this.stopped || this.deleted) {
-            return false;
-        }
-        if (this.collider && this.topY < 0) {
-            this.collisionResult.collision = true;
-            this.collisionResult.overlap = -this.topY;
-            this.collisionResult.overlap_y = -1;
-            return true;
-        }
-        if (checkChildren) {
-            try {
-                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var child = _c.value;
-                    if (child.touchTopEdge()) {
-                        this._collidedSprite = child;
-                        return true;
-                    }
-                }
-            }
-            catch (e_28_1) { e_28 = { error: e_28_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_28) throw e_28.error; }
-            }
-        }
-        return false;
-    };
-    Sprite.prototype.touchBottomEdge = function (checkChildren) {
-        var e_29, _a;
-        if (checkChildren === void 0) { checkChildren = true; }
-        this.clearCollisionResult();
-        this._collidedSprite = null;
-        if (this.hidden || this.stopped || this.deleted) {
-            return false;
-        }
-        if (this.collider && this.bottomY > this.game.height) {
-            this.collisionResult.collision = true;
-            this.collisionResult.overlap = this.bottomY - this.game.height;
-            this.collisionResult.overlap_y = 1;
-            return true;
-        }
-        if (checkChildren) {
-            try {
-                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var child = _c.value;
-                    if (child.touchBottomEdge()) {
-                        this._collidedSprite = child;
-                        return true;
-                    }
-                }
-            }
-            catch (e_29_1) { e_29 = { error: e_29_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_29) throw e_29.error; }
-            }
-        }
-        return false;
-    };
-    Sprite.prototype.touchLeftEdge = function (checkChildren) {
-        var e_30, _a;
-        if (checkChildren === void 0) { checkChildren = true; }
-        this.clearCollisionResult();
-        this._collidedSprite = null;
-        if (this.hidden || this.stopped || this.deleted) {
-            return false;
-        }
-        if (this.collider && this.leftX < 0) {
-            this.collisionResult.collision = true;
-            this.collisionResult.overlap = -this.leftX;
-            this.collisionResult.overlap_x = -1;
-            return true;
-        }
-        if (checkChildren) {
-            try {
-                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var child = _c.value;
-                    if (child.touchLeftEdge()) {
-                        this._collidedSprite = child;
-                        return true;
-                    }
-                }
-            }
-            catch (e_30_1) { e_30 = { error: e_30_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_30) throw e_30.error; }
-            }
-        }
-        return false;
-    };
-    Sprite.prototype.touchRightEdge = function (checkChildren) {
-        var e_31, _a;
-        if (checkChildren === void 0) { checkChildren = true; }
-        this.clearCollisionResult();
-        this._collidedSprite = null;
-        if (this.hidden || this.stopped || this.deleted) {
-            return false;
-        }
-        if (this.collider && this.rightX > this.game.width) {
-            this.collisionResult.collision = true;
-            this.collisionResult.overlap = this.rightX - this.game.width;
-            this.collisionResult.overlap_x = 1;
-            return true;
-        }
-        if (checkChildren) {
-            try {
-                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var child = _c.value;
-                    if (child.touchRightEdge()) {
-                        this._collidedSprite = child;
-                        return true;
-                    }
-                }
-            }
-            catch (e_31_1) { e_31 = { error: e_31_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_31) throw e_31.error; }
-            }
-        }
-        return false;
-    };
-    Sprite.prototype.touchTag = function (tagName, checkChildren) {
-        var e_32, _a, e_33, _b;
-        if (checkChildren === void 0) { checkChildren = true; }
-        this._collidedSprite = null;
-        if (this.hidden || this.stopped || this.deleted) {
-            return false;
-        }
-        var collider = this.collider;
-        if (collider) {
-            var potentialsColliders = collider.potentials();
-            if (!potentialsColliders.length) {
-                return false;
-            }
-            try {
-                for (var potentialsColliders_1 = __values(potentialsColliders), potentialsColliders_1_1 = potentialsColliders_1.next(); !potentialsColliders_1_1.done; potentialsColliders_1_1 = potentialsColliders_1.next()) {
-                    var potentialCollider = potentialsColliders_1_1.value;
-                    var potentialSprite = potentialCollider.parentSprite;
-                    if (potentialSprite && potentialSprite.hasTag(tagName)) {
-                        if (!potentialSprite.hidden &&
-                            !potentialSprite.stopped &&
-                            !potentialSprite.deleted &&
-                            potentialSprite.collider &&
-                            collider.collides(potentialCollider, this.collisionResult)) {
-                            return true;
-                        }
-                    }
-                }
-            }
-            catch (e_32_1) { e_32 = { error: e_32_1 }; }
-            finally {
-                try {
-                    if (potentialsColliders_1_1 && !potentialsColliders_1_1.done && (_a = potentialsColliders_1.return)) _a.call(potentialsColliders_1);
-                }
-                finally { if (e_32) throw e_32.error; }
-            }
-        }
-        if (checkChildren) {
-            try {
-                for (var _c = __values(this._children), _d = _c.next(); !_d.done; _d = _c.next()) {
-                    var child = _d.value;
-                    if (child.touchTag(tagName)) {
-                        this._collidedSprite = child;
-                        return true;
-                    }
-                }
-            }
-            catch (e_33_1) { e_33 = { error: e_33_1 }; }
-            finally {
-                try {
-                    if (_d && !_d.done && (_b = _c.return)) _b.call(_c);
-                }
-                finally { if (e_33) throw e_33.error; }
-            }
-        }
-        return false;
-    };
-    Sprite.prototype.touchTagAll = function (tagName, checkChildren) {
-        var e_34, _a, e_35, _b, e_36, _c;
-        if (checkChildren === void 0) { checkChildren = true; }
-        this._collidedSprite = null;
-        if (this.hidden || this.stopped || this.deleted) {
-            return false;
-        }
-        var collidedSprites = [];
-        var collider = this.collider;
-        if (collider) {
-            var potentialsColliders = collider.potentials();
-            if (!potentialsColliders.length) {
-                return false;
-            }
-            try {
-                for (var potentialsColliders_2 = __values(potentialsColliders), potentialsColliders_2_1 = potentialsColliders_2.next(); !potentialsColliders_2_1.done; potentialsColliders_2_1 = potentialsColliders_2.next()) {
-                    var potentialCollider = potentialsColliders_2_1.value;
-                    var potentialSprite = potentialCollider.parentSprite;
-                    if (potentialSprite && potentialSprite.hasTag(tagName)) {
-                        if (!potentialSprite.hidden &&
-                            !potentialSprite.stopped &&
-                            !potentialSprite.deleted &&
-                            potentialSprite.collider &&
-                            collider.collides(potentialCollider, this.collisionResult)) {
-                            collidedSprites.push(potentialSprite);
-                        }
-                    }
-                }
-            }
-            catch (e_34_1) { e_34 = { error: e_34_1 }; }
-            finally {
-                try {
-                    if (potentialsColliders_2_1 && !potentialsColliders_2_1.done && (_a = potentialsColliders_2.return)) _a.call(potentialsColliders_2);
-                }
-                finally { if (e_34) throw e_34.error; }
-            }
-        }
-        if (checkChildren) {
-            try {
-                for (var _d = __values(this._children), _e = _d.next(); !_e.done; _e = _d.next()) {
-                    var child = _e.value;
-                    var collision = child.touchTagAll(tagName);
-                    if (collision && !collision.length) {
-                        try {
-                            for (var collision_1 = (e_36 = void 0, __values(collision)), collision_1_1 = collision_1.next(); !collision_1_1.done; collision_1_1 = collision_1.next()) {
-                                var sprite = collision_1_1.value;
-                                collidedSprites.push(sprite);
-                            }
-                        }
-                        catch (e_36_1) { e_36 = { error: e_36_1 }; }
-                        finally {
-                            try {
-                                if (collision_1_1 && !collision_1_1.done && (_c = collision_1.return)) _c.call(collision_1);
-                            }
-                            finally { if (e_36) throw e_36.error; }
-                        }
-                    }
-                }
-            }
-            catch (e_35_1) { e_35 = { error: e_35_1 }; }
-            finally {
-                try {
-                    if (_e && !_e.done && (_b = _d.return)) _b.call(_d);
-                }
-                finally { if (e_35) throw e_35.error; }
-            }
-        }
-        if (!collidedSprites.length) {
-            return collidedSprites;
-        }
-        return false;
-    };
-    Sprite.prototype.touchAnySprite = function (checkChildren) {
-        var e_37, _a, e_38, _b;
-        if (checkChildren === void 0) { checkChildren = true; }
-        this._collidedSprite = null;
-        if (this.hidden || this.stopped || this.deleted) {
-            return false;
-        }
-        var collider = this.collider;
-        if (collider) {
-            var potentialsColliders = collider.potentials();
-            if (!potentialsColliders.length) {
-                return false;
-            }
-            try {
-                for (var potentialsColliders_3 = __values(potentialsColliders), potentialsColliders_3_1 = potentialsColliders_3.next(); !potentialsColliders_3_1.done; potentialsColliders_3_1 = potentialsColliders_3.next()) {
-                    var potentialCollider = potentialsColliders_3_1.value;
-                    var potentialSprite = potentialCollider.parentSprite;
-                    if (!potentialSprite.hidden &&
-                        !potentialSprite.stopped &&
-                        !potentialSprite.deleted &&
-                        potentialSprite.collider &&
-                        collider.collides(potentialCollider, this.collisionResult)) {
-                        return true;
-                    }
-                }
-            }
-            catch (e_37_1) { e_37 = { error: e_37_1 }; }
-            finally {
-                try {
-                    if (potentialsColliders_3_1 && !potentialsColliders_3_1.done && (_a = potentialsColliders_3.return)) _a.call(potentialsColliders_3);
-                }
-                finally { if (e_37) throw e_37.error; }
-            }
-        }
-        if (checkChildren) {
-            try {
-                for (var _c = __values(this._children), _d = _c.next(); !_d.done; _d = _c.next()) {
-                    var child = _d.value;
-                    if (child.touchAnySprite()) {
-                        this._collidedSprite = child;
-                        return true;
-                    }
-                }
-            }
-            catch (e_38_1) { e_38 = { error: e_38_1 }; }
-            finally {
-                try {
-                    if (_d && !_d.done && (_b = _c.return)) _b.call(_c);
-                }
-                finally { if (e_38) throw e_38.error; }
-            }
-        }
-        return false;
-    };
-    Object.defineProperty(Sprite.prototype, "overlap", {
-        get: function () {
-            if (this._collidedSprite) {
-                return this._collidedSprite.overlap;
-            }
-            if (!this.collisionResult.collision) {
-                return 0;
-            }
-            return this.collisionResult.overlap;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "overlapX", {
-        get: function () {
-            if (this._collidedSprite) {
-                return this._collidedSprite.overlapX;
-            }
-            if (!this.collisionResult.collision) {
-                return 0;
-            }
-            return this.collisionResult.overlap_x * this.collisionResult.overlap;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "overlapY", {
-        get: function () {
-            if (this._collidedSprite) {
-                return this._collidedSprite.overlapY;
-            }
-            if (!this.collisionResult.collision) {
-                return 0;
-            }
-            return this.collisionResult.overlap_y * this.collisionResult.overlap;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "otherSprite", {
-        get: function () {
-            if (!this.collisionResult.collision) {
-                return null;
-            }
-            return this.collisionResult.b.parentSprite;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "otherMainSprite", {
-        get: function () {
-            if (!this.collisionResult.collision) {
-                return null;
-            }
-            return this.collisionResult.b.parentSprite.getMainSprite();
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Sprite.prototype.clearCollisionResult = function () {
-        this.collisionResult.collision = false;
-        this.collisionResult.a = null;
-        this.collisionResult.b = null;
-        this.collisionResult.a_in_b = false;
-        this.collisionResult.b_in_a = false;
-        this.collisionResult.overlap = 0;
-        this.collisionResult.overlap_x = 0;
-        this.collisionResult.overlap_y = 0;
-    };
-    Sprite.prototype.getPureCollisionResult = function () {
-        this.clearCollisionResult();
-        return this.collisionResult;
-    };
-    Sprite.prototype.timeout = function (callback, timeout) {
-        this.repeat(callback, 1, null, timeout, undefined);
-    };
-    Sprite.prototype.repeat = function (callback, repeat, interval, timeout, finishCallback) {
-        var state = new ScheduledState(interval, repeat, 0);
-        if (timeout) {
-            timeout = Date.now() + timeout;
-        }
-        this.scheduledCallbacks.push(new ScheduledCallbackItem(callback, state, timeout, finishCallback));
-        return state;
-    };
-    Sprite.prototype.forever = function (callback, interval, timeout, finishCallback) {
-        var state = new ScheduledState(interval);
-        if (timeout) {
-            timeout = Date.now() + timeout;
-        }
-        this.scheduledCallbacks.push(new ScheduledCallbackItem(callback, state, timeout, finishCallback));
-        return state;
-    };
-    Sprite.prototype.update = function (diffTime) {
-        if (this.deleted) {
-            return;
-        }
-        this.scheduledCallbacks = this.scheduledCallbacks.filter(this.scheduledCallbackExecutor.execute(Date.now(), diffTime));
-    };
-    Sprite.prototype.run = function () {
-        this._stopped = false;
-    };
-    Sprite.prototype.stop = function () {
-        this._stopped = true;
-    };
-    Sprite.prototype.ready = function () {
-        this.tryDoOnReady();
-    };
-    Sprite.prototype.createClone = function (stage) {
-        var _a, e_39, _b, e_40, _c;
-        if (!this.isReady()) {
-            this.game.throwError(ErrorMessages.CLONED_NOT_READY);
-        }
-        if (!stage) {
-            stage = this.stage;
-        }
-        var clone = new Sprite(stage, this.layer);
-        clone.name = this.name;
-        clone._rotateStyle = this._rotateStyle;
-        clone.x = this.x;
-        clone.y = this.y;
-        clone.pivotOffsetX = this.pivotOffsetX;
-        clone.pivotOffsetY = this.pivotOffsetY;
-        clone.direction = this.direction;
-        clone.size = this.size;
-        clone.hidden = this.hidden;
-        clone._deleted = this.deleted;
-        clone._stopped = this.stopped;
-        (_a = clone._tags).push.apply(_a, __spreadArray([], __read(this.tags), false));
-        clone.defaultColliderNone = this.defaultColliderNone;
-        for (var i = 0; i < this.costumes.length; i++) {
-            clone.cloneCostume(this.costumes[i], this.costumeNames[i]);
-        }
-        clone.switchCostume(this.costumeIndex);
-        try {
-            for (var _d = __values(this.sounds.entries()), _e = _d.next(); !_e.done; _e = _d.next()) {
-                var _f = __read(_e.value, 2), soundIndex = _f[0], sound = _f[1];
-                clone.cloneSound(sound, this.soundNames[soundIndex]);
             }
         }
         catch (e_39_1) { e_39 = { error: e_39_1 }; }
         finally {
             try {
-                if (_e && !_e.done && (_b = _d.return)) _b.call(_d);
+                if (colliders_1_1 && !colliders_1_1.done && (_a = colliders_1.return)) _a.call(colliders_1);
             }
             finally { if (e_39) throw e_39.error; }
         }
-        clone.currentColliderName = null;
-        clone.cloneCollider(this);
-        if (this.currentColliderName) {
-            clone.switchCollider(this.currentColliderName);
-        }
-        try {
-            for (var _g = __values(this._children), _h = _g.next(); !_h.done; _h = _g.next()) {
-                var child = _h.value;
-                var childClone = child.createClone();
-                clone.addChild(childClone);
-                childClone.x = child.x;
-                childClone.y = child.y;
-                childClone.direction = child.direction;
-            }
-        }
-        catch (e_40_1) { e_40 = { error: e_40_1 }; }
-        finally {
-            try {
-                if (_h && !_h.done && (_c = _g.return)) _c.call(_g);
-            }
-            finally { if (e_40) throw e_40.error; }
-        }
-        clone.ready();
-        return clone;
-    };
-    Sprite.prototype.delete = function () {
-        var e_41, _a;
-        if (this.deleted) {
-            return;
-        }
-        this.stage.removeSprite(this, this.layer);
-        this.eventEmitter.clearAll();
-        this.removeCollider();
-        this.scheduledCallbackExecutor = null;
-        try {
-            for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                var child = _c.value;
-                child.delete();
-            }
-        }
-        catch (e_41_1) { e_41 = { error: e_41_1 }; }
-        finally {
-            try {
-                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-            }
-            finally { if (e_41) throw e_41.error; }
-        }
-        var props = Object.keys(this);
-        for (var i = 0; i < props.length; i++) {
-            delete this[props[i]];
-        }
-        this.costumes = [];
-        this.costumeNames = [];
-        this.sounds = [];
-        this.soundNames = [];
-        this.onReadyCallbacks = [];
-        this.scheduledCallbacks = [];
-        this._children = [];
-        this._deleted = true;
     };
     Sprite.prototype.tryDoOnReady = function () {
-        var e_42, _a;
+        var e_40, _a;
         if (this.onReadyPending && this.isReady()) {
             this.onReadyPending = false;
             if (this.costumes.length && this.costume === null) {
@@ -2970,12 +2855,12 @@ var Sprite = (function () {
                         callback();
                     }
                 }
-                catch (e_42_1) { e_42 = { error: e_42_1 }; }
+                catch (e_40_1) { e_40 = { error: e_40_1 }; }
                 finally {
                     try {
                         if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
                     }
-                    finally { if (e_42) throw e_42.error; }
+                    finally { if (e_40) throw e_40.error; }
                 }
                 this.onReadyCallbacks = [];
             }
@@ -2984,6 +2869,102 @@ var Sprite = (function () {
                 stageId: this.stage.id
             });
         }
+    };
+    Sprite.prototype.calculateCentroid = function (points) {
+        var e_41, _a;
+        var xSum = 0;
+        var ySum = 0;
+        try {
+            for (var points_1 = __values(points), points_1_1 = points_1.next(); !points_1_1.done; points_1_1 = points_1.next()) {
+                var point = points_1_1.value;
+                xSum += point[0];
+                ySum += point[1];
+            }
+        }
+        catch (e_41_1) { e_41 = { error: e_41_1 }; }
+        finally {
+            try {
+                if (points_1_1 && !points_1_1.done && (_a = points_1.return)) _a.call(points_1);
+            }
+            finally { if (e_41) throw e_41.error; }
+        }
+        var x = xSum / points.length;
+        var y = ySum / points.length;
+        return { x: x, y: y };
+    };
+    Sprite.prototype.calculatePolygonSize = function (points) {
+        var e_42, _a;
+        var minX = points[0][0];
+        var minY = points[0][1];
+        var maxX = points[0][0];
+        var maxY = points[0][1];
+        try {
+            for (var points_2 = __values(points), points_2_1 = points_2.next(); !points_2_1.done; points_2_1 = points_2.next()) {
+                var vertex = points_2_1.value;
+                if (vertex[0] < minX)
+                    minX = vertex[0];
+                if (vertex[0] > maxX)
+                    maxX = vertex[0];
+                if (vertex[1] < minY)
+                    minY = vertex[1];
+                if (vertex[1] > maxY)
+                    maxY = vertex[1];
+            }
+        }
+        catch (e_42_1) { e_42 = { error: e_42_1 }; }
+        finally {
+            try {
+                if (points_2_1 && !points_2_1.done && (_a = points_2.return)) _a.call(points_2);
+            }
+            finally { if (e_42) throw e_42.error; }
+        }
+        var width = maxX - minX;
+        var height = maxY - minY;
+        return { width: width, height: height };
+    };
+    Sprite.prototype.updateCenterParams = function () {
+        this._centerDistance = Math.hypot(this._pivotOffsetX, this._pivotOffsetY);
+        this._centerAngle = -Math.atan2(-this._pivotOffsetY, -this._pivotOffsetX);
+    };
+    Sprite.prototype.updateColliderPosition = function (collider) {
+        collider.x = this.sourceX + collider.center_offset_x * this.size / 100;
+        collider.y = this.sourceY + collider.center_offset_y * this.size / 100;
+    };
+    Sprite.prototype.updateColliderAngle = function () {
+        var collider = this.collider;
+        if (collider instanceof PolygonCollider) {
+            if (this._rotateStyle == 'leftRight') {
+                collider.angle = 0;
+            }
+            else {
+                collider.angle = this.absoluteAngleRadians;
+            }
+        }
+        if (collider) {
+            this.updateColliderPosition(collider);
+        }
+    };
+    Sprite.prototype.updateColliderSize = function (collider) {
+        if (collider instanceof PolygonCollider) {
+            collider.scale_x = this.size / 100;
+            collider.scale_y = this.size / 100;
+        }
+        else if (collider instanceof CircleCollider) {
+            collider.scale = this.size / 100;
+        }
+    };
+    Sprite.prototype.getColliders = function () {
+        return this.colliders.entries();
+    };
+    Sprite.prototype.getMainSprite = function () {
+        if (this._parentSprite) {
+            return this._parentSprite.getMainSprite();
+        }
+        return this;
+    };
+    Sprite.prototype.setParent = function (parent) {
+        parent.addChild(this);
+        return this;
     };
     return Sprite;
 }());
@@ -3081,7 +3062,7 @@ var MultiplayerGame = (function (_super) {
         var syncObjects = this.getSyncObjects();
         var syncData = this.packSyncData('game', syncObjects);
         this.sendData(JSON.stringify(syncData), {
-            SyncGame: 'true'
+            SyncGame: "true"
         });
     };
     MultiplayerGame.prototype.onConnection = function (callback) {
@@ -3271,11 +3252,11 @@ var MultiplayerGame = (function (_super) {
                             if (!data || !_this.running || !parameters.SendTime) {
                                 return;
                             }
-                            if (parameters.SyncGame === 'true') {
+                            if (parameters.SyncGame === "true") {
                                 var syncObjectsData = JSON.parse(data);
                                 _this.syncObjects(syncObjectsData, _this.calcDeltaTime(parameters.SendTime));
                             }
-                            else if (parameters.Keydown !== 'true' && parameters.Mousedown !== 'true' && _this.onReceiveCallback) {
+                            else if (parameters.Keydown !== "true" && parameters.Mousedown !== "true" && _this.onReceiveCallback) {
                                 data = JSON.parse(data);
                                 var userData = data['userData'];
                                 var syncSpritesData = data['sync'];
@@ -3764,18 +3745,18 @@ var Stage = (function () {
         this.background = null;
         this.backgroundIndex = null;
         this.backgrounds = [];
-        this.sprites = new Map();
-        this.drawings = new Map();
         this.sounds = [];
         this.soundNames = [];
+        this.sprites = new Map();
+        this.drawings = new Map();
         this.addedSprites = 0;
         this.loadedSprites = 0;
         this.pendingBackgrounds = 0;
         this.pendingSounds = 0;
         this.pendingRun = false;
-        this.onReadyPending = true;
         this.onReadyCallbacks = [];
         this.onStartCallbacks = [];
+        this.onReadyPending = true;
         this.scheduledCallbacks = [];
         this._stopped = true;
         this._running = false;
@@ -3803,29 +3784,6 @@ var Stage = (function () {
         stage.stoppedTime = Date.now();
         return stage;
     }
-    Stage.prototype.onStart = function (onStartCallback) {
-        this.onStartCallbacks.push(onStartCallback);
-    };
-    Stage.prototype.onReady = function (callback) {
-        this.onReadyCallbacks.push(callback);
-    };
-    Object.defineProperty(Stage.prototype, "running", {
-        get: function () {
-            return this._running;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Stage.prototype, "stopped", {
-        get: function () {
-            return this._stopped;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Stage.prototype.isReady = function () {
-        return this.addedSprites == this.loadedSprites && this.pendingBackgrounds === 0;
-    };
     Object.defineProperty(Stage.prototype, "width", {
         get: function () {
             return this.canvas.width;
@@ -3836,6 +3794,20 @@ var Stage = (function () {
     Object.defineProperty(Stage.prototype, "height", {
         get: function () {
             return this.canvas.height;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Stage.prototype, "running", {
+        get: function () {
+            return this._running;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Stage.prototype, "stopped", {
+        get: function () {
+            return this._stopped;
         },
         enumerable: false,
         configurable: true
@@ -3860,6 +3832,52 @@ var Stage = (function () {
         this.backgrounds.push(backgroundCanvas);
         this.pendingBackgrounds--;
         return this;
+    };
+    Stage.prototype.addSprite = function (sprite) {
+        var layerSprites;
+        if (this.sprites.has(sprite.layer)) {
+            layerSprites = this.sprites.get(sprite.layer);
+        }
+        else {
+            layerSprites = [];
+            this.sprites.set(sprite.layer, layerSprites);
+        }
+        layerSprites.push(sprite);
+        this.addedSprites++;
+        return this;
+    };
+    Stage.prototype.removeSprite = function (sprite, layer) {
+        if (!this.sprites.has(layer)) {
+            this.game.throwErrorRaw('The layer "' + layer + '" not defined in the stage.');
+        }
+        var layerSprites = this.sprites.get(layer);
+        layerSprites.splice(layerSprites.indexOf(sprite), 1);
+        if (!layerSprites.length) {
+            this.sprites.delete(layer);
+        }
+        if (sprite.deleted || sprite.isReady()) {
+            this.loadedSprites--;
+        }
+        this.addedSprites--;
+        return this;
+    };
+    Stage.prototype.changeSpriteLayer = function (sprite, fromLayer, toLayer) {
+        if (!this.sprites.has(fromLayer)) {
+            this.game.throwErrorRaw('The layer "' + fromLayer + '" not defined in the stage.');
+        }
+        var fromLayerSprites = this.sprites.get(fromLayer);
+        fromLayerSprites.splice(fromLayerSprites.indexOf(sprite), 1);
+        if (!fromLayerSprites.length) {
+            this.sprites.delete(fromLayer);
+        }
+        var toLayerSprites = [];
+        if (this.sprites.has(toLayer)) {
+            toLayerSprites = this.sprites.get(toLayer);
+        }
+        else {
+            this.sprites.set(toLayer, toLayerSprites);
+        }
+        toLayerSprites.push(sprite);
     };
     Stage.prototype.addBackground = function (backgroundPath) {
         var _this = this;
@@ -3953,7 +3971,6 @@ var Stage = (function () {
         }
     };
     Stage.prototype.pauseSound = function (soundIndex) {
-        if (soundIndex === void 0) { soundIndex = 0; }
         var sound = this.sounds[soundIndex];
         if (!(sound instanceof Audio)) {
             this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, { soundIndex: soundIndex });
@@ -3976,63 +3993,14 @@ var Stage = (function () {
         }
         this.pauseSound(soundIndex);
     };
-    Stage.prototype.addSprite = function (sprite) {
-        var layerSprites;
-        if (this.sprites.has(sprite.layer)) {
-            layerSprites = this.sprites.get(sprite.layer);
-        }
-        else {
-            layerSprites = [];
-            this.sprites.set(sprite.layer, layerSprites);
-        }
-        layerSprites.push(sprite);
-        this.addedSprites++;
-        return this;
-    };
-    Stage.prototype.removeSprite = function (sprite, layer) {
-        if (!this.sprites.has(layer)) {
-            this.game.throwErrorRaw('The layer "' + layer + '" not defined in the stage.');
-        }
-        var layerSprites = this.sprites.get(layer);
-        layerSprites.splice(layerSprites.indexOf(sprite), 1);
-        if (!layerSprites.length) {
-            this.sprites.delete(layer);
-        }
-        if (sprite.deleted || sprite.isReady()) {
-            this.loadedSprites--;
-        }
-        this.addedSprites--;
-        return this;
-    };
-    Stage.prototype.getSprites = function () {
-        return Array.from(this.sprites.values()).reduce(function (accumulator, currentValue) { return accumulator.concat(currentValue); }, []);
-    };
-    Stage.prototype.changeSpriteLayer = function (sprite, fromLayer, toLayer) {
-        if (!this.sprites.has(fromLayer)) {
-            this.game.throwErrorRaw('The layer "' + fromLayer + '" not defined in the stage.');
-        }
-        var fromLayerSprites = this.sprites.get(fromLayer);
-        fromLayerSprites.splice(fromLayerSprites.indexOf(sprite), 1);
-        if (!fromLayerSprites.length) {
-            this.sprites.delete(fromLayer);
-        }
-        var toLayerSprites = [];
-        if (this.sprites.has(toLayer)) {
-            toLayerSprites = this.sprites.get(toLayer);
-        }
-        else {
-            this.sprites.set(toLayer, toLayerSprites);
-        }
-        toLayerSprites.push(sprite);
-    };
     Stage.prototype.drawSprite = function (sprite) {
         var costume = sprite.getCostume();
         var image = costume.image;
-        var dstX = sprite.imageCenterX - sprite.sourceWidth / 2;
-        var dstY = sprite.imageCenterY - sprite.sourceHeight / 2;
+        var dstX = sprite.sourceX - sprite.sourceWidth / 2;
+        var dstY = sprite.sourceY - sprite.sourceHeight / 2;
         var dstWidth = sprite.sourceWidth;
         var dstHeight = sprite.sourceHeight;
-        var direction = sprite.globalDirection;
+        var direction = sprite.absoluteDirection;
         var rotateStyle = sprite.rotateStyle;
         var colliderOffsetX = (sprite.sourceWidth - costume.width * sprite.size / 100) / 2;
         var colliderOffsetY = (sprite.sourceHeight - costume.height * sprite.size / 100) / 2;
@@ -4051,7 +4019,7 @@ var Stage = (function () {
         }
         if (rotateStyle === 'normal' && direction !== 0) {
             this.context.translate(dstX + dstWidth / 2, dstY + dstHeight / 2);
-            this.context.rotate(sprite.globalAngleRadians);
+            this.context.rotate(sprite.absoluteAngleRadians);
             this.context.translate(-dstX - dstWidth / 2, -dstY - dstHeight / 2);
         }
         if (rotateStyle === 'leftRight' && direction > 180) {
@@ -4101,29 +4069,6 @@ var Stage = (function () {
         }
         layerDrawings.push(callback);
     };
-    Stage.prototype.timeout = function (callback, timeout) {
-        this.repeat(callback, 1, null, timeout, undefined);
-    };
-    Stage.prototype.repeat = function (callback, repeat, interval, timeout, finishCallback) {
-        if (interval === void 0) { interval = null; }
-        if (timeout === void 0) { timeout = null; }
-        var state = new ScheduledState(interval, repeat, 0);
-        if (timeout) {
-            timeout = Date.now() + timeout;
-        }
-        this.scheduledCallbacks.push(new ScheduledCallbackItem(callback, state, timeout, finishCallback));
-        return state;
-    };
-    Stage.prototype.forever = function (callback, interval, timeout, finishCallback) {
-        if (interval === void 0) { interval = null; }
-        if (timeout === void 0) { timeout = null; }
-        var state = new ScheduledState(interval);
-        if (timeout) {
-            timeout = Date.now() + timeout;
-        }
-        this.scheduledCallbacks.push(new ScheduledCallbackItem(callback, state, timeout, finishCallback));
-        return state;
-    };
     Stage.prototype.render = function () {
         var e_51, _a, e_52, _b, e_53, _c;
         var _this = this;
@@ -4164,29 +4109,29 @@ var Stage = (function () {
                         }
                         if (this_1.game.debugMode !== 'none') {
                             var fn = function () {
-                                var x = sprite.imageCenterX - (_this.context.measureText(sprite.name).width / 2);
-                                var y = sprite.imageCenterY + sprite.height + 20;
+                                var x = sprite.sourceX - (_this.context.measureText(sprite.name).width / 2);
+                                var y = sprite.sourceY + sprite.height + 20;
                                 _this.context.fillStyle = _this.game.debugColor;
                                 _this.context.font = '16px Arial';
                                 _this.context.fillText(sprite.name, x, y);
                                 y += 20;
                                 _this.context.font = '14px Arial';
-                                _this.context.fillText('x: ' + sprite.x, x, y);
+                                _this.context.fillText("x: " + sprite.x, x, y);
                                 y += 20;
-                                _this.context.fillText('y: ' + sprite.y, x, y);
+                                _this.context.fillText("y: " + sprite.y, x, y);
                                 y += 20;
-                                _this.context.fillText('direction: ' + sprite.direction, x, y);
+                                _this.context.fillText("direction: " + sprite.direction, x, y);
                                 y += 20;
-                                _this.context.fillText('costume: ' + sprite.getCostumeName(), x, y);
+                                _this.context.fillText("costume: " + sprite.getCostumeName(), x, y);
                                 y += 20;
-                                _this.context.fillText('xOffset: ' + sprite.pivotOffsetX, x, y);
+                                _this.context.fillText("xOffset: " + sprite.pivotOffsetX, x, y);
                                 y += 20;
-                                _this.context.fillText('yOffset: ' + sprite.pivotOffsetY, x, y);
+                                _this.context.fillText("yOffset: " + sprite.pivotOffsetY, x, y);
                                 _this.context.beginPath();
-                                _this.context.moveTo(sprite.globalX - 2, sprite.globalY);
-                                _this.context.lineTo(sprite.globalX + 2, sprite.globalY);
-                                _this.context.moveTo(sprite.globalX, sprite.globalY - 2);
-                                _this.context.lineTo(sprite.globalX, sprite.globalY + 2);
+                                _this.context.moveTo(sprite.absoluteX - 2, sprite.absoluteY);
+                                _this.context.lineTo(sprite.absoluteX + 2, sprite.absoluteY);
+                                _this.context.moveTo(sprite.absoluteX, sprite.absoluteY - 2);
+                                _this.context.lineTo(sprite.absoluteX, sprite.absoluteY + 2);
                                 _this.context.stroke();
                             };
                             if (this_1.game.debugMode === 'hover') {
@@ -4252,33 +4197,34 @@ var Stage = (function () {
             this.context.stroke();
         }
     };
-    Stage.prototype.update = function () {
-        var _this = this;
-        this.scheduledCallbacks = this.scheduledCallbacks.filter(this.scheduledCallbackExecutor.execute(Date.now(), this.diffTime));
-        this.sprites.forEach(function (layerSprites, layer) {
-            var e_55, _a;
-            try {
-                for (var layerSprites_2 = __values(layerSprites), layerSprites_2_1 = layerSprites_2.next(); !layerSprites_2_1.done; layerSprites_2_1 = layerSprites_2.next()) {
-                    var sprite = layerSprites_2_1.value;
-                    if (sprite.deleted) {
-                        _this.removeSprite(sprite, layer);
-                        return;
-                    }
-                    sprite.update(_this.diffTime);
-                }
-            }
-            catch (e_55_1) { e_55 = { error: e_55_1 }; }
-            finally {
-                try {
-                    if (layerSprites_2_1 && !layerSprites_2_1.done && (_a = layerSprites_2.return)) _a.call(layerSprites_2);
-                }
-                finally { if (e_55) throw e_55.error; }
-            }
-        });
-        this.diffTime = 0;
+    Stage.prototype.timeout = function (callback, timeout) {
+        this.repeat(callback, 1, null, timeout, undefined);
+    };
+    Stage.prototype.repeat = function (callback, repeat, interval, timeout, finishCallback) {
+        if (interval === void 0) { interval = null; }
+        if (timeout === void 0) { timeout = null; }
+        var state = new ScheduledState(interval, repeat, 0);
+        if (timeout) {
+            timeout = Date.now() + timeout;
+        }
+        this.scheduledCallbacks.push(new ScheduledCallbackItem(callback, state, timeout, finishCallback));
+        return state;
+    };
+    Stage.prototype.forever = function (callback, interval, timeout, finishCallback) {
+        if (interval === void 0) { interval = null; }
+        if (timeout === void 0) { timeout = null; }
+        var state = new ScheduledState(interval);
+        if (timeout) {
+            timeout = Date.now() + timeout;
+        }
+        this.scheduledCallbacks.push(new ScheduledCallbackItem(callback, state, timeout, finishCallback));
+        return state;
+    };
+    Stage.prototype.isReady = function () {
+        return this.addedSprites == this.loadedSprites && this.pendingBackgrounds === 0;
     };
     Stage.prototype.run = function () {
-        var e_56, _a, e_57, _b;
+        var e_55, _a, e_56, _b;
         if (!this._stopped) {
             return;
         }
@@ -4287,62 +4233,68 @@ var Stage = (function () {
             for (var _c = __values(this.sprites.values()), _d = _c.next(); !_d.done; _d = _c.next()) {
                 var layerSprites = _d.value;
                 try {
-                    for (var layerSprites_3 = (e_57 = void 0, __values(layerSprites)), layerSprites_3_1 = layerSprites_3.next(); !layerSprites_3_1.done; layerSprites_3_1 = layerSprites_3.next()) {
-                        var sprite = layerSprites_3_1.value;
+                    for (var layerSprites_2 = (e_56 = void 0, __values(layerSprites)), layerSprites_2_1 = layerSprites_2.next(); !layerSprites_2_1.done; layerSprites_2_1 = layerSprites_2.next()) {
+                        var sprite = layerSprites_2_1.value;
                         sprite.run();
                     }
                 }
-                catch (e_57_1) { e_57 = { error: e_57_1 }; }
+                catch (e_56_1) { e_56 = { error: e_56_1 }; }
                 finally {
                     try {
-                        if (layerSprites_3_1 && !layerSprites_3_1.done && (_b = layerSprites_3.return)) _b.call(layerSprites_3);
+                        if (layerSprites_2_1 && !layerSprites_2_1.done && (_b = layerSprites_2.return)) _b.call(layerSprites_2);
                     }
-                    finally { if (e_57) throw e_57.error; }
+                    finally { if (e_56) throw e_56.error; }
                 }
             }
         }
-        catch (e_56_1) { e_56 = { error: e_56_1 }; }
+        catch (e_55_1) { e_55 = { error: e_55_1 }; }
         finally {
             try {
                 if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
             }
-            finally { if (e_56) throw e_56.error; }
+            finally { if (e_55) throw e_55.error; }
         }
         this.pendingRun = true;
         this.tryDoRun();
     };
     Stage.prototype.ready = function () {
-        var e_58, _a, e_59, _b;
+        var e_57, _a, e_58, _b;
         this.tryDoOnReady();
         this.tryDoRun();
         try {
             for (var _c = __values(this.sprites.values()), _d = _c.next(); !_d.done; _d = _c.next()) {
                 var layerSprites = _d.value;
                 try {
-                    for (var layerSprites_4 = (e_59 = void 0, __values(layerSprites)), layerSprites_4_1 = layerSprites_4.next(); !layerSprites_4_1.done; layerSprites_4_1 = layerSprites_4.next()) {
-                        var sprite = layerSprites_4_1.value;
+                    for (var layerSprites_3 = (e_58 = void 0, __values(layerSprites)), layerSprites_3_1 = layerSprites_3.next(); !layerSprites_3_1.done; layerSprites_3_1 = layerSprites_3.next()) {
+                        var sprite = layerSprites_3_1.value;
                         sprite.ready();
                     }
                 }
-                catch (e_59_1) { e_59 = { error: e_59_1 }; }
+                catch (e_58_1) { e_58 = { error: e_58_1 }; }
                 finally {
                     try {
-                        if (layerSprites_4_1 && !layerSprites_4_1.done && (_b = layerSprites_4.return)) _b.call(layerSprites_4);
+                        if (layerSprites_3_1 && !layerSprites_3_1.done && (_b = layerSprites_3.return)) _b.call(layerSprites_3);
                     }
-                    finally { if (e_59) throw e_59.error; }
+                    finally { if (e_58) throw e_58.error; }
                 }
             }
         }
-        catch (e_58_1) { e_58 = { error: e_58_1 }; }
+        catch (e_57_1) { e_57 = { error: e_57_1 }; }
         finally {
             try {
                 if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
             }
-            finally { if (e_58) throw e_58.error; }
+            finally { if (e_57) throw e_57.error; }
         }
     };
+    Stage.prototype.onStart = function (onStartCallback) {
+        this.onStartCallbacks.push(onStartCallback);
+    };
+    Stage.prototype.onReady = function (callback) {
+        this.onReadyCallbacks.push(callback);
+    };
     Stage.prototype.stop = function () {
-        var e_60, _a, e_61, _b;
+        var e_59, _a, e_60, _b;
         if (this._stopped) {
             return;
         }
@@ -4352,31 +4304,44 @@ var Stage = (function () {
             for (var _c = __values(this.sprites.values()), _d = _c.next(); !_d.done; _d = _c.next()) {
                 var layerSprites = _d.value;
                 try {
-                    for (var layerSprites_5 = (e_61 = void 0, __values(layerSprites)), layerSprites_5_1 = layerSprites_5.next(); !layerSprites_5_1.done; layerSprites_5_1 = layerSprites_5.next()) {
-                        var sprite = layerSprites_5_1.value;
+                    for (var layerSprites_4 = (e_60 = void 0, __values(layerSprites)), layerSprites_4_1 = layerSprites_4.next(); !layerSprites_4_1.done; layerSprites_4_1 = layerSprites_4.next()) {
+                        var sprite = layerSprites_4_1.value;
                         sprite.stop();
                     }
                 }
-                catch (e_61_1) { e_61 = { error: e_61_1 }; }
+                catch (e_60_1) { e_60 = { error: e_60_1 }; }
                 finally {
                     try {
-                        if (layerSprites_5_1 && !layerSprites_5_1.done && (_b = layerSprites_5.return)) _b.call(layerSprites_5);
+                        if (layerSprites_4_1 && !layerSprites_4_1.done && (_b = layerSprites_4.return)) _b.call(layerSprites_4);
                     }
-                    finally { if (e_61) throw e_61.error; }
+                    finally { if (e_60) throw e_60.error; }
                 }
             }
         }
-        catch (e_60_1) { e_60 = { error: e_60_1 }; }
+        catch (e_59_1) { e_59 = { error: e_59_1 }; }
         finally {
             try {
                 if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
             }
-            finally { if (e_60) throw e_60.error; }
+            finally { if (e_59) throw e_59.error; }
         }
         this.stoppedTime = Date.now();
     };
+    Stage.prototype.getSprites = function () {
+        return Array.from(this.sprites.values()).reduce(function (accumulator, currentValue) { return accumulator.concat(currentValue); }, []);
+    };
+    Stage.prototype.addListeners = function () {
+        var _this = this;
+        this.eventEmitter.on(Game.SPRITE_READY_EVENT, Game.SPRITE_READY_EVENT, function (event) {
+            if (_this.id == event.detail.stageId) {
+                _this.loadedSprites++;
+                _this.tryDoOnReady();
+                _this.tryDoRun();
+            }
+        });
+    };
     Stage.prototype.tryDoOnReady = function () {
-        var e_62, _a;
+        var e_61, _a;
         if (this.onReadyPending && this.isReady()) {
             this.onReadyPending = false;
             if (this.backgrounds.length && this.backgroundIndex === null) {
@@ -4389,12 +4354,12 @@ var Stage = (function () {
                         callback();
                     }
                 }
-                catch (e_62_1) { e_62 = { error: e_62_1 }; }
+                catch (e_61_1) { e_61 = { error: e_61_1 }; }
                 finally {
                     try {
                         if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
                     }
-                    finally { if (e_62) throw e_62.error; }
+                    finally { if (e_61) throw e_61.error; }
                 }
                 this.onReadyCallbacks = [];
             }
@@ -4404,7 +4369,7 @@ var Stage = (function () {
         }
     };
     Stage.prototype.doOnStart = function () {
-        var e_63, _a;
+        var e_62, _a;
         var _loop_2 = function (callback) {
             setTimeout(function () {
                 callback();
@@ -4416,12 +4381,12 @@ var Stage = (function () {
                 _loop_2(callback);
             }
         }
-        catch (e_63_1) { e_63 = { error: e_63_1 }; }
+        catch (e_62_1) { e_62 = { error: e_62_1 }; }
         finally {
             try {
                 if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
             }
-            finally { if (e_63) throw e_63.error; }
+            finally { if (e_62) throw e_62.error; }
         }
     };
     Stage.prototype.tryDoRun = function () {
@@ -4444,15 +4409,30 @@ var Stage = (function () {
             });
         }
     };
-    Stage.prototype.addListeners = function () {
+    Stage.prototype.update = function () {
         var _this = this;
-        this.eventEmitter.on(Game.SPRITE_READY_EVENT, Game.SPRITE_READY_EVENT, function (event) {
-            if (_this.id == event.detail.stageId) {
-                _this.loadedSprites++;
-                _this.tryDoOnReady();
-                _this.tryDoRun();
+        this.scheduledCallbacks = this.scheduledCallbacks.filter(this.scheduledCallbackExecutor.execute(Date.now(), this.diffTime));
+        this.sprites.forEach(function (layerSprites, layer) {
+            var e_63, _a;
+            try {
+                for (var layerSprites_5 = __values(layerSprites), layerSprites_5_1 = layerSprites_5.next(); !layerSprites_5_1.done; layerSprites_5_1 = layerSprites_5.next()) {
+                    var sprite = layerSprites_5_1.value;
+                    if (sprite.deleted) {
+                        _this.removeSprite(sprite, layer);
+                        return;
+                    }
+                    sprite.update(_this.diffTime);
+                }
+            }
+            catch (e_63_1) { e_63 = { error: e_63_1 }; }
+            finally {
+                try {
+                    if (layerSprites_5_1 && !layerSprites_5_1.done && (_a = layerSprites_5.return)) _a.call(layerSprites_5);
+                }
+                finally { if (e_63) throw e_63.error; }
             }
         });
+        this.diffTime = 0;
     };
     return Stage;
 }());
@@ -4872,7 +4852,7 @@ var Collider = (function () {
                 var leftRightMultiplier = this._parent_sprite._direction > 180 && this._parent_sprite.rotateStyle === 'leftRight' ? -1 : 1;
                 return this._parent_sprite.collider._offset_x * leftRightMultiplier;
             }
-            return this._center_distance * Math.cos(this._center_angle - this._parent_sprite.globalAngleRadians);
+            return this._center_distance * Math.cos(this._center_angle - this._parent_sprite.absoluteAngleRadians);
         },
         enumerable: false,
         configurable: true
@@ -4882,7 +4862,7 @@ var Collider = (function () {
             if (this._parent_sprite.rotateStyle === 'leftRight' || this._parent_sprite.rotateStyle === 'none') {
                 return -this._parent_sprite.collider._offset_y;
             }
-            return -this._center_distance * Math.sin(this._center_angle - this._parent_sprite.globalAngleRadians);
+            return -this._center_distance * Math.sin(this._center_angle - this._parent_sprite.absoluteAngleRadians);
         },
         enumerable: false,
         configurable: true
@@ -5685,7 +5665,7 @@ var JetcodeSocketConnection = (function () {
                     resolve(_this.lobbyId);
                 }
                 else {
-                    reject(new Error('Couldn\'t join the lobby'));
+                    reject(new Error("Couldn't join the lobby"));
                 }
             });
         });
@@ -5715,7 +5695,7 @@ var JetcodeSocketConnection = (function () {
                 parameters[parameter] = splitted.length > 1 ? splitted[1] : null;
             }
             else if (nextIs === 'value') {
-                value = value + line + '\n';
+                value = value + line + "\n";
             }
         }
         if (value) {
@@ -5757,10 +5737,8 @@ var ErrorMessages = (function () {
     ErrorMessages.CLONED_NOT_READY = 'cloned_not_ready';
     ErrorMessages.SOUND_INDEX_NOT_FOUND = 'sound_index_not_found';
     ErrorMessages.SOUND_NAME_NOT_FOUND = 'sound_name_not_found';
-    ErrorMessages.SOUND_USE_NOT_READY = 'sound_use_not_ready';
     ErrorMessages.COSTUME_INDEX_NOT_FOUND = 'costume_index_not_found';
     ErrorMessages.COSTUME_NAME_NOT_FOUND = 'costume_name_not_found';
-    ErrorMessages.COSTUME_SWITCH_NOT_READY = 'costume_switch_not_ready';
     ErrorMessages.STAMP_NOT_READY = 'stamp_not_ready';
     ErrorMessages.STAMP_COSTUME_NOT_FOUND = 'stamp_costume_not_found';
     ErrorMessages.COLLIDER_NAME_NOT_FOUND = 'collider_name_not_found';
@@ -5805,10 +5783,6 @@ var ErrorMessages = (function () {
             'ru': 'Звук с именем "${soundName}" не найден.',
             'en': 'Sound with name "${soundName}" not found.'
         },
-        sound_use_not_ready: {
-            'ru': 'Спрайт не может использовать звуки, потому что спрайт еще не готов. Попробуйте использовать метод sprite.onReady().',
-            'en': 'Sprite cannot use sounds because sprite is not ready. Try using the sprite.onReady() method.'
-        },
         costume_index_not_found: {
             'ru': 'Костюм с индексом "${costumeIndex}" не найден.',
             'en': 'Costume with index "${costumeIndex}" not found.'
@@ -5817,13 +5791,9 @@ var ErrorMessages = (function () {
             'ru': 'Костюм с именем "${costumeName}" не найден.',
             'en': 'Costume with name "${costumeName}" not found.'
         },
-        costume_switch_not_ready: {
-            'ru': 'Спрайт не может изменить костюм, потому что спрайт еще не готов. Попробуйте использовать метод sprite.onReady().',
-            'en': 'Sprite cannot change a costume because sprite is not ready. Try using the sprite.onReady() method.'
-        },
         stamp_not_ready: {
             'ru': 'Спрайт не может создать штамп, потому что он еще не готов. Попробуйте использовать метод sprite.onReady()',
-            'en': 'Sprite cannot create a stamp because sprite is not ready. Try using the sprite.onReady() method.'
+            'en': 'Sprite cannot create a stamp because one is not ready. Try using the sprite.onReady() method.'
         },
         stamp_costume_not_found: {
             'ru': 'Штам не может быть создан, так как костюм с индексом "${costumeIndex}" не найден.',
