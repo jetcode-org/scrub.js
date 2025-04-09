@@ -1349,26 +1349,58 @@ class Sprite {
 
     get rightX(): number {
         const collider = this.collider;
+        const offset = collider ? collider.center_offset_x * this.size / 100 : 0;
 
-        return this.imageCenterX + this.width / 2 + (collider ? collider.center_offset_x * this.size / 100 : 0);
+        return this.imageCenterX + this.width / 2 + offset;
+    }
+
+    set rightX(x: number) {
+        const collider = this.collider;
+        const offset = collider ? collider.center_offset_x * this.size / 100 : 0;
+
+        this.x = x - this.width / 2 - offset;
     }
 
     get leftX(): number {
         const collider = this.collider;
+        const offset = collider ? collider.center_offset_x * this.size / 100 : 0;
 
-        return this.imageCenterX - this.width / 2 + (collider ? collider.center_offset_x * this.size / 100 : 0);
+        return this.imageCenterX - this.width / 2 + offset;
+    }
+
+    set leftX(x: number) {
+        const collider = this.collider;
+        const offset = collider ? collider.center_offset_x * this.size / 100 : 0;
+
+        this.x = x + this.width / 2 + offset;
     }
 
     get topY(): number {
         const collider = this.collider;
+        const offset = collider ? collider.center_offset_y * this.size / 100 : 0;
 
-        return this.imageCenterY - this.height / 2 + (collider ? collider.center_offset_y * this.size / 100 : 0);
+        return this.imageCenterY - this.height / 2 + offset;
+    }
+
+    set topY(y: number) {
+        const collider = this.collider;
+        const offset = collider ? collider.center_offset_y * this.size / 100 : 0;
+
+        this.y = y + this.height / 2 + offset;
     }
 
     get bottomY(): number {
         const collider = this.collider;
+        const offset = collider ? collider.center_offset_y * this.size / 100 : 0;
 
-        return this.imageCenterY + this.height / 2 + (collider ? collider.center_offset_y * this.size / 100 : 0);
+        return this.imageCenterY + this.height / 2 + offset;
+    }
+
+    set bottomY(y: number) {
+        const collider = this.collider;
+        const offset = collider ? collider.center_offset_y * this.size / 100 : 0;
+
+        this.y = y - this.height / 2 - offset;
     }
 
     get width(): number {

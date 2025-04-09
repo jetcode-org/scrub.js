@@ -832,7 +832,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
 var Sprite = (function () {
     function Sprite(stage, layer, costumePaths, soundPaths) {
         var e_6, _a, e_7, _b;
-        if (layer === void 0) { layer = 1; }
+        if (layer === void 0) { layer = 0; }
         if (costumePaths === void 0) { costumePaths = []; }
         if (soundPaths === void 0) { soundPaths = []; }
         this.name = 'No name';
@@ -1074,7 +1074,6 @@ var Sprite = (function () {
         return this;
     };
     Sprite.prototype.setPolygonCollider = function (colliderName, points, offsetX, offsetY) {
-        if (points === void 0) { points = []; }
         if (offsetX === void 0) { offsetX = 0; }
         if (offsetY === void 0) { offsetY = 0; }
         var angleRadians = 0;
@@ -2039,7 +2038,13 @@ var Sprite = (function () {
     Object.defineProperty(Sprite.prototype, "rightX", {
         get: function () {
             var collider = this.collider;
-            return this.imageCenterX + this.width / 2 + (collider ? collider.center_offset_x * this.size / 100 : 0);
+            var offset = collider ? collider.center_offset_x * this.size / 100 : 0;
+            return this.imageCenterX + this.width / 2 + offset;
+        },
+        set: function (x) {
+            var collider = this.collider;
+            var offset = collider ? collider.center_offset_x * this.size / 100 : 0;
+            this.x = x - this.width / 2 - offset;
         },
         enumerable: false,
         configurable: true
@@ -2047,7 +2052,13 @@ var Sprite = (function () {
     Object.defineProperty(Sprite.prototype, "leftX", {
         get: function () {
             var collider = this.collider;
-            return this.imageCenterX - this.width / 2 + (collider ? collider.center_offset_x * this.size / 100 : 0);
+            var offset = collider ? collider.center_offset_x * this.size / 100 : 0;
+            return this.imageCenterX - this.width / 2 + offset;
+        },
+        set: function (x) {
+            var collider = this.collider;
+            var offset = collider ? collider.center_offset_x * this.size / 100 : 0;
+            this.x = x + this.width / 2 + offset;
         },
         enumerable: false,
         configurable: true
@@ -2055,7 +2066,13 @@ var Sprite = (function () {
     Object.defineProperty(Sprite.prototype, "topY", {
         get: function () {
             var collider = this.collider;
-            return this.imageCenterY - this.height / 2 + (collider ? collider.center_offset_y * this.size / 100 : 0);
+            var offset = collider ? collider.center_offset_y * this.size / 100 : 0;
+            return this.imageCenterY - this.height / 2 + offset;
+        },
+        set: function (y) {
+            var collider = this.collider;
+            var offset = collider ? collider.center_offset_y * this.size / 100 : 0;
+            this.y = y + this.height / 2 + offset;
         },
         enumerable: false,
         configurable: true
@@ -2063,7 +2080,13 @@ var Sprite = (function () {
     Object.defineProperty(Sprite.prototype, "bottomY", {
         get: function () {
             var collider = this.collider;
-            return this.imageCenterY + this.height / 2 + (collider ? collider.center_offset_y * this.size / 100 : 0);
+            var offset = collider ? collider.center_offset_y * this.size / 100 : 0;
+            return this.imageCenterY + this.height / 2 + offset;
+        },
+        set: function (y) {
+            var collider = this.collider;
+            var offset = collider ? collider.center_offset_y * this.size / 100 : 0;
+            this.y = y - this.height / 2 - offset;
         },
         enumerable: false,
         configurable: true
