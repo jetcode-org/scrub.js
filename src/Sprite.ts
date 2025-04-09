@@ -47,7 +47,7 @@ class Sprite {
     private _drawings: DrawingCallbackFunction[] = [];
     private _tags: string[] = [];
 
-    constructor(stage: Stage = null, layer = 1, costumePaths = [], soundPaths = []) {
+    constructor(stage?: Stage, layer = 1, costumePaths = [], soundPaths = []) {
         if (!Registry.getInstance().has('game')) {
             throw new Error('You need create Game instance before Stage instance.');
         }
@@ -296,7 +296,7 @@ class Sprite {
         return this;
     }
 
-    removeCollider(colliderName: string = null): this {
+    removeCollider(colliderName?: string): this {
         if (colliderName) {
             this.removeColliderByName(colliderName);
 
@@ -746,7 +746,7 @@ class Sprite {
         return this;
     }
 
-    nextCostume(minCostume = 0, maxCostume: number = null): number {
+    nextCostume(minCostume = 0, maxCostume?: number): number {
         if (this.deleted) {
             return;
         }
@@ -771,7 +771,7 @@ class Sprite {
         return nextCostumeIndex;
     }
 
-    prevCostume(minCostume = 0, maxCostume: number = null): number {
+    prevCostume(minCostume = 0, maxCostume?: number): number {
         if (this.deleted) {
             return;
         }
@@ -971,7 +971,7 @@ class Sprite {
      * Sounds
      */
 
-    addSound(soundPath: string, name: string = null): this {
+    addSound(soundPath: string, name?: string): this {
         if (!name) {
             name = 'No name ' + this.sounds.length;
         }
@@ -1018,7 +1018,7 @@ class Sprite {
         return this;
     }
 
-    playSound(soundIndex = 0, volume: number = null, currentTime: number = null): void {
+    playSound(soundIndex = 0, volume?: number, currentTime?: number): void {
         if (!this.isReady()) {
             this.game.throwError(ErrorMessages.SOUND_USE_NOT_READY);
         }
@@ -1031,11 +1031,11 @@ class Sprite {
 
         sound.play();
 
-        if (volume !== null) {
+        if (volume !== undefined) {
             sound.volume = volume;
         }
 
-        if (currentTime !== null) {
+        if (currentTime !== undefined) {
             sound.currentTime = currentTime;
         }
     }
@@ -1054,7 +1054,7 @@ class Sprite {
         sound.pause();
     }
 
-    playSoundByName(soundName: string, volume: number = null, currentTime: number = null): void {
+    playSoundByName(soundName: string, volume: number, currentTime: number): void {
         if (!this.isReady()) {
             this.game.throwError(ErrorMessages.SOUND_USE_NOT_READY);
         }
@@ -1091,7 +1091,7 @@ class Sprite {
      * Visual functionality
      */
 
-    stamp(costumeIndex: number = null, withRotation = true): void {
+    stamp(costumeIndex?: number, withRotation = true): void {
         if (!this.isReady()) {
             this.game.throwError(ErrorMessages.STAMP_NOT_READY);
         }
@@ -1181,7 +1181,7 @@ class Sprite {
         return this._hidden;
     }
 
-    say(text: string, time: number = null): void {
+    say(text: string, time?: number): void {
         this.phrase = this.name + ': ' + text;
 
         this.phraseLiveTime = null;
@@ -1566,10 +1566,10 @@ class Sprite {
     }
 
     touchMouse(checkChildren = true): boolean {
-        return this.touchMousePoint(this.game.getMousePoint(), checkChildren);
+        return this.touchPoint(this.game.getMousePoint(), checkChildren);
     }
 
-    touchMousePoint(mousePoint: PointCollider, checkChildren = true): boolean {
+    touchPoint(point: PointCollider, checkChildren = true): boolean {
         this._collidedSprite = null;
 
         if (this.hidden || this.stopped || this.deleted) {
@@ -1577,7 +1577,7 @@ class Sprite {
         }
 
         const collider = this.collider;
-        const isTouch = collider && collider.collides(mousePoint, this.collisionResult);
+        const isTouch = collider && collider.collides(point, this.collisionResult);
 
         if (isTouch) {
             return true;
@@ -1585,7 +1585,7 @@ class Sprite {
 
         if (checkChildren) {
             for (const child of this._children) {
-                if (child.touchMousePoint(child.game.getMousePoint())) {
+                if (child.touchPoint(child.game.getMousePoint())) {
                     this._collidedSprite = child.otherSprite;
 
                     return true;
@@ -1991,9 +1991,9 @@ class Sprite {
 
     repeat(callback: ScheduledCallbackFunction,
            repeat: number,
-           interval: number = null,
-           timeout: number = null,
-           finishCallback: ScheduledCallbackFunction
+           interval?: number,
+           timeout?: number,
+           finishCallback?: ScheduledCallbackFunction
     ): ScheduledState {
         const state = new ScheduledState(interval, repeat, 0);
 
@@ -2007,9 +2007,9 @@ class Sprite {
     }
 
     forever(callback: ScheduledCallbackFunction,
-            interval: number = null,
-            timeout: number = null,
-            finishCallback: ScheduledCallbackFunction
+            interval?: number,
+            timeout?: number,
+            finishCallback?: ScheduledCallbackFunction
     ): ScheduledState {
         const state = new ScheduledState(interval);
 
@@ -2048,7 +2048,7 @@ class Sprite {
         this.tryDoOnReady();
     }
 
-    createClone(stage: Stage = null): Sprite {
+    createClone(stage?: Stage): Sprite {
         if (!this.isReady()) {
             this.game.throwError(ErrorMessages.CLONED_NOT_READY);
         }
