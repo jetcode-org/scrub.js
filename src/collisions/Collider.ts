@@ -132,7 +132,7 @@ class Collider {
     get center_offset_x() {
         if (this._parent_sprite.rotateStyle === 'leftRight' || this._parent_sprite.rotateStyle === 'none') {
             const leftRightMultiplier = this._parent_sprite._direction > 180 && this._parent_sprite.rotateStyle === 'leftRight' ? -1 : 1;
-            return this._parent_sprite.collider._offset_x * leftRightMultiplier;
+            return this._offset_x * leftRightMultiplier;
         }
 
         return this._center_distance * Math.cos(this._center_angle - this._parent_sprite.globalAngleRadians);
@@ -140,7 +140,7 @@ class Collider {
 
     get center_offset_y() {
         if (this._parent_sprite.rotateStyle === 'leftRight' || this._parent_sprite.rotateStyle === 'none') {
-            return -this._parent_sprite.collider._offset_y;
+            return -this._offset_y;
         }
 
         return -this._center_distance * Math.sin(this._center_angle - this._parent_sprite.globalAngleRadians);

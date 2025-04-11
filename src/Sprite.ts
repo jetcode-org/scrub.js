@@ -1298,9 +1298,7 @@ class Sprite {
     get globalX(): number {
         if (this._parentSprite) {
             if (this._rotateStyle === 'leftRight' || this._rotateStyle === 'none') {
-                const leftRightMultiplier = this._direction > 180 && this._rotateStyle === 'leftRight' ? -1 : 1;
-
-                return this._parentSprite.imageCenterX + this._x * leftRightMultiplier * this.size / 100;
+                return this._parentSprite.imageCenterX + this._x * this.size / 100;
             }
 
             return this._parentSprite.imageCenterX + this.distanceToParent * Math.cos(this.angleToParent - this._parentSprite.globalAngleRadians) * this.size / 100;
