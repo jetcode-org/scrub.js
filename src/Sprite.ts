@@ -1894,7 +1894,7 @@ class Sprite {
             }
         }
 
-        if (!collidedSprites.length) {
+        if (collidedSprites.length) {
             return collidedSprites;
         }
 
