@@ -2700,7 +2700,7 @@ var Sprite = (function () {
                 finally { if (e_35) throw e_35.error; }
             }
         }
-        if (!collidedSprites.length) {
+        if (collidedSprites.length) {
             return collidedSprites;
         }
         return false;
