@@ -2141,7 +2141,7 @@ var Sprite = (function () {
             if ((direction * 0) !== 0) {
                 return;
             }
-            this._direction = (direction > 360) ? direction - 360 : direction;
+            this._direction = direction;
             this.updateColliderAngle();
             try {
                 for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
@@ -4866,7 +4866,7 @@ var Collider = (function () {
         get: function () {
             if (this._parent_sprite.rotateStyle === 'leftRight' || this._parent_sprite.rotateStyle === 'none') {
                 var leftRightMultiplier = this._parent_sprite._direction > 180 && this._parent_sprite.rotateStyle === 'leftRight' ? -1 : 1;
-                return this._parent_sprite.collider._offset_x * leftRightMultiplier;
+                return this._offset_x * leftRightMultiplier;
             }
             return this._center_distance * Math.cos(this._center_angle - this._parent_sprite.globalAngleRadians);
         },
@@ -4876,7 +4876,7 @@ var Collider = (function () {
     Object.defineProperty(Collider.prototype, "center_offset_y", {
         get: function () {
             if (this._parent_sprite.rotateStyle === 'leftRight' || this._parent_sprite.rotateStyle === 'none') {
-                return -this._parent_sprite.collider._offset_y;
+                return -this._offset_y;
             }
             return -this._center_distance * Math.sin(this._center_angle - this._parent_sprite.globalAngleRadians);
         },
