@@ -184,7 +184,6 @@ sprite.addCostumeGrid('images/player_run.png', {
     name: 'run'
 });
 
-let frame = 0;
 sprite.forever(() => {
     sprite.nextCostume();
 }, 100); // every 100 ms

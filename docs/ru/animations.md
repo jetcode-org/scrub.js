@@ -38,7 +38,7 @@ sprite.addCostume('images/player_sheet.png', {
     flipX: true
 });
 ```
-Это позволит отразить изображение по вертикали.
+Это позволит отразить изображение по горизонтали.
 
 ### Отражение по горизонтали:
 ```javascript
@@ -184,7 +184,6 @@ sprite.addCostumeGrid('images/player_run.png', {
     name: 'run'
 });
 
-let frame = 0;
 sprite.forever(() => {
     sprite.nextCostume();
 }, 100); // каждые 100 мс

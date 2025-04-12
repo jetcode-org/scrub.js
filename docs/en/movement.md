@@ -16,7 +16,6 @@ This guide explains the full cycle of working with positioning, orientation, and
 - The coordinates `(x, y)` define the **center of the sprite**.
 - The X-axis: increases to the right
 - The Y-axis: increases downwards
-- Coordinates can be changed directly:
 
 Coordinates can be modified directly:
 

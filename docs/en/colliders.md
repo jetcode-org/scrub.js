@@ -1,4 +1,4 @@
-# Collisions and Tags in ScrubJS: Comprehensive Guide
+# Colliders, touches, and tags
 
 This guide covers the system for handling interactions between objects through colliders, working with collisions, and grouping objects using tags.
 
@@ -145,7 +145,8 @@ player.forever(() => {
     const bonuses = player.touchTagAll('bonus');
     if (bonuses) {
         bonuses.forEach(item => {
-            item.collect();
+            player.money += 10;
+            item.delete();
         });
     }
 });

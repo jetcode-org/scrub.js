@@ -1,4 +1,4 @@
-# Касания и теги в ScrubJS: Полное руководство
+# Коллайдеры, касания и теги
 
 В этом руководстве рассмотрим систему обработки взаимодействий между объектами через коллайдеры, работу с касаниями и группировку объектов с помощью тегов.
 
@@ -145,7 +145,8 @@ player.forever(() => {
     const bonuses = player.touchTagAll('bonus');
     if (bonuses) {
         bonuses.forEach(item => {
-            item.collect();
+           player.money += 10;
+           item.delete();
         });
     }
 });
@@ -224,7 +225,7 @@ player.forever(() => {
 
 ## 6. Лучшие практики
 
-1. Удаляйте коллайдеры там где не нужно:
+1. Удаляйте коллайдеры там где они не нужны:
 ```javascript
 const drop = new Sprite();
 drop.removeCollider();
