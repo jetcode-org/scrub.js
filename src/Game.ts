@@ -3,10 +3,10 @@ type ScheduledCallbackFunction = (context: Stage | Sprite, state: ScheduledState
 type Locale = 'ru' | 'en';
 
 type TransformableObject = {
-    x: number;
-    y: number;
-    globalX?: number;
-    globalY?: number;
+    x: number,
+    y: number,
+    globalX?: number,
+    globalY?: number
 };
 
 type GridCostumeOptions = {
@@ -18,12 +18,12 @@ type GridCostumeOptions = {
     rotate?: number,
     flipX?: boolean,
     flipY?: boolean,
-    imageX?: number,
-    imageY?: number,
+    x?: number,
+    y?: number,
     width?: number,
     height?: number,
-    alphaColor?: string | { r: number; g: number; b: number };
-    alphaTolerance?: number;
+    alphaColor?: string | { r: number; g: number; b: number },
+    alphaTolerance?: number,
     crop?: number,
     cropTop?: number,
     cropRight?: number,
@@ -40,8 +40,8 @@ type CostumeOptions = {
     y?: number,
     width?: number,
     height?: number,
-    alphaColor?: string | { r: number; g: number; b: number };
-    alphaTolerance?: number;
+    alphaColor?: string | { r: number; g: number; b: number },
+    alphaTolerance?: number,
     crop?: number,
     cropTop?: number,
     cropRight?: number,

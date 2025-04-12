@@ -721,8 +721,8 @@ type CostumeOptions = {
     y?: number,
     width?: number,
     height?: number,
-    alphaColor?: string | { r: number; g: number; b: number };
-    alphaTolerance?: number;
+    alphaColor?: string | { r: number; g: number; b: number },
+    alphaTolerance?: number,
     crop?: number,
     cropTop?: number,
     cropRight?: number,
@@ -752,26 +752,27 @@ type CostumeOptions = {
 ### Тип данных GridCostumeOptions
 
 ```javascript
-type GridCostumeOptions = {
+type
+GridCostumeOptions = {
     cols: number,
     rows: number,
-    limit?: number,
-    offset?: number,
-    name?: string,
-    rotate?: number,
-    flipX?: boolean,
-    flipY?: boolean,
-    imageX?: number,
-    imageY?: number,
-    width?: number,
-    height?: number,
-    alphaColor?: string | { r: number; g: number; b: number };
-    alphaTolerance?: number;
-    crop?: number,
-    cropTop?: number,
-    cropRight?: number,
-    cropBottom?: number,
-    cropLeft?: number
+    limit? : number,
+    offset? : number,
+    name? : string,
+    rotate? : number,
+    flipX? : boolean,
+    flipY? : boolean,
+    x? : number,
+    y? : number,
+    width? : number,
+    height? : number,
+    alphaColor? : string | {r: number; g: number; b: number},
+    alphaTolerance? : number,
+    crop? : number,
+    cropTop? : number,
+    cropRight? : number,
+    cropBottom? : number,
+    cropLeft? : number
 };
 ```
 
