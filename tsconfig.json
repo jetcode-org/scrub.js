@@ -2,9 +2,11 @@
   "compileOnSave": true,
   "compilerOptions": {
     "outFile": "./dist/scrub.js",
-    "baseUrl": "src",
+    "baseUrl": ".",
+    "rootDir": "./src",
     "sourceMap": true,
-    "declaration": false,
+    "declaration": true,
+    "emitDeclarationOnly": false,
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
@@ -19,5 +21,6 @@
       "dom"
     ],
     "module": "none"
-  }
+  },
+  "include": ["src/**/*"]
 }
