@@ -6,8 +6,8 @@ class MultiplayerSprite extends Sprite implements SyncObjectInterface {
     private reservedProps: string[];
     private syncCallback: CallableFunction;
 
-    constructor(multiplayerName: string, stage: Stage = null, layer = 1, costumePaths = [], soundPaths = []) {
-        super(stage, layer, costumePaths, soundPaths)
+    constructor(multiplayerName: string, stage: Stage = null, layer = 1, costumePaths = []) {
+        super(stage, layer, costumePaths)
 
         this.multiplayerName = 'sprite_' + multiplayerName;
         this.syncId = 1;

@@ -190,16 +190,16 @@ class Stage {
      * Sounds
      */
 
-    addSound(soundPath: string, name: string = null): this {
-        if (!name) {
-            name = 'No name ' + this.sounds.length;
+    addSound(soundPath: string, soundName: string): this {
+        if (this.soundNames.includes(soundName)) {
+            this.game.throwError(ErrorMessages.SOUND_NAME_ALREADY_EXISTS, {soundName});
         }
 
         const sound = new Audio();
         sound.src = soundPath;
 
         this.sounds.push(sound);
-        this.soundNames.push(name);
+        this.soundNames.push(soundName);
         this.pendingSounds++;
 
         sound.load();
@@ -215,17 +215,7 @@ class Stage {
         return this;
     }
 
-    removeSound(soundIndex = 0): this {
-        if (this.sounds[soundIndex] === undefined) {
-            this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, {soundIndex});
-        }
-
-        this.sounds.splice(soundIndex, 1);
-
-        return this;
-    }
-
-    removeSoundByName(soundName: string): this {
+    removeSound(soundName: string): this {
         const soundIndex = this.soundNames.indexOf(soundName);
 
         if (soundIndex < 0) {
@@ -237,52 +227,75 @@ class Stage {
         return this;
     }
 
-    playSound(soundIndex = 0, volume: number = null, currentTime: number = null): void {
-        const sound = this.sounds[soundIndex];
-
-        if (!(sound instanceof Audio)) {
-            this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, {soundIndex});
-        }
-
-        sound.play();
-
-        if (volume !== null) {
-            sound.volume = volume;
-        }
-
-        if (currentTime !== null) {
-            sound.currentTime = currentTime;
-        }
+    playSound(soundName: string, options: SoundOptions = {}): void {
+        const sound = this.getSound(soundName);
+        this.doPlaySound(sound, options);
     }
 
-    pauseSound(soundIndex = 0): void {
-        const sound = this.sounds[soundIndex];
+    startSound(soundName: string, options: SoundOptions = {}): HTMLAudioElement {
+        const sound = this.cloneSound(soundName);
+        this.doPlaySound(sound, options);
 
-        if (!(sound instanceof Audio)) {
-            this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, {soundIndex});
-        }
+        return sound;
+    }
+
+    pauseSound(soundName: string): void {
+        const sound = this.getSound(soundName);
 
         sound.pause();
     }
 
-    playSoundByName(soundName: string, volume: number = null, currentTime: number = null): void {
+    getSound(soundName: string): HTMLAudioElement {
+        if (!this.isReady()) {
+            this.game.throwError(ErrorMessages.SOUND_USE_NOT_READY);
+        }
+
         const soundIndex = this.soundNames.indexOf(soundName);
 
         if (soundIndex < 0) {
             this.game.throwError(ErrorMessages.SOUND_NAME_NOT_FOUND, {soundName});
         }
 
-        this.playSound(soundIndex, volume, currentTime);
+        const sound = this.sounds[soundIndex];
+
+        if (!(sound instanceof Audio)) {
+            this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, {soundIndex});
+        }
+
+        return sound;
     }
 
-    pauseSoundByName(soundName: string): void {
-        const soundIndex = this.soundNames.indexOf(soundName);
+    cloneSound(soundName: string): HTMLAudioElement {
+        const originSound = this.getSound(soundName);
 
-        if (soundIndex < 0) {
-            this.game.throwError(ErrorMessages.SOUND_NAME_NOT_FOUND, {soundName});
+        return new Audio(originSound.src);
+    }
+
+    private doPlaySound(sound: HTMLAudioElement, options: SoundOptions = {}): void {
+        if (options.volume !== undefined) {
+            sound.volume = options.volume;
         }
 
-        this.pauseSound(soundIndex);
+        if (options.currentTime !== undefined) {
+            sound.currentTime = options.currentTime;
+        }
+
+        if (options.loop !== undefined) {
+            sound.loop = options.loop;
+        }
+
+        const playPromise = sound.play();
+
+        if (playPromise !== undefined) {
+            playPromise.catch((error) => {
+                if (error.name === "NotAllowedError") {
+                    this.game.throwError(ErrorMessages.SOUND_NOT_ALLOWED_ERROR, {}, false);
+
+                } else {
+                    console.error("Audio playback error:", error);
+                }
+            });
+        }
     }
 
     /**

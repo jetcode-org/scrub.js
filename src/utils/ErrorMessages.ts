@@ -9,6 +9,8 @@ class ErrorMessages {
     static readonly CLONED_NOT_READY = 'cloned_not_ready';
     static readonly SOUND_INDEX_NOT_FOUND = 'sound_index_not_found';
     static readonly SOUND_NAME_NOT_FOUND = 'sound_name_not_found';
+    static readonly SOUND_NAME_ALREADY_EXISTS = 'sound_name_already_exists';
+    static readonly SOUND_NOT_ALLOWED_ERROR = 'sound_not_allowed_error';
     static readonly SOUND_USE_NOT_READY = 'sound_use_not_ready';
     static readonly COSTUME_INDEX_NOT_FOUND = 'costume_index_not_found';
     static readonly COSTUME_NAME_NOT_FOUND = 'costume_name_not_found';
@@ -58,9 +60,17 @@ class ErrorMessages {
             'ru': 'Звук с именем "${soundName}" не найден.',
             'en': 'Sound with name "${soundName}" not found.'
         },
+        sound_name_already_exists: {
+            'ru': 'Звук с именем "${soundName}" уже добавлен.',
+            'en': 'Sound with name "${soundName}" already exists.'
+        },
         sound_use_not_ready: {
             'ru': 'Спрайт не может использовать звуки, потому что спрайт еще не готов. Попробуйте использовать метод sprite.onReady().',
             'en': 'Sprite cannot use sounds because sprite is not ready. Try using the sprite.onReady() method.'
+        },
+        sound_not_allowed_error: {
+            'ru': 'Воспроизведение звука заблокировано. Пользователь должен сначала взаимодействовать с игрой. Воспользуйтесь методом Game.onUserInteracted()',
+            'en': 'Audio playback is blocked. The user must first interact with the game. Use the Game.onUserInteracted() method.'
         },
         costume_index_not_found: {
             'ru': 'Костюм с индексом "${costumeIndex}" не найден.',

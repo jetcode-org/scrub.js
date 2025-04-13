@@ -49,7 +49,7 @@ class Sprite {
     private _drawings: DrawingCallbackFunction[] = [];
     private _tags: string[] = [];
 
-    constructor(stage?: Stage, layer = 0, costumePaths = [], soundPaths = []) {
+    constructor(stage?: Stage, layer = 0, costumePaths = []) {
         if (!Registry.getInstance().has('game')) {
             throw new Error('You need create Game instance before Stage instance.');
         }
@@ -80,10 +80,6 @@ class Sprite {
 
         for (const costumePath of costumePaths) {
             sprite.addCostume(costumePath);
-        }
-
-        for (const soundPath of soundPaths) {
-            sprite.addSound(soundPath);
         }
 
         sprite.scheduledCallbackExecutor = new ScheduledCallbackExecutor(sprite);
@@ -973,16 +969,16 @@ class Sprite {
      * Sounds
      */
 
-    addSound(soundPath: string, name?: string): this {
-        if (!name) {
-            name = 'No name ' + this.sounds.length;
+    addSound(soundPath: string, soundName: string): this {
+        if (this.soundNames.includes(soundName)) {
+            this.game.throwError(ErrorMessages.SOUND_NAME_ALREADY_EXISTS, {soundName});
         }
 
         const sound = new Audio();
         sound.src = soundPath;
 
         this.sounds.push(sound);
-        this.soundNames.push(name);
+        this.soundNames.push(soundName);
         this.pendingSounds++;
 
         sound.load();
@@ -998,17 +994,7 @@ class Sprite {
         return this;
     }
 
-    removeSound(soundIndex = 0): this {
-        if (this.sounds[soundIndex] === undefined) {
-            this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, {soundIndex});
-        }
-
-        this.sounds.splice(soundIndex, 1);
-
-        return this;
-    }
-
-    removeSoundByName(soundName: string): this {
+    removeSound(soundName: string): this {
         const soundIndex = this.soundNames.indexOf(soundName);
 
         if (soundIndex < 0) {
@@ -1020,43 +1006,25 @@ class Sprite {
         return this;
     }
 
-    playSound(soundIndex = 0, volume?: number, currentTime?: number): void {
-        if (!this.isReady()) {
-            this.game.throwError(ErrorMessages.SOUND_USE_NOT_READY);
-        }
-
-        const sound = this.sounds[soundIndex];
-
-        if (!(sound instanceof Audio)) {
-            this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, {soundIndex});
-        }
-
-        sound.play();
-
-        if (volume !== undefined) {
-            sound.volume = volume;
-        }
-
-        if (currentTime !== undefined) {
-            sound.currentTime = currentTime;
-        }
+    playSound(soundName: string, options: SoundOptions = {}): void {
+        const sound = this.getSound(soundName);
+        this.doPlaySound(sound, options);
     }
 
-    pauseSound(soundIndex: number): void {
-        if (!this.isReady()) {
-            this.game.throwError(ErrorMessages.SOUND_USE_NOT_READY);
-        }
+    startSound(soundName: string, options: SoundOptions = {}): HTMLAudioElement {
+        const sound = this.cloneSound(soundName);
+        this.doPlaySound(sound, options);
 
-        const sound = this.sounds[soundIndex];
+        return sound;
+    }
 
-        if (!(sound instanceof Audio)) {
-            this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, {soundIndex});
-        }
+    pauseSound(soundName: string): void {
+        const sound = this.getSound(soundName);
 
         sound.pause();
     }
 
-    playSoundByName(soundName: string, volume: number, currentTime: number): void {
+    getSound(soundName: string): HTMLAudioElement {
         if (!this.isReady()) {
             this.game.throwError(ErrorMessages.SOUND_USE_NOT_READY);
         }
@@ -1067,26 +1035,46 @@ class Sprite {
             this.game.throwError(ErrorMessages.SOUND_NAME_NOT_FOUND, {soundName});
         }
 
-        this.playSound(soundIndex, volume, currentTime);
-    }
+        const sound = this.sounds[soundIndex];
 
-    pauseSoundByName(soundName: string): void {
-        if (!this.isReady()) {
-            this.game.throwError(ErrorMessages.SOUND_USE_NOT_READY);
+        if (!(sound instanceof Audio)) {
+            this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, {soundIndex});
         }
 
-        const soundIndex = this.soundNames.indexOf(soundName);
-
-        if (soundIndex < 0) {
-            this.game.throwError(ErrorMessages.SOUND_NAME_NOT_FOUND, {soundName});
-        }
-
-        this.pauseSound(soundIndex);
+        return sound;
     }
 
-    cloneSound(sound: HTMLAudioElement, name: string): void {
-        this.sounds.push(sound);
-        this.soundNames.push(name);
+    cloneSound(soundName: string): HTMLAudioElement {
+        const originSound = this.getSound(soundName);
+
+        return new Audio(originSound.src);
+    }
+
+    private doPlaySound(sound: HTMLAudioElement, options: SoundOptions = {}): void {
+        if (options.volume !== undefined) {
+            sound.volume = options.volume;
+        }
+
+        if (options.currentTime !== undefined) {
+            sound.currentTime = options.currentTime;
+        }
+
+        if (options.loop !== undefined) {
+            sound.loop = options.loop;
+        }
+
+        const playPromise = sound.play();
+
+        if (playPromise !== undefined) {
+            playPromise.catch((error) => {
+                if (error.name === "NotAllowedError") {
+                    this.game.throwError(ErrorMessages.SOUND_NOT_ALLOWED_ERROR, {}, false);
+
+                } else {
+                    console.error("Audio playback error:", error);
+                }
+            });
+        }
     }
 
     /**
@@ -2128,7 +2116,8 @@ class Sprite {
         clone.switchCostume(this.costumeIndex);
 
         for (let [soundIndex, sound] of this.sounds.entries()) {
-            clone.cloneSound(sound, this.soundNames[soundIndex]);
+            clone.sounds.push(sound);
+            clone.soundNames.push(this.soundNames[soundIndex]);
         }
 
         clone.currentColliderName = null;

@@ -112,12 +112,14 @@ var Game = (function () {
         this.styles = null;
         this.loadedStages = 0;
         this.onReadyCallbacks = [];
+        this.onUserInteractedCallbacks = [];
         this.onReadyPending = true;
         this.running = false;
         this.pendingRun = false;
         this.reportedError = false;
         this._displayErrors = true;
         this._locale = 'ru';
+        this._userInteracted = false;
         this._displayErrors = displayErrors;
         this._locale = locale;
         this.validatorFactory = new ValidatorFactory(this);
@@ -204,6 +206,9 @@ var Game = (function () {
     Game.prototype.onReady = function (callback) {
         this.onReadyCallbacks.push(callback);
     };
+    Game.prototype.onUserInteracted = function (callback) {
+        this.onUserInteractedCallbacks.push(callback);
+    };
     Game.prototype.stop = function () {
         if (this.activeStage && this.activeStage.running) {
             this.activeStage.stop();
@@ -234,6 +239,13 @@ var Game = (function () {
     Object.defineProperty(Game.prototype, "height", {
         get: function () {
             return this.canvas.height;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Game.prototype, "userInteracted", {
+        get: function () {
+            return this._userInteracted;
         },
         enumerable: false,
         configurable: true
@@ -290,13 +302,17 @@ var Game = (function () {
     Game.prototype.getRandom = function (min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     };
-    Game.prototype.throwError = function (messageId, variables) {
+    Game.prototype.throwError = function (messageId, variables, reportError) {
         if (variables === void 0) { variables = null; }
+        if (reportError === void 0) { reportError = true; }
         var message = ErrorMessages.getMessage(messageId, this.locale, variables);
-        this.throwErrorRaw(message);
+        this.throwErrorRaw(message, reportError);
     };
-    Game.prototype.throwErrorRaw = function (message) {
-        this.reportError(message);
+    Game.prototype.throwErrorRaw = function (message, reportError) {
+        if (reportError === void 0) { reportError = true; }
+        if (reportError) {
+            this.reportError(message);
+        }
         throw new Error(message);
     };
     Game.prototype.reportError = function (message) {
@@ -323,9 +339,19 @@ var Game = (function () {
                 }
             }
         });
+        this.userInteractionPromise = new Promise(function (resolve) {
+            document.addEventListener('click', resolve, { once: true });
+            document.addEventListener('keydown', function (event) {
+                var excludedKeys = ['Control', 'Shift', 'CapsLock', 'NumLock', 'Alt', 'Meta'];
+                if (!excludedKeys.includes(event.key)) {
+                    resolve(true);
+                }
+            }, { once: true });
+        });
     };
     Game.prototype.tryDoOnReady = function () {
         var e_3, _a;
+        var _this = this;
         if (this.isReady() && this.onReadyPending) {
             this.onReadyPending = false;
             if (this.onReadyCallbacks.length) {
@@ -344,6 +370,13 @@ var Game = (function () {
                 }
                 this.onReadyCallbacks = [];
             }
+            this.userInteractionPromise.then(function () {
+                _this._userInteracted = true;
+                _this.onUserInteractedCallbacks.filter(function (callback) {
+                    callback(_this);
+                    return false;
+                });
+            });
             this.tryDoRun();
         }
     };
@@ -850,11 +883,10 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
     return to.concat(ar || Array.prototype.slice.call(from));
 };
 var Sprite = (function () {
-    function Sprite(stage, layer, costumePaths, soundPaths) {
-        var e_7, _a, e_8, _b;
+    function Sprite(stage, layer, costumePaths) {
+        var e_7, _a;
         if (layer === void 0) { layer = 0; }
         if (costumePaths === void 0) { costumePaths = []; }
-        if (soundPaths === void 0) { soundPaths = []; }
         this.name = 'No name';
         this.game = null;
         this.stage = null;
@@ -932,19 +964,6 @@ var Sprite = (function () {
             }
             finally { if (e_7) throw e_7.error; }
         }
-        try {
-            for (var soundPaths_1 = __values(soundPaths), soundPaths_1_1 = soundPaths_1.next(); !soundPaths_1_1.done; soundPaths_1_1 = soundPaths_1.next()) {
-                var soundPath = soundPaths_1_1.value;
-                sprite.addSound(soundPath);
-            }
-        }
-        catch (e_8_1) { e_8 = { error: e_8_1 }; }
-        finally {
-            try {
-                if (soundPaths_1_1 && !soundPaths_1_1.done && (_b = soundPaths_1.return)) _b.call(soundPaths_1);
-            }
-            finally { if (e_8) throw e_8.error; }
-        }
         sprite.scheduledCallbackExecutor = new ScheduledCallbackExecutor(sprite);
         sprite.stage.addSprite(sprite);
         return sprite;
@@ -974,7 +993,7 @@ var Sprite = (function () {
         return this;
     };
     Sprite.prototype.addChild = function (child) {
-        var e_9, _a;
+        var e_8, _a;
         if (!this._children.includes(child)) {
             this._children.push(child);
             child.parent = this;
@@ -988,19 +1007,19 @@ var Sprite = (function () {
                     child.addTag(tag);
                 }
             }
-            catch (e_9_1) { e_9 = { error: e_9_1 }; }
+            catch (e_8_1) { e_8 = { error: e_8_1 }; }
             finally {
                 try {
                     if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
                 }
-                finally { if (e_9) throw e_9.error; }
+                finally { if (e_8) throw e_8.error; }
             }
         }
         child.parent = this;
         return this;
     };
     Sprite.prototype.removeChild = function (child) {
-        var e_10, _a;
+        var e_9, _a;
         var foundChildIndex = this._children.indexOf(child);
         if (foundChildIndex > -1) {
             var child_1 = this._children[foundChildIndex];
@@ -1011,12 +1030,12 @@ var Sprite = (function () {
                     child_1.removeTag(tag);
                 }
             }
-            catch (e_10_1) { e_10 = { error: e_10_1 }; }
+            catch (e_9_1) { e_9 = { error: e_9_1 }; }
             finally {
                 try {
                     if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
                 }
-                finally { if (e_10) throw e_10.error; }
+                finally { if (e_9) throw e_9.error; }
             }
             this._children.splice(foundChildIndex, 1);
         }
@@ -1204,7 +1223,7 @@ var Sprite = (function () {
         return this.colliders.entries();
     };
     Sprite.prototype.cloneCollider = function (sprite) {
-        var e_11, _a;
+        var e_10, _a;
         var colliders = sprite.getColliders();
         try {
             for (var colliders_1 = __values(colliders), colliders_1_1 = colliders_1.next(); !colliders_1_1.done; colliders_1_1 = colliders_1.next()) {
@@ -1217,16 +1236,16 @@ var Sprite = (function () {
                 }
             }
         }
-        catch (e_11_1) { e_11 = { error: e_11_1 }; }
+        catch (e_10_1) { e_10 = { error: e_10_1 }; }
         finally {
             try {
                 if (colliders_1_1 && !colliders_1_1.done && (_a = colliders_1.return)) _a.call(colliders_1);
             }
-            finally { if (e_11) throw e_11.error; }
+            finally { if (e_10) throw e_10.error; }
         }
     };
     Sprite.prototype.calculateCentroid = function (points) {
-        var e_12, _a;
+        var e_11, _a;
         var xSum = 0;
         var ySum = 0;
         try {
@@ -1236,19 +1255,19 @@ var Sprite = (function () {
                 ySum += point[1];
             }
         }
-        catch (e_12_1) { e_12 = { error: e_12_1 }; }
+        catch (e_11_1) { e_11 = { error: e_11_1 }; }
         finally {
             try {
                 if (points_1_1 && !points_1_1.done && (_a = points_1.return)) _a.call(points_1);
             }
-            finally { if (e_12) throw e_12.error; }
+            finally { if (e_11) throw e_11.error; }
         }
         var x = xSum / points.length;
         var y = ySum / points.length;
         return { x: x, y: y };
     };
     Sprite.prototype.calculatePolygonSize = function (points) {
-        var e_13, _a;
+        var e_12, _a;
         var minX = points[0][0];
         var minY = points[0][1];
         var maxX = points[0][0];
@@ -1266,12 +1285,12 @@ var Sprite = (function () {
                     maxY = vertex[1];
             }
         }
-        catch (e_13_1) { e_13 = { error: e_13_1 }; }
+        catch (e_12_1) { e_12 = { error: e_12_1 }; }
         finally {
             try {
                 if (points_2_1 && !points_2_1.done && (_a = points_2.return)) _a.call(points_2);
             }
-            finally { if (e_13) throw e_13.error; }
+            finally { if (e_12) throw e_12.error; }
         }
         var width = maxX - minX;
         var height = maxY - minY;
@@ -1305,9 +1324,30 @@ var Sprite = (function () {
         }
     };
     Sprite.prototype.addTag = function (tagName) {
-        var e_14, _a;
+        var e_13, _a;
         if (!this.hasTag(tagName)) {
             this._tags.push(tagName);
+        }
+        try {
+            for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                var child = _c.value;
+                child.addTag(tagName);
+            }
+        }
+        catch (e_13_1) { e_13 = { error: e_13_1 }; }
+        finally {
+            try {
+                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            }
+            finally { if (e_13) throw e_13.error; }
+        }
+        return this;
+    };
+    Sprite.prototype.removeTag = function (tagName) {
+        var e_14, _a;
+        var foundIndex = this._tags.indexOf(tagName);
+        if (foundIndex > -1) {
+            this._tags.splice(foundIndex, 1);
         }
         try {
             for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
@@ -1321,27 +1361,6 @@ var Sprite = (function () {
                 if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
             }
             finally { if (e_14) throw e_14.error; }
-        }
-        return this;
-    };
-    Sprite.prototype.removeTag = function (tagName) {
-        var e_15, _a;
-        var foundIndex = this._tags.indexOf(tagName);
-        if (foundIndex > -1) {
-            this._tags.splice(foundIndex, 1);
-        }
-        try {
-            for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                var child = _c.value;
-                child.addTag(tagName);
-            }
-        }
-        catch (e_15_1) { e_15 = { error: e_15_1 }; }
-        finally {
-            try {
-                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-            }
-            finally { if (e_15) throw e_15.error; }
         }
         return this;
     };
@@ -1669,15 +1688,15 @@ var Sprite = (function () {
         this.costumes.push(costume);
         this.costumeNames.push(name);
     };
-    Sprite.prototype.addSound = function (soundPath, name) {
+    Sprite.prototype.addSound = function (soundPath, soundName) {
         var _this = this;
-        if (!name) {
-            name = 'No name ' + this.sounds.length;
+        if (this.soundNames.includes(soundName)) {
+            this.game.throwError(ErrorMessages.SOUND_NAME_ALREADY_EXISTS, { soundName: soundName });
         }
         var sound = new Audio();
         sound.src = soundPath;
         this.sounds.push(sound);
-        this.soundNames.push(name);
+        this.soundNames.push(soundName);
         this.pendingSounds++;
         sound.load();
         var onLoadSound = function () {
@@ -1688,15 +1707,7 @@ var Sprite = (function () {
         sound.addEventListener('loadedmetadata', onLoadSound);
         return this;
     };
-    Sprite.prototype.removeSound = function (soundIndex) {
-        if (soundIndex === void 0) { soundIndex = 0; }
-        if (this.sounds[soundIndex] === undefined) {
-            this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, { soundIndex: soundIndex });
-        }
-        this.sounds.splice(soundIndex, 1);
-        return this;
-    };
-    Sprite.prototype.removeSoundByName = function (soundName) {
+    Sprite.prototype.removeSound = function (soundName) {
         var soundIndex = this.soundNames.indexOf(soundName);
         if (soundIndex < 0) {
             this.game.throwError(ErrorMessages.SOUND_NAME_NOT_FOUND, { soundName: soundName });
@@ -1704,34 +1715,22 @@ var Sprite = (function () {
         this.sounds.splice(soundIndex, 1);
         return this;
     };
-    Sprite.prototype.playSound = function (soundIndex, volume, currentTime) {
-        if (soundIndex === void 0) { soundIndex = 0; }
-        if (!this.isReady()) {
-            this.game.throwError(ErrorMessages.SOUND_USE_NOT_READY);
-        }
-        var sound = this.sounds[soundIndex];
-        if (!(sound instanceof Audio)) {
-            this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, { soundIndex: soundIndex });
-        }
-        sound.play();
-        if (volume !== undefined) {
-            sound.volume = volume;
-        }
-        if (currentTime !== undefined) {
-            sound.currentTime = currentTime;
-        }
+    Sprite.prototype.playSound = function (soundName, options) {
+        if (options === void 0) { options = {}; }
+        var sound = this.getSound(soundName);
+        this.doPlaySound(sound, options);
     };
-    Sprite.prototype.pauseSound = function (soundIndex) {
-        if (!this.isReady()) {
-            this.game.throwError(ErrorMessages.SOUND_USE_NOT_READY);
-        }
-        var sound = this.sounds[soundIndex];
-        if (!(sound instanceof Audio)) {
-            this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, { soundIndex: soundIndex });
-        }
+    Sprite.prototype.startSound = function (soundName, options) {
+        if (options === void 0) { options = {}; }
+        var sound = this.cloneSound(soundName);
+        this.doPlaySound(sound, options);
+        return sound;
+    };
+    Sprite.prototype.pauseSound = function (soundName) {
+        var sound = this.getSound(soundName);
         sound.pause();
     };
-    Sprite.prototype.playSoundByName = function (soundName, volume, currentTime) {
+    Sprite.prototype.getSound = function (soundName) {
         if (!this.isReady()) {
             this.game.throwError(ErrorMessages.SOUND_USE_NOT_READY);
         }
@@ -1739,21 +1738,39 @@ var Sprite = (function () {
         if (soundIndex < 0) {
             this.game.throwError(ErrorMessages.SOUND_NAME_NOT_FOUND, { soundName: soundName });
         }
-        this.playSound(soundIndex, volume, currentTime);
-    };
-    Sprite.prototype.pauseSoundByName = function (soundName) {
-        if (!this.isReady()) {
-            this.game.throwError(ErrorMessages.SOUND_USE_NOT_READY);
+        var sound = this.sounds[soundIndex];
+        if (!(sound instanceof Audio)) {
+            this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, { soundIndex: soundIndex });
         }
-        var soundIndex = this.soundNames.indexOf(soundName);
-        if (soundIndex < 0) {
-            this.game.throwError(ErrorMessages.SOUND_NAME_NOT_FOUND, { soundName: soundName });
-        }
-        this.pauseSound(soundIndex);
+        return sound;
     };
-    Sprite.prototype.cloneSound = function (sound, name) {
-        this.sounds.push(sound);
-        this.soundNames.push(name);
+    Sprite.prototype.cloneSound = function (soundName) {
+        var originSound = this.getSound(soundName);
+        return new Audio(originSound.src);
+    };
+    Sprite.prototype.doPlaySound = function (sound, options) {
+        var _this = this;
+        if (options === void 0) { options = {}; }
+        if (options.volume !== undefined) {
+            sound.volume = options.volume;
+        }
+        if (options.currentTime !== undefined) {
+            sound.currentTime = options.currentTime;
+        }
+        if (options.loop !== undefined) {
+            sound.loop = options.loop;
+        }
+        var playPromise = sound.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(function (error) {
+                if (error.name === "NotAllowedError") {
+                    _this.game.throwError(ErrorMessages.SOUND_NOT_ALLOWED_ERROR, {}, false);
+                }
+                else {
+                    console.error("Audio playback error:", error);
+                }
+            });
+        }
     };
     Sprite.prototype.stamp = function (costumeIndex, withRotation) {
         if (withRotation === void 0) { withRotation = true; }
@@ -1814,12 +1831,37 @@ var Sprite = (function () {
             return this._rotateStyle;
         },
         set: function (value) {
-            var e_16, _a;
+            var e_15, _a;
             this._rotateStyle = value;
             try {
                 for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
                     var child = _c.value;
                     child.rotateStyle = value;
+                }
+            }
+            catch (e_15_1) { e_15 = { error: e_15_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_15) throw e_15.error; }
+            }
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "layer", {
+        get: function () {
+            return this._layer;
+        },
+        set: function (newLayer) {
+            var e_16, _a;
+            this.stage.changeSpriteLayer(this, this._layer, newLayer);
+            this._layer = newLayer;
+            try {
+                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var child = _c.value;
+                    child.layer = child.layer + this._layer;
                 }
             }
             catch (e_16_1) { e_16 = { error: e_16_1 }; }
@@ -1833,18 +1875,17 @@ var Sprite = (function () {
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(Sprite.prototype, "layer", {
+    Object.defineProperty(Sprite.prototype, "hidden", {
         get: function () {
-            return this._layer;
+            return this._hidden;
         },
-        set: function (newLayer) {
+        set: function (value) {
             var e_17, _a;
-            this.stage.changeSpriteLayer(this, this._layer, newLayer);
-            this._layer = newLayer;
+            this._hidden = value;
             try {
                 for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
                     var child = _c.value;
-                    child.layer = child.layer + this._layer;
+                    child.hidden = value;
                 }
             }
             catch (e_17_1) { e_17 = { error: e_17_1 }; }
@@ -1853,30 +1894,6 @@ var Sprite = (function () {
                     if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
                 }
                 finally { if (e_17) throw e_17.error; }
-            }
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "hidden", {
-        get: function () {
-            return this._hidden;
-        },
-        set: function (value) {
-            var e_18, _a;
-            this._hidden = value;
-            try {
-                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var child = _c.value;
-                    child.hidden = value;
-                }
-            }
-            catch (e_18_1) { e_18 = { error: e_18_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_18) throw e_18.error; }
             }
         },
         enumerable: false,
@@ -1934,8 +1951,41 @@ var Sprite = (function () {
             return this._x;
         },
         set: function (value) {
-            var e_19, _a;
+            var e_18, _a;
             this._x = value;
+            if (this._children.length) {
+                this.updateCenterParams();
+            }
+            var collider = this.collider;
+            if (collider) {
+                this.updateColliderPosition(collider);
+            }
+            try {
+                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var child = _c.value;
+                    if (child.collider) {
+                        child.updateColliderPosition(child.collider);
+                    }
+                }
+            }
+            catch (e_18_1) { e_18 = { error: e_18_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_18) throw e_18.error; }
+            }
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sprite.prototype, "y", {
+        get: function () {
+            return this._y;
+        },
+        set: function (value) {
+            var e_19, _a;
+            this._y = value;
             if (this._children.length) {
                 this.updateCenterParams();
             }
@@ -1957,39 +2007,6 @@ var Sprite = (function () {
                     if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
                 }
                 finally { if (e_19) throw e_19.error; }
-            }
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "y", {
-        get: function () {
-            return this._y;
-        },
-        set: function (value) {
-            var e_20, _a;
-            this._y = value;
-            if (this._children.length) {
-                this.updateCenterParams();
-            }
-            var collider = this.collider;
-            if (collider) {
-                this.updateColliderPosition(collider);
-            }
-            try {
-                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var child = _c.value;
-                    if (child.collider) {
-                        child.updateColliderPosition(child.collider);
-                    }
-                }
-            }
-            catch (e_20_1) { e_20 = { error: e_20_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_20) throw e_20.error; }
             }
         },
         enumerable: false,
@@ -2153,7 +2170,7 @@ var Sprite = (function () {
             return this._size;
         },
         set: function (value) {
-            var e_21, _a;
+            var e_20, _a;
             this._size = value;
             var collider = this.collider;
             if (collider) {
@@ -2165,12 +2182,12 @@ var Sprite = (function () {
                     child.size = value;
                 }
             }
-            catch (e_21_1) { e_21 = { error: e_21_1 }; }
+            catch (e_20_1) { e_20 = { error: e_20_1 }; }
             finally {
                 try {
                     if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
                 }
-                finally { if (e_21) throw e_21.error; }
+                finally { if (e_20) throw e_20.error; }
             }
         },
         enumerable: false,
@@ -2181,7 +2198,7 @@ var Sprite = (function () {
             return this._direction;
         },
         set: function (direction) {
-            var e_22, _a;
+            var e_21, _a;
             if ((direction * 0) !== 0) {
                 return;
             }
@@ -2197,12 +2214,12 @@ var Sprite = (function () {
                     child.updateColliderAngle();
                 }
             }
-            catch (e_22_1) { e_22 = { error: e_22_1 }; }
+            catch (e_21_1) { e_21 = { error: e_21_1 }; }
             finally {
                 try {
                     if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
                 }
-                finally { if (e_22) throw e_22.error; }
+                finally { if (e_21) throw e_21.error; }
             }
         },
         enumerable: false,
@@ -2277,7 +2294,7 @@ var Sprite = (function () {
         this._centerAngle = -Math.atan2(-this._pivotOffsetY, -this._pivotOffsetX);
     };
     Sprite.prototype.touchSprite = function (sprite, checkChildren) {
-        var e_23, _a, e_24, _b, e_25, _c;
+        var e_22, _a, e_23, _b, e_24, _c;
         if (checkChildren === void 0) { checkChildren = true; }
         this._collidedSprite = null;
         if (sprite.hidden ||
@@ -2303,12 +2320,12 @@ var Sprite = (function () {
                     }
                 }
             }
-            catch (e_23_1) { e_23 = { error: e_23_1 }; }
+            catch (e_22_1) { e_22 = { error: e_22_1 }; }
             finally {
                 try {
                     if (_e && !_e.done && (_a = _d.return)) _a.call(_d);
                 }
-                finally { if (e_23) throw e_23.error; }
+                finally { if (e_22) throw e_22.error; }
             }
         }
         if (!checkChildren) {
@@ -2322,7 +2339,7 @@ var Sprite = (function () {
                     return true;
                 }
                 try {
-                    for (var _h = (e_25 = void 0, __values(sprite.getChildren())), _j = _h.next(); !_j.done; _j = _h.next()) {
+                    for (var _h = (e_24 = void 0, __values(sprite.getChildren())), _j = _h.next(); !_j.done; _j = _h.next()) {
                         var otherChild = _j.value;
                         if (child.touchSprite(otherChild)) {
                             this._collidedSprite = child;
@@ -2330,26 +2347,26 @@ var Sprite = (function () {
                         }
                     }
                 }
-                catch (e_25_1) { e_25 = { error: e_25_1 }; }
+                catch (e_24_1) { e_24 = { error: e_24_1 }; }
                 finally {
                     try {
                         if (_j && !_j.done && (_c = _h.return)) _c.call(_h);
                     }
-                    finally { if (e_25) throw e_25.error; }
+                    finally { if (e_24) throw e_24.error; }
                 }
             }
         }
-        catch (e_24_1) { e_24 = { error: e_24_1 }; }
+        catch (e_23_1) { e_23 = { error: e_23_1 }; }
         finally {
             try {
                 if (_g && !_g.done && (_b = _f.return)) _b.call(_f);
             }
-            finally { if (e_24) throw e_24.error; }
+            finally { if (e_23) throw e_23.error; }
         }
         return false;
     };
     Sprite.prototype.touchSprites = function (sprites, checkChildren) {
-        var e_26, _a;
+        var e_25, _a;
         if (checkChildren === void 0) { checkChildren = true; }
         if (this.hidden || this.stopped || this.deleted) {
             return false;
@@ -2362,12 +2379,12 @@ var Sprite = (function () {
                 }
             }
         }
-        catch (e_26_1) { e_26 = { error: e_26_1 }; }
+        catch (e_25_1) { e_25 = { error: e_25_1 }; }
         finally {
             try {
                 if (sprites_1_1 && !sprites_1_1.done && (_a = sprites_1.return)) _a.call(sprites_1);
             }
-            finally { if (e_26) throw e_26.error; }
+            finally { if (e_25) throw e_25.error; }
         }
         return false;
     };
@@ -2376,7 +2393,7 @@ var Sprite = (function () {
         return this.touchPoint(this.game.getMousePoint(), checkChildren);
     };
     Sprite.prototype.touchPoint = function (point, checkChildren) {
-        var e_27, _a;
+        var e_26, _a;
         if (checkChildren === void 0) { checkChildren = true; }
         this._collidedSprite = null;
         if (this.hidden || this.stopped || this.deleted) {
@@ -2397,18 +2414,18 @@ var Sprite = (function () {
                     }
                 }
             }
-            catch (e_27_1) { e_27 = { error: e_27_1 }; }
+            catch (e_26_1) { e_26 = { error: e_26_1 }; }
             finally {
                 try {
                     if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
                 }
-                finally { if (e_27) throw e_27.error; }
+                finally { if (e_26) throw e_26.error; }
             }
         }
         return false;
     };
     Sprite.prototype.touchEdge = function (checkChildren) {
-        var e_28, _a;
+        var e_27, _a;
         if (checkChildren === void 0) { checkChildren = true; }
         var result = this.getPureCollisionResult();
         this._collidedSprite = null;
@@ -2453,18 +2470,18 @@ var Sprite = (function () {
                     }
                 }
             }
-            catch (e_28_1) { e_28 = { error: e_28_1 }; }
+            catch (e_27_1) { e_27 = { error: e_27_1 }; }
             finally {
                 try {
                     if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
                 }
-                finally { if (e_28) throw e_28.error; }
+                finally { if (e_27) throw e_27.error; }
             }
         }
         return false;
     };
     Sprite.prototype.touchTopEdge = function (checkChildren) {
-        var e_29, _a;
+        var e_28, _a;
         if (checkChildren === void 0) { checkChildren = true; }
         this.clearCollisionResult();
         this._collidedSprite = null;
@@ -2487,18 +2504,18 @@ var Sprite = (function () {
                     }
                 }
             }
-            catch (e_29_1) { e_29 = { error: e_29_1 }; }
+            catch (e_28_1) { e_28 = { error: e_28_1 }; }
             finally {
                 try {
                     if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
                 }
-                finally { if (e_29) throw e_29.error; }
+                finally { if (e_28) throw e_28.error; }
             }
         }
         return false;
     };
     Sprite.prototype.touchBottomEdge = function (checkChildren) {
-        var e_30, _a;
+        var e_29, _a;
         if (checkChildren === void 0) { checkChildren = true; }
         this.clearCollisionResult();
         this._collidedSprite = null;
@@ -2521,18 +2538,18 @@ var Sprite = (function () {
                     }
                 }
             }
-            catch (e_30_1) { e_30 = { error: e_30_1 }; }
+            catch (e_29_1) { e_29 = { error: e_29_1 }; }
             finally {
                 try {
                     if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
                 }
-                finally { if (e_30) throw e_30.error; }
+                finally { if (e_29) throw e_29.error; }
             }
         }
         return false;
     };
     Sprite.prototype.touchLeftEdge = function (checkChildren) {
-        var e_31, _a;
+        var e_30, _a;
         if (checkChildren === void 0) { checkChildren = true; }
         this.clearCollisionResult();
         this._collidedSprite = null;
@@ -2555,18 +2572,18 @@ var Sprite = (function () {
                     }
                 }
             }
-            catch (e_31_1) { e_31 = { error: e_31_1 }; }
+            catch (e_30_1) { e_30 = { error: e_30_1 }; }
             finally {
                 try {
                     if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
                 }
-                finally { if (e_31) throw e_31.error; }
+                finally { if (e_30) throw e_30.error; }
             }
         }
         return false;
     };
     Sprite.prototype.touchRightEdge = function (checkChildren) {
-        var e_32, _a;
+        var e_31, _a;
         if (checkChildren === void 0) { checkChildren = true; }
         this.clearCollisionResult();
         this._collidedSprite = null;
@@ -2589,18 +2606,18 @@ var Sprite = (function () {
                     }
                 }
             }
-            catch (e_32_1) { e_32 = { error: e_32_1 }; }
+            catch (e_31_1) { e_31 = { error: e_31_1 }; }
             finally {
                 try {
                     if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
                 }
-                finally { if (e_32) throw e_32.error; }
+                finally { if (e_31) throw e_31.error; }
             }
         }
         return false;
     };
     Sprite.prototype.touchTag = function (tagName, checkChildren) {
-        var e_33, _a, e_34, _b;
+        var e_32, _a, e_33, _b;
         if (checkChildren === void 0) { checkChildren = true; }
         this.clearCollisionResult();
         this._collidedSprite = null;
@@ -2627,12 +2644,12 @@ var Sprite = (function () {
                     }
                 }
             }
-            catch (e_33_1) { e_33 = { error: e_33_1 }; }
+            catch (e_32_1) { e_32 = { error: e_32_1 }; }
             finally {
                 try {
                     if (potentialsColliders_1_1 && !potentialsColliders_1_1.done && (_a = potentialsColliders_1.return)) _a.call(potentialsColliders_1);
                 }
-                finally { if (e_33) throw e_33.error; }
+                finally { if (e_32) throw e_32.error; }
             }
         }
         if (checkChildren) {
@@ -2645,18 +2662,18 @@ var Sprite = (function () {
                     }
                 }
             }
-            catch (e_34_1) { e_34 = { error: e_34_1 }; }
+            catch (e_33_1) { e_33 = { error: e_33_1 }; }
             finally {
                 try {
                     if (_d && !_d.done && (_b = _c.return)) _b.call(_c);
                 }
-                finally { if (e_34) throw e_34.error; }
+                finally { if (e_33) throw e_33.error; }
             }
         }
         return false;
     };
     Sprite.prototype.touchTagAll = function (tagName, checkChildren) {
-        var e_35, _a, e_36, _b, e_37, _c;
+        var e_34, _a, e_35, _b, e_36, _c;
         if (checkChildren === void 0) { checkChildren = true; }
         this.clearCollisionResult();
         this._collidedSprite = null;
@@ -2685,12 +2702,12 @@ var Sprite = (function () {
                     }
                 }
             }
-            catch (e_35_1) { e_35 = { error: e_35_1 }; }
+            catch (e_34_1) { e_34 = { error: e_34_1 }; }
             finally {
                 try {
                     if (potentialsColliders_2_1 && !potentialsColliders_2_1.done && (_a = potentialsColliders_2.return)) _a.call(potentialsColliders_2);
                 }
-                finally { if (e_35) throw e_35.error; }
+                finally { if (e_34) throw e_34.error; }
             }
         }
         if (checkChildren) {
@@ -2700,27 +2717,27 @@ var Sprite = (function () {
                     var collision = child.touchTagAll(tagName);
                     if (collision && !collision.length) {
                         try {
-                            for (var collision_1 = (e_37 = void 0, __values(collision)), collision_1_1 = collision_1.next(); !collision_1_1.done; collision_1_1 = collision_1.next()) {
+                            for (var collision_1 = (e_36 = void 0, __values(collision)), collision_1_1 = collision_1.next(); !collision_1_1.done; collision_1_1 = collision_1.next()) {
                                 var sprite = collision_1_1.value;
                                 collidedSprites.push(sprite);
                             }
                         }
-                        catch (e_37_1) { e_37 = { error: e_37_1 }; }
+                        catch (e_36_1) { e_36 = { error: e_36_1 }; }
                         finally {
                             try {
                                 if (collision_1_1 && !collision_1_1.done && (_c = collision_1.return)) _c.call(collision_1);
                             }
-                            finally { if (e_37) throw e_37.error; }
+                            finally { if (e_36) throw e_36.error; }
                         }
                     }
                 }
             }
-            catch (e_36_1) { e_36 = { error: e_36_1 }; }
+            catch (e_35_1) { e_35 = { error: e_35_1 }; }
             finally {
                 try {
                     if (_e && !_e.done && (_b = _d.return)) _b.call(_d);
                 }
-                finally { if (e_36) throw e_36.error; }
+                finally { if (e_35) throw e_35.error; }
             }
         }
         if (collidedSprites.length) {
@@ -2729,7 +2746,7 @@ var Sprite = (function () {
         return false;
     };
     Sprite.prototype.touchAnySprite = function (checkChildren) {
-        var e_38, _a, e_39, _b;
+        var e_37, _a, e_38, _b;
         if (checkChildren === void 0) { checkChildren = true; }
         this.clearCollisionResult();
         this._collidedSprite = null;
@@ -2754,12 +2771,12 @@ var Sprite = (function () {
                     }
                 }
             }
-            catch (e_38_1) { e_38 = { error: e_38_1 }; }
+            catch (e_37_1) { e_37 = { error: e_37_1 }; }
             finally {
                 try {
                     if (potentialsColliders_3_1 && !potentialsColliders_3_1.done && (_a = potentialsColliders_3.return)) _a.call(potentialsColliders_3);
                 }
-                finally { if (e_38) throw e_38.error; }
+                finally { if (e_37) throw e_37.error; }
             }
         }
         if (checkChildren) {
@@ -2772,12 +2789,12 @@ var Sprite = (function () {
                     }
                 }
             }
-            catch (e_39_1) { e_39 = { error: e_39_1 }; }
+            catch (e_38_1) { e_38 = { error: e_38_1 }; }
             finally {
                 try {
                     if (_d && !_d.done && (_b = _c.return)) _b.call(_c);
                 }
-                finally { if (e_39) throw e_39.error; }
+                finally { if (e_38) throw e_38.error; }
             }
         }
         return false;
@@ -2904,7 +2921,7 @@ var Sprite = (function () {
         this._original = original;
     };
     Sprite.prototype.createClone = function (stage) {
-        var _a, e_40, _b, e_41, _c;
+        var _a, e_39, _b, e_40, _c;
         if (!this.isReady()) {
             this.game.throwError(ErrorMessages.CLONED_NOT_READY);
         }
@@ -2933,15 +2950,16 @@ var Sprite = (function () {
         try {
             for (var _d = __values(this.sounds.entries()), _e = _d.next(); !_e.done; _e = _d.next()) {
                 var _f = __read(_e.value, 2), soundIndex = _f[0], sound = _f[1];
-                clone.cloneSound(sound, this.soundNames[soundIndex]);
+                clone.sounds.push(sound);
+                clone.soundNames.push(this.soundNames[soundIndex]);
             }
         }
-        catch (e_40_1) { e_40 = { error: e_40_1 }; }
+        catch (e_39_1) { e_39 = { error: e_39_1 }; }
         finally {
             try {
                 if (_e && !_e.done && (_b = _d.return)) _b.call(_d);
             }
-            finally { if (e_40) throw e_40.error; }
+            finally { if (e_39) throw e_39.error; }
         }
         clone.currentColliderName = null;
         clone.cloneCollider(this);
@@ -2958,18 +2976,18 @@ var Sprite = (function () {
                 childClone.direction = child.direction;
             }
         }
-        catch (e_41_1) { e_41 = { error: e_41_1 }; }
+        catch (e_40_1) { e_40 = { error: e_40_1 }; }
         finally {
             try {
                 if (_h && !_h.done && (_c = _g.return)) _c.call(_g);
             }
-            finally { if (e_41) throw e_41.error; }
+            finally { if (e_40) throw e_40.error; }
         }
         clone.ready();
         return clone;
     };
     Sprite.prototype.delete = function () {
-        var e_42, _a;
+        var e_41, _a;
         if (this.deleted) {
             return;
         }
@@ -2983,12 +3001,12 @@ var Sprite = (function () {
                 child.delete();
             }
         }
-        catch (e_42_1) { e_42 = { error: e_42_1 }; }
+        catch (e_41_1) { e_41 = { error: e_41_1 }; }
         finally {
             try {
                 if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
             }
-            finally { if (e_42) throw e_42.error; }
+            finally { if (e_41) throw e_41.error; }
         }
         var props = Object.keys(this);
         for (var i = 0; i < props.length; i++) {
@@ -3010,7 +3028,7 @@ var Sprite = (function () {
         spritesToDelete.forEach(function (sprite) { return sprite.delete(); });
     };
     Sprite.prototype.tryDoOnReady = function () {
-        var e_43, _a;
+        var e_42, _a;
         if (this.onReadyPending && this.isReady()) {
             this.onReadyPending = false;
             if (this.costumes.length && this.costume === null) {
@@ -3036,12 +3054,12 @@ var Sprite = (function () {
                         callback();
                     }
                 }
-                catch (e_43_1) { e_43 = { error: e_43_1 }; }
+                catch (e_42_1) { e_42 = { error: e_42_1 }; }
                 finally {
                     try {
                         if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
                     }
-                    finally { if (e_43) throw e_43.error; }
+                    finally { if (e_42) throw e_42.error; }
                 }
                 this.onReadyCallbacks = [];
             }
@@ -3199,7 +3217,7 @@ var MultiplayerGame = (function (_super) {
         }
     };
     MultiplayerGame.prototype.stop = function () {
-        var e_44, _a;
+        var e_43, _a;
         _super.prototype.stop.call(this);
         try {
             for (var _b = __values(this.players), _c = _b.next(); !_c.done; _c = _b.next()) {
@@ -3207,12 +3225,12 @@ var MultiplayerGame = (function (_super) {
                 player.delete();
             }
         }
-        catch (e_44_1) { e_44 = { error: e_44_1 }; }
+        catch (e_43_1) { e_43 = { error: e_43_1 }; }
         finally {
             try {
                 if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
             }
-            finally { if (e_44) throw e_44.error; }
+            finally { if (e_43) throw e_43.error; }
         }
         this.players = [];
     };
@@ -3246,13 +3264,13 @@ var MultiplayerGame = (function (_super) {
         return __spreadArray(__spreadArray(__spreadArray([], __read(multiplayerSprites), false), __read(players), false), __read(sharedObjects), false);
     };
     MultiplayerGame.prototype.syncObjects = function (syncData, deltaTime) {
-        var e_45, _a, e_46, _b;
+        var e_44, _a, e_45, _b;
         var gameAllSyncObjects = this.getSyncObjects();
         try {
             for (var _c = __values(Object.entries(syncData)), _d = _c.next(); !_d.done; _d = _c.next()) {
                 var _e = __read(_d.value, 2), syncPackName = _e[0], syncObjectsData = _e[1];
                 try {
-                    for (var gameAllSyncObjects_1 = (e_46 = void 0, __values(gameAllSyncObjects)), gameAllSyncObjects_1_1 = gameAllSyncObjects_1.next(); !gameAllSyncObjects_1_1.done; gameAllSyncObjects_1_1 = gameAllSyncObjects_1.next()) {
+                    for (var gameAllSyncObjects_1 = (e_45 = void 0, __values(gameAllSyncObjects)), gameAllSyncObjects_1_1 = gameAllSyncObjects_1.next(); !gameAllSyncObjects_1_1.done; gameAllSyncObjects_1_1 = gameAllSyncObjects_1.next()) {
                         var syncObject = gameAllSyncObjects_1_1.value;
                         if (syncObjectsData[syncObject.getMultiplayerName()]) {
                             var syncPackData = syncObjectsData[syncObject.getMultiplayerName()];
@@ -3260,25 +3278,25 @@ var MultiplayerGame = (function (_super) {
                         }
                     }
                 }
-                catch (e_46_1) { e_46 = { error: e_46_1 }; }
+                catch (e_45_1) { e_45 = { error: e_45_1 }; }
                 finally {
                     try {
                         if (gameAllSyncObjects_1_1 && !gameAllSyncObjects_1_1.done && (_b = gameAllSyncObjects_1.return)) _b.call(gameAllSyncObjects_1);
                     }
-                    finally { if (e_46) throw e_46.error; }
+                    finally { if (e_45) throw e_45.error; }
                 }
             }
         }
-        catch (e_45_1) { e_45 = { error: e_45_1 }; }
+        catch (e_44_1) { e_44 = { error: e_44_1 }; }
         finally {
             try {
                 if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
             }
-            finally { if (e_45) throw e_45.error; }
+            finally { if (e_44) throw e_44.error; }
         }
     };
     MultiplayerGame.prototype.packSyncData = function (packName, syncObjects) {
-        var e_47, _a;
+        var e_46, _a;
         var syncObjectsData = {};
         try {
             for (var syncObjects_1 = __values(syncObjects), syncObjects_1_1 = syncObjects_1.next(); !syncObjects_1_1.done; syncObjects_1_1 = syncObjects_1.next()) {
@@ -3287,12 +3305,12 @@ var MultiplayerGame = (function (_super) {
                 syncObjectsData[syncObject.getMultiplayerName()]['syncId'] = syncObject.increaseSyncId();
             }
         }
-        catch (e_47_1) { e_47 = { error: e_47_1 }; }
+        catch (e_46_1) { e_46 = { error: e_46_1 }; }
         finally {
             try {
                 if (syncObjects_1_1 && !syncObjects_1_1.done && (_a = syncObjects_1.return)) _a.call(syncObjects_1);
             }
-            finally { if (e_47) throw e_47.error; }
+            finally { if (e_46) throw e_46.error; }
         }
         var result = {};
         result[packName] = syncObjectsData;
@@ -3402,12 +3420,11 @@ var MultiplayerGame = (function (_super) {
 }(Game));
 var MultiplayerSprite = (function (_super) {
     __extends(MultiplayerSprite, _super);
-    function MultiplayerSprite(multiplayerName, stage, layer, costumePaths, soundPaths) {
+    function MultiplayerSprite(multiplayerName, stage, layer, costumePaths) {
         if (stage === void 0) { stage = null; }
         if (layer === void 0) { layer = 1; }
         if (costumePaths === void 0) { costumePaths = []; }
-        if (soundPaths === void 0) { soundPaths = []; }
-        var _this = _super.call(this, stage, layer, costumePaths, soundPaths) || this;
+        var _this = _super.call(this, stage, layer, costumePaths) || this;
         _this.multiplayerName = 'sprite_' + multiplayerName;
         _this.syncId = 1;
         _this.reservedProps = Object.keys(_this);
@@ -3419,7 +3436,7 @@ var MultiplayerSprite = (function (_super) {
         return Math.random().toString(36).slice(2) + '-' + Math.random().toString(36).slice(2);
     };
     MultiplayerSprite.prototype.getCustomerProperties = function () {
-        var e_48, _a;
+        var e_47, _a;
         var data = {};
         try {
             for (var _b = __values(Object.keys(this)), _c = _b.next(); !_c.done; _c = _b.next()) {
@@ -3430,12 +3447,12 @@ var MultiplayerSprite = (function (_super) {
                 data[key] = this[key];
             }
         }
-        catch (e_48_1) { e_48 = { error: e_48_1 }; }
+        catch (e_47_1) { e_47 = { error: e_47_1 }; }
         finally {
             try {
                 if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
             }
-            finally { if (e_48) throw e_48.error; }
+            finally { if (e_47) throw e_47.error; }
         }
         return data;
     };
@@ -3504,7 +3521,7 @@ var OrphanSharedData = (function () {
         return this.parent.increaseSyncId();
     };
     OrphanSharedData.prototype.getSyncData = function () {
-        var e_49, _a;
+        var e_48, _a;
         var syncData = {};
         try {
             for (var _b = __values(this.properties), _c = _b.next(); !_c.done; _c = _b.next()) {
@@ -3514,12 +3531,12 @@ var OrphanSharedData = (function () {
                 }
             }
         }
-        catch (e_49_1) { e_49 = { error: e_49_1 }; }
+        catch (e_48_1) { e_48 = { error: e_48_1 }; }
         finally {
             try {
                 if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
             }
-            finally { if (e_49) throw e_49.error; }
+            finally { if (e_48) throw e_48.error; }
         }
         return syncData;
     };
@@ -3650,7 +3667,7 @@ var Player = (function () {
         return this.syncId;
     };
     Player.prototype.getSyncData = function () {
-        var e_50, _a;
+        var e_49, _a;
         var data = {};
         try {
             for (var _b = __values(Object.keys(this)), _c = _b.next(); !_c.done; _c = _b.next()) {
@@ -3661,12 +3678,12 @@ var Player = (function () {
                 data[key] = this[key];
             }
         }
-        catch (e_50_1) { e_50 = { error: e_50_1 }; }
+        catch (e_49_1) { e_49 = { error: e_49_1 }; }
         finally {
             try {
                 if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
             }
-            finally { if (e_50) throw e_50.error; }
+            finally { if (e_49) throw e_49.error; }
         }
         return data;
     };
@@ -3780,7 +3797,7 @@ var SharedData = (function () {
         return this.syncId;
     };
     SharedData.prototype.getSyncData = function () {
-        var e_51, _a;
+        var e_50, _a;
         var data = {};
         try {
             for (var _b = __values(Object.keys(this)), _c = _b.next(); !_c.done; _c = _b.next()) {
@@ -3788,12 +3805,12 @@ var SharedData = (function () {
                 data[key] = this[key];
             }
         }
-        catch (e_51_1) { e_51 = { error: e_51_1 }; }
+        catch (e_50_1) { e_50 = { error: e_50_1 }; }
         finally {
             try {
                 if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
             }
-            finally { if (e_51) throw e_51.error; }
+            finally { if (e_50) throw e_50.error; }
         }
         return data;
     };
@@ -3967,16 +3984,15 @@ var Stage = (function () {
             this.switchBackground(nextBackgroundIndex);
         }
     };
-    Stage.prototype.addSound = function (soundPath, name) {
+    Stage.prototype.addSound = function (soundPath, soundName) {
         var _this = this;
-        if (name === void 0) { name = null; }
-        if (!name) {
-            name = 'No name ' + this.sounds.length;
+        if (this.soundNames.includes(soundName)) {
+            this.game.throwError(ErrorMessages.SOUND_NAME_ALREADY_EXISTS, { soundName: soundName });
         }
         var sound = new Audio();
         sound.src = soundPath;
         this.sounds.push(sound);
-        this.soundNames.push(name);
+        this.soundNames.push(soundName);
         this.pendingSounds++;
         sound.load();
         var onLoadSound = function () {
@@ -3987,15 +4003,7 @@ var Stage = (function () {
         sound.addEventListener('loadedmetadata', onLoadSound);
         return this;
     };
-    Stage.prototype.removeSound = function (soundIndex) {
-        if (soundIndex === void 0) { soundIndex = 0; }
-        if (this.sounds[soundIndex] === undefined) {
-            this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, { soundIndex: soundIndex });
-        }
-        this.sounds.splice(soundIndex, 1);
-        return this;
-    };
-    Stage.prototype.removeSoundByName = function (soundName) {
+    Stage.prototype.removeSound = function (soundName) {
         var soundIndex = this.soundNames.indexOf(soundName);
         if (soundIndex < 0) {
             this.game.throwError(ErrorMessages.SOUND_NAME_NOT_FOUND, { soundName: soundName });
@@ -4003,45 +4011,62 @@ var Stage = (function () {
         this.sounds.splice(soundIndex, 1);
         return this;
     };
-    Stage.prototype.playSound = function (soundIndex, volume, currentTime) {
-        if (soundIndex === void 0) { soundIndex = 0; }
-        if (volume === void 0) { volume = null; }
-        if (currentTime === void 0) { currentTime = null; }
-        var sound = this.sounds[soundIndex];
-        if (!(sound instanceof Audio)) {
-            this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, { soundIndex: soundIndex });
-        }
-        sound.play();
-        if (volume !== null) {
-            sound.volume = volume;
-        }
-        if (currentTime !== null) {
-            sound.currentTime = currentTime;
-        }
+    Stage.prototype.playSound = function (soundName, options) {
+        if (options === void 0) { options = {}; }
+        var sound = this.getSound(soundName);
+        this.doPlaySound(sound, options);
     };
-    Stage.prototype.pauseSound = function (soundIndex) {
-        if (soundIndex === void 0) { soundIndex = 0; }
-        var sound = this.sounds[soundIndex];
-        if (!(sound instanceof Audio)) {
-            this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, { soundIndex: soundIndex });
-        }
+    Stage.prototype.startSound = function (soundName, options) {
+        if (options === void 0) { options = {}; }
+        var sound = this.cloneSound(soundName);
+        this.doPlaySound(sound, options);
+        return sound;
+    };
+    Stage.prototype.pauseSound = function (soundName) {
+        var sound = this.getSound(soundName);
         sound.pause();
     };
-    Stage.prototype.playSoundByName = function (soundName, volume, currentTime) {
-        if (volume === void 0) { volume = null; }
-        if (currentTime === void 0) { currentTime = null; }
+    Stage.prototype.getSound = function (soundName) {
+        if (!this.isReady()) {
+            this.game.throwError(ErrorMessages.SOUND_USE_NOT_READY);
+        }
         var soundIndex = this.soundNames.indexOf(soundName);
         if (soundIndex < 0) {
             this.game.throwError(ErrorMessages.SOUND_NAME_NOT_FOUND, { soundName: soundName });
         }
-        this.playSound(soundIndex, volume, currentTime);
+        var sound = this.sounds[soundIndex];
+        if (!(sound instanceof Audio)) {
+            this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, { soundIndex: soundIndex });
+        }
+        return sound;
     };
-    Stage.prototype.pauseSoundByName = function (soundName) {
-        var soundIndex = this.soundNames.indexOf(soundName);
-        if (soundIndex < 0) {
-            this.game.throwError(ErrorMessages.SOUND_NAME_NOT_FOUND, { soundName: soundName });
+    Stage.prototype.cloneSound = function (soundName) {
+        var originSound = this.getSound(soundName);
+        return new Audio(originSound.src);
+    };
+    Stage.prototype.doPlaySound = function (sound, options) {
+        var _this = this;
+        if (options === void 0) { options = {}; }
+        if (options.volume !== undefined) {
+            sound.volume = options.volume;
         }
-        this.pauseSound(soundIndex);
+        if (options.currentTime !== undefined) {
+            sound.currentTime = options.currentTime;
+        }
+        if (options.loop !== undefined) {
+            sound.loop = options.loop;
+        }
+        var playPromise = sound.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(function (error) {
+                if (error.name === "NotAllowedError") {
+                    _this.game.throwError(ErrorMessages.SOUND_NOT_ALLOWED_ERROR, {}, false);
+                }
+                else {
+                    console.error("Audio playback error:", error);
+                }
+            });
+        }
     };
     Stage.prototype.addSprite = function (sprite) {
         var layerSprites;
@@ -4192,7 +4217,7 @@ var Stage = (function () {
         return state;
     };
     Stage.prototype.render = function () {
-        var e_52, _a, e_53, _b, e_54, _c;
+        var e_51, _a, e_52, _b, e_53, _c;
         var _this = this;
         this.update();
         this.collisionSystem.update();
@@ -4209,23 +4234,23 @@ var Stage = (function () {
                 if (this.drawings.has(layer)) {
                     var layerDrawings = this.drawings.get(layer);
                     try {
-                        for (var layerDrawings_1 = (e_53 = void 0, __values(layerDrawings)), layerDrawings_1_1 = layerDrawings_1.next(); !layerDrawings_1_1.done; layerDrawings_1_1 = layerDrawings_1.next()) {
+                        for (var layerDrawings_1 = (e_52 = void 0, __values(layerDrawings)), layerDrawings_1_1 = layerDrawings_1.next(); !layerDrawings_1_1.done; layerDrawings_1_1 = layerDrawings_1.next()) {
                             var drawing = layerDrawings_1_1.value;
                             drawing(this.context, this);
                         }
                     }
-                    catch (e_53_1) { e_53 = { error: e_53_1 }; }
+                    catch (e_52_1) { e_52 = { error: e_52_1 }; }
                     finally {
                         try {
                             if (layerDrawings_1_1 && !layerDrawings_1_1.done && (_b = layerDrawings_1.return)) _b.call(layerDrawings_1);
                         }
-                        finally { if (e_53) throw e_53.error; }
+                        finally { if (e_52) throw e_52.error; }
                     }
                 }
                 if (this.sprites.has(layer)) {
                     var layerSprites = this.sprites.get(layer);
                     var _loop_1 = function (sprite) {
-                        var e_55, _d;
+                        var e_54, _d;
                         if (sprite.hidden) {
                             return "continue";
                         }
@@ -4275,42 +4300,42 @@ var Stage = (function () {
                             this_1.drawSprite(sprite);
                         }
                         try {
-                            for (var _e = (e_55 = void 0, __values(sprite.drawings)), _f = _e.next(); !_f.done; _f = _e.next()) {
+                            for (var _e = (e_54 = void 0, __values(sprite.drawings)), _f = _e.next(); !_f.done; _f = _e.next()) {
                                 var drawing = _f.value;
                                 drawing(this_1.context, sprite);
                             }
                         }
-                        catch (e_55_1) { e_55 = { error: e_55_1 }; }
+                        catch (e_54_1) { e_54 = { error: e_54_1 }; }
                         finally {
                             try {
                                 if (_f && !_f.done && (_d = _e.return)) _d.call(_e);
                             }
-                            finally { if (e_55) throw e_55.error; }
+                            finally { if (e_54) throw e_54.error; }
                         }
                     };
                     var this_1 = this;
                     try {
-                        for (var layerSprites_1 = (e_54 = void 0, __values(layerSprites)), layerSprites_1_1 = layerSprites_1.next(); !layerSprites_1_1.done; layerSprites_1_1 = layerSprites_1.next()) {
+                        for (var layerSprites_1 = (e_53 = void 0, __values(layerSprites)), layerSprites_1_1 = layerSprites_1.next(); !layerSprites_1_1.done; layerSprites_1_1 = layerSprites_1.next()) {
                             var sprite = layerSprites_1_1.value;
                             _loop_1(sprite);
                         }
                     }
-                    catch (e_54_1) { e_54 = { error: e_54_1 }; }
+                    catch (e_53_1) { e_53 = { error: e_53_1 }; }
                     finally {
                         try {
                             if (layerSprites_1_1 && !layerSprites_1_1.done && (_c = layerSprites_1.return)) _c.call(layerSprites_1);
                         }
-                        finally { if (e_54) throw e_54.error; }
+                        finally { if (e_53) throw e_53.error; }
                     }
                 }
             }
         }
-        catch (e_52_1) { e_52 = { error: e_52_1 }; }
+        catch (e_51_1) { e_51 = { error: e_51_1 }; }
         finally {
             try {
                 if (layers_1_1 && !layers_1_1.done && (_a = layers_1.return)) _a.call(layers_1);
             }
-            finally { if (e_52) throw e_52.error; }
+            finally { if (e_51) throw e_51.error; }
         }
         if (this.game.debugCollider) {
             this.context.strokeStyle = this.game.debugColor;
@@ -4327,7 +4352,7 @@ var Stage = (function () {
         }
         this.scheduledCallbacks = this.scheduledCallbacks.filter(this.scheduledCallbackExecutor.execute(Date.now(), this.diffTime));
         this.sprites.forEach(function (layerSprites, layer) {
-            var e_56, _a;
+            var e_55, _a;
             try {
                 for (var layerSprites_2 = __values(layerSprites), layerSprites_2_1 = layerSprites_2.next(); !layerSprites_2_1.done; layerSprites_2_1 = layerSprites_2.next()) {
                     var sprite = layerSprites_2_1.value;
@@ -4338,18 +4363,18 @@ var Stage = (function () {
                     sprite.update(_this.diffTime);
                 }
             }
-            catch (e_56_1) { e_56 = { error: e_56_1 }; }
+            catch (e_55_1) { e_55 = { error: e_55_1 }; }
             finally {
                 try {
                     if (layerSprites_2_1 && !layerSprites_2_1.done && (_a = layerSprites_2.return)) _a.call(layerSprites_2);
                 }
-                finally { if (e_56) throw e_56.error; }
+                finally { if (e_55) throw e_55.error; }
             }
         });
         this.diffTime = 0;
     };
     Stage.prototype.run = function () {
-        var e_57, _a, e_58, _b;
+        var e_56, _a, e_57, _b;
         if (!this._stopped) {
             return;
         }
@@ -4358,62 +4383,62 @@ var Stage = (function () {
             for (var _c = __values(this.sprites.values()), _d = _c.next(); !_d.done; _d = _c.next()) {
                 var layerSprites = _d.value;
                 try {
-                    for (var layerSprites_3 = (e_58 = void 0, __values(layerSprites)), layerSprites_3_1 = layerSprites_3.next(); !layerSprites_3_1.done; layerSprites_3_1 = layerSprites_3.next()) {
+                    for (var layerSprites_3 = (e_57 = void 0, __values(layerSprites)), layerSprites_3_1 = layerSprites_3.next(); !layerSprites_3_1.done; layerSprites_3_1 = layerSprites_3.next()) {
                         var sprite = layerSprites_3_1.value;
                         sprite.run();
                     }
                 }
-                catch (e_58_1) { e_58 = { error: e_58_1 }; }
+                catch (e_57_1) { e_57 = { error: e_57_1 }; }
                 finally {
                     try {
                         if (layerSprites_3_1 && !layerSprites_3_1.done && (_b = layerSprites_3.return)) _b.call(layerSprites_3);
                     }
-                    finally { if (e_58) throw e_58.error; }
+                    finally { if (e_57) throw e_57.error; }
                 }
             }
         }
-        catch (e_57_1) { e_57 = { error: e_57_1 }; }
+        catch (e_56_1) { e_56 = { error: e_56_1 }; }
         finally {
             try {
                 if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
             }
-            finally { if (e_57) throw e_57.error; }
+            finally { if (e_56) throw e_56.error; }
         }
         this.pendingRun = true;
         this.tryDoRun();
     };
     Stage.prototype.ready = function () {
-        var e_59, _a, e_60, _b;
+        var e_58, _a, e_59, _b;
         this.tryDoOnReady();
         this.tryDoRun();
         try {
             for (var _c = __values(this.sprites.values()), _d = _c.next(); !_d.done; _d = _c.next()) {
                 var layerSprites = _d.value;
                 try {
-                    for (var layerSprites_4 = (e_60 = void 0, __values(layerSprites)), layerSprites_4_1 = layerSprites_4.next(); !layerSprites_4_1.done; layerSprites_4_1 = layerSprites_4.next()) {
+                    for (var layerSprites_4 = (e_59 = void 0, __values(layerSprites)), layerSprites_4_1 = layerSprites_4.next(); !layerSprites_4_1.done; layerSprites_4_1 = layerSprites_4.next()) {
                         var sprite = layerSprites_4_1.value;
                         sprite.ready();
                     }
                 }
-                catch (e_60_1) { e_60 = { error: e_60_1 }; }
+                catch (e_59_1) { e_59 = { error: e_59_1 }; }
                 finally {
                     try {
                         if (layerSprites_4_1 && !layerSprites_4_1.done && (_b = layerSprites_4.return)) _b.call(layerSprites_4);
                     }
-                    finally { if (e_60) throw e_60.error; }
+                    finally { if (e_59) throw e_59.error; }
                 }
             }
         }
-        catch (e_59_1) { e_59 = { error: e_59_1 }; }
+        catch (e_58_1) { e_58 = { error: e_58_1 }; }
         finally {
             try {
                 if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
             }
-            finally { if (e_59) throw e_59.error; }
+            finally { if (e_58) throw e_58.error; }
         }
     };
     Stage.prototype.stop = function () {
-        var e_61, _a, e_62, _b;
+        var e_60, _a, e_61, _b;
         if (this._stopped) {
             return;
         }
@@ -4423,31 +4448,31 @@ var Stage = (function () {
             for (var _c = __values(this.sprites.values()), _d = _c.next(); !_d.done; _d = _c.next()) {
                 var layerSprites = _d.value;
                 try {
-                    for (var layerSprites_5 = (e_62 = void 0, __values(layerSprites)), layerSprites_5_1 = layerSprites_5.next(); !layerSprites_5_1.done; layerSprites_5_1 = layerSprites_5.next()) {
+                    for (var layerSprites_5 = (e_61 = void 0, __values(layerSprites)), layerSprites_5_1 = layerSprites_5.next(); !layerSprites_5_1.done; layerSprites_5_1 = layerSprites_5.next()) {
                         var sprite = layerSprites_5_1.value;
                         sprite.stop();
                     }
                 }
-                catch (e_62_1) { e_62 = { error: e_62_1 }; }
+                catch (e_61_1) { e_61 = { error: e_61_1 }; }
                 finally {
                     try {
                         if (layerSprites_5_1 && !layerSprites_5_1.done && (_b = layerSprites_5.return)) _b.call(layerSprites_5);
                     }
-                    finally { if (e_62) throw e_62.error; }
+                    finally { if (e_61) throw e_61.error; }
                 }
             }
         }
-        catch (e_61_1) { e_61 = { error: e_61_1 }; }
+        catch (e_60_1) { e_60 = { error: e_60_1 }; }
         finally {
             try {
                 if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
             }
-            finally { if (e_61) throw e_61.error; }
+            finally { if (e_60) throw e_60.error; }
         }
         this.stoppedTime = Date.now();
     };
     Stage.prototype.tryDoOnReady = function () {
-        var e_63, _a;
+        var e_62, _a;
         if (this.onReadyPending && this.isReady()) {
             this.onReadyPending = false;
             if (this.backgrounds.length && this.backgroundIndex === null) {
@@ -4460,12 +4485,12 @@ var Stage = (function () {
                         callback();
                     }
                 }
-                catch (e_63_1) { e_63 = { error: e_63_1 }; }
+                catch (e_62_1) { e_62 = { error: e_62_1 }; }
                 finally {
                     try {
                         if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
                     }
-                    finally { if (e_63) throw e_63.error; }
+                    finally { if (e_62) throw e_62.error; }
                 }
                 this.onReadyCallbacks = [];
             }
@@ -4475,7 +4500,7 @@ var Stage = (function () {
         }
     };
     Stage.prototype.doOnStart = function () {
-        var e_64, _a;
+        var e_63, _a;
         var _loop_2 = function (callback) {
             setTimeout(function () {
                 callback();
@@ -4487,12 +4512,12 @@ var Stage = (function () {
                 _loop_2(callback);
             }
         }
-        catch (e_64_1) { e_64 = { error: e_64_1 }; }
+        catch (e_63_1) { e_63 = { error: e_63_1 }; }
         finally {
             try {
                 if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
             }
-            finally { if (e_64) throw e_64.error; }
+            finally { if (e_63) throw e_63.error; }
         }
     };
     Stage.prototype.tryDoRun = function () {
@@ -5046,7 +5071,7 @@ var CollisionSystem = (function () {
         return new CollisionResult();
     };
     CollisionSystem.prototype.insert = function () {
-        var e_65, _a;
+        var e_64, _a;
         var bodies = [];
         for (var _i = 0; _i < arguments.length; _i++) {
             bodies[_i] = arguments[_i];
@@ -5057,17 +5082,17 @@ var CollisionSystem = (function () {
                 this._bvh.insert(body, false);
             }
         }
-        catch (e_65_1) { e_65 = { error: e_65_1 }; }
+        catch (e_64_1) { e_64 = { error: e_64_1 }; }
         finally {
             try {
                 if (bodies_1_1 && !bodies_1_1.done && (_a = bodies_1.return)) _a.call(bodies_1);
             }
-            finally { if (e_65) throw e_65.error; }
+            finally { if (e_64) throw e_64.error; }
         }
         return this;
     };
     CollisionSystem.prototype.remove = function () {
-        var e_66, _a;
+        var e_65, _a;
         var bodies = [];
         for (var _i = 0; _i < arguments.length; _i++) {
             bodies[_i] = arguments[_i];
@@ -5078,12 +5103,12 @@ var CollisionSystem = (function () {
                 this._bvh.remove(body, false);
             }
         }
-        catch (e_66_1) { e_66 = { error: e_66_1 }; }
+        catch (e_65_1) { e_65 = { error: e_65_1 }; }
         finally {
             try {
                 if (bodies_2_1 && !bodies_2_1.done && (_a = bodies_2.return)) _a.call(bodies_2);
             }
-            finally { if (e_66) throw e_66.error; }
+            finally { if (e_65) throw e_65.error; }
         }
         return this;
     };
@@ -5699,7 +5724,7 @@ var JetcodeSocketConnection = (function () {
         this.connects[action] = this.connects[action].filter(function (cb) { return cb !== callback; });
     };
     JetcodeSocketConnection.prototype.sendData = function (value, parameters) {
-        var e_67, _a;
+        var e_66, _a;
         if (parameters === void 0) { parameters = {}; }
         if (!this.lobbyId) {
             throw new Error('You are not in the lobby!');
@@ -5711,12 +5736,12 @@ var JetcodeSocketConnection = (function () {
                 request += key + '=' + value_1 + '\n';
             }
         }
-        catch (e_67_1) { e_67 = { error: e_67_1 }; }
+        catch (e_66_1) { e_66 = { error: e_66_1 }; }
         finally {
             try {
                 if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
             }
-            finally { if (e_67) throw e_67.error; }
+            finally { if (e_66) throw e_66.error; }
         }
         request += "SendTime=".concat(Date.now(), "\n");
         request += '\n' + value;
@@ -5726,7 +5751,7 @@ var JetcodeSocketConnection = (function () {
         var _this = this;
         if (parameters === void 0) { parameters = {}; }
         return new Promise(function (resolve, reject) {
-            var e_68, _a;
+            var e_67, _a;
             if (!lobbyId) {
                 lobbyId = 0;
             }
@@ -5739,12 +5764,12 @@ var JetcodeSocketConnection = (function () {
                     request += "".concat(key, "=").concat(value, "\n");
                 }
             }
-            catch (e_68_1) { e_68 = { error: e_68_1 }; }
+            catch (e_67_1) { e_67 = { error: e_67_1 }; }
             finally {
                 try {
                     if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
                 }
-                finally { if (e_68) throw e_68.error; }
+                finally { if (e_67) throw e_67.error; }
             }
             _this.socket.send(request);
             _this.connect(JetcodeSocket.JOINED, function (responseParams) {
@@ -5828,6 +5853,8 @@ var ErrorMessages = (function () {
     ErrorMessages.CLONED_NOT_READY = 'cloned_not_ready';
     ErrorMessages.SOUND_INDEX_NOT_FOUND = 'sound_index_not_found';
     ErrorMessages.SOUND_NAME_NOT_FOUND = 'sound_name_not_found';
+    ErrorMessages.SOUND_NAME_ALREADY_EXISTS = 'sound_name_already_exists';
+    ErrorMessages.SOUND_NOT_ALLOWED_ERROR = 'sound_not_allowed_error';
     ErrorMessages.SOUND_USE_NOT_READY = 'sound_use_not_ready';
     ErrorMessages.COSTUME_INDEX_NOT_FOUND = 'costume_index_not_found';
     ErrorMessages.COSTUME_NAME_NOT_FOUND = 'costume_name_not_found';
@@ -5876,9 +5903,17 @@ var ErrorMessages = (function () {
             'ru': 'Звук с именем "${soundName}" не найден.',
             'en': 'Sound with name "${soundName}" not found.'
         },
+        sound_name_already_exists: {
+            'ru': 'Звук с именем "${soundName}" уже добавлен.',
+            'en': 'Sound with name "${soundName}" already exists.'
+        },
         sound_use_not_ready: {
             'ru': 'Спрайт не может использовать звуки, потому что спрайт еще не готов. Попробуйте использовать метод sprite.onReady().',
             'en': 'Sprite cannot use sounds because sprite is not ready. Try using the sprite.onReady() method.'
+        },
+        sound_not_allowed_error: {
+            'ru': 'Воспроизведение звука заблокировано. Пользователь должен сначала взаимодействовать с игрой. Воспользуйтесь методом Game.onUserInteracted()',
+            'en': 'Audio playback is blocked. The user must first interact with the game. Use the Game.onUserInteracted() method.'
         },
         costume_index_not_found: {
             'ru': 'Костюм с индексом "${costumeIndex}" не найден.',

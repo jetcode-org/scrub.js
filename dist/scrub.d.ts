@@ -70,6 +70,11 @@ type CostumeOptions = {
     cropBottom?: number;
     cropLeft?: number;
 };
+type SoundOptions = {
+    volume?: number;
+    currentTime?: number;
+    loop?: boolean;
+};
 declare class Game {
     id: Symbol;
     eventEmitter: EventEmitter;
@@ -89,12 +94,15 @@ declare class Game {
     private styles;
     private loadedStages;
     private onReadyCallbacks;
+    private onUserInteractedCallbacks;
     private onReadyPending;
     protected running: boolean;
     private pendingRun;
     private reportedError;
     private _displayErrors;
     private _locale;
+    private _userInteracted;
+    private userInteractionPromise;
     constructor(width?: number, height?: number, canvasId?: string, displayErrors?: boolean, locale?: Locale);
     addStage(stage: Stage): this;
     getLastStage(): Stage | null;
@@ -102,11 +110,13 @@ declare class Game {
     run(stage?: Stage): void;
     isReady(): boolean;
     onReady(callback: CallableFunction): void;
+    onUserInteracted(callback: CallableFunction): void;
     stop(): void;
     get displayErrors(): boolean;
     get locale(): string;
     get width(): number;
     get height(): number;
+    get userInteracted(): boolean;
     isInsideGame(x: number, y: number): boolean;
     correctMouseX(mouseX: number): number;
     correctMouseY(mouseY: number): number;
@@ -117,8 +127,8 @@ declare class Game {
     mouseDownOnce(): boolean;
     getMousePoint(): PointCollider;
     getRandom(min: number, max: number): number;
-    throwError(messageId: string, variables?: {} | null): void;
-    throwErrorRaw(message: string): void;
+    throwError(messageId: string, variables?: {} | null, reportError?: boolean): void;
+    throwErrorRaw(message: string, reportError?: boolean): void;
     private reportError;
     private addListeners;
     private tryDoOnReady;
@@ -198,7 +208,7 @@ declare class Sprite {
     private tempScheduledCallbacks;
     private _drawings;
     private _tags;
-    constructor(stage?: Stage, layer?: number, costumePaths?: any[], soundPaths?: any[]);
+    constructor(stage?: Stage, layer?: number, costumePaths?: any[]);
     onReady(callback: CallableFunction): void;
     isReady(): boolean;
     get deleted(): boolean;
@@ -250,14 +260,14 @@ declare class Sprite {
     private setAlpha;
     private hexToRgb;
     cloneCostume(costume: Costume, name: string): void;
-    addSound(soundPath: string, name?: string): this;
-    removeSound(soundIndex?: number): this;
-    removeSoundByName(soundName: string): this;
-    playSound(soundIndex?: number, volume?: number, currentTime?: number): void;
-    pauseSound(soundIndex: number): void;
-    playSoundByName(soundName: string, volume: number, currentTime: number): void;
-    pauseSoundByName(soundName: string): void;
-    cloneSound(sound: HTMLAudioElement, name: string): void;
+    addSound(soundPath: string, soundName: string): this;
+    removeSound(soundName: string): this;
+    playSound(soundName: string, options?: SoundOptions): void;
+    startSound(soundName: string, options?: SoundOptions): HTMLAudioElement;
+    pauseSound(soundName: string): void;
+    getSound(soundName: string): HTMLAudioElement;
+    cloneSound(soundName: string): HTMLAudioElement;
+    private doPlaySound;
     stamp(costumeIndex?: number, withRotation?: boolean): void;
     pen(callback: DrawingCallbackFunction): void;
     get drawings(): DrawingCallbackFunction[];
@@ -399,7 +409,7 @@ declare class MultiplayerSprite extends Sprite implements SyncObjectInterface {
     private syncId;
     private reservedProps;
     private syncCallback;
-    constructor(multiplayerName: string, stage?: Stage, layer?: number, costumePaths?: any[], soundPaths?: any[]);
+    constructor(multiplayerName: string, stage?: Stage, layer?: number, costumePaths?: any[]);
     generateUniqueId(): string;
     getCustomerProperties(): {};
     getMultiplayerName(): string;
@@ -539,13 +549,14 @@ declare class Stage {
     addBackground(backgroundPath: string): this;
     switchBackground(backgroundIndex: number): void;
     nextBackground(): void;
-    addSound(soundPath: string, name?: string): this;
-    removeSound(soundIndex?: number): this;
-    removeSoundByName(soundName: string): this;
-    playSound(soundIndex?: number, volume?: number, currentTime?: number): void;
-    pauseSound(soundIndex?: number): void;
-    playSoundByName(soundName: string, volume?: number, currentTime?: number): void;
-    pauseSoundByName(soundName: string): void;
+    addSound(soundPath: string, soundName: string): this;
+    removeSound(soundName: string): this;
+    playSound(soundName: string, options?: SoundOptions): void;
+    startSound(soundName: string, options?: SoundOptions): HTMLAudioElement;
+    pauseSound(soundName: string): void;
+    getSound(soundName: string): HTMLAudioElement;
+    cloneSound(soundName: string): HTMLAudioElement;
+    private doPlaySound;
     addSprite(sprite: Sprite): this;
     removeSprite(sprite: Sprite, layer: number): this;
     getSprites(): Sprite[];
@@ -760,6 +771,8 @@ declare class ErrorMessages {
     static readonly CLONED_NOT_READY = "cloned_not_ready";
     static readonly SOUND_INDEX_NOT_FOUND = "sound_index_not_found";
     static readonly SOUND_NAME_NOT_FOUND = "sound_name_not_found";
+    static readonly SOUND_NAME_ALREADY_EXISTS = "sound_name_already_exists";
+    static readonly SOUND_NOT_ALLOWED_ERROR = "sound_not_allowed_error";
     static readonly SOUND_USE_NOT_READY = "sound_use_not_ready";
     static readonly COSTUME_INDEX_NOT_FOUND = "costume_index_not_found";
     static readonly COSTUME_NAME_NOT_FOUND = "costume_name_not_found";
@@ -808,7 +821,15 @@ declare class ErrorMessages {
             ru: string;
             en: string;
         };
+        sound_name_already_exists: {
+            ru: string;
+            en: string;
+        };
         sound_use_not_ready: {
+            ru: string;
+            en: string;
+        };
+        sound_not_allowed_error: {
             ru: string;
             en: string;
         };

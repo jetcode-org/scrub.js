@@ -49,6 +49,12 @@ type CostumeOptions = {
     cropLeft?: number
 };
 
+type SoundOptions = {
+    volume?: number,
+    currentTime?: number,
+    loop?: boolean
+};
+
 class Game {
     id: Symbol;
     eventEmitter: EventEmitter;
@@ -71,12 +77,15 @@ class Game {
     private styles = null;
     private loadedStages = 0;
     private onReadyCallbacks = [];
+    private onUserInteractedCallbacks = [];
     private onReadyPending = true;
     protected running = false;
     private pendingRun = false;
     private reportedError = false;
     private _displayErrors = true;
     private _locale = 'ru';
+    private _userInteracted = false;
+    private userInteractionPromise: Promise<unknown>;
 
     constructor(width: number = null,
                 height: number = null,
@@ -182,6 +191,10 @@ class Game {
         this.onReadyCallbacks.push(callback);
     }
 
+    onUserInteracted(callback: CallableFunction): void {
+        this.onUserInteractedCallbacks.push(callback);
+    }
+
     stop(): void {
         if (this.activeStage && this.activeStage.running) {
             this.activeStage.stop();
@@ -204,6 +217,10 @@ class Game {
 
     get height(): number {
         return this.canvas.height;
+    }
+
+    get userInteracted(): boolean {
+        return this._userInteracted;
     }
 
     isInsideGame(x: number, y: number): boolean {
@@ -261,14 +278,16 @@ class Game {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    throwError(messageId: string, variables: {} | null = null): void {
+    throwError(messageId: string, variables: {} | null = null, reportError = true): void {
         const message = ErrorMessages.getMessage(messageId, this.locale, variables);
 
-        this.throwErrorRaw(message);
+        this.throwErrorRaw(message, reportError);
     }
 
-    throwErrorRaw(message: string): void {
-        this.reportError(message);
+    throwErrorRaw(message: string, reportError = true): void {
+        if (reportError) {
+            this.reportError(message);
+        }
 
         throw new Error(message);
     }
@@ -299,6 +318,17 @@ class Game {
                 }
             }
         });
+
+        this.userInteractionPromise = new Promise((resolve) => {
+            document.addEventListener('click', resolve, { once: true });
+
+            document.addEventListener('keydown', (event) => {
+                const excludedKeys = ['Control', 'Shift', 'CapsLock', 'NumLock', 'Alt', 'Meta'];
+                if (!excludedKeys.includes(event.key)) {
+                    resolve(true);
+                }
+            }, { once: true });
+        });
     }
 
     private tryDoOnReady(): void {
@@ -311,6 +341,16 @@ class Game {
                 }
                 this.onReadyCallbacks = [];
             }
+
+            this.userInteractionPromise.then(() => {
+                this._userInteracted = true;
+
+                this.onUserInteractedCallbacks.filter(callback => {
+                    callback(this);
+
+                    return false
+                });
+            });
 
             this.tryDoRun();
         }
