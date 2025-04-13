@@ -8,6 +8,7 @@ class Sprite {
     protected stage: Stage = null
     private _parentSprite: Sprite | null = null;
     private _collidedSprite: Sprite | null = null
+    private _original: Sprite | null = null
     protected costumeIndex: number = null;
     private costume: Costume = null;
     private costumes: Costume[] = [];
@@ -1805,6 +1806,7 @@ class Sprite {
     }
 
     touchTag(tagName: string, checkChildren = true): boolean {
+        this.clearCollisionResult();
         this._collidedSprite = null;
 
         if (this.hidden || this.stopped || this.deleted) {
@@ -1827,7 +1829,6 @@ class Sprite {
                         !potentialSprite.hidden &&
                         !potentialSprite.stopped &&
                         !potentialSprite.deleted &&
-                        potentialSprite.collider &&
                         collider.collides(potentialCollider, this.collisionResult)
                     ) {
                         return true;
@@ -1850,6 +1851,7 @@ class Sprite {
     }
 
     touchTagAll(tagName: string, checkChildren = true): Sprite[] | false {
+        this.clearCollisionResult();
         this._collidedSprite = null;
 
         if (this.hidden || this.stopped || this.deleted) {
@@ -1902,6 +1904,7 @@ class Sprite {
     }
 
     touchAnySprite(checkChildren = true): boolean {
+        this.clearCollisionResult();
         this._collidedSprite = null;
 
         if (this.hidden || this.stopped || this.deleted) {
@@ -1922,7 +1925,6 @@ class Sprite {
                     !potentialSprite.hidden &&
                     !potentialSprite.stopped &&
                     !potentialSprite.deleted &&
-                    potentialSprite.collider &&
                     collider.collides(potentialCollider, this.collisionResult)
                 ) {
                     return true;
@@ -2078,6 +2080,14 @@ class Sprite {
         this.tryDoOnReady();
     }
 
+    get original(): Sprite | null {
+        return this._original;
+    }
+
+    setOriginal(original: Sprite | null): void {
+        this._original = original;
+    }
+
     createClone(stage?: Stage): Sprite {
         if (!this.isReady()) {
             this.game.throwError(ErrorMessages.CLONED_NOT_READY);
@@ -2088,6 +2098,7 @@ class Sprite {
         }
 
         const clone = new Sprite(stage, this.layer);
+        clone.setOriginal(this);
 
         clone.name = this.name;
         clone._rotateStyle = this._rotateStyle;
@@ -2164,6 +2175,12 @@ class Sprite {
         this._children = [];
 
         this._deleted = true;
+    }
+
+    deleteClones(): void {
+        const spritesToDelete = this.stage.getSprites().filter((sprite: Sprite) => sprite.original === this);
+
+        spritesToDelete.forEach(sprite => sprite.delete());
     }
 
     private tryDoOnReady(): void {
