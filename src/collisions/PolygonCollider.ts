@@ -45,9 +45,9 @@ class PolygonCollider extends Collider {
      * @param {Number} [angle = 0] The starting rotation in radians
      * @param {Number} [scale_x = 1] The starting scale along the X axis
      * @param {Number} [scale_y = 1] The starting scale long the Y axis
-     * @param {Number} [padding = 0] The amount to pad the bounding volume when testing for potential collisions
+     * @param {Number} [padding = 5] The amount to pad the bounding volume when testing for potential collisions
      */
-    constructor(x = 0, y = 0, points = [], angle = 0, scale_x = 1, scale_y = 1, padding = 0) {
+    constructor(x = 0, y = 0, points = [], angle = 0, scale_x = 1, scale_y = 1, padding = 5) {
         super(x, y, padding);
 
         this.angle = angle;

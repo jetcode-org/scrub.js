@@ -110,7 +110,7 @@ declare class Game {
     isInsideGame(x: number, y: number): boolean;
     correctMouseX(mouseX: number): number;
     correctMouseY(mouseY: number): number;
-    keyPressed(char: string): boolean;
+    keyPressed(char: string | string[]): boolean;
     keyDown(char: string, callback: CallableFunction): void;
     keyUp(char: string, callback: CallableFunction): void;
     mouseDown(): boolean;
@@ -158,6 +158,7 @@ declare class Sprite {
     protected stage: Stage;
     private _parentSprite;
     private _collidedSprite;
+    private _original;
     protected costumeIndex: number;
     private costume;
     private costumes;
@@ -338,8 +339,11 @@ declare class Sprite {
     run(): void;
     stop(): void;
     ready(): void;
+    get original(): Sprite | null;
+    setOriginal(original: Sprite | null): void;
     createClone(stage?: Stage): Sprite;
     delete(): void;
+    deleteClones(): void;
     private tryDoOnReady;
 }
 declare class MultiplayerGame extends Game {
