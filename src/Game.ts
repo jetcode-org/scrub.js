@@ -218,7 +218,19 @@ class Game {
         return mouseY - this.styles.canvasRect.top;
     }
 
-    keyPressed(char: string): boolean {
+    keyPressed(char: string | string[]): boolean {
+        if (Array.isArray(char)) {
+            for (const oneChar of char) {
+                const pressed = this.keyboard.keyPressed(oneChar);
+
+                if (pressed) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         return this.keyboard.keyPressed(char);
     }
 
