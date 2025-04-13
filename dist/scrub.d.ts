@@ -195,6 +195,7 @@ declare class Sprite {
     private onReadyPending;
     private scheduledCallbackExecutor;
     private scheduledCallbacks;
+    private tempScheduledCallbacks;
     private _drawings;
     private _tags;
     constructor(stage?: Stage, layer?: number, costumePaths?: any[], soundPaths?: any[]);
@@ -520,6 +521,7 @@ declare class Stage {
     private onReadyCallbacks;
     private onStartCallbacks;
     private scheduledCallbacks;
+    private tempScheduledCallbacks;
     private _stopped;
     private _running;
     private stoppedTime;

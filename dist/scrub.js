@@ -895,6 +895,7 @@ var Sprite = (function () {
         this.onReadyCallbacks = [];
         this.onReadyPending = true;
         this.scheduledCallbacks = [];
+        this.tempScheduledCallbacks = [];
         this._drawings = [];
         this._tags = [];
         if (!Registry.getInstance().has('game')) {
@@ -2862,7 +2863,7 @@ var Sprite = (function () {
         if (timeout) {
             timeout = Date.now() + timeout;
         }
-        this.scheduledCallbacks.push(new ScheduledCallbackItem(callback, state, timeout, finishCallback));
+        this.tempScheduledCallbacks.push(new ScheduledCallbackItem(callback, state, timeout, finishCallback));
         return state;
     };
     Sprite.prototype.forever = function (callback, interval, timeout, finishCallback) {
@@ -2870,12 +2871,16 @@ var Sprite = (function () {
         if (timeout) {
             timeout = Date.now() + timeout;
         }
-        this.scheduledCallbacks.push(new ScheduledCallbackItem(callback, state, timeout, finishCallback));
+        this.tempScheduledCallbacks.push(new ScheduledCallbackItem(callback, state, timeout, finishCallback));
         return state;
     };
     Sprite.prototype.update = function (diffTime) {
         if (this.deleted) {
             return;
+        }
+        if (this.tempScheduledCallbacks.length) {
+            this.scheduledCallbacks = this.scheduledCallbacks.concat(this.tempScheduledCallbacks);
+            this.tempScheduledCallbacks = [];
         }
         this.scheduledCallbacks = this.scheduledCallbacks.filter(this.scheduledCallbackExecutor.execute(Date.now(), diffTime));
     };
@@ -2994,6 +2999,7 @@ var Sprite = (function () {
         this.sounds = [];
         this.soundNames = [];
         this.onReadyCallbacks = [];
+        this.tempScheduledCallbacks = [];
         this.scheduledCallbacks = [];
         this._children = [];
         this._deleted = true;
@@ -3837,6 +3843,7 @@ var Stage = (function () {
         this.onReadyCallbacks = [];
         this.onStartCallbacks = [];
         this.scheduledCallbacks = [];
+        this.tempScheduledCallbacks = [];
         this._stopped = true;
         this._running = false;
         this.stoppedTime = null;
@@ -4171,7 +4178,7 @@ var Stage = (function () {
         if (timeout) {
             timeout = Date.now() + timeout;
         }
-        this.scheduledCallbacks.push(new ScheduledCallbackItem(callback, state, timeout, finishCallback));
+        this.tempScheduledCallbacks.push(new ScheduledCallbackItem(callback, state, timeout, finishCallback));
         return state;
     };
     Stage.prototype.forever = function (callback, interval, timeout, finishCallback) {
@@ -4181,7 +4188,7 @@ var Stage = (function () {
         if (timeout) {
             timeout = Date.now() + timeout;
         }
-        this.scheduledCallbacks.push(new ScheduledCallbackItem(callback, state, timeout, finishCallback));
+        this.tempScheduledCallbacks.push(new ScheduledCallbackItem(callback, state, timeout, finishCallback));
         return state;
     };
     Stage.prototype.render = function () {
@@ -4314,6 +4321,10 @@ var Stage = (function () {
     };
     Stage.prototype.update = function () {
         var _this = this;
+        if (this.tempScheduledCallbacks.length) {
+            this.scheduledCallbacks = this.scheduledCallbacks.concat(this.tempScheduledCallbacks);
+            this.tempScheduledCallbacks = [];
+        }
         this.scheduledCallbacks = this.scheduledCallbacks.filter(this.scheduledCallbackExecutor.execute(Date.now(), this.diffTime));
         this.sprites.forEach(function (layerSprites, layer) {
             var e_56, _a;

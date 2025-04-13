@@ -45,6 +45,7 @@ class Sprite {
     private onReadyPending = true;
     private scheduledCallbackExecutor: ScheduledCallbackExecutor;
     private scheduledCallbacks: Array<ScheduledCallbackItem> = [];
+    private tempScheduledCallbacks: Array<ScheduledCallbackItem> = [];
     private _drawings: DrawingCallbackFunction[] = [];
     private _tags: string[] = [];
 
@@ -2033,7 +2034,7 @@ class Sprite {
             timeout = Date.now() + timeout;
         }
 
-        this.scheduledCallbacks.push(new ScheduledCallbackItem(callback, state, timeout, finishCallback));
+        this.tempScheduledCallbacks.push(new ScheduledCallbackItem(callback, state, timeout, finishCallback));
 
         return state;
     }
@@ -2049,7 +2050,7 @@ class Sprite {
             timeout = Date.now() + timeout;
         }
 
-        this.scheduledCallbacks.push(new ScheduledCallbackItem(callback, state, timeout, finishCallback));
+        this.tempScheduledCallbacks.push(new ScheduledCallbackItem(callback, state, timeout, finishCallback));
 
         return state;
     }
@@ -2057,6 +2058,11 @@ class Sprite {
     update(diffTime: number): void {
         if (this.deleted) {
             return;
+        }
+
+        if (this.tempScheduledCallbacks.length) {
+            this.scheduledCallbacks = this.scheduledCallbacks.concat(this.tempScheduledCallbacks);
+            this.tempScheduledCallbacks = [];
         }
 
         this.scheduledCallbacks = this.scheduledCallbacks.filter(
@@ -2171,6 +2177,7 @@ class Sprite {
         this.sounds = [];
         this.soundNames = [];
         this.onReadyCallbacks = [];
+        this.tempScheduledCallbacks = [];
         this.scheduledCallbacks = [];
         this._children = [];
 

@@ -23,6 +23,7 @@ class Stage {
     private onReadyCallbacks = [];
     private onStartCallbacks = [];
     private scheduledCallbacks: Array<ScheduledCallbackItem> = [];
+    private tempScheduledCallbacks: Array<ScheduledCallbackItem> = [];
     private _stopped = true;
     private _running = false;
     private stoppedTime = null;
@@ -505,7 +506,7 @@ class Stage {
             timeout = Date.now() + timeout;
         }
 
-        this.scheduledCallbacks.push(new ScheduledCallbackItem(callback, state, timeout, finishCallback));
+        this.tempScheduledCallbacks.push(new ScheduledCallbackItem(callback, state, timeout, finishCallback));
 
         return state;
     }
@@ -521,7 +522,7 @@ class Stage {
             timeout = Date.now() + timeout;
         }
 
-        this.scheduledCallbacks.push(new ScheduledCallbackItem(callback, state, timeout, finishCallback));
+        this.tempScheduledCallbacks.push(new ScheduledCallbackItem(callback, state, timeout, finishCallback));
 
         return state;
     }
@@ -628,6 +629,11 @@ class Stage {
     }
 
     private update(): void {
+        if (this.tempScheduledCallbacks.length) {
+            this.scheduledCallbacks = this.scheduledCallbacks.concat(this.tempScheduledCallbacks);
+            this.tempScheduledCallbacks = [];
+        }
+
         this.scheduledCallbacks = this.scheduledCallbacks.filter(
             this.scheduledCallbackExecutor.execute(Date.now(), this.diffTime)
         );
