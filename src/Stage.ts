@@ -58,8 +58,12 @@ class Stage {
         stage.scheduledCallbackExecutor = new ScheduledCallbackExecutor(stage);
         stage.stoppedTime = Date.now();
 
+        stage.init();
+
         return stage;
     }
+
+    init() {}
 
     /**
      * Events

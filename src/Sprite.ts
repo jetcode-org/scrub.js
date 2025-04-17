@@ -85,8 +85,12 @@ class Sprite {
         sprite.scheduledCallbackExecutor = new ScheduledCallbackExecutor(sprite);
         sprite.stage.addSprite(sprite);
 
+        sprite.init();
+
         return sprite;
     }
+
+    init() {}
 
     /**
      * Events

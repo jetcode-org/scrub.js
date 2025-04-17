@@ -209,6 +209,7 @@ declare class Sprite {
     private _drawings;
     private _tags;
     constructor(stage?: Stage, layer?: number, costumePaths?: any[]);
+    init(): void;
     onReady(callback: CallableFunction): void;
     isReady(): boolean;
     get deleted(): boolean;
@@ -537,6 +538,7 @@ declare class Stage {
     private stoppedTime;
     private diffTime;
     constructor(background?: string);
+    init(): void;
     onStart(onStartCallback: CallableFunction): void;
     onReady(callback: CallableFunction): void;
     get running(): boolean;

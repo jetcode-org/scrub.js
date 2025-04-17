@@ -966,8 +966,10 @@ var Sprite = (function () {
         }
         sprite.scheduledCallbackExecutor = new ScheduledCallbackExecutor(sprite);
         sprite.stage.addSprite(sprite);
+        sprite.init();
         return sprite;
     }
+    Sprite.prototype.init = function () { };
     Sprite.prototype.onReady = function (callback) {
         this.onReadyCallbacks.push(callback);
     };
@@ -3734,7 +3736,7 @@ var ScheduledCallbackExecutor = (function () {
                 item.timeout += diffTime;
             }
             if (!item.timeout || item.timeout <= now) {
-                var result = item.callback(_this.context, state);
+                var result = item.callback.bind(_this.context)(_this.context, state);
                 if (state.maxIterations) {
                     state.currentIteration++;
                 }
@@ -3885,8 +3887,11 @@ var Stage = (function () {
         stage.game.addStage(stage);
         stage.scheduledCallbackExecutor = new ScheduledCallbackExecutor(stage);
         stage.stoppedTime = Date.now();
+        stage.init();
         return stage;
     }
+    Stage.prototype.init = function () {
+    };
     Stage.prototype.onStart = function (onStartCallback) {
         this.onStartCallbacks.push(onStartCallback);
     };
