@@ -21,7 +21,7 @@ class ScheduledCallbackExecutor {
             }
 
             if (!item.timeout || item.timeout <= now) {
-                const result = item.callback(this.context, state);
+                const result = item.callback.bind(this.context)(this.context, state);
 
                 if (state.maxIterations) {
                     state.currentIteration++;
