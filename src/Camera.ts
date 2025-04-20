@@ -76,17 +76,13 @@ class Camera {
     }
 
     set zoom(value){
-        if (this.changes.zoom == 1) {
+        const newZoom = value < 0.1 ? 0.1 : value
 
-            const newZoom = value < 0.1 ? 0.1 : value
+        this.changes.zoom = newZoom / this._zoom;
 
-            this.changes.zoom = newZoom / this._zoom;
+        this._zoom = newZoom;
 
-            this._zoom = newZoom;
-
-            this.updateRenderRadius();
-
-        }
+        this.updateRenderRadius();
     }
 
     get zoom(){
