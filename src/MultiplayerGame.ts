@@ -1,6 +1,11 @@
-/// <reference path="./Sprite.ts" />
+import { JetcodeSocket, JetcodeSocketConnection } from './jmp';
+import { SharedData } from './SharedData';
+import { Player } from './Player';
+import { Game, Locale } from './Game';
+import { MultiplayerSprite } from './MultiplayerSprite';
+import { SyncObjectInterface } from './SyncObjectInterface';
 
-class MultiplayerGame extends Game {
+export class MultiplayerGame extends Game {
     connection: any;
 
     private autoSyncGameTimeout: number = 0;

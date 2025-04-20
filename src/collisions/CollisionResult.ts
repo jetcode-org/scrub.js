@@ -1,10 +1,15 @@
+import { CircleCollider } from './CircleCollider';
+import { PolygonCollider } from './PolygonCollider';
+import { PointCollider } from './PointCollider';
+
+
 /**
  * An object used to collect the detailed results of a collision test
  *
  * > **Note:** It is highly recommended you recycle the same Result object if possible in order to avoid wasting memory
  * @class
  */
-class CollisionResult {
+export class CollisionResult {
     /**
      * True if a collision was detected
      */

@@ -1,15 +1,22 @@
-type DrawingCallbackFunction = (context: CanvasRenderingContext2D, object: Stage | Sprite) => void;
-type ScheduledCallbackFunction = (context: Stage | Sprite, state: ScheduledState) => boolean | void;
-type Locale = 'ru' | 'en';
+import { ErrorMessages, Keyboard, Mouse, Registry, Styles, ValidatorFactory } from './utils';
+import { Stage } from './Stage';
+import { Sprite } from './Sprite';
+import { ScheduledState } from './ScheduledState';
+import { EventEmitter } from './EventEmitter';
+import { PointCollider } from './collisions';
 
-type TransformableObject = {
+export type DrawingCallbackFunction = (context: CanvasRenderingContext2D, object: Stage | Sprite) => void;
+export type ScheduledCallbackFunction = (context: Stage | Sprite, state: ScheduledState) => boolean | void;
+export type Locale = 'ru' | 'en';
+
+export type TransformableObject = {
     x: number,
     y: number,
     globalX?: number,
     globalY?: number
 };
 
-type GridCostumeOptions = {
+export type GridCostumeOptions = {
     cols: number,
     rows: number,
     limit?: number,
@@ -31,7 +38,7 @@ type GridCostumeOptions = {
     cropLeft?: number
 };
 
-type CostumeOptions = {
+export type CostumeOptions = {
     name?: string,
     rotate?: number,
     flipX?: boolean,
@@ -49,13 +56,13 @@ type CostumeOptions = {
     cropLeft?: number
 };
 
-type SoundOptions = {
+export type SoundOptions = {
     volume?: number,
     currentTime?: number,
     loop?: boolean
 };
 
-class Game {
+export class Game {
     id: Symbol;
     eventEmitter: EventEmitter;
     validatorFactory: ValidatorFactory;

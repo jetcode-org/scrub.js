@@ -7,7 +7,7 @@
  * @param {Boolean} [aabb = true] Set to false to skip the AABB test (useful if you use your own collision heuristic)
  * @returns {Boolean}
  */
-function SAT(a, b, result = null, aabb = true) {
+export function SAT(a, b, result = null, aabb = true) {
     const a_polygon = a._polygon;
     const b_polygon = b._polygon;
 
@@ -79,7 +79,7 @@ function SAT(a, b, result = null, aabb = true) {
  * @param {CircleCollider|PolygonCollider|PointCollider} a The source body to test
  * @param {CircleCollider|PolygonCollider|PointCollider} b The target body to test against
  */
-function aabbAABB(a, b) {
+export function aabbAABB(a, b) {
     const a_polygon = a._polygon;
     const a_x = a_polygon ? 0 : a.x;
     const a_y = a_polygon ? 0 : a.y;
@@ -108,7 +108,7 @@ function aabbAABB(a, b) {
  * @param {CollisionResult} [result = null] A Result object on which to store information about the collision
  * @returns {Boolean}
  */
-function polygonPolygon(a, b, result = null) {
+export function polygonPolygon(a, b, result = null) {
     const a_count = a._coords.length;
     const b_count = b._coords.length;
 
@@ -156,7 +156,7 @@ function polygonPolygon(a, b, result = null) {
  * @param {Boolean} [reverse = false] Set to true to reverse a and b in the result parameter when testing circle->polygon instead of polygon->circle
  * @returns {Boolean}
  */
-function polygonCircle(a, b, result = null, reverse = false) {
+export function polygonCircle(a, b, result = null, reverse = false) {
     const a_coords = a._coords;
     const a_edges = a._edges;
     const a_normals = a._normals;
@@ -287,7 +287,7 @@ function polygonCircle(a, b, result = null, reverse = false) {
  * @param {CollisionResult} [result = null] A Result object on which to store information about the collision
  * @returns {Boolean}
  */
-function circleCircle(a, b, result = null) {
+export function circleCircle(a, b, result = null) {
     const a_radius = a.radius * a.scale;
     const b_radius = b.radius * b.scale;
     const difference_x = b.x - a.x;
@@ -321,7 +321,7 @@ function circleCircle(a, b, result = null) {
  * @param {CollisionResult} [result = null] A Result object on which to store information about the collision
  * @returns {Boolean}
  */
-function separatingAxis(a_coords, b_coords, x, y, result = null) {
+export function separatingAxis(a_coords, b_coords, x, y, result = null) {
     const a_count = a_coords.length;
     const b_count = b_coords.length;
 

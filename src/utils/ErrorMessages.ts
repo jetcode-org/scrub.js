@@ -1,4 +1,4 @@
-class ErrorMessages {
+export class ErrorMessages {
     static readonly SCRIPT_ERROR = 'script_error';
     static readonly MISTAKE_METHOD = 'mistake_method';
     static readonly MISTAKE_METHOD_WITH_CLOSEST = 'mistake_method_with_closest';

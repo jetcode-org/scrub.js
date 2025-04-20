@@ -1,4 +1,4 @@
-class Registry {
+export class Registry {
     private static instance: Registry;
     private data = {};
 

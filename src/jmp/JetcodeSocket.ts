@@ -1,4 +1,7 @@
-class JetcodeSocket {
+import { JetcodeSocketParameters } from './JetcodeSocketParameters';
+import { JetcodeSocketConnection } from './JetcodeSocketConnect';
+
+export class JetcodeSocket {
     static JOIN_LOBBY = 'JOIN_LOBBY';
     static LEAVE_LOBBY = 'LEAVE_LOBBY';
     static SEND_DATA = 'SEND_DATA';

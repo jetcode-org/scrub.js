@@ -1,6 +1,12 @@
-/// <reference path="./utils/KeyboardMap.ts" />
+import { MultiplayerGame } from './MultiplayerGame';
+import { JetcodeSocket, JetcodeSocketConnection } from './jmp';
+import { SyncObjectInterface } from './SyncObjectInterface';
+import { Player } from './Player';
+import { PointCollider } from './collisions';
+import { KeyboardMap } from './utils';
 
-class MultiplayerControl {
+
+export class MultiplayerControl {
     private game: MultiplayerGame;
     private connection: JetcodeSocketConnection;
     private trackedKeys = [];

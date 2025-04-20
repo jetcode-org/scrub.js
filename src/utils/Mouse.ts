@@ -1,4 +1,8 @@
-class Mouse {
+import { PointCollider } from '../collisions';
+import { Stage } from '../Stage';
+import { Game } from '../Game';
+
+export class Mouse {
     x = 0;
     y = 0;
     private isDown = false;

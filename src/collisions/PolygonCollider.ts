@@ -1,10 +1,10 @@
-/// <reference path="Collider.ts"/>
+import { Collider } from './Collider';
 
 /**
  * A polygon used to detect collisions
  * @class
  */
-class PolygonCollider extends Collider {
+export class PolygonCollider extends Collider {
     /**
      * The angle of the body in radians
      */

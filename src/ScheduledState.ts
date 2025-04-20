@@ -1,4 +1,4 @@
-class ScheduledState {
+export class ScheduledState {
     interval: number;
     maxIterations?: number;
     currentIteration?: number;

@@ -8,7 +8,7 @@ const branch_pool = [];
  * @class
  * @private
  */
-class BVHBranch {
+export class BVHBranch {
     protected _bvh_parent = null;
     protected _bvh_branch = true;
     protected _bvh_left = null;

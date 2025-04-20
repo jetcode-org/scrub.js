@@ -1,9 +1,11 @@
+import { BVHBranch } from './BVHBranch';
+
 /**
  * A Bounding Volume Hierarchy (BVH) used to find potential collisions quickly
  * @class
  * @private
  */
-class BVH {
+export class BVH {
     static readonly MAX_DEPTH = 10000;
     protected _hierarchy = null;
     protected _bodies = [];

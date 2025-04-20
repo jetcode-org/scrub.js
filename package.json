@@ -1,7 +1,7 @@
 {
   "name": "jetcode-scrubjs",
   "private": false,
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "HTML5 Game Library with a Focus on Ease of Learning",
   "repository": {
     "type": "git",
@@ -13,12 +13,25 @@
     "url": "https://github.com/jetcode-org/scrub.js/issues"
   },
   "homepage": "https://github.com/jetcode-org/scrub.js#readme",
-  "main": "dist/scrub.js",
-  "types": "dist/scrub.d.ts",
-  "browser": "dist/scrub.js",
+  "keywords": ["HTML5", "game", "2d", "library", "canvas", "javascript", "typescript"],
+  "devDependencies": {
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.3"
+  },
+  "scripts": {
+    "build": "tsup",
+    "watch": "tsup --watch"
+  },
   "directories": {
     "doc": "docs"
   },
   "files": ["dist"],
-  "keywords": ["HTML5", "game", "2d", "library", "canvas", "javascript", "typescript"]
+  "main": "./dist/scrub.mjs",
+  "types": "./dist/scrub.d.ts",
+  "browser": "./dist/scrub.js",
+  "exports": {
+    "import": "./dist/scrub.mjs",
+    "require": "./dist/scrub.cjs",
+    "default": "./dist/scrub.mjs"
+  }
 }

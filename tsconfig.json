@@ -1,26 +1,18 @@
 {
-  "compileOnSave": true,
   "compilerOptions": {
-    "outFile": "./dist/scrub.js",
-    "baseUrl": ".",
-    "rootDir": "./src",
-    "sourceMap": true,
-    "declaration": true,
-    "emitDeclarationOnly": false,
+    "target": "es2020",
+    "module": "es2020",
     "moduleResolution": "node",
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "target": "es5",
-    "removeComments": true,
-    "downlevelIteration": true,
-    "typeRoots": [
-      "node_modules/@types"
-    ],
-    "lib": [
-      "es2017",
-      "dom"
-    ],
-    "module": "none"
+    "lib": ["es2020","dom"],
+    "strict": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "declaration": true,
+    "sourceMap": true,
+    "rootDir": "src",
+    "outDir": "dist",
+    "baseUrl": "."
   },
-  "include": ["src/**/*"]
+  "files": ["src/scrub.ts", "src/browser/scrub.ts"],
+  "exclude": ["node_modules"]
 }

@@ -1,4 +1,8 @@
-class SharedData implements SyncObjectInterface {
+import { SyncObjectInterface } from './SyncObjectInterface';
+import { OrphanSharedData } from './OrphanSharedData';
+import { Registry } from './utils';
+
+export class SharedData implements SyncObjectInterface {
     private multiplayerName: string;
     private syncId: number;
     private syncCallback: CallableFunction;

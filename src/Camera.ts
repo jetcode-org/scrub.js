@@ -1,4 +1,7 @@
-class Camera {
+import { Stage } from './Stage';
+import { CameraChanges } from './CameraChanges';
+
+export class Camera {
 
     stage: Stage;
 

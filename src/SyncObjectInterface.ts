@@ -1,4 +1,6 @@
-interface SyncObjectInterface {
+import { OrphanSharedData } from './OrphanSharedData';
+
+export interface SyncObjectInterface {
     getSyncId(): number;
 
     increaseSyncId(): number;

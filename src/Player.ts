@@ -1,4 +1,9 @@
-class Player implements SyncObjectInterface {
+import { SyncObjectInterface } from './SyncObjectInterface';
+import { MultiplayerControl } from './MultiplayerControl';
+import { MultiplayerGame } from './MultiplayerGame';
+import { OrphanSharedData } from './OrphanSharedData';
+
+export class Player implements SyncObjectInterface {
     control: MultiplayerControl;
     id: string;
 

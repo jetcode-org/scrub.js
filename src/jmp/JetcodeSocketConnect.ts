@@ -1,4 +1,6 @@
-class JetcodeSocketConnection {
+import { JetcodeSocket } from './JetcodeSocket';
+
+export class JetcodeSocketConnection {
     socket: WebSocket;
     lobbyId: string | number;
     memberId: string;
