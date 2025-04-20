@@ -4,6 +4,7 @@ class Stage {
     canvas: HTMLCanvasElement;
     context: CanvasRenderingContext2D;
     collisionSystem: CollisionSystem;
+    camera: Camera;
 
     private game: Game;
     private scheduledCallbackExecutor: ScheduledCallbackExecutor;
@@ -59,6 +60,7 @@ class Stage {
         stage.stoppedTime = Date.now();
 
         stage.init();
+        stage.camera = new Camera(stage);
 
         return stage;
     }
@@ -412,7 +414,6 @@ class Stage {
         }
 
         if (rotateStyle === 'leftRight' && direction > 180) {
-            this.context.translate(dstX + dstWidth / 2, 0);
             this.context.scale(-1, 1);
 
             // mirror image
@@ -422,7 +423,7 @@ class Stage {
                 0,
                 costume.width,
                 costume.height,
-                (-dstWidth / 2) + colliderOffsetX,
+                -dstX - dstWidth + colliderOffsetX,
                 dstY + colliderOffsetY,
                 costume.width * sprite.size / 100,
                 costume.height * sprite.size / 100
@@ -575,6 +576,13 @@ class Stage {
                         continue;
                     }
 
+                    const distance = Math.hypot(sprite.imageCenterX - this.camera.x, sprite.imageCenterY - this.camera.y);
+                    const spriteRadius = Math.hypot(sprite.sourceWidth, sprite.sourceHeight) / 2 * this.camera.zoom;
+
+                    if (distance > this.camera.renderRadius + spriteRadius) {
+                        continue;
+                    }
+
                     if (this.game.debugMode !== 'none') {
                         const fn = () => {
 
@@ -643,6 +651,18 @@ class Stage {
             this.collisionSystem.draw(this.context);
             this.context.stroke();
         }
+
+        this.context.translate(-this.camera.changes.x, -this.camera.changes.y);
+
+        const centerPointX = this.width / 2 + this.camera.startCornerX;
+        const centerPointY = this.height / 2 + this.camera.startCornerY;
+
+        this.context.translate(centerPointX, centerPointY);
+        this.context.scale(this.camera.changes.zoom, this.camera.changes.zoom);
+        // this.context.rotate(this.camera.changes.direction * Math.PI / 180);
+        this.context.translate(-centerPointX, -centerPointY);
+
+        this.camera.changes.reset();
     }
 
     private update(): void {

@@ -1,3 +1,123 @@
+var Camera = (function () {
+    function Camera(stage) {
+        this._direction = 0;
+        this._zoom = 1;
+        this.stage = stage;
+        this._x = this.stage.width / 2;
+        this._y = this.stage.height / 2;
+        this.updateRenderRadius();
+        this.changes = new CameraChanges();
+    }
+    Object.defineProperty(Camera.prototype, "direction", {
+        get: function () {
+            return this._direction;
+        },
+        set: function (value) {
+            var direction = value % 360;
+            direction = direction < 0 ? direction + 360 : direction;
+            this.changes.direction = direction - this._direction;
+            this._direction = direction;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Camera.prototype, "angleDirection", {
+        get: function () {
+            return this._direction * Math.PI / 180;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Camera.prototype, "width", {
+        get: function () {
+            return this.stage.width / this._zoom;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Camera.prototype, "height", {
+        get: function () {
+            return this.stage.height / this._zoom;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Camera.prototype, "x", {
+        get: function () {
+            return this._x;
+        },
+        set: function (value) {
+            this.changes.x = value - this._x;
+            this._x = value;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Camera.prototype, "y", {
+        get: function () {
+            return this._y;
+        },
+        set: function (value) {
+            this.changes.y = value - this._y;
+            this._y = value;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Camera.prototype, "startCornerX", {
+        get: function () {
+            return this._x - this.stage.width / 2;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Camera.prototype, "startCornerY", {
+        get: function () {
+            return this._y - this.stage.height / 2;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Camera.prototype, "renderRadius", {
+        get: function () {
+            return this._renderRadius;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Camera.prototype, "zoom", {
+        get: function () {
+            return this._zoom;
+        },
+        set: function (value) {
+            var newZoom = value < 0.1 ? 0.1 : value;
+            this.changes.zoom = newZoom / this._zoom;
+            this._zoom = newZoom;
+            this.updateRenderRadius();
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Camera.prototype.updateRenderRadius = function () {
+        this._renderRadius = Math.hypot(this.width, this.height) / 2;
+    };
+    return Camera;
+}());
+var CameraChanges = (function () {
+    function CameraChanges() {
+        this.x = 0;
+        this.y = 0;
+        this.zoom = 1;
+        this.direction = 0;
+    }
+    CameraChanges.prototype.reset = function () {
+        this.x = 0;
+        this.y = 0;
+        this.zoom = 1;
+        this.direction = 0;
+    };
+    return CameraChanges;
+}());
 var Costume = (function () {
     function Costume() {
         this.ready = false;
@@ -3888,10 +4008,10 @@ var Stage = (function () {
         stage.scheduledCallbackExecutor = new ScheduledCallbackExecutor(stage);
         stage.stoppedTime = Date.now();
         stage.init();
+        stage.camera = new Camera(stage);
         return stage;
     }
-    Stage.prototype.init = function () {
-    };
+    Stage.prototype.init = function () { };
     Stage.prototype.onStart = function (onStartCallback) {
         this.onStartCallbacks.push(onStartCallback);
     };
@@ -4152,9 +4272,8 @@ var Stage = (function () {
             this.context.translate(-dstX - dstWidth / 2, -dstY - dstHeight / 2);
         }
         if (rotateStyle === 'leftRight' && direction > 180) {
-            this.context.translate(dstX + dstWidth / 2, 0);
             this.context.scale(-1, 1);
-            this.context.drawImage(image, 0, 0, costume.width, costume.height, (-dstWidth / 2) + colliderOffsetX, dstY + colliderOffsetY, costume.width * sprite.size / 100, costume.height * sprite.size / 100);
+            this.context.drawImage(image, 0, 0, costume.width, costume.height, -dstX - dstWidth + colliderOffsetX, dstY + colliderOffsetY, costume.width * sprite.size / 100, costume.height * sprite.size / 100);
         }
         else {
             this.context.drawImage(image, 0, 0, costume.width, costume.height, dstX + colliderOffsetX, dstY + colliderOffsetY, costume.width * sprite.size / 100, costume.height * sprite.size / 100);
@@ -4259,6 +4378,11 @@ var Stage = (function () {
                         if (sprite.hidden) {
                             return "continue";
                         }
+                        var distance = Math.hypot(sprite.imageCenterX - this_1.camera.x, sprite.imageCenterY - this_1.camera.y);
+                        var spriteRadius = Math.hypot(sprite.sourceWidth, sprite.sourceHeight) / 2 * this_1.camera.zoom;
+                        if (distance > this_1.camera.renderRadius + spriteRadius) {
+                            return "continue";
+                        }
                         if (this_1.game.debugMode !== 'none') {
                             var fn = function () {
                                 var x = sprite.imageCenterX - (_this.context.measureText(sprite.name).width / 2);
@@ -4348,6 +4472,13 @@ var Stage = (function () {
             this.collisionSystem.draw(this.context);
             this.context.stroke();
         }
+        this.context.translate(-this.camera.changes.x, -this.camera.changes.y);
+        var centerPointX = this.width / 2 + this.camera.startCornerX;
+        var centerPointY = this.height / 2 + this.camera.startCornerY;
+        this.context.translate(centerPointX, centerPointY);
+        this.context.scale(this.camera.changes.zoom, this.camera.changes.zoom);
+        this.context.translate(-centerPointX, -centerPointY);
+        this.camera.changes.reset();
     };
     Stage.prototype.update = function () {
         var _this = this;

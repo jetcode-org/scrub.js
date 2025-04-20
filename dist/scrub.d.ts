@@ -1,3 +1,35 @@
+declare class Camera {
+    stage: Stage;
+    changes: CameraChanges;
+    private _x;
+    private _y;
+    private _direction;
+    private _renderRadius;
+    private _zoom;
+    constructor(stage: Stage);
+    set direction(value: number);
+    get direction(): number;
+    get angleDirection(): number;
+    get width(): number;
+    get height(): number;
+    set x(value: number);
+    get x(): number;
+    set y(value: number);
+    get y(): number;
+    get startCornerX(): number;
+    get startCornerY(): number;
+    get renderRadius(): number;
+    set zoom(value: number);
+    get zoom(): number;
+    private updateRenderRadius;
+}
+declare class CameraChanges {
+    x: number;
+    y: number;
+    zoom: number;
+    direction: number;
+    reset(): void;
+}
 declare class Costume {
     image: HTMLCanvasElement;
     ready: boolean;
@@ -514,6 +546,7 @@ declare class Stage {
     canvas: HTMLCanvasElement;
     context: CanvasRenderingContext2D;
     collisionSystem: CollisionSystem;
+    camera: Camera;
     private game;
     private scheduledCallbackExecutor;
     private background;
