@@ -101,7 +101,7 @@ var Camera = (function () {
         configurable: true
     });
     Camera.prototype.updateRenderRadius = function () {
-        this._renderRadius = Math.hypot(this.width, this.height) / 2;
+        this._renderRadius = Math.hypot(this.width, this.height) / 1.7;
     };
     return Camera;
 }());
@@ -4347,7 +4347,7 @@ var Stage = (function () {
         var _this = this;
         this.update();
         this.collisionSystem.update();
-        this.context.clearRect(this.camera.startCornerX, this.camera.startCornerY, this.width, this.height);
+        this.context.clearRect(this.camera.startCornerX - this.camera.width / this.camera.zoom / 2, this.camera.startCornerY - this.camera.height / this.camera.zoom / 2, this.width + this.camera.width / this.camera.zoom, this.height + this.camera.height / this.camera.zoom);
         if (this.background) {
             this.context.drawImage(this.background, 0, 0, this.width, this.height);
         }

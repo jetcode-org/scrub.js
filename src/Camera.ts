@@ -94,6 +94,6 @@ class Camera {
     }
 
     private updateRenderRadius(){
-        this._renderRadius = Math.hypot(this.width, this.height) / 2
+        this._renderRadius = Math.hypot(this.width, this.height) / 1.7;
     }
 }
