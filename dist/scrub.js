@@ -90,10 +90,12 @@ var Camera = (function () {
             return this._zoom;
         },
         set: function (value) {
-            var newZoom = value < 0.1 ? 0.1 : value;
-            this.changes.zoom = newZoom / this._zoom;
-            this._zoom = newZoom;
-            this.updateRenderRadius();
+            if (this.changes.zoom == 1) {
+                var newZoom = value < 0.1 ? 0.1 : value;
+                this.changes.zoom = newZoom / this._zoom;
+                this._zoom = newZoom;
+                this.updateRenderRadius();
+            }
         },
         enumerable: false,
         configurable: true
