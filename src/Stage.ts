@@ -549,7 +549,7 @@ class Stage {
         this.update();
         this.collisionSystem.update();
 
-        this.context.clearRect(0, 0, this.width, this.height);
+        this.context.clearRect(this.camera.startCornerX, this.camera.startCornerY, this.width, this.height);
 
         if (this.background) {
             this.context.drawImage(this.background, 0, 0, this.width, this.height);
