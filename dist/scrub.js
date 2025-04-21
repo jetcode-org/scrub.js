@@ -90,10 +90,12 @@ var Camera = (function () {
             return this._zoom;
         },
         set: function (value) {
-            var newZoom = value < 0.1 ? 0.1 : value;
-            this.changes.zoom = newZoom / this._zoom;
-            this._zoom = newZoom;
-            this.updateRenderRadius();
+            if (this.changes.zoom == 1) {
+                var newZoom = value < 0.1 ? 0.1 : value;
+                this.changes.zoom = newZoom / this._zoom;
+                this._zoom = newZoom;
+                this.updateRenderRadius();
+            }
         },
         enumerable: false,
         configurable: true
@@ -4345,7 +4347,7 @@ var Stage = (function () {
         var _this = this;
         this.update();
         this.collisionSystem.update();
-        this.context.clearRect(0, 0, this.width, this.height);
+        this.context.clearRect(this.camera.startCornerX, this.camera.startCornerY, this.width, this.height);
         if (this.background) {
             this.context.drawImage(this.background, 0, 0, this.width, this.height);
         }
