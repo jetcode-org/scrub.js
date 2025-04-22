@@ -1,4 +1,6 @@
-class OrphanSharedData implements SyncObjectInterface {
+import { SyncObjectInterface } from './SyncObjectInterface';
+
+export class OrphanSharedData implements SyncObjectInterface {
     private parent: SyncObjectInterface;
     private properties: string[];
 

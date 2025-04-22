@@ -1,4 +1,7 @@
-class ScheduledCallbackItem {
+import { ScheduledCallbackFunction } from './Game';
+import { ScheduledState } from './ScheduledState';
+
+export class ScheduledCallbackItem {
     callback: ScheduledCallbackFunction;
     state: ScheduledState;
     timeout?: number;

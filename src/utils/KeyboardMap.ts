@@ -1,4 +1,4 @@
-class KeyboardMap {
+export class KeyboardMap {
     private static map = [
         '', // [0]
         '', // [1]

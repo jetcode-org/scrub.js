@@ -1,4 +1,7 @@
-class ValidatorFactory {
+import { Game } from '../Game';
+import { ErrorMessages } from './ErrorMessages';
+
+export class ValidatorFactory {
     constructor(private game: Game) {
     }
 

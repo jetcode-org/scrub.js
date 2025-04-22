@@ -1,4 +1,8 @@
-class ScheduledCallbackExecutor {
+import { Stage } from './Stage';
+import { Sprite } from './Sprite';
+import { ScheduledCallbackItem } from './ScheduledCallbackItem';
+
+export class ScheduledCallbackExecutor {
     constructor(private context: Stage | Sprite) {
     }
 

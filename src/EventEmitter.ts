@@ -1,4 +1,4 @@
-class EventEmitter {
+export class EventEmitter {
     private eventTarget: EventTarget;
     private callbacksMap = new Map<string, { type: string, callback: EventListenerOrEventListenerObject }>();
 

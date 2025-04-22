@@ -1,4 +1,21 @@
-class Sprite {
+import { EventEmitter } from './EventEmitter';
+import { CircleCollider, Collider, CollisionResult, PointCollider, PolygonCollider } from './collisions';
+import {
+    CostumeOptions,
+    DrawingCallbackFunction,
+    Game,
+    GridCostumeOptions, ScheduledCallbackFunction,
+    SoundOptions,
+    TransformableObject
+} from './Game';
+import { Stage } from './Stage';
+import { Costume } from './Costume';
+import { ScheduledCallbackExecutor } from './ScheduledCallbackExecutor';
+import { ScheduledCallbackItem } from './ScheduledCallbackItem';
+import { ErrorMessages, Registry } from './utils';
+import { ScheduledState } from './ScheduledState';
+
+export class Sprite {
     id: Symbol;
     eventEmitter: EventEmitter;
     collisionResult: CollisionResult;

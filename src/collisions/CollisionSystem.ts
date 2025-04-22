@@ -1,8 +1,16 @@
+import { BVH } from './BVH';
+import { CircleCollider } from './CircleCollider';
+import { PolygonCollider } from './PolygonCollider';
+import { PointCollider } from './PointCollider';
+import { CollisionResult } from './CollisionResult';
+import { SAT } from './SAT';
+
+
 /**
  * A collision system used to track bodies in order to improve collision detection performance
  * @class
  */
-class CollisionSystem {
+export class CollisionSystem {
     protected _bvh: BVH;
 
     /**

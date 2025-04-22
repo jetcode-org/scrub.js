@@ -1,4 +1,4 @@
-class CameraChanges {
+export class CameraChanges {
     x = 0;
 
     y = 0;

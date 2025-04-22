@@ -1,4 +1,6 @@
-class Keyboard {
+import { KeyboardMap } from './KeyboardMap';
+
+export class Keyboard {
     keys = {};
 
     constructor() {

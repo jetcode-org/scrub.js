@@ -1,4 +1,4 @@
-class Styles {
+export class Styles {
     canvas;
     canvasRect;
 

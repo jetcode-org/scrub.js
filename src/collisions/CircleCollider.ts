@@ -1,10 +1,10 @@
-/// <reference path="Collider.ts"/>
+import { Collider } from './Collider';
 
 /**
  * A circle used to detect collisions
  * @class
  */
-class CircleCollider extends Collider {
+export class CircleCollider extends Collider {
     radius: number;
     scale: number;
 

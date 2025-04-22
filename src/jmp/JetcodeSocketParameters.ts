@@ -1,4 +1,4 @@
-interface JetcodeSocketParameters {
+export interface JetcodeSocketParameters {
     LobbyAutoCreate: boolean;
     MinMembers: number;
     MaxMembers: number;

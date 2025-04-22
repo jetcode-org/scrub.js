@@ -1,6257 +1,2763 @@
-var Camera = (function () {
-    function Camera(stage) {
-        this._direction = 0;
-        this._zoom = 1;
-        this.stage = stage;
-        this._x = this.stage.width / 2;
-        this._y = this.stage.height / 2;
-        this.updateRenderRadius();
-        this.changes = new CameraChanges();
+var Ct=Object.defineProperty;var It=Object.getOwnPropertyDescriptor;var At=Object.getOwnPropertyNames;var Lt=Object.prototype.hasOwnProperty;var Pt=(c,t)=>{for(var e in t)Ct(c,e,{get:t[e],enumerable:!0})},Ft=(c,t,e,i)=>{if(t&&typeof t=="object"||typeof t=="function")for(let s of At(t))!Lt.call(c,s)&&s!==e&&Ct(c,s,{get:()=>t[s],enumerable:!(i=It(t,s))||i.enumerable});return c};var Ut=c=>Ft(Ct({},"__esModule",{value:!0}),c);var Yt={};Pt(Yt,{BVH:()=>nt,BVHBranch:()=>Z,Camera:()=>ut,CameraChanges:()=>dt,CircleCollider:()=>F,Collider:()=>K,CollisionResult:()=>T,CollisionSystem:()=>ot,Costume:()=>z,ErrorMessages:()=>y,EventEmitter:()=>U,Game:()=>R,JetcodeSocket:()=>g,JetcodeSocketConnection:()=>st,Keyboard:()=>at,KeyboardMap:()=>I,Mouse:()=>lt,MultiplayerControl:()=>mt,MultiplayerGame:()=>kt,MultiplayerSprite:()=>pt,OrphanSharedData:()=>X,Player:()=>_t,PointCollider:()=>N,PolygonCollider:()=>w,Registry:()=>O,SAT:()=>rt,ScheduledCallbackExecutor:()=>V,ScheduledCallbackItem:()=>Y,ScheduledState:()=>H,SharedData:()=>Tt,Sprite:()=>$,Stage:()=>Ot,Styles:()=>ht,ValidatorFactory:()=>ct,aabbAABB:()=>Mt,circleCircle:()=>Nt,polygonCircle:()=>xt,polygonPolygon:()=>Dt,separatingAxis:()=>wt});module.exports=Ut(Yt);var st=class{constructor(t,e,i=0){this.connectActions=[g.JOINED,g.RECEIVE_DATA,g.MEMBER_JOINED,g.MEMBER_LEFT,g.GAME_STARTED,g.GAME_STOPPED,g.ERROR];this.socket=t,this.lobbyId=i,this.memberId=null,this.connects={},this._listenSocket()}_listenSocket(){this.socket.onmessage=t=>{let[e,i,s]=this._parse(t.data);e===g.RECEIVE_DATA?this.emit(g.RECEIVE_DATA,[s,i,i?.MemberId===this.memberId]):e===g.MEMBER_JOINED?this.emit(g.MEMBER_JOINED,[i,i?.MemberId===this.memberId]):e===g.MEMBER_LEFT?this.emit(g.MEMBER_LEFT,[i,i?.MemberId===this.memberId]):this.connects[e]&&this.emit(e,[i])}}emit(t,e){this.connects[t]&&this.connects[t].forEach(i=>{i(...e)})}connect(t,e){if(!this.connectActions.includes(t))throw new Error("This actions is not defined.");return this.connects[t]||(this.connects[t]=[]),this.connects[t].push(e),e}disconnect(t,e){if(!this.connectActions.includes(t))throw new Error("This action is not defined.");this.connects[t]&&(this.connects[t]=this.connects[t].filter(i=>i!==e))}sendData(t,e={}){if(!this.lobbyId)throw new Error("You are not in the lobby!");let i=`${g.SEND_DATA}
+`;for(let[s,n]of Object.entries(e))i+=s+"="+n+`
+`;i+=`SendTime=${Date.now()}
+`,i+=`
+`+t,this.socket.send(i)}joinLobby(t,e,i={}){return new Promise((s,n)=>{e||(e=0);let r=`${g.JOIN_LOBBY}
+`;r+=`GameToken=${t}
+`,r+=`LobbyId=${e}
+`;for(let[o,a]of Object.entries(i))r+=`${o}=${a}
+`;this.socket.send(r),this.connect(g.JOINED,o=>{if(o.LobbyId&&o.MemberId&&o.CurrentTime){this.lobbyId=o.LobbyId,this.memberId=o.MemberId;let a=Date.now();this.deltaTime=a-Number(o.CurrentTime),s(this.lobbyId)}else n(new Error("Couldn't join the lobby"))})})}leaveLobby(){if(!this.lobbyId)return;let t=`${g.LEAVE_LOBBY}
+LobbyId=${this.lobbyId}
+`;this.socket.send(t),this.lobbyId=null}_parse(t){let e=t.split(`
+`),i=e[0],s="",n=[],r="parameters";for(let o=1;o<e.length;o++){let a=e[o];if(a===""&&r==="parameters")r="value";else if(r==="parameters"){let l=a.split("="),h=l[0];n[h]=l.length>1?l[1]:null}else r==="value"&&(s=s+a+`
+`)}return s&&(s=s.slice(0,-1)),[i,n,s]}};var g=class{constructor(t="ws://localhost:17500"){this.socketUrl=t,this.socket=null,this.defaultParameters={LobbyAutoCreate:!0,MaxMembers:2,MinMembers:2,StartGameWithMembers:2}}connect(t,e=null,i={}){let s={...this.defaultParameters,...i};return new Promise((n,r)=>{this.socket=new WebSocket(this.socketUrl),this.socket.onopen=()=>{let o=new st(this.socket,t,e);o.joinLobby(t,e,s).then(()=>{n(o)}).catch(r)},this.socket.onerror=o=>{r(o)}})}};g.JOIN_LOBBY="JOIN_LOBBY",g.LEAVE_LOBBY="LEAVE_LOBBY",g.SEND_DATA="SEND_DATA",g.JOINED="JOINED",g.RECEIVE_DATA="RECEIVE_DATA",g.MEMBER_JOINED="MEMBER_JOINED",g.MEMBER_LEFT="MEMBER_LEFT",g.GAME_STARTED="GAME_STARTED",g.GAME_STOPPED="GAME_STOPPED",g.ERROR="ERROR";var Et=[],Z=class c{constructor(){this._bvh_parent=null;this._bvh_branch=!0;this._bvh_left=null;this._bvh_right=null;this._bvh_sort=0;this._bvh_min_x=0;this._bvh_min_y=0;this._bvh_max_x=0;this._bvh_max_y=0}static getBranch(){return Et.length?Et.pop():new c}static releaseBranch(t){Et.push(t)}static sortBranches(t,e){return t.sort>e.sort?-1:1}};var tt=class tt{constructor(){this._hierarchy=null;this._bodies=[];this._dirty_branches=[]}insert(t,e=!1){if(!e){let p=t._bvh;if(p&&p!==this)throw new Error("Body belongs to another collision system");t._bvh=this,this._bodies.push(t)}let i=t._polygon,s=t.x,n=t.y;i&&(t._dirty_coords||t.x!==t._x||t.y!==t._y||t.angle!==t._angle||t.scale_x!==t._scale_x||t.scale_y!==t._scale_y)&&t._calculateCoords();let r=t._bvh_padding,o=i?0:t.radius*t.scale,a=(i?t._min_x:s-o)-r,l=(i?t._min_y:n-o)-r,h=(i?t._max_x:s+o)+r,u=(i?t._max_y:n+o)+r;t._bvh_min_x=a,t._bvh_min_y=l,t._bvh_max_x=h,t._bvh_max_y=u;let d=this._hierarchy,_=0;if(!d)this._hierarchy=t;else{let p=0;for(;p++<tt.MAX_DEPTH;)if(d._bvh_branch){let m=d._bvh_left,f=m._bvh_min_y,b=m._bvh_max_x,v=m._bvh_max_y,C=a<m._bvh_min_x?a:m._bvh_min_x,S=l<f?l:f,x=h>b?h:b,A=u>v?u:v,B=(b-m._bvh_min_x)*(v-f),et=(x-C)*(A-S)-B,L=d._bvh_right,P=L._bvh_min_x,j=L._bvh_min_y,W=L._bvh_max_x,M=L._bvh_max_y,D=a<P?a:P,k=l<j?l:j,G=h>W?h:W,Q=u>M?u:M,it=(W-P)*(M-j),gt=(G-D)*(Q-k)-it;d._bvh_sort=_++,d._bvh_min_x=C<D?C:D,d._bvh_min_y=S<k?S:k,d._bvh_max_x=x>G?x:G,d._bvh_max_y=A>Q?A:Q,d=et<=gt?m:L}else{let m=d._bvh_parent,f=d._bvh_min_x,b=d._bvh_min_y,v=d._bvh_max_x,C=d._bvh_max_y,S=d._bvh_parent=t._bvh_parent=Z.getBranch();S._bvh_parent=m,S._bvh_left=d,S._bvh_right=t,S._bvh_sort=_++,S._bvh_min_x=a<f?a:f,S._bvh_min_y=l<b?l:b,S._bvh_max_x=h>v?h:v,S._bvh_max_y=u>C?u:C,m?m._bvh_left===d?m._bvh_left=S:m._bvh_right=S:this._hierarchy=S;break}}}remove(t,e=!1){if(!e){let o=t._bvh;if(o&&o!==this)throw new Error("Body belongs to another collision system");t._bvh=null,this._bodies.splice(this._bodies.indexOf(t),1)}if(this._hierarchy===t){this._hierarchy=null;return}let i=t._bvh_parent;if(!i){console.error("The parent is not defined in the collision system.");return}let s=i._bvh_parent,n=i._bvh_left,r=n===t?i._bvh_right:n;if(r._bvh_parent=s,r._bvh_branch&&(r._bvh_sort=i._bvh_sort),s){s._bvh_left===i?s._bvh_left=r:s._bvh_right=r;let o=s,a=0;for(;o&&a++<tt.MAX_DEPTH;){let l=o._bvh_left,h=l._bvh_min_x,u=l._bvh_min_y,d=l._bvh_max_x,_=l._bvh_max_y,p=o._bvh_right,m=p._bvh_min_x,f=p._bvh_min_y,b=p._bvh_max_x,v=p._bvh_max_y;o._bvh_min_x=h<m?h:m,o._bvh_min_y=u<f?u:f,o._bvh_max_x=d>b?d:b,o._bvh_max_y=_>v?_:v,o=o._bvh_parent}}else this._hierarchy=r;Z.releaseBranch(i)}update(){let t=this._bodies,e=t.length;for(let i=0;i<e;++i){let s=t[i],n=!1;if(!n&&s.padding!==s._bvh_padding&&(s._bvh_padding=s.padding,n=!0),!n){let r=s._polygon;r&&(s._dirty_coords||s.x!==s._x||s.y!==s._y||s.angle!==s._angle||s.scale_x!==s._scale_x||s.scale_y!==s._scale_y)&&s._calculateCoords();let o=s.x,a=s.y,l=r?0:s.radius*s.scale,h=r?s._min_x:o-l,u=r?s._min_y:a-l,d=r?s._max_x:o+l,_=r?s._max_y:a+l;n=h<s._bvh_min_x||u<s._bvh_min_y||d>s._bvh_max_x||_>s._bvh_max_y}n&&(this.remove(s,!0),this.insert(s,!0))}}potentials(t){let e=[],i=t._bvh_min_x,s=t._bvh_min_y,n=t._bvh_max_x,r=t._bvh_max_y,o=this._hierarchy,a=!0;if(!o||!o._bvh_branch)return e;let l=0;for(;o&&l++<tt.MAX_DEPTH;){if(a){a=!1;let d=o._bvh_branch?o._bvh_left:null;for(;d&&d._bvh_max_x>=i&&d._bvh_max_y>=s&&d._bvh_min_x<=n&&d._bvh_min_y<=r;)o=d,d=o._bvh_branch?o._bvh_left:null}let h=o._bvh_branch,u=h?o._bvh_right:null;if(u&&u._bvh_max_x>i&&u._bvh_max_y>s&&u._bvh_min_x<n&&u._bvh_min_y<r)o=u,a=!0;else{!h&&o!==t&&e.push(o);let d=o._bvh_parent;if(d){for(;d&&d._bvh_right===o;)o=d,d=o._bvh_parent;o=d}else break}}return e}draw(t){let e=this._bodies,i=e.length;for(let s=0;s<i;++s)e[s].draw(t)}drawBVH(t){let e=this._hierarchy,i=!0;for(;e;){if(i){i=!1;let h=e._bvh_branch?e._bvh_left:null;for(;h;)e=h,h=e._bvh_branch?e._bvh_left:null}let s=e._bvh_branch,n=e._bvh_min_x,r=e._bvh_min_y,o=e._bvh_max_x,a=e._bvh_max_y,l=s?e._bvh_right:null;if(t.moveTo(n,r),t.lineTo(o,r),t.lineTo(o,a),t.lineTo(n,a),t.lineTo(n,r),l)e=l,i=!0;else{let h=e._bvh_parent;if(h){for(;h&&h._bvh_right===e;)e=h,h=e._bvh_parent;e=h}else break}}}};tt.MAX_DEPTH=1e4;var nt=tt;function rt(c,t,e=null,i=!0){let s=c._polygon,n=t._polygon,r=!1;return e&&(e.a=c,e.b=t,e.a_in_b=!0,e.b_in_a=!0,e.overlap=null,e.overlap_x=0,e.overlap_y=0,e.collidedSprite=null),s&&(c._dirty_coords||c.x!==c._x||c.y!==c._y||c.angle!==c._angle||c.scale_x!==c._scale_x||c.scale_y!==c._scale_y)&&c._calculateCoords(),n&&(t._dirty_coords||t.x!==t._x||t.y!==t._y||t.angle!==t._angle||t.scale_x!==t._scale_x||t.scale_y!==t._scale_y)&&t._calculateCoords(),(!i||Mt(c,t))&&(s&&c._dirty_normals&&c._calculateNormals(),n&&t._dirty_normals&&t._calculateNormals(),r=s&&n?Dt(c,t,e):s?xt(c,t,e,!1):n?xt(t,c,e,!0):Nt(c,t,e)),e&&(e.collision=r),r}function Mt(c,t){let e=c._polygon,i=e?0:c.x,s=e?0:c.y,n=e?0:c.radius*c.scale,r=e?c._min_x:i-n,o=e?c._min_y:s-n,a=e?c._max_x:i+n,l=e?c._max_y:s+n,h=t._polygon,u=h?0:t.x,d=h?0:t.y,_=h?0:t.radius*t.scale,p=h?t._min_x:u-_,m=h?t._min_y:d-_,f=h?t._max_x:u+_,b=h?t._max_y:d+_;return r<f&&o<b&&a>p&&l>m}function Dt(c,t,e=null){let i=c._coords.length,s=t._coords.length;if(i===2&&s===2){let l=c._coords,h=t._coords;return e&&(e.overlap=0),l[0]===h[0]&&l[1]===h[1]}let n=c._coords,r=t._coords,o=c._normals,a=t._normals;if(i>2){for(let l=0,h=1;l<i;l+=2,h+=2)if(wt(n,r,o[l],o[h],e))return!1}if(s>2){for(let l=0,h=1;l<s;l+=2,h+=2)if(wt(n,r,a[l],a[h],e))return!1}return!0}function xt(c,t,e=null,i=!1){let s=c._coords,n=c._edges,r=c._normals,o=t.x,a=t.y,l=t.radius*t.scale,h=l*2,u=l*l,d=s.length,_=!0,p=!0,m=null,f=0,b=0;if(d===2){let v=o-s[0],C=a-s[1],S=v*v+C*C;if(S>u)return!1;if(e){let x=Math.sqrt(S);m=l-x,f=v/x,b=C/x,p=!1}}else for(let v=0,C=1;v<d;v+=2,C+=2){let S=o-s[v],x=a-s[C],A=n[v],B=n[C],q=S*A+x*B,et=q<0?-1:q>A*A+B*B?1:0,L=!1,P=0,j=0,W=0;if(e&&_&&S*S+x*x>u&&(_=!1),et){let M=et===-1,D=M?v===0?d-2:v-2:v===d-2?0:v+2,k=D+1,G=o-s[D],Q=a-s[k],it=n[D],ft=n[k],gt=G*it+Q*ft;if((gt<0?-1:gt>it*it+ft*ft?1:0)===-et){let yt=M?S:G,vt=M?x:Q,Rt=yt*yt+vt*vt;if(Rt>u)return!1;if(e){let St=Math.sqrt(Rt);L=!0,P=l-St,j=yt/St,W=vt/St,p=!1}}}else{let M=r[v],D=r[C],k=S*M+x*D,G=k<0?-k:k;if(k>0&&G>l)return!1;e&&(L=!0,P=l-k,j=M,W=D,(p&&k>=0||P<h)&&(p=!1))}L&&(m===null||m>P)&&(m=P,f=j,b=W)}return e&&(e.a_in_b=i?p:_,e.b_in_a=i?_:p,e.overlap=m,e.overlap_x=i?-f:f,e.overlap_y=i?-b:b),!0}function Nt(c,t,e=null){let i=c.radius*c.scale,s=t.radius*t.scale,n=t.x-c.x,r=t.y-c.y,o=i+s,a=n*n+r*r;if(a>o*o)return!1;if(e){let l=Math.sqrt(a);e.a_in_b=i<=s&&l<=s-i,e.b_in_a=s<=i&&l<=i-s,e.overlap=o-l,e.overlap_x=n/l,e.overlap_y=r/l}return!0}function wt(c,t,e,i,s=null){let n=c.length,r=t.length;if(!n||!r)return!0;let o=null,a=null,l=null,h=null;for(let u=0,d=1;u<n;u+=2,d+=2){let _=c[u]*e+c[d]*i;(o===null||o>_)&&(o=_),(a===null||a<_)&&(a=_)}for(let u=0,d=1;u<r;u+=2,d+=2){let _=t[u]*e+t[d]*i;(l===null||l>_)&&(l=_),(h===null||h<_)&&(h=_)}if(o>h||a<l)return!0;if(s){let u=0;if(o<l)if(s.a_in_b=!1,a<h)u=a-l,s.b_in_a=!1;else{let p=a-l,m=h-o;u=p<m?p:-m}else if(s.b_in_a=!1,a>h)u=o-h,s.a_in_b=!1;else{let p=a-l,m=h-o;u=p<m?p:-m}let d=s.overlap,_=u<0?-u:u;if(d===null||d>_){let p=u<0?-1:1;s.overlap=_,s.overlap_x=e*p,s.overlap_y=i*p}}return!1}var T=class{constructor(){this.collision=!1;this.a=null;this.b=null;this.a_in_b=!1;this.b_in_a=!1;this.overlap=0;this.overlap_x=0;this.overlap_y=0}};var K=class{constructor(t=0,e=0,i=5){this._offset_x=0;this._offset_y=0;this._circle=!1;this._polygon=!1;this._point=!1;this._bvh=null;this._bvh_parent=null;this._bvh_branch=!1;this._bvh_min_x=0;this._bvh_min_y=0;this._bvh_max_x=0;this._bvh_max_y=0;this._parent_sprite=null;this._center_distance=0;this._center_angle=0;this.x=t,this.y=e,this.padding=i,this._bvh_padding=i}collides(t,e=null,i=!0){return rt(this,t,e,i)}potentials(){let t=this._bvh;if(t===null)throw new Error("Body does not belong to a collision system");return t.potentials(this)}remove(){let t=this._bvh;t&&t.remove(this,!1)}set parentSprite(t){this._parent_sprite=t}get parentSprite(){return this._parent_sprite}set offset_x(t){this._offset_x=-t,this.updateCenterParams()}get offset_x(){return-this._offset_x}set offset_y(t){this._offset_y=-t,this.updateCenterParams()}get offset_y(){return-this._offset_y}get center_offset_x(){if(this._parent_sprite.rotateStyle==="leftRight"||this._parent_sprite.rotateStyle==="none"){let t=this._parent_sprite._direction>180&&this._parent_sprite.rotateStyle==="leftRight"?-1:1;return this._offset_x*t}return this._center_distance*Math.cos(this._center_angle-this._parent_sprite.globalAngleRadians)}get center_offset_y(){return this._parent_sprite.rotateStyle==="leftRight"||this._parent_sprite.rotateStyle==="none"?-this._offset_y:-this._center_distance*Math.sin(this._center_angle-this._parent_sprite.globalAngleRadians)}createResult(){return new T}updateCenterParams(){this._center_distance=Math.hypot(this._offset_x,this._offset_y),this._center_angle=-Math.atan2(-this._offset_y,-this._offset_x)}static createResult(){return new T}};var F=class extends K{constructor(t=0,e=0,i=0,s=1,n=5){super(t,e,n),this.radius=i,this.scale=s}draw(t){let e=this.x,i=this.y,s=this.radius*this.scale;t.moveTo(e+s,i),t.arc(e,i,s,0,Math.PI*2)}};var w=class c extends K{constructor(e=0,i=0,s=[],n=0,r=1,o=1,a=5){super(e,i,a);this._min_x=0;this._min_y=0;this._max_x=0;this._max_y=0;this._points=null;this._coords=null;this._edges=null;this._normals=null;this._dirty_coords=!0;this._dirty_normals=!0;this._origin_points=null;this.angle=n,this.scale_x=r,this.scale_y=o,this._polygon=!0,this._x=e,this._y=i,this._angle=n,this._scale_x=r,this._scale_y=o,this._origin_points=s,c.prototype.setPoints.call(this,s)}draw(e){(this._dirty_coords||this.x!==this._x||this.y!==this._y||this.angle!==this._angle||this.scale_x!==this._scale_x||this.scale_y!==this._scale_y)&&this._calculateCoords();let i=this._coords;if(i.length===2)e.moveTo(i[0],i[1]),e.arc(i[0],i[1],1,0,Math.PI*2);else{e.moveTo(i[0],i[1]);for(let s=2;s<i.length;s+=2)e.lineTo(i[s],i[s+1]);i.length>4&&e.lineTo(i[0],i[1])}}setPoints(e){let i=e.length;this._points=new Float64Array(i*2),this._coords=new Float64Array(i*2),this._edges=new Float64Array(i*2),this._normals=new Float64Array(i*2);let s=this._points;for(let n=0,r=0,o=1;n<i;++n,r+=2,o+=2){let a=e[n];s[r]=a[0],s[o]=a[1]}this._dirty_coords=!0}_calculateCoords(){let e=this.x,i=this.y,s=this.angle,n=this.scale_x,r=this.scale_y,o=this._points,a=this._coords,l=o.length,h,u,d,_;for(let p=0,m=1;p<l;p+=2,m+=2){let f=o[p]*n,b=o[m]*r;if(s){let v=Math.cos(s),C=Math.sin(s),S=f,x=b;f=S*v-x*C,b=S*C+x*v}f+=e,b+=i,a[p]=f,a[m]=b,p===0?(h=u=f,d=_=b):(f<h?h=f:f>u&&(u=f),b<d?d=b:b>_&&(_=b))}this._x=e,this._y=i,this._angle=s,this._scale_x=n,this._scale_y=r,this._min_x=h,this._min_y=d,this._max_x=u,this._max_y=_,this._dirty_coords=!1,this._dirty_normals=!0}_calculateNormals(){let e=this._coords,i=this._edges,s=this._normals,n=e.length;for(let r=0,o=1;r<n;r+=2,o+=2){let a=r+2<n?r+2:0,l=e[a]-e[r],h=e[a+1]-e[o],u=l||h?Math.sqrt(l*l+h*h):0;i[r]=l,i[o]=h,s[r]=u?h/u:0,s[o]=u?-l/u:0}this._dirty_normals=!1}get points(){return this._origin_points}};var N=class extends w{constructor(t=0,e=0,i=5){super(t,e,[[0,0]],0,1,1,i),this._point=!0}};N.prototype.setPoints=void 0;var ot=class{constructor(){this._bvh=new nt}createCircle(t=0,e=0,i=0,s=1,n=0){let r=new F(t,e,i,s,n);return this._bvh.insert(r),r}createPolygon(t=0,e=0,i=[[0,0]],s=0,n=1,r=1,o=0){let a=new w(t,e,i,s,n,r,o);return this._bvh.insert(a),a}createPoint(t=0,e=0,i=0){let s=new N(t,e,i);return this._bvh.insert(s),s}createResult(){return new T}static createResult(){return new T}insert(...t){for(let e of t)this._bvh.insert(e,!1);return this}remove(...t){for(let e of t)this._bvh.remove(e,!1);return this}update(){return this._bvh.update(),this}draw(t){return this._bvh.draw(t)}drawBVH(t){return this._bvh.drawBVH(t)}potentials(t){return this._bvh.potentials(t)}collides(t,e,i=null,s=!0){return rt(t,e,i,s)}};var E=class E{static getMessage(t,e,i=null){if(!E.messages[t])throw new Error("Message is not defined.");if(!E.messages[t][e])throw new Error("Message for this locale is not defined.");let s=E.messages[t][e];return i&&(s=E.replaceVariables(s,i)),s}static replaceVariables(t,e){return t.replace(/\${([^}]+)}/g,(i,s)=>e[s]!==void 0?e[s]:"")}};E.SCRIPT_ERROR="script_error",E.MISTAKE_METHOD="mistake_method",E.MISTAKE_METHOD_WITH_CLOSEST="mistake_method_with_closest",E.NEED_STAGE_BEFORE_RUN_GAME="need_stage_before_run_game",E.NEED_CREATE_STAGE_BEFORE_SPRITE="need_create_stage_before_sprite",E.COSTUME_NOT_LOADED="costume_not_loaded",E.BACKGROUND_NOT_LOADED="background_not_loaded",E.CLONED_NOT_READY="cloned_not_ready",E.SOUND_INDEX_NOT_FOUND="sound_index_not_found",E.SOUND_NAME_NOT_FOUND="sound_name_not_found",E.SOUND_NAME_ALREADY_EXISTS="sound_name_already_exists",E.SOUND_NOT_ALLOWED_ERROR="sound_not_allowed_error",E.SOUND_USE_NOT_READY="sound_use_not_ready",E.COSTUME_INDEX_NOT_FOUND="costume_index_not_found",E.COSTUME_NAME_NOT_FOUND="costume_name_not_found",E.COSTUME_SWITCH_NOT_READY="costume_switch_not_ready",E.STAMP_NOT_READY="stamp_not_ready",E.STAMP_COSTUME_NOT_FOUND="stamp_costume_not_found",E.COLLIDER_NAME_NOT_FOUND="collider_name_not_found",E.messages={script_error:{ru:"\u041F\u0440\u043E\u0438\u0437\u043E\u0448\u043B\u0430 \u043E\u0448\u0438\u0431\u043A\u0430, \u043E\u0437\u043D\u0430\u043A\u043E\u043C\u044C\u0442\u0435\u0441\u044C \u0441 \u043F\u043E\u0434\u0440\u043E\u0431\u043D\u043E\u0439 \u0438\u043D\u0444\u043E\u0440\u043C\u0430\u0446\u0438\u0435\u0439 \u0432 \u043A\u043E\u043D\u0441\u043E\u043B\u0438.",en:"An error has occurred, take a look at the details in the console."},mistake_method:{ru:'${className}: \u041C\u0435\u0442\u043E\u0434 \u0438\u043B\u0438 \u0441\u0432\u043E\u0439\u0441\u0442\u0432\u043E "${prop}" \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D\u043E',en:'${className}: Method "${prop}" not found'},mistake_method_with_closest:{ru:'${className}: \u041C\u0435\u0442\u043E\u0434 \u0438\u043B\u0438 \u0441\u0432\u043E\u0439\u0441\u0442\u0432\u043E "${prop}" \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D\u043E. \u0412\u043E\u0437\u043C\u043E\u0436\u043D\u043E \u0432\u044B \u0438\u043C\u0435\u043B\u0438 \u0432\u0432\u0438\u0434\u0443: ${closestString}?',en:'${className}: Method "${prop}" not found. Did you mean: ${closestString}?'},need_stage_before_run_game:{ru:"\u0412\u0430\u043C \u043D\u0443\u0436\u043D\u043E \u0441\u043E\u0437\u0434\u0430\u0442\u044C \u044D\u043A\u0437\u0435\u043C\u043F\u043B\u044F\u0440 Stage \u043F\u0435\u0440\u0435\u0434 \u0437\u0430\u043F\u0443\u0441\u043A\u043E\u043C \u0438\u0433\u0440\u044B.",en:"You need create Stage instance before run game."},need_create_stage_before_sprite:{ru:"\u0412\u0430\u043C \u043D\u0443\u0436\u043D\u043E \u0441\u043E\u0437\u0434\u0430\u0442\u044C \u044D\u043A\u0437\u0435\u043C\u043F\u043B\u044F\u0440 \u043A\u043B\u0430\u0441\u0441\u0430 Stage \u043F\u0435\u0440\u0435\u0434 \u044D\u043A\u0437\u0435\u043C\u043F\u043B\u044F\u0440\u043E\u043C \u043A\u043B\u0430\u0441\u0441\u0430 Sprite.",en:"You need create Stage instance before Sprite instance."},costume_not_loaded:{ru:'\u0418\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u0435 \u0434\u043B\u044F \u043A\u043E\u0441\u0442\u044E\u043C\u0430 "${costumePath}" \u043D\u0435 \u0431\u044B\u043B\u043E \u0437\u0430\u0433\u0440\u0443\u0436\u0435\u043D\u043E. \u041F\u0440\u043E\u0432\u0435\u0440\u044C\u0442\u0435 \u043F\u0440\u0430\u0432\u0438\u043B\u044C\u043D\u043E\u0441\u0442\u044C \u043F\u0443\u0442\u0438.',en:'Costume image "${costumePath}" was not loaded. Check that the path is correct.'},background_not_loaded:{ru:'\u0418\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u0435 \u0434\u043B\u044F \u0444\u043E\u043D\u0430 "${backgroundPath}" \u043D\u0435 \u0431\u044B\u043B\u043E \u0437\u0430\u0433\u0440\u0443\u0436\u0435\u043D\u043E. \u041F\u0440\u043E\u0432\u0435\u0440\u044C\u0442\u0435 \u043F\u0440\u0430\u0432\u0438\u043B\u044C\u043D\u043E\u0441\u0442\u044C \u043F\u0443\u0442\u0438.',en:'Background image "${backgroundPath}" was not loaded. Check that the path is correct.'},cloned_not_ready:{ru:"\u0421\u043F\u0440\u0430\u0439\u0442 \u043D\u0435 \u043C\u043E\u0436\u0435\u0442 \u0431\u044B\u0442\u044C \u043A\u043B\u043E\u043D\u0438\u0440\u043E\u0432\u0430\u043D, \u043F\u043E\u0442\u043E\u043C\u0443 \u0447\u0442\u043E \u043E\u043D \u0435\u0449\u0435 \u043D\u0435 \u0433\u043E\u0442\u043E\u0432. \u041F\u043E\u043F\u0440\u043E\u0431\u0443\u0439\u0442\u0435 \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u044C \u043C\u0435\u0442\u043E\u0434 sprite.onReady()",en:"Sprite cannot be cloned because one is not ready. Try using the sprite.onReady() method."},sound_index_not_found:{ru:'\u0417\u0432\u0443\u043A \u0441 \u0438\u043D\u0434\u0435\u043A\u0441\u043E\u043C "${soundIndex}" \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D.',en:'Sound with index "${soundIndex}" not found.'},sound_name_not_found:{ru:'\u0417\u0432\u0443\u043A \u0441 \u0438\u043C\u0435\u043D\u0435\u043C "${soundName}" \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D.',en:'Sound with name "${soundName}" not found.'},sound_name_already_exists:{ru:'\u0417\u0432\u0443\u043A \u0441 \u0438\u043C\u0435\u043D\u0435\u043C "${soundName}" \u0443\u0436\u0435 \u0434\u043E\u0431\u0430\u0432\u043B\u0435\u043D.',en:'Sound with name "${soundName}" already exists.'},sound_use_not_ready:{ru:"\u0421\u043F\u0440\u0430\u0439\u0442 \u043D\u0435 \u043C\u043E\u0436\u0435\u0442 \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u044C \u0437\u0432\u0443\u043A\u0438, \u043F\u043E\u0442\u043E\u043C\u0443 \u0447\u0442\u043E \u0441\u043F\u0440\u0430\u0439\u0442 \u0435\u0449\u0435 \u043D\u0435 \u0433\u043E\u0442\u043E\u0432. \u041F\u043E\u043F\u0440\u043E\u0431\u0443\u0439\u0442\u0435 \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u044C \u043C\u0435\u0442\u043E\u0434 sprite.onReady().",en:"Sprite cannot use sounds because sprite is not ready. Try using the sprite.onReady() method."},sound_not_allowed_error:{ru:"\u0412\u043E\u0441\u043F\u0440\u043E\u0438\u0437\u0432\u0435\u0434\u0435\u043D\u0438\u0435 \u0437\u0432\u0443\u043A\u0430 \u0437\u0430\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u043D\u043E. \u041F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C \u0434\u043E\u043B\u0436\u0435\u043D \u0441\u043D\u0430\u0447\u0430\u043B\u0430 \u0432\u0437\u0430\u0438\u043C\u043E\u0434\u0435\u0439\u0441\u0442\u0432\u043E\u0432\u0430\u0442\u044C \u0441 \u0438\u0433\u0440\u043E\u0439. \u0412\u043E\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0439\u0442\u0435\u0441\u044C \u043C\u0435\u0442\u043E\u0434\u043E\u043C Game.onUserInteracted()",en:"Audio playback is blocked. The user must first interact with the game. Use the Game.onUserInteracted() method."},costume_index_not_found:{ru:'\u041A\u043E\u0441\u0442\u044E\u043C \u0441 \u0438\u043D\u0434\u0435\u043A\u0441\u043E\u043C "${costumeIndex}" \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D.',en:'Costume with index "${costumeIndex}" not found.'},costume_name_not_found:{ru:'\u041A\u043E\u0441\u0442\u044E\u043C \u0441 \u0438\u043C\u0435\u043D\u0435\u043C "${costumeName}" \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D.',en:'Costume with name "${costumeName}" not found.'},costume_switch_not_ready:{ru:"\u0421\u043F\u0440\u0430\u0439\u0442 \u043D\u0435 \u043C\u043E\u0436\u0435\u0442 \u0438\u0437\u043C\u0435\u043D\u0438\u0442\u044C \u043A\u043E\u0441\u0442\u044E\u043C, \u043F\u043E\u0442\u043E\u043C\u0443 \u0447\u0442\u043E \u0441\u043F\u0440\u0430\u0439\u0442 \u0435\u0449\u0435 \u043D\u0435 \u0433\u043E\u0442\u043E\u0432. \u041F\u043E\u043F\u0440\u043E\u0431\u0443\u0439\u0442\u0435 \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u044C \u043C\u0435\u0442\u043E\u0434 sprite.onReady().",en:"Sprite cannot change a costume because sprite is not ready. Try using the sprite.onReady() method."},stamp_not_ready:{ru:"\u0421\u043F\u0440\u0430\u0439\u0442 \u043D\u0435 \u043C\u043E\u0436\u0435\u0442 \u0441\u043E\u0437\u0434\u0430\u0442\u044C \u0448\u0442\u0430\u043C\u043F, \u043F\u043E\u0442\u043E\u043C\u0443 \u0447\u0442\u043E \u043E\u043D \u0435\u0449\u0435 \u043D\u0435 \u0433\u043E\u0442\u043E\u0432. \u041F\u043E\u043F\u0440\u043E\u0431\u0443\u0439\u0442\u0435 \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u044C \u043C\u0435\u0442\u043E\u0434 sprite.onReady()",en:"Sprite cannot create a stamp because sprite is not ready. Try using the sprite.onReady() method."},stamp_costume_not_found:{ru:'\u0428\u0442\u0430\u043C \u043D\u0435 \u043C\u043E\u0436\u0435\u0442 \u0431\u044B\u0442\u044C \u0441\u043E\u0437\u0434\u0430\u043D, \u0442\u0430\u043A \u043A\u0430\u043A \u043A\u043E\u0441\u0442\u044E\u043C \u0441 \u0438\u043D\u0434\u0435\u043A\u0441\u043E\u043C "${costumeIndex}" \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D.',en:'The stamp cannot be created because the costume with the index "${costumeIndex}" has not been found.'},collider_name_not_found:{ru:'\u041A\u043E\u043B\u043B\u0430\u0439\u0434\u0435\u0440 \u0441 \u0438\u043C\u0435\u043D\u0435\u043C "${colliderName}" \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D.',en:'Collider with name "${colliderName}" not found.'}};var y=E;var bt=class bt{static getChar(t){return bt.map[t]}};bt.map=["","","","CANCEL","","","HELP","","BACK_SPACE","TAB","","","CLEAR","ENTER","ENTER_SPECIAL","","SHIFT","CONTROL","ALT","PAUSE","CAPS_LOCK","KANA","EISU","JUNJA","FINAL","HANJA","","ESCAPE","CONVERT","NONCONVERT","ACCEPT","MODECHANGE","SPACE","PAGE_UP","PAGE_DOWN","END","HOME","LEFT","UP","RIGHT","DOWN","SELECT","PRINT","EXECUTE","PRINTSCREEN","INSERT","DELETE","","0","1","2","3","4","5","6","7","8","9","COLON","SEMICOLON","LESS_THAN","EQUALS","GREATER_THAN","QUESTION_MARK","AT","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","OS_KEY","","CONTEXT_MENU","","SLEEP","NUMPAD0","NUMPAD1","NUMPAD2","NUMPAD3","NUMPAD4","NUMPAD5","NUMPAD6","NUMPAD7","NUMPAD8","NUMPAD9","MULTIPLY","ADD","SEPARATOR","SUBTRACT","DECIMAL","DIVIDE","F1","F2","F3","F4","F5","F6","F7","F8","F9","F10","F11","F12","F13","F14","F15","F16","F17","F18","F19","F20","F21","F22","F23","F24","","","","","","","","","NUM_LOCK","SCROLL_LOCK","WIN_OEM_FJ_JISHO","WIN_OEM_FJ_MASSHOU","WIN_OEM_FJ_TOUROKU","WIN_OEM_FJ_LOYA","WIN_OEM_FJ_ROYA","","","","","","","","","","CIRCUMFLEX","EXCLAMATION","DOUBLE_QUOTE","HASH","DOLLAR","PERCENT","AMPERSAND","UNDERSCORE","OPEN_PAREN","CLOSE_PAREN","ASTERISK","PLUS","PIPE","HYPHEN_MINUS","OPEN_CURLY_BRACKET","CLOSE_CURLY_BRACKET","TILDE","","","","","VOLUME_MUTE","VOLUME_DOWN","VOLUME_UP","","","SEMICOLON","EQUALS","COMMA","MINUS","PERIOD","SLASH","BACK_QUOTE","","","","","","","","","","","","","","","","","","","","","","","","","","","OPEN_BRACKET","BACK_SLASH","CLOSE_BRACKET","QUOTE","","META","ALTGR","","WIN_ICO_HELP","WIN_ICO_00","","WIN_ICO_CLEAR","","","WIN_OEM_RESET","WIN_OEM_JUMP","WIN_OEM_PA1","WIN_OEM_PA2","WIN_OEM_PA3","WIN_OEM_WSCTRL","WIN_OEM_CUSEL","WIN_OEM_ATTN","WIN_OEM_FINISH","WIN_OEM_COPY","WIN_OEM_AUTO","WIN_OEM_ENLW","WIN_OEM_BACKTAB","ATTN","CRSEL","EXSEL","EREOF","PLAY","ZOOM","","PA1","WIN_OEM_CLEAR",""];var I=bt;var at=class{constructor(){this.keys={};document.addEventListener("keydown",t=>{let e=I.getChar(t.keyCode);this.keys[e]=!0}),document.addEventListener("keyup",t=>{let e=I.getChar(t.keyCode);delete this.keys[e]})}keyPressed(t){return this.keys[t.toUpperCase()]!==void 0}keyDown(t,e){document.addEventListener("keydown",i=>{let s=I.getChar(i.keyCode);t.toUpperCase()==s&&e(i)})}keyUp(t,e){document.addEventListener("keyup",i=>{let s=I.getChar(i.keyCode);t.toUpperCase()==s&&e(i)})}};var lt=class{constructor(t){this.x=0;this.y=0;this.isDown=!1;document.addEventListener("mousedown",()=>{this.isDown=!0,this.lastStage=t.getActiveStage()}),document.addEventListener("mouseup",()=>{this.isDown=!1}),document.addEventListener("mousemove",e=>{this.x=t.correctMouseX(e.clientX),this.y=t.correctMouseY(e.clientY)}),this.point=new N(this.x,this.y)}getPoint(){return this.point.x=this.x,this.point.y=this.y,this.point}isMouseDown(t){return this.isDown&&t===this.lastStage}clearMouseDown(){this.isDown=!1}};var O=class c{constructor(){this.data={}}static getInstance(){return this.instance||(this.instance=new c),this.instance}set(t,e){this.data[t]=e}has(t){return this.data[t]!==void 0}get(t){return this.data[t]}};var ht=class{constructor(t,e,i){this.canvas=t,this.setEnvironmentStyles(),this.setCanvasSize(e,i),this.canvasRect=t.getBoundingClientRect(),window.addEventListener("resize",()=>{this.setCanvasSize(e,i),this.canvasRect=t.getBoundingClientRect()})}setEnvironmentStyles(){document.body.style.margin="0",document.body.style.height="100vh",document.body.style.padding="0",document.body.style.overflow="hidden"}setCanvasSize(t,e){this.canvas.width=t||document.body.clientWidth,this.canvas.height=e||document.body.clientHeight}};var ct=class c{constructor(t){this.game=t}createValidator(t,e){let i=this.game;return new Proxy(t,{get(s,n){if(n in s)return s[n];if(typeof n=="symbol"||n.startsWith("_"))return;let r=Object.getOwnPropertyNames(Object.getPrototypeOf(s)).filter(a=>a!=="constructor"),o=c.findClosestMethods(n.toString(),r);if(o.length){let a=o.join(", ");i.throwError(y.MISTAKE_METHOD_WITH_CLOSEST,{className:e,prop:n,closestString:a})}else i.throwError(y.MISTAKE_METHOD,{className:e,prop:n})}})}static findClosestMethods(t,e,i=2){return e.map(s=>({name:s,distance:c.levenshteinDistance(t.toLowerCase(),s.toLowerCase())})).filter(({distance:s})=>s<=i).sort((s,n)=>s.distance-n.distance).map(({name:s})=>s).slice(0,3)}static levenshteinDistance(t,e){let i=Array(t.length+1).fill(null).map(()=>Array(e.length+1).fill(0));for(let s=0;s<=t.length;s++)i[s][0]=s;for(let s=0;s<=e.length;s++)i[0][s]=s;for(let s=1;s<=t.length;s++)for(let n=1;n<=e.length;n++){let r=t[s-1]===e[n-1]?0:1;i[s][n]=Math.min(i[s-1][n]+1,i[s][n-1]+1,i[s-1][n-1]+r)}return i[t.length][e.length]}};var z=class{constructor(){this.ready=!1}get width(){return this.image instanceof HTMLCanvasElement?this.image.width:0}get height(){return this.image instanceof HTMLCanvasElement?this.image.height:0}};var U=class{constructor(){this.callbacksMap=new Map;this.eventTarget=new EventTarget}once(t,e,i){if(this.callbacksMap.get(t))return!1;let s=n=>{typeof i=="function"?i(n):i.handleEvent(n),this.eventTarget.removeEventListener(e,s),this.remove(t)};return this.eventTarget.addEventListener(e,s),this.callbacksMap.set(t,{type:e,callback:s}),!0}on(t,e,i){return this.callbacksMap.get(t)?!1:(this.eventTarget.addEventListener(e,i),this.callbacksMap.set(t,{type:e,callback:i}),!0)}emit(t,e){this.eventTarget.dispatchEvent(new CustomEvent(t,{detail:e}))}remove(t){let e=this.callbacksMap.get(t);return e?(this.eventTarget.removeEventListener(e.type,e.callback),this.callbacksMap.delete(t),!0):!1}removeByType(t){this.callbacksMap.forEach((e,i)=>{t===e.type&&(this.eventTarget.removeEventListener(e.type,e.callback),this.callbacksMap.delete(i))})}clearAll(){this.callbacksMap.forEach(t=>{this.eventTarget.removeEventListener(t.type,t.callback)}),this.callbacksMap.clear()}};var J=class J{constructor(t=null,e=null,i=null,s=!0,n="ru"){this.debugMode="none";this.debugCollider=!1;this.debugColor="red";this.stages=[];this.activeStage=null;this.styles=null;this.loadedStages=0;this.onReadyCallbacks=[];this.onUserInteractedCallbacks=[];this.onReadyPending=!0;this.running=!1;this.pendingRun=!1;this.reportedError=!1;this._displayErrors=!0;this._locale="ru";this._userInteracted=!1;this._displayErrors=s,this._locale=n,this.validatorFactory=new ct(this);let r=this;if(this.displayErrors&&(r=this.validatorFactory.createValidator(this,"Game")),window.onerror=()=>{r.reportError(y.getMessage(y.SCRIPT_ERROR,r._locale))},r.id=Symbol(),r.eventEmitter=new U,r.keyboard=new at,i){let o=document.getElementById(i);o instanceof HTMLCanvasElement&&(r.canvas=o)}else r.canvas=document.createElement("canvas"),document.body.appendChild(r.canvas);return r.canvas.width=t,r.canvas.height=e,r.styles=new ht(r.canvas,t,e),r.mouse=new lt(r),r.context=r.canvas.getContext("2d"),O.getInstance().set("game",r),r.addListeners(),r}addStage(t){return this.stages.push(t),this}getLastStage(){return this.stages.length?this.stages[this.stages.length-1]:null}getActiveStage(){return this.activeStage?this.activeStage:null}run(t=null){if(!t&&this.stages.length&&(t=this.stages[0]),t||this.throwError(y.NEED_STAGE_BEFORE_RUN_GAME),!this.running)for(let e of this.stages)e.ready();this.activeStage&&this.activeStage.running&&this.activeStage.stop(),this.running=!1,this.pendingRun=!0,this.activeStage=t,this.tryDoRun()}isReady(){return this.loadedStages==this.stages.length}onReady(t){this.onReadyCallbacks.push(t)}onUserInteracted(t){this.onUserInteractedCallbacks.push(t)}stop(){this.activeStage&&this.activeStage.running&&this.activeStage.stop(),this.running=!1}get displayErrors(){return this._displayErrors}get locale(){return this._locale}get width(){return this.canvas.width}get height(){return this.canvas.height}get userInteracted(){return this._userInteracted}isInsideGame(t,e){return t>=0&&t<=this.width&&e>=0&&e<=this.height}correctMouseX(t){return t-this.styles.canvasRect.left}correctMouseY(t){return t-this.styles.canvasRect.top}keyPressed(t){if(Array.isArray(t)){for(let e of t)if(this.keyboard.keyPressed(e))return!0;return!1}return this.keyboard.keyPressed(t)}keyDown(t,e){this.keyboard.keyDown(t,e)}keyUp(t,e){this.keyboard.keyUp(t,e)}mouseDown(){return this.mouse.isMouseDown(this.activeStage)}mouseDownOnce(){let t=this.mouse.isMouseDown(this.activeStage);return this.mouse.clearMouseDown(),t}getMousePoint(){return this.mouse.getPoint()}getRandom(t,e){return Math.floor(Math.random()*(e-t+1))+t}throwError(t,e=null,i=!0){let s=y.getMessage(t,this.locale,e);this.throwErrorRaw(s,i)}throwErrorRaw(t,e=!0){throw e&&this.reportError(t),new Error(t)}reportError(t){this._displayErrors&&!this.reportedError&&(alert(t),this.reportedError=!0)}addListeners(){this.eventEmitter.on(J.STAGE_READY_EVENT,J.STAGE_READY_EVENT,t=>{this.loadedStages++,this.tryDoOnReady()}),document.addEventListener("visibilitychange",()=>{document.hidden?this.activeStage&&this.activeStage.running&&this.activeStage.stop():this.activeStage&&this.activeStage.stopped&&this.activeStage.run()}),this.userInteractionPromise=new Promise(t=>{document.addEventListener("click",t,{once:!0}),document.addEventListener("keydown",e=>{["Control","Shift","CapsLock","NumLock","Alt","Meta"].includes(e.key)||t(!0)},{once:!0})})}tryDoOnReady(){if(this.isReady()&&this.onReadyPending){if(this.onReadyPending=!1,this.onReadyCallbacks.length){for(let t of this.onReadyCallbacks)t();this.onReadyCallbacks=[]}this.userInteractionPromise.then(()=>{this._userInteracted=!0,this.onUserInteractedCallbacks.filter(t=>(t(this),!1))}),this.tryDoRun()}}tryDoRun(){this.pendingRun&&!this.running&&this.isReady()&&(this.running=!0,this.pendingRun=!1,this.activeStage.run())}};J.STAGE_READY_EVENT="scrubjs.stage.ready",J.STAGE_BACKGROUND_READY_EVENT="scrubjs.stage.background_ready",J.SPRITE_READY_EVENT="scrubjs.sprite.ready";var R=J;var Y=class{constructor(t,e,i,s){this.callback=t,this.state=e,this.timeout=i,this.finishCallback=s}};var H=class{constructor(t,e,i){this.interval=t,this.maxIterations=e,this.currentIteration=i}};var $=class c{constructor(t,e=0,i=[]){this.name="No name";this.game=null;this.stage=null;this._parentSprite=null;this._collidedSprite=null;this._original=null;this.costumeIndex=null;this.costume=null;this.costumes=[];this.costumeNames=[];this.sounds=[];this.soundNames=[];this.currentColliderName=null;this.colliders=new Map;this.phrase=null;this.phraseLiveTime=null;this._x=0;this._y=0;this._pivotOffsetX=0;this._pivotOffsetY=0;this._width=0;this._height=0;this._defaultColliderNone=!1;this._direction=0;this._size=100;this._centerDistance=0;this._centerAngle=0;this._rotateStyle="normal";this._hidden=!1;this._opacity=null;this._filter=null;this._deleted=!1;this._stopped=!0;this.pendingCostumeGrids=0;this.pendingCostumes=0;this.pendingSounds=0;this._children=[];this.onReadyCallbacks=[];this.onReadyPending=!0;this.scheduledCallbacks=[];this.tempScheduledCallbacks=[];this._drawings=[];this._tags=[];if(!O.getInstance().has("game"))throw new Error("You need create Game instance before Stage instance.");this.game=O.getInstance().get("game");let s=this;this.game.displayErrors&&(s=this.game.validatorFactory.createValidator(this,"Sprite")),s.id=Symbol(),s.eventEmitter=new U,s.collisionResult=new T,s.stage=t,this.stage||(s.stage=this.game.getLastStage()),s.stage||s.game.throwError(y.NEED_CREATE_STAGE_BEFORE_SPRITE),s._layer=e,s._x=s.game.width/2,s._y=s.game.height/2;for(let n of i)s.addCostume(n);return s.scheduledCallbackExecutor=new V(s),s.stage.addSprite(s),s.init(),s}init(){}onReady(t){this.onReadyCallbacks.push(t)}isReady(){return this.pendingCostumes===0&&this.pendingCostumeGrids===0&&this.pendingSounds===0}get deleted(){return this._deleted}get stopped(){return this._stopped}setParent(t){return t.addChild(this),this}addChild(t){if(!this._children.includes(t)){this._children.push(t),t.parent=this,t.layer=this.layer,t.x=0,t.y=0,t.direction=0;for(let e of this.tags)t.addTag(e)}return t.parent=this,this}removeChild(t){let e=this._children.indexOf(t);if(e>-1){let i=this._children[e];i.parent=null;for(let s of this.tags)i.removeTag(s);this._children.splice(e,1)}return this}getChildren(){return this._children}set parent(t){this._parentSprite=t}get parent(){return this._parentSprite}getMainSprite(){return this._parentSprite?this._parentSprite.getMainSprite():this}switchCollider(t){if(this.colliders.has(t)||this.game.throwError(y.COLLIDER_NAME_NOT_FOUND,{colliderName:t}),this.currentColliderName===t)return this;let e=this.collider;e&&this.stage.collisionSystem.remove(e),this.currentColliderName=t;let i=this.collider;return this.stage.collisionSystem.insert(i),this._width=i.width,this._height=i.height,this}setCollider(t,e,i=0,s=0){if(e.parentSprite=this,e.offset_x=i,e.offset_y=s,this.currentColliderName===t&&this.colliders.has(t)){let n=this.colliders.get(t);this.stage.collisionSystem.remove(n),this.currentColliderName=null}return this.colliders.set(t,e),this.updateColliderPosition(e),this.isReady()&&!this.collider&&this.switchCollider(t),this}setRectCollider(t,e,i,s=0,n=0){let r=0;this._rotateStyle!="leftRight"&&(r=this.globalAngleRadians);let o=new w(this.x,this.y,[[e/2*-1,i/2*-1],[e/2,i/2*-1],[e/2,i/2],[e/2*-1,i/2]],r,this.size/100,this.size/100);return o.width=e,o.height=i,this.setCollider(t,o,s,n),this}setPolygonCollider(t,e,i=0,s=0){let n=0;this._rotateStyle!="leftRight"&&(n=this.globalAngleRadians);let r=this.calculateCentroid(e),o=e.map(u=>[u[0]-r.x,u[1]-r.y]),a=new w(this.x,this.y,o,n,this.size/100,this.size/100),{width:l,height:h}=this.calculatePolygonSize(o);return a.width=l,a.height=h,this.setCollider(t,a,i,s),this}setCircleCollider(t,e,i=0,s=0){let n=new F(this.x,this.y,e,this.size/100);return n.width=e*2,n.height=e*2,this.setCollider(t,n,i,s),this}setCostumeCollider(t,e=0,i=0,s=0){this.costumes[e]===void 0&&this.game.throwError(y.COSTUME_INDEX_NOT_FOUND,{costumeIndex:e});let n=this.costumes[e];return this.setRectCollider(t,n.width,n.height,i,s),this}removeCollider(t){if(t)this.removeColliderByName(t);else{let e=this.collider;e&&this.stage.collisionSystem.remove(e),this.colliders.clear(),this.currentColliderName=null,this.defaultColliderNone=!0}return this}removeColliderByName(t){let e=this.getCollider(t);if(this.colliders.delete(t),this.colliders.size===0&&(this.defaultColliderNone=!0),t===this.currentColliderName&&(this.stage.collisionSystem.remove(e),this.colliders.size)){let i=this.colliders.keys().next().value;this.switchCollider(i)}return this}getCollider(t){return this.colliders.has(t)||this.game.throwError(y.COLLIDER_NAME_NOT_FOUND,{colliderName:t}),this.colliders.get(t)}hasCollider(t){return this.colliders.has(t)}get collider(){return this.currentColliderName&&this.colliders.has(this.currentColliderName)?this.colliders.get(this.currentColliderName):null}get collidedSprite(){return this._collidedSprite}set defaultColliderNone(t){this._defaultColliderNone=t}get defaultColliderNone(){return this._defaultColliderNone}getColliders(){return this.colliders.entries()}cloneCollider(t){let e=t.getColliders();for(let[i,s]of e)s instanceof F&&this.setCircleCollider(i,s.radius,s.offset_x,s.offset_y),s instanceof w&&this.setPolygonCollider(i,s.points,s.offset_x,s.offset_y)}calculateCentroid(t){let e=0,i=0;for(let r of t)e+=r[0],i+=r[1];let s=e/t.length,n=i/t.length;return{x:s,y:n}}calculatePolygonSize(t){let e=t[0][0],i=t[0][1],s=t[0][0],n=t[0][1];for(let a of t)a[0]<e&&(e=a[0]),a[0]>s&&(s=a[0]),a[1]<i&&(i=a[1]),a[1]>n&&(n=a[1]);let r=s-e,o=n-i;return{width:r,height:o}}updateColliderPosition(t){t.x=this.imageCenterX+t.center_offset_x*this.size/100,t.y=this.imageCenterY+t.center_offset_y*this.size/100}updateColliderAngle(){let t=this.collider;t instanceof w&&(this._rotateStyle=="leftRight"?t.angle=0:t.angle=this.globalAngleRadians),t&&this.updateColliderPosition(t)}updateColliderSize(t){t instanceof w?(t.scale_x=this.size/100,t.scale_y=this.size/100):t instanceof F&&(t.scale=this.size/100)}addTag(t){this.hasTag(t)||this._tags.push(t);for(let e of this._children)e.addTag(t);return this}removeTag(t){let e=this._tags.indexOf(t);e>-1&&this._tags.splice(e,1);for(let i of this._children)i.addTag(t);return this}hasTag(t){return this._tags.includes(t)}get tags(){return this._tags}addCostume(t,e){let i=new z,s=this.costumes.length,n=(e?.name??"Costume")+"-"+s;this.costumes.push(i),this.costumeNames.push(n),this.pendingCostumes++;let r=new Image;r.src=t,e?.alphaColor&&(r.crossOrigin="anonymous");let o=()=>{if(this.deleted)return;let a=this.transformImage(r,e?.rotate??0,e?.flipX??!1,e?.flipY??!1,e?.x??0,e?.y??0,e?.width??r.naturalWidth,e?.height??r.naturalHeight,e?.alphaColor??null,e?.alphaTolerance??0,e?.crop??0,e?.cropTop??null,e?.cropRight??null,e?.cropBottom??null,e?.cropLeft??null);i.image=a,i.ready=!0,this.pendingCostumes--,this.tryDoOnReady(),r.removeEventListener("load",o)};return r.addEventListener("load",o),r.addEventListener("error",()=>{this.game.throwError(y.COSTUME_NOT_LOADED,{costumePath:t})}),this}addCostumeGrid(t,e){let i=new Image;i.src=t;let s=e?.name??"Costume";this.pendingCostumeGrids++;let n=()=>{i.naturalWidth,i.naturalHeight;let r=e.cols,o=e.rows,a=e.limit,l=e.offset,h=i.naturalWidth/r,u=i.naturalHeight/o,d=!1,_=0,p=0,m=0;for(let f=0;f<o;f++){for(let b=0;b<r;b++){if(d=!1,l!==null&&l>0&&(l--,d=!0),!d){if(a!==null){if(a==0)break;a>0&&a--}let v=new z;this.costumes.push(v),this.costumeNames.push(s+"-"+_);let C=this.transformImage(i,e?.rotate??0,e?.flipX??!1,e?.flipY??!1,p+(e?.x??0),m+(e?.y??0),e?.width??h,e?.height??u,e?.alphaColor??null,e?.alphaTolerance??0,e?.crop??0,e?.cropTop??null,e?.cropRight??null,e?.cropBottom??null,e?.cropLeft??null);v.image=C,v.ready=!0,_++}p+=h}p=0,m+=u}this.pendingCostumeGrids--,this.tryDoOnReady(),i.removeEventListener("load",n)};return i.addEventListener("load",n),this}drawCostume(t,e){let i=document.createElement("canvas"),s=i.getContext("2d");i.width=e?.width??100,i.height=e?.height??100,this.pendingCostumes++,t(s,this);let n=this.costumes.length,r=(e?.name??"Costume")+"-"+n;Object.values(e||{}).some(l=>!!l)&&(i=this.transformImage(i,e?.rotate??0,e?.flipX??!1,e?.flipY??!1,e?.x??0,e?.y??0,e?.width??i.width,e?.height??i.height,e?.alphaColor??null,e?.alphaTolerance??0,e?.crop??0,e?.cropTop??null,e?.cropRight??null,e?.cropBottom??null,e?.cropLeft??null));let a=new z;return a.image=i,a.ready=!0,this.costumes.push(a),this.costumeNames.push(r+"-"+n),this.pendingCostumes--,this}removeCostume(t){return this.costumes[t]===void 0&&this.game.throwError(y.COSTUME_INDEX_NOT_FOUND,{costumeIndex:t}),this.costumes.splice(t,1),this.costumeNames.splice(t,1),this.costumeIndex===t&&(this.costumeIndex=null,this.costumes.length>0?this.nextCostume():this.costume=null),this}switchCostume(t){if(this.deleted)return;this.isReady()||this.game.throwError(y.COSTUME_SWITCH_NOT_READY);let e=this.costumes[t];return e instanceof z&&e.ready&&(this.costumeIndex=t,this.costume=e),this}switchCostumeByName(t){this.isReady()||this.game.throwError(y.COSTUME_SWITCH_NOT_READY);let e=this.costumeNames.indexOf(t);return e>-1?this.switchCostume(e):this.game.throwError(y.COSTUME_NAME_NOT_FOUND,{costumeName:t}),this}nextCostume(t=0,e){if(this.deleted)return;this.isReady()||this.game.throwError(y.COSTUME_SWITCH_NOT_READY);let i=this.costumes.length-1;t=Math.min(i,Math.max(0,t)),e=Math.min(i,Math.max(0,e??i));let s=this.costumeIndex+1;return(s>e||s<t)&&(s=t),s!==this.costumeIndex&&this.switchCostume(s),s}prevCostume(t=0,e){if(this.deleted)return;this.isReady()||this.game.throwError(y.COSTUME_SWITCH_NOT_READY);let i=this.costumes.length-1;t=Math.min(i,Math.max(0,t)),e=Math.min(i,Math.max(0,e??i));let s=this.costumeIndex-1;return(s<t||s>e)&&(s=e),s!==this.costumeIndex&&this.switchCostume(s),s}getCostume(){return this.costume}getCostumeName(){return this.costumeIndex===null?"No costume":this.costumeNames[this.costumeIndex]}getCostumeIndex(){return this.costumeIndex}transformImage(t,e,i=!1,s=!1,n=0,r=0,o=null,a=null,l=null,h=0,u=0,d=null,_=null,p=null,m=null){d=d??u,_=_??u,p=p??u,m=m??u,n+=_,o-=_,o-=m,r+=d,a-=d,a-=p;let f=document.createElement("canvas"),b=f.getContext("2d"),v=e*Math.PI/180,C=o??(t instanceof HTMLImageElement?t.naturalWidth:t.width),S=a??(t instanceof HTMLImageElement?t.naturalHeight:t.height);if(e){let B=Math.abs(Math.cos(v)),q=Math.abs(Math.sin(v));C=C*B+S*q,S=C*q+S*B}f.width=Math.ceil(C),f.height=Math.ceil(S),b.translate(f.width/2,f.height/2),e&&b.rotate(v),(i||s)&&b.scale(i?-1:1,s?-1:1);let x=-o/2,A=-a/2;return b.drawImage(t,n,r,o,a,x,A,o,a),l&&(f=this.setAlpha(f,l,h??0)),f}setAlpha(t,e,i=0){let s=document.createElement("canvas"),n=s.getContext("2d");if(!n)throw new Error("Canvas context is not available");s.width=t.width,s.height=t.height;let r=t.getContext("2d").getImageData(0,0,t.width,t.height),o=r.data,a;if(typeof e=="string"){if(a=this.hexToRgb(e),!a)throw new Error(`Invalid HEX color: ${e}`)}else a=e;for(let l=0;l<o.length;l+=4){let h=o[l],u=o[l+1],d=o[l+2];Math.abs(h-a.r)<=i&&Math.abs(u-a.g)<=i&&Math.abs(d-a.b)<=i&&(o[l+3]=0)}return n.putImageData(r,0,0),s}hexToRgb(t){if(t=t.replace(/^#/,""),t.length===3&&(t=t.split("").map(i=>i+i).join("")),t.length!==6)return null;let e=parseInt(t,16);return{r:e>>16&255,g:e>>8&255,b:e&255}}cloneCostume(t,e){this.costumes.push(t),this.costumeNames.push(e)}addSound(t,e){this.soundNames.includes(e)&&this.game.throwError(y.SOUND_NAME_ALREADY_EXISTS,{soundName:e});let i=new Audio;i.src=t,this.sounds.push(i),this.soundNames.push(e),this.pendingSounds++,i.load();let s=()=>{this.pendingSounds--,this.tryDoOnReady(),i.removeEventListener("loadedmetadata",s)};return i.addEventListener("loadedmetadata",s),this}removeSound(t){let e=this.soundNames.indexOf(t);return e<0&&this.game.throwError(y.SOUND_NAME_NOT_FOUND,{soundName:t}),this.sounds.splice(e,1),this}playSound(t,e={}){let i=this.getSound(t);this.doPlaySound(i,e)}startSound(t,e={}){let i=this.cloneSound(t);return this.doPlaySound(i,e),i}pauseSound(t){this.getSound(t).pause()}getSound(t){this.isReady()||this.game.throwError(y.SOUND_USE_NOT_READY);let e=this.soundNames.indexOf(t);e<0&&this.game.throwError(y.SOUND_NAME_NOT_FOUND,{soundName:t});let i=this.sounds[e];return i instanceof Audio||this.game.throwError(y.SOUND_INDEX_NOT_FOUND,{soundIndex:e}),i}cloneSound(t){let e=this.getSound(t);return new Audio(e.src)}doPlaySound(t,e={}){e.volume!==void 0&&(t.volume=e.volume),e.currentTime!==void 0&&(t.currentTime=e.currentTime),e.loop!==void 0&&(t.loop=e.loop);let i=t.play();i!==void 0&&i.catch(s=>{s.name==="NotAllowedError"?this.game.throwError(y.SOUND_NOT_ALLOWED_ERROR,{},!1):console.error("Audio playback error:",s)})}stamp(t,e=!0){this.isReady()||this.game.throwError(y.STAMP_NOT_READY),t=t??this.costumeIndex,this.costumes[t]||this.game.throwError(y.STAMP_COSTUME_NOT_FOUND,{costumeIndex:t});let i=this.costumes[t];i.image instanceof HTMLCanvasElement||this.game.throwErrorRaw("The image inside the costume was not found.");let s=0;e&&this._rotateStyle==="normal"&&(s=this.direction),this.stage.stampImage(i.image,this.x,this.y,s)}pen(t){this._drawings.push(t)}get drawings(){return this._drawings}set opacity(t){t===null?this._opacity=null:this._opacity=Math.min(1,Math.max(0,t))}get opacity(){return this._opacity}set filter(t){this._filter=t}get filter(){return this._filter}set rotateStyle(t){this._rotateStyle=t;for(let e of this._children)e.rotateStyle=t}get rotateStyle(){return this._rotateStyle}set layer(t){this.stage.changeSpriteLayer(this,this._layer,t),this._layer=t;for(let e of this._children)e.layer=e.layer+this._layer}get layer(){return this._layer}set hidden(t){this._hidden=t;for(let e of this._children)e.hidden=t}get hidden(){return this._hidden}say(t,e){if(this.phrase=this.name+": "+t,this.phraseLiveTime=null,e){let i=new Date().getTime();this.phraseLiveTime=i+e}}getPhrase(){if(this.phrase){if(this.phraseLiveTime===null)return this.phrase;let t=new Date().getTime();if(this.phraseLiveTime>t)return this.phrase;this.phrase=null,this.phraseLiveTime=null}return null}move(t){let e=this.globalAngleRadians;this.x+=t*Math.sin(e),this.y-=t*Math.cos(e)}pointForward(t){let e=t.globalX?t.globalX:t.x,i=t.globalY?t.globalY:t.y;this.globalDirection=Math.atan2(this.globalY-i,this.globalX-e)/Math.PI*180-90}getDistanceTo(t){let e=t.globalX?t.globalX:t.x,i=t.globalY?t.globalY:t.y;return Math.sqrt(Math.abs(this.globalX-e)+Math.abs(this.globalY-i))}bounceOnEdge(){(this.touchTopEdge()||this.touchBottomEdge())&&(this.direction=180-this.direction),(this.touchLeftEdge()||this.touchRightEdge())&&(this.direction*=-1)}set x(t){this._x=t,this._children.length&&this.updateCenterParams();let e=this.collider;e&&this.updateColliderPosition(e);for(let i of this._children)i.collider&&i.updateColliderPosition(i.collider)}get x(){return this._x}set y(t){this._y=t,this._children.length&&this.updateCenterParams();let e=this.collider;e&&this.updateColliderPosition(e);for(let i of this._children)i.collider&&i.updateColliderPosition(i.collider)}get y(){return this._y}get globalX(){return this._parentSprite?this._rotateStyle==="leftRight"||this._rotateStyle==="none"?this._parentSprite.imageCenterX+this._x*this.size/100:this._parentSprite.imageCenterX+this.distanceToParent*Math.cos(this.angleToParent-this._parentSprite.globalAngleRadians)*this.size/100:this._x}get globalY(){return this._parentSprite?this._rotateStyle==="leftRight"||this._rotateStyle==="none"?this._parentSprite.imageCenterY+this._y:this._parentSprite.imageCenterY-this.distanceToParent*Math.sin(this.angleToParent-this._parentSprite.globalAngleRadians)*this.size/100:this._y}get imageCenterX(){if(this._rotateStyle==="leftRight"||this._rotateStyle==="none"){let t=this._direction>180&&this._rotateStyle==="leftRight"?-1:1;return this.globalX-this._pivotOffsetX*t*this.size/100}return this.globalX+Math.cos(this._centerAngle-this.globalAngleRadians)*this._centerDistance*this.size/100}get imageCenterY(){return this._rotateStyle==="leftRight"||this._rotateStyle==="none"?this.globalY-this._pivotOffsetY*this.size/100:this.globalY-Math.sin(this._centerAngle-this.globalAngleRadians)*this._centerDistance*this.size/100}get realX(){return this.x-this.width/2}get realY(){return this.y-this.height/2}get rightX(){let t=this.collider,e=t?t.center_offset_x*this.size/100:0;return this.imageCenterX+this.width/2+e}set rightX(t){let e=this.collider,i=e?e.center_offset_x*this.size/100:0;this.x=t-this.width/2-i}get leftX(){let t=this.collider,e=t?t.center_offset_x*this.size/100:0;return this.imageCenterX-this.width/2+e}set leftX(t){let e=this.collider,i=e?e.center_offset_x*this.size/100:0;this.x=t+this.width/2+i}get topY(){let t=this.collider,e=t?t.center_offset_y*this.size/100:0;return this.imageCenterY-this.height/2+e}set topY(t){let e=this.collider,i=e?e.center_offset_y*this.size/100:0;this.y=t+this.height/2+i}get bottomY(){let t=this.collider,e=t?t.center_offset_y*this.size/100:0;return this.imageCenterY+this.height/2+e}set bottomY(t){let e=this.collider,i=e?e.center_offset_y*this.size/100:0;this.y=t-this.height/2-i}get width(){if(this.collider instanceof w){let t=this.globalAngleRadians;return Math.abs(this.sourceWidth*Math.cos(t))+Math.abs(this.sourceHeight*Math.sin(t))}return this.sourceWidth}get height(){if(this.collider instanceof w){let t=this.globalAngleRadians;return Math.abs(this.sourceWidth*Math.sin(t))+Math.abs(this.sourceHeight*Math.cos(t))}return this.sourceHeight}get sourceWidth(){return this._width*this.size/100}get sourceHeight(){return this._height*this.size/100}set size(t){this._size=t;let e=this.collider;e&&this.updateColliderSize(e);for(let i of this._children)i.size=t}get size(){return this._size}set direction(t){if(t*0===0){t=t%360,t<0&&(t+=360),this._direction=t>360?t-360:t,this.updateColliderAngle();for(let e of this._children)e.updateColliderAngle()}}get direction(){return this._direction}set globalDirection(t){this.direction=this._parentSprite?t-this._parentSprite.direction:t}get globalDirection(){return this._parentSprite?this._parentSprite.direction+this.direction:this.direction}get globalAngleRadians(){return this.globalDirection*Math.PI/180}get angleToParent(){return-Math.atan2(this.y,this.x)}get distanceToParent(){return Math.hypot(this.x,this.y)}setPivotOffset(t=0,e=0){return this.pivotOffsetX=t,this.pivotOffsetY=e,this}set pivotOffsetX(t){let e=this.x;this._pivotOffsetX=t,this.updateCenterParams(),this.x=e}get pivotOffsetX(){return this._pivotOffsetX}set pivotOffsetY(t){let e=this.y;this._pivotOffsetY=t,this.updateCenterParams(),this.y=e}get pivotOffsetY(){return this._pivotOffsetY}updateCenterParams(){this._centerDistance=Math.hypot(this._pivotOffsetX,this._pivotOffsetY),this._centerAngle=-Math.atan2(-this._pivotOffsetY,-this._pivotOffsetX)}touchSprite(t,e=!0){if(this._collidedSprite=null,t.hidden||this.hidden||t.stopped||this.stopped||t.deleted||this.deleted)return!1;let i=this.collider,s=t.collider;if(i&&s&&i.collides(s,this.collisionResult))return!0;if(i){for(let r of t.getChildren())if(this.touchSprite(r,!1))return!0}if(!e)return!1;for(let r of this._children){if(s&&r.touchSprite(t))return this._collidedSprite=r,!0;for(let o of t.getChildren())if(r.touchSprite(o))return this._collidedSprite=r,!0}return!1}touchSprites(t,e=!0){if(this.hidden||this.stopped||this.deleted)return!1;for(let i of t)if(this.touchSprite(i,e))return!0;return!1}touchMouse(t=!0){return this.touchPoint(this.game.getMousePoint(),t)}touchPoint(t,e=!0){if(this._collidedSprite=null,this.hidden||this.stopped||this.deleted)return!1;let i=this.collider;if(i&&i.collides(t,this.collisionResult))return!0;if(e){for(let n of this._children)if(n.touchPoint(n.game.getMousePoint()))return this._collidedSprite=n.otherSprite,!0}return!1}touchEdge(t=!0){let e=this.getPureCollisionResult();if(this._collidedSprite=null,this.hidden||this.stopped||this.deleted)return!1;if(this.collider){let i=this.game.width,s=this.game.height;if(this.topY<0)return e.collision=!0,e.overlap=-this.topY,e.overlap_y=-1,!0;if(this.bottomY>s)return e.collision=!0,e.overlap=this.bottomY-s,e.overlap_y=1,!0;if(this.leftX<0)return e.collision=!0,e.overlap=-this.leftX,e.overlap_x=-1,!0;if(this.rightX>i)return e.collision=!0,e.overlap=this.rightX-i,e.overlap_x=1,!0}if(t){for(let i of this._children)if(i.touchEdge())return this._collidedSprite=i,!0}return!1}touchTopEdge(t=!0){if(this.clearCollisionResult(),this._collidedSprite=null,this.hidden||this.stopped||this.deleted)return!1;if(this.collider&&this.topY<0)return this.collisionResult.collision=!0,this.collisionResult.overlap=-this.topY,this.collisionResult.overlap_y=-1,!0;if(t){for(let e of this._children)if(e.touchTopEdge())return this._collidedSprite=e,!0}return!1}touchBottomEdge(t=!0){if(this.clearCollisionResult(),this._collidedSprite=null,this.hidden||this.stopped||this.deleted)return!1;if(this.collider&&this.bottomY>this.game.height)return this.collisionResult.collision=!0,this.collisionResult.overlap=this.bottomY-this.game.height,this.collisionResult.overlap_y=1,!0;if(t){for(let e of this._children)if(e.touchBottomEdge())return this._collidedSprite=e,!0}return!1}touchLeftEdge(t=!0){if(this.clearCollisionResult(),this._collidedSprite=null,this.hidden||this.stopped||this.deleted)return!1;if(this.collider&&this.leftX<0)return this.collisionResult.collision=!0,this.collisionResult.overlap=-this.leftX,this.collisionResult.overlap_x=-1,!0;if(t){for(let e of this._children)if(e.touchLeftEdge())return this._collidedSprite=e,!0}return!1}touchRightEdge(t=!0){if(this.clearCollisionResult(),this._collidedSprite=null,this.hidden||this.stopped||this.deleted)return!1;if(this.collider&&this.rightX>this.game.width)return this.collisionResult.collision=!0,this.collisionResult.overlap=this.rightX-this.game.width,this.collisionResult.overlap_x=1,!0;if(t){for(let e of this._children)if(e.touchRightEdge())return this._collidedSprite=e,!0}return!1}touchTag(t,e=!0){if(this.clearCollisionResult(),this._collidedSprite=null,this.hidden||this.stopped||this.deleted)return!1;let i=this.collider;if(i){let s=i.potentials();if(!s.length)return!1;for(let n of s){let r=n.parentSprite;if(r&&r.hasTag(t)&&!r.hidden&&!r.stopped&&!r.deleted&&i.collides(n,this.collisionResult))return!0}}if(e){for(let s of this._children)if(s.touchTag(t))return this._collidedSprite=s,!0}return!1}touchTagAll(t,e=!0){if(this.clearCollisionResult(),this._collidedSprite=null,this.hidden||this.stopped||this.deleted)return!1;let i=[],s=this.collider;if(s){let n=s.potentials();if(!n.length)return!1;for(let r of n){let o=r.parentSprite;o&&o.hasTag(t)&&!o.hidden&&!o.stopped&&!o.deleted&&o.collider&&s.collides(r,this.collisionResult)&&i.push(o)}}if(e)for(let n of this._children){let r=n.touchTagAll(t);if(r&&!r.length)for(let o of r)i.push(o)}return i.length?i:!1}touchAnySprite(t=!0){if(this.clearCollisionResult(),this._collidedSprite=null,this.hidden||this.stopped||this.deleted)return!1;let e=this.collider;if(e){let i=e.potentials();if(!i.length)return!1;for(let s of i){let n=s.parentSprite;if(!n.hidden&&!n.stopped&&!n.deleted&&e.collides(s,this.collisionResult))return!0}}if(t){for(let i of this._children)if(i.touchAnySprite())return this._collidedSprite=i,!0}return!1}get overlap(){return this._collidedSprite?this._collidedSprite.overlap:this.collisionResult.collision?this.collisionResult.overlap:0}get overlapX(){return this._collidedSprite?this._collidedSprite.overlapX:this.collisionResult.collision?this.collisionResult.overlap_x*this.collisionResult.overlap:0}get overlapY(){return this._collidedSprite?this._collidedSprite.overlapY:this.collisionResult.collision?this.collisionResult.overlap_y*this.collisionResult.overlap:0}get otherSprite(){return this.collisionResult.collision?this.collisionResult.b.parentSprite:null}get otherMainSprite(){return this.collisionResult.collision?this.collisionResult.b.parentSprite.getMainSprite():null}clearCollisionResult(){this.collisionResult.collision=!1,this.collisionResult.a=null,this.collisionResult.b=null,this.collisionResult.a_in_b=!1,this.collisionResult.b_in_a=!1,this.collisionResult.overlap=0,this.collisionResult.overlap_x=0,this.collisionResult.overlap_y=0}getPureCollisionResult(){return this.clearCollisionResult(),this.collisionResult}timeout(t,e){this.repeat(t,1,null,e,void 0)}repeat(t,e,i,s,n){let r=new H(i,e,0);return s&&(s=Date.now()+s),this.tempScheduledCallbacks.push(new Y(t,r,s,n)),r}forever(t,e,i,s){let n=new H(e);return i&&(i=Date.now()+i),this.tempScheduledCallbacks.push(new Y(t,n,i,s)),n}update(t){this.deleted||(this.tempScheduledCallbacks.length&&(this.scheduledCallbacks=this.scheduledCallbacks.concat(this.tempScheduledCallbacks),this.tempScheduledCallbacks=[]),this.scheduledCallbacks=this.scheduledCallbacks.filter(this.scheduledCallbackExecutor.execute(Date.now(),t)))}run(){this._stopped=!1}stop(){this._stopped=!0}ready(){this.tryDoOnReady()}get original(){return this._original}setOriginal(t){this._original=t}createClone(t){this.isReady()||this.game.throwError(y.CLONED_NOT_READY),t||(t=this.stage);let e=new c(t,this.layer);e.setOriginal(this),e.name=this.name,e._rotateStyle=this._rotateStyle,e.x=this.x,e.y=this.y,e.pivotOffsetX=this.pivotOffsetX,e.pivotOffsetY=this.pivotOffsetY,e.direction=this.direction,e.size=this.size,e.hidden=this.hidden,e._deleted=this.deleted,e._stopped=this.stopped,e._tags.push(...this.tags),e.defaultColliderNone=this.defaultColliderNone;for(let i=0;i<this.costumes.length;i++)e.cloneCostume(this.costumes[i],this.costumeNames[i]);e.switchCostume(this.costumeIndex);for(let[i,s]of this.sounds.entries())e.sounds.push(s),e.soundNames.push(this.soundNames[i]);e.currentColliderName=null,e.cloneCollider(this),this.currentColliderName&&e.switchCollider(this.currentColliderName);for(let i of this._children){let s=i.createClone();e.addChild(s),s.x=i.x,s.y=i.y,s.direction=i.direction}return e.ready(),e}delete(){if(this.deleted)return;this.stage.removeSprite(this,this.layer),this.eventEmitter.clearAll(),this.removeCollider(),this.scheduledCallbackExecutor=null;for(let e of this._children)e.delete();let t=Object.keys(this);for(let e=0;e<t.length;e++)delete this[t[e]];this.costumes=[],this.costumeNames=[],this.sounds=[],this.soundNames=[],this.onReadyCallbacks=[],this.tempScheduledCallbacks=[],this.scheduledCallbacks=[],this._children=[],this._deleted=!0}deleteClones(){this.stage.getSprites().filter(e=>e.original===this).forEach(e=>e.delete())}tryDoOnReady(){if(this.onReadyPending&&this.isReady()){if(this.onReadyPending=!1,this.costumes.length&&this.costume===null&&this.switchCostume(0),!this.defaultColliderNone&&this.colliders.size===0&&this.costumes.length){let t="main";this.setCostumeCollider(t,0),this.switchCollider(t),this.updateColliderPosition(this.collider),this.updateColliderSize(this.collider)}if(!this.collider&&this.colliders.size){let t=this.colliders.keys().next().value;this.switchCollider(t),this.updateColliderPosition(this.collider),this.updateColliderSize(this.collider)}if(this.onReadyCallbacks.length){for(let t of this.onReadyCallbacks)t();this.onReadyCallbacks=[]}this.stage.eventEmitter.emit(R.SPRITE_READY_EVENT,{sprite:this,stageId:this.stage.id})}}};var V=class{constructor(t){this.context=t}execute(t,e){return i=>{let s=i.state;if(this.context instanceof $){if(this.context.deleted)return!1;if(this.context.stopped)return!0}if(i.timeout&&e&&(i.timeout+=e),!i.timeout||i.timeout<=t){let n=i.callback.bind(this.context)(this.context,s);if(s.maxIterations&&s.currentIteration++,n===!1||i.timeout&&!s.interval&&!s.maxIterations||s.maxIterations&&s.currentIteration>=s.maxIterations)return i.finishCallback&&i.finishCallback(this.context,s),!1;s.interval&&(i.timeout=t+s.interval)}return!0}}};var dt=class{constructor(){this.x=0;this.y=0;this.zoom=1;this.direction=0}reset(){this.x=0,this.y=0,this.zoom=1,this.direction=0}};var ut=class{constructor(t){this._direction=0;this._zoom=1;this.stage=t,this._x=this.stage.width/2,this._y=this.stage.height/2,this.updateRenderRadius(),this.changes=new dt}set direction(t){let e=t%360;e=e<0?e+360:e,this.changes.direction=e-this._direction,this._direction=e}get direction(){return this._direction}get angleDirection(){return this._direction*Math.PI/180}get width(){return this.stage.width/this._zoom}get height(){return this.stage.height/this._zoom}set x(t){this.changes.x=t-this._x,this._x=t}get x(){return this._x}set y(t){this.changes.y=t-this._y,this._y=t}get y(){return this._y}get startCornerX(){return this._x-this.stage.width/2}get startCornerY(){return this._y-this.stage.height/2}get renderRadius(){return this._renderRadius}set zoom(t){if(this.changes.zoom==1){let e=t<.1?.1:t;this.changes.zoom=e/this._zoom,this._zoom=e,this.updateRenderRadius()}}get zoom(){return this._zoom}updateRenderRadius(){this._renderRadius=Math.hypot(this.width,this.height)/1.7}};var Ot=class{constructor(t=null){this.background=null;this.backgroundIndex=null;this.backgrounds=[];this.sprites=new Map;this.drawings=new Map;this.sounds=[];this.soundNames=[];this.addedSprites=0;this.loadedSprites=0;this.pendingBackgrounds=0;this.pendingSounds=0;this.pendingRun=!1;this.onReadyPending=!0;this.onReadyCallbacks=[];this.onStartCallbacks=[];this.scheduledCallbacks=[];this.tempScheduledCallbacks=[];this._stopped=!0;this._running=!1;this.stoppedTime=null;this.diffTime=null;if(!O.getInstance().has("game"))throw new Error("You need create Game instance before Stage instance.");this.game=O.getInstance().get("game");let e=this;return this.game.displayErrors&&(e=this.game.validatorFactory.createValidator(this,"Stage")),e.id=Symbol(),e.eventEmitter=new U,e.collisionSystem=new ot,e.canvas=e.game.canvas,e.context=e.game.context,t&&e.addBackground(t),e.addListeners(),e.game.addStage(e),e.scheduledCallbackExecutor=new V(e),e.stoppedTime=Date.now(),e.init(),e.camera=new ut(e),e}init(){}onStart(t){this.onStartCallbacks.push(t)}onReady(t){this.onReadyCallbacks.push(t)}get running(){return this._running}get stopped(){return this._stopped}isReady(){return this.addedSprites==this.loadedSprites&&this.pendingBackgrounds===0}get width(){return this.canvas.width}get height(){return this.canvas.height}set backgroundColor(t){this.drawBackground((e,i)=>{e.fillStyle=t,e.fillRect(0,0,i.width,i.height)})}drawBackground(t){let e=document.createElement("canvas"),i=e.getContext("2d");return e.width=this.width,e.height=this.height,this.pendingBackgrounds++,t(i,this),this.backgrounds.push(e),this.pendingBackgrounds--,this}addBackground(t){let e=new Image;e.src=t,this.pendingBackgrounds++;let i=()=>{let s=document.createElement("canvas"),n=s.getContext("2d");s.width=this.width,s.height=this.height,n.drawImage(e,0,0,this.width,this.height),this.backgrounds.push(s),this.pendingBackgrounds--,this.tryDoOnReady(),this.tryDoRun(),e.removeEventListener("load",i)};return e.addEventListener("load",i),e.addEventListener("error",()=>{this.game.throwError(y.BACKGROUND_NOT_LOADED,{backgroundPath:t})}),this}switchBackground(t){this.backgroundIndex=t;let e=this.backgrounds[t];e&&(this.background=e)}nextBackground(){let t=this.backgroundIndex+1;t>this.backgrounds.length-1&&(t=0),t!==this.backgroundIndex&&this.switchBackground(t)}addSound(t,e){this.soundNames.includes(e)&&this.game.throwError(y.SOUND_NAME_ALREADY_EXISTS,{soundName:e});let i=new Audio;i.src=t,this.sounds.push(i),this.soundNames.push(e),this.pendingSounds++,i.load();let s=()=>{this.pendingSounds--,this.tryDoOnReady(),i.removeEventListener("loadedmetadata",s)};return i.addEventListener("loadedmetadata",s),this}removeSound(t){let e=this.soundNames.indexOf(t);return e<0&&this.game.throwError(y.SOUND_NAME_NOT_FOUND,{soundName:t}),this.sounds.splice(e,1),this}playSound(t,e={}){let i=this.getSound(t);this.doPlaySound(i,e)}startSound(t,e={}){let i=this.cloneSound(t);return this.doPlaySound(i,e),i}pauseSound(t){this.getSound(t).pause()}getSound(t){this.isReady()||this.game.throwError(y.SOUND_USE_NOT_READY);let e=this.soundNames.indexOf(t);e<0&&this.game.throwError(y.SOUND_NAME_NOT_FOUND,{soundName:t});let i=this.sounds[e];return i instanceof Audio||this.game.throwError(y.SOUND_INDEX_NOT_FOUND,{soundIndex:e}),i}cloneSound(t){let e=this.getSound(t);return new Audio(e.src)}doPlaySound(t,e={}){e.volume!==void 0&&(t.volume=e.volume),e.currentTime!==void 0&&(t.currentTime=e.currentTime),e.loop!==void 0&&(t.loop=e.loop);let i=t.play();i!==void 0&&i.catch(s=>{s.name==="NotAllowedError"?this.game.throwError(y.SOUND_NOT_ALLOWED_ERROR,{},!1):console.error("Audio playback error:",s)})}addSprite(t){let e;return this.sprites.has(t.layer)?e=this.sprites.get(t.layer):(e=[],this.sprites.set(t.layer,e)),e.push(t),this.addedSprites++,this}removeSprite(t,e){this.sprites.has(e)||this.game.throwErrorRaw('The layer "'+e+'" not defined in the stage.');let i=this.sprites.get(e);return i.splice(i.indexOf(t),1),i.length||this.sprites.delete(e),(t.deleted||t.isReady())&&this.loadedSprites--,this.addedSprites--,this}getSprites(){return Array.from(this.sprites.values()).reduce((t,e)=>t.concat(e),[])}changeSpriteLayer(t,e,i){this.sprites.has(e)||this.game.throwErrorRaw('The layer "'+e+'" not defined in the stage.');let s=this.sprites.get(e);s.splice(s.indexOf(t),1),s.length||this.sprites.delete(e);let n=[];this.sprites.has(i)?n=this.sprites.get(i):this.sprites.set(i,n),n.push(t)}drawSprite(t){let e=t.getCostume(),i=e.image,s=t.imageCenterX-t.sourceWidth/2,n=t.imageCenterY-t.sourceHeight/2,r=t.sourceWidth,o=t.sourceHeight,a=t.globalDirection,l=t.rotateStyle,h=(t.sourceWidth-e.width*t.size/100)/2,u=(t.sourceHeight-e.height*t.size/100)/2,d=l==="normal"&&a!==0||l==="leftRight"&&a>180||t.opacity!==null||t.filter!==null&&t.filter!="";d&&this.context.save(),t.opacity!==null&&(this.context.globalAlpha=t.opacity),t.filter&&(this.context.filter=t.filter),l==="normal"&&a!==0&&(this.context.translate(s+r/2,n+o/2),this.context.rotate(t.globalAngleRadians),this.context.translate(-s-r/2,-n-o/2)),l==="leftRight"&&a>180?(this.context.scale(-1,1),this.context.drawImage(i,0,0,e.width,e.height,-s-r+h,n+u,e.width*t.size/100,e.height*t.size/100)):this.context.drawImage(i,0,0,e.width,e.height,s+h,n+u,e.width*t.size/100,e.height*t.size/100),d&&this.context.restore()}stampImage(t,e,i,s=0){if(this.background instanceof HTMLCanvasElement){let n=document.createElement("canvas"),r=n.getContext("2d");n.width=this.width,n.height=this.height,r.drawImage(this.background,0,0,this.width,this.height);let o=t instanceof HTMLImageElement?t.naturalWidth:t.width,a=t instanceof HTMLImageElement?t.naturalHeight:t.height,l=e-o/2,h=i-a/2;if(s!==0){let u=s*Math.PI/180;r.translate(l+o/2,h+a/2),r.rotate(u),r.translate(-l-o/2,-h-a/2)}r.drawImage(t,l,h,o,a),this.background=n,this.backgrounds[this.backgroundIndex]=this.background}}pen(t,e=0){let i;this.drawings.has(e)?i=this.drawings.get(e):(i=[],this.drawings.set(e,i)),i.push(t)}timeout(t,e){this.repeat(t,1,null,e,void 0)}repeat(t,e,i=null,s=null,n){let r=new H(i,e,0);return s&&(s=Date.now()+s),this.tempScheduledCallbacks.push(new Y(t,r,s,n)),r}forever(t,e=null,i=null,s){let n=new H(e);return i&&(i=Date.now()+i),this.tempScheduledCallbacks.push(new Y(t,n,i,s)),n}render(){this.update(),this.collisionSystem.update(),this.context.clearRect(this.camera.startCornerX-this.camera.width/this.camera.zoom/2,this.camera.startCornerY-this.camera.height/this.camera.zoom/2,this.width+this.camera.width/this.camera.zoom,this.height+this.camera.height/this.camera.zoom),this.background&&this.context.drawImage(this.background,0,0,this.width,this.height);let t=Array.from(this.sprites.keys()).concat(Array.from(this.drawings.keys()));t=t.filter((s,n)=>t.indexOf(s)===n),t=t.sort((s,n)=>s-n);for(let s of t){if(this.drawings.has(s)){let n=this.drawings.get(s);for(let r of n)r(this.context,this)}if(this.sprites.has(s)){let n=this.sprites.get(s);for(let r of n){if(r.hidden)continue;let o=Math.hypot(r.imageCenterX-this.camera.x,r.imageCenterY-this.camera.y),a=Math.hypot(r.sourceWidth,r.sourceHeight)/2*this.camera.zoom;if(o>this.camera.renderRadius+a)continue;if(this.game.debugMode!=="none"){let h=()=>{let u=r.imageCenterX-this.context.measureText(r.name).width/2,d=r.imageCenterY+r.height+20;this.context.fillStyle=this.game.debugColor,this.context.font="16px Arial",this.context.fillText(r.name,u,d),d+=20,this.context.font="14px Arial",this.context.fillText("x: "+r.x,u,d),d+=20,this.context.fillText("y: "+r.y,u,d),d+=20,this.context.fillText("direction: "+r.direction,u,d),d+=20,this.context.fillText("costume: "+r.getCostumeName(),u,d),d+=20,this.context.fillText("xOffset: "+r.pivotOffsetX,u,d),d+=20,this.context.fillText("yOffset: "+r.pivotOffsetY,u,d),this.context.beginPath(),this.context.moveTo(r.globalX-2,r.globalY),this.context.lineTo(r.globalX+2,r.globalY),this.context.moveTo(r.globalX,r.globalY-2),this.context.lineTo(r.globalX,r.globalY+2),this.context.stroke()};this.game.debugMode==="hover"&&r.touchMouse()&&h(),this.game.debugMode==="forever"&&h()}let l=r.getPhrase();l&&(this.context.font="20px Arial",this.context.fillStyle="black",this.context.fillText(l,40,this.canvas.height-40)),r.getCostume()&&this.drawSprite(r);for(let h of r.drawings)h(this.context,r)}}}this.game.debugCollider&&(this.context.strokeStyle=this.game.debugColor,this.context.beginPath(),this.collisionSystem.draw(this.context),this.context.stroke()),this.context.translate(-this.camera.changes.x,-this.camera.changes.y);let e=this.width/2+this.camera.startCornerX,i=this.height/2+this.camera.startCornerY;this.context.translate(e,i),this.context.scale(this.camera.changes.zoom,this.camera.changes.zoom),this.context.translate(-e,-i),this.camera.changes.reset()}update(){this.tempScheduledCallbacks.length&&(this.scheduledCallbacks=this.scheduledCallbacks.concat(this.tempScheduledCallbacks),this.tempScheduledCallbacks=[]),this.scheduledCallbacks=this.scheduledCallbacks.filter(this.scheduledCallbackExecutor.execute(Date.now(),this.diffTime)),this.sprites.forEach((t,e)=>{for(let i of t){if(i.deleted){this.removeSprite(i,e);return}i.update(this.diffTime)}}),this.diffTime=0}run(){if(this._stopped){this._stopped=!1;for(let t of this.sprites.values())for(let e of t)e.run();this.pendingRun=!0,this.tryDoRun()}}ready(){this.tryDoOnReady(),this.tryDoRun();for(let t of this.sprites.values())for(let e of t)e.ready()}stop(){if(!this._stopped){this._running=!1,this._stopped=!0;for(let t of this.sprites.values())for(let e of t)e.stop();this.stoppedTime=Date.now()}}tryDoOnReady(){if(this.onReadyPending&&this.isReady()){if(this.onReadyPending=!1,this.backgrounds.length&&this.backgroundIndex===null&&this.switchBackground(0),this.onReadyCallbacks.length){for(let t of this.onReadyCallbacks)t();this.onReadyCallbacks=[]}this.game.eventEmitter.emit(R.STAGE_READY_EVENT,{stage:this})}}doOnStart(){for(let t of this.onStartCallbacks)setTimeout(()=>{t()})}tryDoRun(){this.pendingRun&&!this._running&&this.isReady()&&(this._running=!0,this.pendingRun=!1,this.doOnStart(),this.diffTime=Date.now()-this.stoppedTime,setTimeout(()=>{let t=this.stoppedTime,e=()=>{this._stopped||t!==this.stoppedTime||(this.render(),requestAnimationFrame(e))};e()}))}addListeners(){this.eventEmitter.on(R.SPRITE_READY_EVENT,R.SPRITE_READY_EVENT,t=>{this.id==t.detail.stageId&&(this.loadedSprites++,this.tryDoOnReady(),this.tryDoRun())})}};var mt=class{constructor(t,e,i,s){this.trackedKeys=[];this.receiveDataConnections=[];this.userKeydownCallbacks=new Map;this.systemLockedChars={};this.userLockedChars={};this.systemMouseLocked=!1;this.userMouseLocked=!1;this.game=e,this.connection=i,s&&this.defineListeners();let n=i.connect(g.RECEIVE_DATA,(o,a)=>{let l=JSON.parse(o),h=l.char;if(!(!a.SendTime||a.Keydown!="true"||a.MemberId!=t.id||!this.trackedKeys.includes(h))){if(this.userKeydownCallbacks.has(h)){let u=this.userKeydownCallbacks.get(h)[0],d=(m,f=[h],b=!1)=>{b&&(this.userMouseLocked=m);for(let v of f)this.userLockedChars[v.toUpperCase()]=m},_=0,p=()=>{if(this.userLockedChars[h]!==!0||_>999){let m=l.sync;m&&e.syncObjects(m,this.game.calcDeltaTime(a.SendTime)),u(t,d)}else _++,setTimeout(p,50)};p()}this.systemLockedChars[h]=!1}});this.receiveDataConnections.push(n);let r=i.connect(g.RECEIVE_DATA,(o,a)=>{if(!(!a.SendTime||a.Mousedown!="true"||a.MemberId!=t.id)){if(this.userMousedownCallback){let l=this.userMousedownCallback[0],h=JSON.parse(o),u=h.mouseX,d=h.mouseY,_=h.sync,p=(b,v=[],C=!0)=>{C&&(this.userMouseLocked=b);for(let S of v)this.userLockedChars[S.toUpperCase()]=b},m=0,f=()=>{if(this.userMouseLocked!==!0||m>999){_&&e.syncObjects(_,this.game.calcDeltaTime(a.SendTime));let b=new N(u,d);l(b,t,p)}else m++,setTimeout(f,50)};f()}this.systemMouseLocked=!1}});this.receiveDataConnections.push(r)}defineListeners(){this.keydownCallback=t=>{let e=I.getChar(t.keyCode);if(!this.userKeydownCallbacks.has(e)||this.systemLockedChars[e]===!0||this.userLockedChars[e]===!0||!this.trackedKeys.includes(e))return;this.systemLockedChars[e]=!0;let i=this.userKeydownCallbacks.get(e)[1],s=this.userKeydownCallbacks.get(e)[2],n=this.game.packSyncData(i,s);this.connection.sendData(JSON.stringify({char:e,sync:n}),{Keydown:"true"})},this.mousedownCallback=t=>{if(!this.userMousedownCallback||this.systemMouseLocked||this.userMouseLocked)return;let e=this.game.correctMouseX(t.clientX),i=this.game.correctMouseY(t.clientY);if(!this.game.isInsideGame(e,i))return;this.systemMouseLocked=!0;let s=this.userMousedownCallback[1],n=this.userMousedownCallback[2],r=this.game.packSyncData(s,n);this.connection.sendData(JSON.stringify({mouseX:e,mouseY:i,sync:r}),{Mousedown:"true"})},document.addEventListener("keydown",this.keydownCallback),document.addEventListener("mousedown",this.mousedownCallback)}stop(){this.keydownCallback&&document.removeEventListener("keydown",this.keydownCallback);for(let t of this.receiveDataConnections)this.connection.disconnect(g.RECEIVE_DATA,t)}keyDown(t,e,i,s=[]){t=t.toUpperCase(),this.trackedKeys.includes(t)||this.trackedKeys.push(t),this.userKeydownCallbacks.set(t,[e,i,s])}removeKeyDownHandler(t){t=t.toUpperCase(),this.userKeydownCallbacks.delete(t)}mouseDown(t,e,i=[]){this.userMousedownCallback=[t,e,i]}removeMouseDownHandler(){this.userMousedownCallback=null}};var X=class{constructor(t,e){this.parent=t,this.properties=e}getMultiplayerName(){return this.parent.getMultiplayerName()}getSyncId(){return this.parent.getSyncId()}increaseSyncId(){return this.parent.increaseSyncId()}getSyncData(){let t={};for(let e of this.properties)this.parent[e]&&(t[e]=this.parent[e]);return t}setSyncData(t,e,i){this.parent.setSyncData(t,e,i)}onSync(t){throw new Error("Not implemented.")}removeSyncHandler(){throw new Error("Not implemented.")}only(...t){throw new Error("Not implemented.")}};var _t=class{constructor(t,e,i){this.deleted=!1;this.id=t,this._isMe=e,this.game=i,this.multiplayerName="player_"+t,this.syncId=1,this.control=new mt(this,this.game,i.connection,e),this.reservedProps=Object.keys(this),this.reservedProps.push("reservedProps")}keyDown(t,e,i,s=[]){this.control.keyDown(t,e,i,s)}removeKeyDownHandler(t){this.control.removeKeyDownHandler(t)}mouseDown(t,e,i=[]){this.control.mouseDown(t,e,i)}removeMouseDownHandler(){this.control.removeMouseDownHandler()}isMe(){return this._isMe}delete(){if(this.deleted)return;this.control.stop();let t=Object.keys(this);for(let e=0;e<t.length;e++)delete this[t[e]];this.deleted=!0}repeat(t,e,i,s){if(this.deleted){s();return}if(t<1){s();return}let n=e(this);if(n===!1){s();return}if(n>0&&(i=n),t--,t<1){s();return}setTimeout(()=>{requestAnimationFrame(()=>this.repeat(t,e,i,s))},i)}forever(t,e=null){if(this.deleted)return;let i=t(this);i!==!1&&(i>0&&(e=i),e?setTimeout(()=>{requestAnimationFrame(()=>this.forever(t,e))},e):requestAnimationFrame(()=>this.forever(t)))}timeout(t,e){setTimeout(()=>{this.deleted||requestAnimationFrame(()=>t(this))},e)}getMultiplayerName(){return this.multiplayerName}getSyncId(){return this.syncId}increaseSyncId(){return this.syncId++,this.syncId}getSyncData(){let t={};for(let e of Object.keys(this))this.reservedProps.includes(e)||(t[e]=this[e]);return t}setSyncData(t,e,i){let s={};for(let n in e)e.hasOwnProperty(n)&&!this.reservedProps.includes(n)&&(s[n]=this[n],this[n]=e[n]);this.syncCallback&&this.syncCallback(this,t,e,s,i)}onSync(t){this.syncCallback=t}removeSyncHandler(){this.syncCallback=null}only(...t){return new X(this,t)}};var pt=class extends ${constructor(t,e=null,i=1,s=[]){super(e,i,s),this.multiplayerName="sprite_"+t,this.syncId=1,this.reservedProps=Object.keys(this),this.reservedProps.push("body"),this.reservedProps.push("reservedProps")}generateUniqueId(){return Math.random().toString(36).slice(2)+"-"+Math.random().toString(36).slice(2)}getCustomerProperties(){let t={};for(let e of Object.keys(this))this.reservedProps.includes(e)||(t[e]=this[e]);return t}getMultiplayerName(){return this.multiplayerName}getSyncId(){return this.syncId}increaseSyncId(){return this.syncId++,this.syncId}getSyncData(){return Object.assign({},this.getCustomerProperties(),{size:this.size,rotateStyle:this.rotateStyle,costumeIndex:this.costumeIndex,deleted:this._deleted,x:this.x,y:this.y,direction:this.direction,hidden:this.hidden,stopped:this.stopped})}setSyncData(t,e,i){let s={};for(let n in e)e.hasOwnProperty(n)&&!this.reservedProps.includes(n)&&(s[n]=this[n],this[n]=e[n]);this.syncCallback&&this.syncCallback(this,t,e,s,i)}onSync(t){this.syncCallback=t}removeSyncHandler(){this.syncCallback=null}only(...t){return new X(this,t)}};var kt=class extends R{constructor(e,i,s,n,r=null,o=!0,a="ru",l=0,h=0,u={}){super(s,n,r,o,a);this.autoSyncGameTimeout=0;this.players=[];this.sharedObjects=[];this.autoSyncGameTimeout=h,this.initializeConnection(e,i,l,u)}send(e,i={},s,n=[]){if(!this.connection)throw new Error("Connection to the server is not established.");let r={data:e,sync:this.packSyncData(s,n)};this.connection.sendData(JSON.stringify(r),i)}sync(e,i=[],s={}){if(!i.length)return;s.SyncGame="true";let n=this.packSyncData(e,i);this.sendData(JSON.stringify(n),s)}syncGame(){let e=this.getSyncObjects(),i=this.packSyncData("game",e);this.sendData(JSON.stringify(i),{SyncGame:"true"})}onConnection(e){this.onConnectionCallback=e}removeConnectionHandler(e){this.onConnectionCallback=null}onReceive(e){this.onReceiveCallback=e}removeReceiveHandler(e){this.onReceiveCallback=null}onMemberJoined(e){this.onMemberJoinedCallback=e}removeMemberJoinedHandler(e){this.onMemberJoinedCallback=null}onMemberLeft(e){this.onMemberLeftCallback=e}removeMemberLeftHandler(e){this.onMemberLeftCallback=null}onGameStarted(e){this.onGameStartedCallback=e}removeGameStartedHandler(e){this.onGameStartedCallback=null}onGameStopped(e){this.onGameStoppedCallback=e}removeGameStoppedHandler(e){this.onGameStoppedCallback=null}onMultiplayerError(e){this.onMultiplayerErrorCallback=e}removeMultiplayerErrorHandler(e){this.onMultiplayerErrorCallback=null}run(){super.run(),this.isHost&&this.autoSyncGameTimeout&&this.autoSyncGame(this.autoSyncGameTimeout)}stop(){super.stop();for(let e of this.players)e.delete();this.players=[]}getPlayers(){return this.players}addSharedObject(e){this.sharedObjects.push(e)}removeSharedObject(e){let i=this.sharedObjects.indexOf(e);i>-1&&this.sharedObjects.splice(i,1)}getSharedObjects(){return this.sharedObjects}getMultiplayerSprites(){return this.getActiveStage()?this.getActiveStage().getSprites().filter(e=>e instanceof pt):[]}getSyncObjects(){let e=this.getMultiplayerSprites(),i=this.getPlayers(),s=this.getSharedObjects();return[...e,...i,...s]}syncObjects(e,i){let s=this.getSyncObjects();for(let[n,r]of Object.entries(e))for(let o of s)if(r[o.getMultiplayerName()]){let a=r[o.getMultiplayerName()];o.setSyncData(n,a,i)}}packSyncData(e,i){let s={};for(let r of i)s[r.getMultiplayerName()]=r.getSyncData(),s[r.getMultiplayerName()].syncId=r.increaseSyncId();let n={};return n[e]=s,n}sendData(e,i={}){if(!this.connection)throw new Error("Connection to the server is not established.");this.connection.sendData(e,i)}calcDeltaTime(e){return Date.now()-e-this.connection.deltaTime}extrapolate(e,i,s){let n=Math.round(i/s*.75);for(let r=0;r<n;r++)e()}async initializeConnection(e,i,s,n={}){let r=new g(e);try{this.connection=await r.connect(i,s,n),this.onConnectionCallback&&this.onConnectionCallback(this.connection),this.connection.connect(g.RECEIVE_DATA,(o,a,l)=>{if(!(!o||!this.running||!a.SendTime)){if(a.SyncGame==="true"){let h=JSON.parse(o);this.syncObjects(h,this.calcDeltaTime(a.SendTime))}else if(a.Keydown!=="true"&&a.Mousedown!=="true"&&this.onReceiveCallback){o=JSON.parse(o);let h=o.userData,u=o.sync;this.syncObjects(u,this.calcDeltaTime(a.SendTime)),this.onReceiveCallback(h,a,l)}}}),this.connection.connect(g.MEMBER_JOINED,(o,a)=>{this.onMemberJoinedCallback&&this.onMemberJoinedCallback(o,a)}),this.connection.connect(g.MEMBER_LEFT,(o,a)=>{this.onMemberLeftCallback&&this.onMemberLeftCallback(o,a)}),this.connection.connect(g.GAME_STARTED,o=>{let a=o.HostId,l=o.Members?.split(",")??[];this.players=l.map(h=>new _t(h,h===this.connection.memberId,this)),this.isHost=a===this.connection.memberId,this.onGameStartedCallback&&this.onGameStartedCallback(this.players,o)}),this.connection.connect(g.GAME_STOPPED,o=>{this.onGameStoppedCallback&&this.onGameStoppedCallback(o)}),this.connection.connect(g.ERROR,o=>{this.onMultiplayerError&&this.onMultiplayerError(o)})}catch(o){console.error(o)}}autoSyncGame(e){setInterval(()=>{this.syncGame()},e)}};var Tt=class{constructor(t){if(this.multiplayerName="data_"+t,this.syncId=1,!O.getInstance().has("game"))throw new Error("You need create Game instance before Sprite instance.");O.getInstance().get("game").addSharedObject(this)}generateUniqueId(){return Math.random().toString(36).slice(2)+"-"+Math.random().toString(36).slice(2)}getMultiplayerName(){return this.multiplayerName}getSyncId(){return this.syncId}increaseSyncId(){return this.syncId++,this.syncId}getSyncData(){let t={};for(let e of Object.keys(this))t[e]=this[e];return t}setSyncData(t,e,i){let s={};for(let n in e)e.hasOwnProperty(n)&&(s[n]=this[n],this[n]=e[n]);this.syncCallback&&this.syncCallback(this,t,e,s,i)}onSync(t){this.syncCallback=t}removeSyncHandler(){this.syncCallback=null}only(...t){return new X(this,t)}};0&&(module.exports={BVH,BVHBranch,Camera,CameraChanges,CircleCollider,Collider,CollisionResult,CollisionSystem,Costume,ErrorMessages,EventEmitter,Game,JetcodeSocket,JetcodeSocketConnection,Keyboard,KeyboardMap,Mouse,MultiplayerControl,MultiplayerGame,MultiplayerSprite,OrphanSharedData,Player,PointCollider,PolygonCollider,Registry,SAT,ScheduledCallbackExecutor,ScheduledCallbackItem,ScheduledState,SharedData,Sprite,Stage,Styles,ValidatorFactory,aabbAABB,circleCircle,polygonCircle,polygonPolygon,separatingAxis});
+//# sourceMappingURL=scrub.js.map   }
     }
-    Object.defineProperty(Camera.prototype, "direction", {
-        get: function () {
-            return this._direction;
-        },
-        set: function (value) {
-            var direction = value % 360;
-            direction = direction < 0 ? direction + 360 : direction;
-            this.changes.direction = direction - this._direction;
-            this._direction = direction;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Camera.prototype, "angleDirection", {
-        get: function () {
-            return this._direction * Math.PI / 180;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Camera.prototype, "width", {
-        get: function () {
-            return this.stage.width / this._zoom;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Camera.prototype, "height", {
-        get: function () {
-            return this.stage.height / this._zoom;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Camera.prototype, "x", {
-        get: function () {
-            return this._x;
-        },
-        set: function (value) {
-            this.changes.x = value - this._x;
-            this._x = value;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Camera.prototype, "y", {
-        get: function () {
-            return this._y;
-        },
-        set: function (value) {
-            this.changes.y = value - this._y;
-            this._y = value;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Camera.prototype, "startCornerX", {
-        get: function () {
-            return this._x - this.stage.width / 2;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Camera.prototype, "startCornerY", {
-        get: function () {
-            return this._y - this.stage.height / 2;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Camera.prototype, "renderRadius", {
-        get: function () {
-            return this._renderRadius;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Camera.prototype, "zoom", {
-        get: function () {
-            return this._zoom;
-        },
-        set: function (value) {
-            if (this.changes.zoom == 1) {
-                var newZoom = value < 0.1 ? 0.1 : value;
-                this.changes.zoom = newZoom / this._zoom;
-                this._zoom = newZoom;
-                this.updateRenderRadius();
-            }
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Camera.prototype.updateRenderRadius = function () {
-        this._renderRadius = Math.hypot(this.width, this.height) / 1.7;
-    };
-    return Camera;
-}());
-var CameraChanges = (function () {
-    function CameraChanges() {
-        this.x = 0;
-        this.y = 0;
-        this.zoom = 1;
-        this.direction = 0;
+    if (collider) {
+      this.updateColliderPosition(collider);
     }
-    CameraChanges.prototype.reset = function () {
-        this.x = 0;
-        this.y = 0;
-        this.zoom = 1;
-        this.direction = 0;
-    };
-    return CameraChanges;
-}());
-var Costume = (function () {
-    function Costume() {
-        this.ready = false;
+  }
+  updateColliderSize(collider) {
+    if (collider instanceof PolygonCollider) {
+      collider.scale_x = this.size / 100;
+      collider.scale_y = this.size / 100;
+    } else if (collider instanceof CircleCollider) {
+      collider.scale = this.size / 100;
     }
-    Object.defineProperty(Costume.prototype, "width", {
-        get: function () {
-            if (this.image instanceof HTMLCanvasElement) {
-                return this.image.width;
-            }
-            return 0;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Costume.prototype, "height", {
-        get: function () {
-            if (this.image instanceof HTMLCanvasElement) {
-                return this.image.height;
-            }
-            return 0;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    return Costume;
-}());
-var EventEmitter = (function () {
-    function EventEmitter() {
-        this.callbacksMap = new Map();
-        this.eventTarget = new EventTarget();
+  }
+  /**
+   * Tags
+   */
+  addTag(tagName) {
+    if (!this.hasTag(tagName)) {
+      this._tags.push(tagName);
     }
-    EventEmitter.prototype.once = function (name, type, callback) {
-        var _this = this;
-        if (this.callbacksMap.get(name)) {
-            return false;
-        }
-        var wrapper = function (event) {
-            if (typeof callback === 'function') {
-                callback(event);
-            }
-            else {
-                callback.handleEvent(event);
-            }
-            _this.eventTarget.removeEventListener(type, wrapper);
-            _this.remove(name);
-        };
-        this.eventTarget.addEventListener(type, wrapper);
-        this.callbacksMap.set(name, { type: type, callback: wrapper });
-        return true;
-    };
-    EventEmitter.prototype.on = function (name, type, callback) {
-        if (this.callbacksMap.get(name)) {
-            return false;
-        }
-        this.eventTarget.addEventListener(type, callback);
-        this.callbacksMap.set(name, { type: type, callback: callback });
-        return true;
-    };
-    EventEmitter.prototype.emit = function (type, detail) {
-        this.eventTarget.dispatchEvent(new CustomEvent(type, { detail: detail }));
-    };
-    EventEmitter.prototype.remove = function (name) {
-        var item = this.callbacksMap.get(name);
-        if (!item) {
-            return false;
-        }
-        this.eventTarget.removeEventListener(item.type, item.callback);
-        this.callbacksMap.delete(name);
-        return true;
-    };
-    EventEmitter.prototype.removeByType = function (type) {
-        var _this = this;
-        this.callbacksMap.forEach(function (item, itemName) {
-            if (type === item.type) {
-                _this.eventTarget.removeEventListener(item.type, item.callback);
-                _this.callbacksMap.delete(itemName);
-            }
-        });
-    };
-    EventEmitter.prototype.clearAll = function () {
-        var _this = this;
-        this.callbacksMap.forEach(function (item) {
-            _this.eventTarget.removeEventListener(item.type, item.callback);
-        });
-        this.callbacksMap.clear();
-    };
-    return EventEmitter;
-}());
-var __values = (this && this.__values) || function(o) {
-    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
-    if (m) return m.call(o);
-    if (o && typeof o.length === "number") return {
-        next: function () {
-            if (o && i >= o.length) o = void 0;
-            return { value: o && o[i++], done: !o };
-        }
-    };
-    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
-};
-var Game = (function () {
-    function Game(width, height, canvasId, displayErrors, locale) {
-        if (width === void 0) { width = null; }
-        if (height === void 0) { height = null; }
-        if (canvasId === void 0) { canvasId = null; }
-        if (displayErrors === void 0) { displayErrors = true; }
-        if (locale === void 0) { locale = 'ru'; }
-        this.debugMode = 'none';
-        this.debugCollider = false;
-        this.debugColor = 'red';
-        this.stages = [];
-        this.activeStage = null;
-        this.styles = null;
-        this.loadedStages = 0;
-        this.onReadyCallbacks = [];
-        this.onUserInteractedCallbacks = [];
-        this.onReadyPending = true;
-        this.running = false;
-        this.pendingRun = false;
-        this.reportedError = false;
-        this._displayErrors = true;
-        this._locale = 'ru';
-        this._userInteracted = false;
-        this._displayErrors = displayErrors;
-        this._locale = locale;
-        this.validatorFactory = new ValidatorFactory(this);
-        var game = this;
-        if (this.displayErrors) {
-            game = this.validatorFactory.createValidator(this, 'Game');
-        }
-        window.onerror = function () {
-            game.reportError(ErrorMessages.getMessage(ErrorMessages.SCRIPT_ERROR, game._locale));
-        };
-        game.id = Symbol();
-        game.eventEmitter = new EventEmitter();
-        game.keyboard = new Keyboard();
-        if (canvasId) {
-            var element = document.getElementById(canvasId);
-            if (element instanceof HTMLCanvasElement) {
-                game.canvas = element;
-            }
-        }
-        else {
-            game.canvas = document.createElement('canvas');
-            document.body.appendChild(game.canvas);
-        }
-        game.canvas.width = width;
-        game.canvas.height = height;
-        game.styles = new Styles(game.canvas, width, height);
-        game.mouse = new Mouse(game);
-        game.context = game.canvas.getContext('2d');
-        Registry.getInstance().set('game', game);
-        game.addListeners();
-        return game;
+    for (const child of this._children) {
+      child.addTag(tagName);
     }
-    Game.prototype.addStage = function (stage) {
-        this.stages.push(stage);
-        return this;
-    };
-    Game.prototype.getLastStage = function () {
-        if (!this.stages.length) {
-            return null;
-        }
-        return this.stages[this.stages.length - 1];
-    };
-    Game.prototype.getActiveStage = function () {
-        if (this.activeStage) {
-            return this.activeStage;
-        }
-        return null;
-    };
-    Game.prototype.run = function (stage) {
-        var e_1, _a;
-        if (stage === void 0) { stage = null; }
-        if (!stage && this.stages.length) {
-            stage = this.stages[0];
-        }
-        if (!stage) {
-            this.throwError(ErrorMessages.NEED_STAGE_BEFORE_RUN_GAME);
-        }
-        if (!this.running) {
-            try {
-                for (var _b = __values(this.stages), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var inStage = _c.value;
-                    inStage.ready();
-                }
-            }
-            catch (e_1_1) { e_1 = { error: e_1_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_1) throw e_1.error; }
-            }
-        }
-        if (this.activeStage && this.activeStage.running) {
-            this.activeStage.stop();
-        }
-        this.running = false;
-        this.pendingRun = true;
-        this.activeStage = stage;
-        this.tryDoRun();
-    };
-    Game.prototype.isReady = function () {
-        return this.loadedStages == this.stages.length;
-    };
-    Game.prototype.onReady = function (callback) {
-        this.onReadyCallbacks.push(callback);
-    };
-    Game.prototype.onUserInteracted = function (callback) {
-        this.onUserInteractedCallbacks.push(callback);
-    };
-    Game.prototype.stop = function () {
-        if (this.activeStage && this.activeStage.running) {
-            this.activeStage.stop();
-        }
-        this.running = false;
-    };
-    Object.defineProperty(Game.prototype, "displayErrors", {
-        get: function () {
-            return this._displayErrors;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Game.prototype, "locale", {
-        get: function () {
-            return this._locale;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Game.prototype, "width", {
-        get: function () {
-            return this.canvas.width;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Game.prototype, "height", {
-        get: function () {
-            return this.canvas.height;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Game.prototype, "userInteracted", {
-        get: function () {
-            return this._userInteracted;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Game.prototype.isInsideGame = function (x, y) {
-        return x >= 0 && x <= this.width && y >= 0 && y <= this.height;
-    };
-    Game.prototype.correctMouseX = function (mouseX) {
-        return mouseX - this.styles.canvasRect.left;
-    };
-    Game.prototype.correctMouseY = function (mouseY) {
-        return mouseY - this.styles.canvasRect.top;
-    };
-    Game.prototype.keyPressed = function (char) {
-        var e_2, _a;
-        if (Array.isArray(char)) {
-            try {
-                for (var char_1 = __values(char), char_1_1 = char_1.next(); !char_1_1.done; char_1_1 = char_1.next()) {
-                    var oneChar = char_1_1.value;
-                    var pressed = this.keyboard.keyPressed(oneChar);
-                    if (pressed) {
-                        return true;
-                    }
-                }
-            }
-            catch (e_2_1) { e_2 = { error: e_2_1 }; }
-            finally {
-                try {
-                    if (char_1_1 && !char_1_1.done && (_a = char_1.return)) _a.call(char_1);
-                }
-                finally { if (e_2) throw e_2.error; }
-            }
-            return false;
-        }
-        return this.keyboard.keyPressed(char);
-    };
-    Game.prototype.keyDown = function (char, callback) {
-        this.keyboard.keyDown(char, callback);
-    };
-    Game.prototype.keyUp = function (char, callback) {
-        this.keyboard.keyUp(char, callback);
-    };
-    Game.prototype.mouseDown = function () {
-        return this.mouse.isMouseDown(this.activeStage);
-    };
-    Game.prototype.mouseDownOnce = function () {
-        var isMouseDown = this.mouse.isMouseDown(this.activeStage);
-        this.mouse.clearMouseDown();
-        return isMouseDown;
-    };
-    Game.prototype.getMousePoint = function () {
-        return this.mouse.getPoint();
-    };
-    Game.prototype.getRandom = function (min, max) {
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    };
-    Game.prototype.throwError = function (messageId, variables, reportError) {
-        if (variables === void 0) { variables = null; }
-        if (reportError === void 0) { reportError = true; }
-        var message = ErrorMessages.getMessage(messageId, this.locale, variables);
-        this.throwErrorRaw(message, reportError);
-    };
-    Game.prototype.throwErrorRaw = function (message, reportError) {
-        if (reportError === void 0) { reportError = true; }
-        if (reportError) {
-            this.reportError(message);
-        }
-        throw new Error(message);
-    };
-    Game.prototype.reportError = function (message) {
-        if (this._displayErrors && !this.reportedError) {
-            alert(message);
-            this.reportedError = true;
-        }
-    };
-    Game.prototype.addListeners = function () {
-        var _this = this;
-        this.eventEmitter.on(Game.STAGE_READY_EVENT, Game.STAGE_READY_EVENT, function (event) {
-            _this.loadedStages++;
-            _this.tryDoOnReady();
-        });
-        document.addEventListener('visibilitychange', function () {
-            if (document.hidden) {
-                if (_this.activeStage && _this.activeStage.running) {
-                    _this.activeStage.stop();
-                }
-            }
-            else {
-                if (_this.activeStage && _this.activeStage.stopped) {
-                    _this.activeStage.run();
-                }
-            }
-        });
-        this.userInteractionPromise = new Promise(function (resolve) {
-            document.addEventListener('click', resolve, { once: true });
-            document.addEventListener('keydown', function (event) {
-                var excludedKeys = ['Control', 'Shift', 'CapsLock', 'NumLock', 'Alt', 'Meta'];
-                if (!excludedKeys.includes(event.key)) {
-                    resolve(true);
-                }
-            }, { once: true });
-        });
-    };
-    Game.prototype.tryDoOnReady = function () {
-        var e_3, _a;
-        var _this = this;
-        if (this.isReady() && this.onReadyPending) {
-            this.onReadyPending = false;
-            if (this.onReadyCallbacks.length) {
-                try {
-                    for (var _b = __values(this.onReadyCallbacks), _c = _b.next(); !_c.done; _c = _b.next()) {
-                        var callback = _c.value;
-                        callback();
-                    }
-                }
-                catch (e_3_1) { e_3 = { error: e_3_1 }; }
-                finally {
-                    try {
-                        if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                    }
-                    finally { if (e_3) throw e_3.error; }
-                }
-                this.onReadyCallbacks = [];
-            }
-            this.userInteractionPromise.then(function () {
-                _this._userInteracted = true;
-                _this.onUserInteractedCallbacks.filter(function (callback) {
-                    callback(_this);
-                    return false;
-                });
-            });
-            this.tryDoRun();
-        }
-    };
-    Game.prototype.tryDoRun = function () {
-        if (this.pendingRun && !this.running && this.isReady()) {
-            this.running = true;
-            this.pendingRun = false;
-            this.activeStage.run();
-        }
-    };
-    Game.STAGE_READY_EVENT = 'scrubjs.stage.ready';
-    Game.STAGE_BACKGROUND_READY_EVENT = 'scrubjs.stage.background_ready';
-    Game.SPRITE_READY_EVENT = 'scrubjs.sprite.ready';
-    return Game;
-}());
-var KeyboardMap = (function () {
-    function KeyboardMap() {
+    return this;
+  }
+  removeTag(tagName) {
+    const foundIndex = this._tags.indexOf(tagName);
+    if (foundIndex > -1) {
+      this._tags.splice(foundIndex, 1);
     }
-    KeyboardMap.getChar = function (keyCode) {
-        return KeyboardMap.map[keyCode];
-    };
-    KeyboardMap.map = [
-        '',
-        '',
-        '',
-        'CANCEL',
-        '',
-        '',
-        'HELP',
-        '',
-        'BACK_SPACE',
-        'TAB',
-        '',
-        '',
-        'CLEAR',
-        'ENTER',
-        'ENTER_SPECIAL',
-        '',
-        'SHIFT',
-        'CONTROL',
-        'ALT',
-        'PAUSE',
-        'CAPS_LOCK',
-        'KANA',
-        'EISU',
-        'JUNJA',
-        'FINAL',
-        'HANJA',
-        '',
-        'ESCAPE',
-        'CONVERT',
-        'NONCONVERT',
-        'ACCEPT',
-        'MODECHANGE',
-        'SPACE',
-        'PAGE_UP',
-        'PAGE_DOWN',
-        'END',
-        'HOME',
-        'LEFT',
-        'UP',
-        'RIGHT',
-        'DOWN',
-        'SELECT',
-        'PRINT',
-        'EXECUTE',
-        'PRINTSCREEN',
-        'INSERT',
-        'DELETE',
-        '',
-        '0',
-        '1',
-        '2',
-        '3',
-        '4',
-        '5',
-        '6',
-        '7',
-        '8',
-        '9',
-        'COLON',
-        'SEMICOLON',
-        'LESS_THAN',
-        'EQUALS',
-        'GREATER_THAN',
-        'QUESTION_MARK',
-        'AT',
-        'A',
-        'B',
-        'C',
-        'D',
-        'E',
-        'F',
-        'G',
-        'H',
-        'I',
-        'J',
-        'K',
-        'L',
-        'M',
-        'N',
-        'O',
-        'P',
-        'Q',
-        'R',
-        'S',
-        'T',
-        'U',
-        'V',
-        'W',
-        'X',
-        'Y',
-        'Z',
-        'OS_KEY',
-        '',
-        'CONTEXT_MENU',
-        '',
-        'SLEEP',
-        'NUMPAD0',
-        'NUMPAD1',
-        'NUMPAD2',
-        'NUMPAD3',
-        'NUMPAD4',
-        'NUMPAD5',
-        'NUMPAD6',
-        'NUMPAD7',
-        'NUMPAD8',
-        'NUMPAD9',
-        'MULTIPLY',
-        'ADD',
-        'SEPARATOR',
-        'SUBTRACT',
-        'DECIMAL',
-        'DIVIDE',
-        'F1',
-        'F2',
-        'F3',
-        'F4',
-        'F5',
-        'F6',
-        'F7',
-        'F8',
-        'F9',
-        'F10',
-        'F11',
-        'F12',
-        'F13',
-        'F14',
-        'F15',
-        'F16',
-        'F17',
-        'F18',
-        'F19',
-        'F20',
-        'F21',
-        'F22',
-        'F23',
-        'F24',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        'NUM_LOCK',
-        'SCROLL_LOCK',
-        'WIN_OEM_FJ_JISHO',
-        'WIN_OEM_FJ_MASSHOU',
-        'WIN_OEM_FJ_TOUROKU',
-        'WIN_OEM_FJ_LOYA',
-        'WIN_OEM_FJ_ROYA',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        'CIRCUMFLEX',
-        'EXCLAMATION',
-        'DOUBLE_QUOTE',
-        'HASH',
-        'DOLLAR',
-        'PERCENT',
-        'AMPERSAND',
-        'UNDERSCORE',
-        'OPEN_PAREN',
-        'CLOSE_PAREN',
-        'ASTERISK',
-        'PLUS',
-        'PIPE',
-        'HYPHEN_MINUS',
-        'OPEN_CURLY_BRACKET',
-        'CLOSE_CURLY_BRACKET',
-        'TILDE',
-        '',
-        '',
-        '',
-        '',
-        'VOLUME_MUTE',
-        'VOLUME_DOWN',
-        'VOLUME_UP',
-        '',
-        '',
-        'SEMICOLON',
-        'EQUALS',
-        'COMMA',
-        'MINUS',
-        'PERIOD',
-        'SLASH',
-        'BACK_QUOTE',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        'OPEN_BRACKET',
-        'BACK_SLASH',
-        'CLOSE_BRACKET',
-        'QUOTE',
-        '',
-        'META',
-        'ALTGR',
-        '',
-        'WIN_ICO_HELP',
-        'WIN_ICO_00',
-        '',
-        'WIN_ICO_CLEAR',
-        '',
-        '',
-        'WIN_OEM_RESET',
-        'WIN_OEM_JUMP',
-        'WIN_OEM_PA1',
-        'WIN_OEM_PA2',
-        'WIN_OEM_PA3',
-        'WIN_OEM_WSCTRL',
-        'WIN_OEM_CUSEL',
-        'WIN_OEM_ATTN',
-        'WIN_OEM_FINISH',
-        'WIN_OEM_COPY',
-        'WIN_OEM_AUTO',
-        'WIN_OEM_ENLW',
-        'WIN_OEM_BACKTAB',
-        'ATTN',
-        'CRSEL',
-        'EXSEL',
-        'EREOF',
-        'PLAY',
-        'ZOOM',
-        '',
-        'PA1',
-        'WIN_OEM_CLEAR',
-        ''
-    ];
-    return KeyboardMap;
-}());
-var MultiplayerControl = (function () {
-    function MultiplayerControl(player, game, connection, isMe) {
-        var _this = this;
-        this.trackedKeys = [];
-        this.receiveDataConnections = [];
-        this.userKeydownCallbacks = new Map();
-        this.systemLockedChars = {};
-        this.userLockedChars = {};
-        this.systemMouseLocked = false;
-        this.userMouseLocked = false;
-        this.game = game;
-        this.connection = connection;
-        if (isMe) {
-            this.defineListeners();
-        }
-        var keydownConnection = connection.connect(JetcodeSocket.RECEIVE_DATA, function (dataJson, parameters) {
-            var data = JSON.parse(dataJson);
-            var char = data['char'];
-            if (!parameters.SendTime || parameters.Keydown != 'true' || parameters.MemberId != player.id || !_this.trackedKeys.includes(char)) {
-                return;
-            }
-            if (_this.userKeydownCallbacks.has(char)) {
-                var callback_1 = _this.userKeydownCallbacks.get(char)[0];
-                var block_1 = function (isBlock, chars, mouse) {
-                    var e_4, _a;
-                    if (chars === void 0) { chars = [char]; }
-                    if (mouse === void 0) { mouse = false; }
-                    if (mouse) {
-                        _this.userMouseLocked = isBlock;
-                    }
-                    try {
-                        for (var chars_1 = __values(chars), chars_1_1 = chars_1.next(); !chars_1_1.done; chars_1_1 = chars_1.next()) {
-                            var char_2 = chars_1_1.value;
-                            _this.userLockedChars[char_2.toUpperCase()] = isBlock;
-                        }
-                    }
-                    catch (e_4_1) { e_4 = { error: e_4_1 }; }
-                    finally {
-                        try {
-                            if (chars_1_1 && !chars_1_1.done && (_a = chars_1.return)) _a.call(chars_1);
-                        }
-                        finally { if (e_4) throw e_4.error; }
-                    }
-                };
-                var attempts_1 = 0;
-                var handler_1 = function () {
-                    if (_this.userLockedChars[char] !== true || attempts_1 > 999) {
-                        var syncData = data['sync'];
-                        if (syncData) {
-                            game.syncObjects(syncData, _this.game.calcDeltaTime(parameters.SendTime));
-                        }
-                        callback_1(player, block_1);
-                    }
-                    else {
-                        attempts_1++;
-                        setTimeout(handler_1, 50);
-                    }
-                };
-                handler_1();
-            }
-            _this.systemLockedChars[char] = false;
-        });
-        this.receiveDataConnections.push(keydownConnection);
-        var mousedownConnection = connection.connect(JetcodeSocket.RECEIVE_DATA, function (dataJson, parameters) {
-            if (!parameters.SendTime || parameters.Mousedown != 'true' || parameters.MemberId != player.id) {
-                return;
-            }
-            if (_this.userMousedownCallback) {
-                var callback_2 = _this.userMousedownCallback[0];
-                var data = JSON.parse(dataJson);
-                var mouseX_1 = data['mouseX'];
-                var mouseY_1 = data['mouseY'];
-                var syncData_1 = data['sync'];
-                var block_2 = function (isBlock, chars, mouse) {
-                    var e_5, _a;
-                    if (chars === void 0) { chars = []; }
-                    if (mouse === void 0) { mouse = true; }
-                    if (mouse) {
-                        _this.userMouseLocked = isBlock;
-                    }
-                    try {
-                        for (var chars_2 = __values(chars), chars_2_1 = chars_2.next(); !chars_2_1.done; chars_2_1 = chars_2.next()) {
-                            var char = chars_2_1.value;
-                            _this.userLockedChars[char.toUpperCase()] = isBlock;
-                        }
-                    }
-                    catch (e_5_1) { e_5 = { error: e_5_1 }; }
-                    finally {
-                        try {
-                            if (chars_2_1 && !chars_2_1.done && (_a = chars_2.return)) _a.call(chars_2);
-                        }
-                        finally { if (e_5) throw e_5.error; }
-                    }
-                };
-                var attempts_2 = 0;
-                var handler_2 = function () {
-                    if (_this.userMouseLocked !== true || attempts_2 > 999) {
-                        if (syncData_1) {
-                            game.syncObjects(syncData_1, _this.game.calcDeltaTime(parameters.SendTime));
-                        }
-                        var mousePoint = new PointCollider(mouseX_1, mouseY_1);
-                        callback_2(mousePoint, player, block_2);
-                    }
-                    else {
-                        attempts_2++;
-                        setTimeout(handler_2, 50);
-                    }
-                };
-                handler_2();
-            }
-            _this.systemMouseLocked = false;
-        });
-        this.receiveDataConnections.push(mousedownConnection);
+    for (const child of this._children) {
+      child.addTag(tagName);
     }
-    MultiplayerControl.prototype.defineListeners = function () {
-        var _this = this;
-        this.keydownCallback = function (event) {
-            var char = KeyboardMap.getChar(event.keyCode);
-            if (!_this.userKeydownCallbacks.has(char) ||
-                _this.systemLockedChars[char] === true ||
-                _this.userLockedChars[char] === true ||
-                !_this.trackedKeys.includes(char)) {
-                return;
-            }
-            _this.systemLockedChars[char] = true;
-            var syncPackName = _this.userKeydownCallbacks.get(char)[1];
-            var syncData = _this.userKeydownCallbacks.get(char)[2];
-            var syncDataPacked = _this.game.packSyncData(syncPackName, syncData);
-            _this.connection.sendData(JSON.stringify({
-                'char': char,
-                'sync': syncDataPacked
-            }), {
-                Keydown: 'true'
-            });
-        };
-        this.mousedownCallback = function (event) {
-            if (!_this.userMousedownCallback || _this.systemMouseLocked || _this.userMouseLocked) {
-                return;
-            }
-            var mouseX = _this.game.correctMouseX(event.clientX);
-            var mouseY = _this.game.correctMouseY(event.clientY);
-            if (!_this.game.isInsideGame(mouseX, mouseY)) {
-                return;
-            }
-            _this.systemMouseLocked = true;
-            var syncPackName = _this.userMousedownCallback[1];
-            var syncData = _this.userMousedownCallback[2];
-            var syncDataPacked = _this.game.packSyncData(syncPackName, syncData);
-            _this.connection.sendData(JSON.stringify({
-                'mouseX': mouseX,
-                'mouseY': mouseY,
-                'sync': syncDataPacked
-            }), {
-                Mousedown: 'true'
-            });
-        };
-        document.addEventListener('keydown', this.keydownCallback);
-        document.addEventListener('mousedown', this.mousedownCallback);
-    };
-    MultiplayerControl.prototype.stop = function () {
-        var e_6, _a;
-        if (this.keydownCallback) {
-            document.removeEventListener('keydown', this.keydownCallback);
-        }
-        try {
-            for (var _b = __values(this.receiveDataConnections), _c = _b.next(); !_c.done; _c = _b.next()) {
-                var connection = _c.value;
-                this.connection.disconnect(JetcodeSocket.RECEIVE_DATA, connection);
-            }
-        }
-        catch (e_6_1) { e_6 = { error: e_6_1 }; }
-        finally {
-            try {
-                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-            }
-            finally { if (e_6) throw e_6.error; }
-        }
-    };
-    MultiplayerControl.prototype.keyDown = function (char, callback, syncPackName, syncData) {
-        if (syncData === void 0) { syncData = []; }
-        char = char.toUpperCase();
-        if (!this.trackedKeys.includes(char)) {
-            this.trackedKeys.push(char);
-        }
-        this.userKeydownCallbacks.set(char, [callback, syncPackName, syncData]);
-    };
-    MultiplayerControl.prototype.removeKeyDownHandler = function (char) {
-        char = char.toUpperCase();
-        this.userKeydownCallbacks.delete(char);
-    };
-    MultiplayerControl.prototype.mouseDown = function (callback, syncPackName, syncData) {
-        if (syncData === void 0) { syncData = []; }
-        this.userMousedownCallback = [callback, syncPackName, syncData];
-    };
-    MultiplayerControl.prototype.removeMouseDownHandler = function () {
-        this.userMousedownCallback = null;
-    };
-    return MultiplayerControl;
-}());
-var __read = (this && this.__read) || function (o, n) {
-    var m = typeof Symbol === "function" && o[Symbol.iterator];
-    if (!m) return o;
-    var i = m.call(o), r, ar = [], e;
-    try {
-        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
+    return this;
+  }
+  hasTag(tagName) {
+    return this._tags.includes(tagName);
+  }
+  get tags() {
+    return this._tags;
+  }
+  /**
+   * Costumes
+   */
+  addCostume(costumePath, options) {
+    const costume = new Costume();
+    const costumeIndex = this.costumes.length;
+    const costumeName = (options?.name ?? "Costume") + "-" + costumeIndex;
+    this.costumes.push(costume);
+    this.costumeNames.push(costumeName);
+    this.pendingCostumes++;
+    const image = new Image();
+    image.src = costumePath;
+    if (options?.alphaColor) {
+      image.crossOrigin = "anonymous";
     }
-    catch (error) { e = { error: error }; }
-    finally {
-        try {
-            if (r && !r.done && (m = i["return"])) m.call(i);
-        }
-        finally { if (e) throw e.error; }
-    }
-    return ar;
-};
-var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
-    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
-        if (ar || !(i in from)) {
-            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-            ar[i] = from[i];
-        }
-    }
-    return to.concat(ar || Array.prototype.slice.call(from));
-};
-var Sprite = (function () {
-    function Sprite(stage, layer, costumePaths) {
-        var e_7, _a;
-        if (layer === void 0) { layer = 0; }
-        if (costumePaths === void 0) { costumePaths = []; }
-        this.name = 'No name';
-        this.game = null;
-        this.stage = null;
-        this._parentSprite = null;
-        this._collidedSprite = null;
-        this._original = null;
-        this.costumeIndex = null;
-        this.costume = null;
-        this.costumes = [];
-        this.costumeNames = [];
-        this.sounds = [];
-        this.soundNames = [];
-        this.currentColliderName = null;
-        this.colliders = new Map;
-        this.phrase = null;
-        this.phraseLiveTime = null;
-        this._x = 0;
-        this._y = 0;
-        this._pivotOffsetX = 0;
-        this._pivotOffsetY = 0;
-        this._width = 0;
-        this._height = 0;
-        this._defaultColliderNone = false;
-        this._direction = 0;
-        this._size = 100;
-        this._centerDistance = 0;
-        this._centerAngle = 0;
-        this._rotateStyle = 'normal';
-        this._hidden = false;
-        this._opacity = null;
-        this._filter = null;
-        this._deleted = false;
-        this._stopped = true;
-        this.pendingCostumeGrids = 0;
-        this.pendingCostumes = 0;
-        this.pendingSounds = 0;
-        this._children = [];
-        this.onReadyCallbacks = [];
-        this.onReadyPending = true;
-        this.scheduledCallbacks = [];
-        this.tempScheduledCallbacks = [];
-        this._drawings = [];
-        this._tags = [];
-        if (!Registry.getInstance().has('game')) {
-            throw new Error('You need create Game instance before Stage instance.');
-        }
-        this.game = Registry.getInstance().get('game');
-        var sprite = this;
-        if (this.game.displayErrors) {
-            sprite = this.game.validatorFactory.createValidator(this, 'Sprite');
-        }
-        sprite.id = Symbol();
-        sprite.eventEmitter = new EventEmitter();
-        sprite.collisionResult = new CollisionResult();
-        sprite.stage = stage;
-        if (!this.stage) {
-            sprite.stage = this.game.getLastStage();
-        }
-        if (!sprite.stage) {
-            sprite.game.throwError(ErrorMessages.NEED_CREATE_STAGE_BEFORE_SPRITE);
-        }
-        sprite._layer = layer;
-        sprite._x = sprite.game.width / 2;
-        sprite._y = sprite.game.height / 2;
-        try {
-            for (var costumePaths_1 = __values(costumePaths), costumePaths_1_1 = costumePaths_1.next(); !costumePaths_1_1.done; costumePaths_1_1 = costumePaths_1.next()) {
-                var costumePath = costumePaths_1_1.value;
-                sprite.addCostume(costumePath);
-            }
-        }
-        catch (e_7_1) { e_7 = { error: e_7_1 }; }
-        finally {
-            try {
-                if (costumePaths_1_1 && !costumePaths_1_1.done && (_a = costumePaths_1.return)) _a.call(costumePaths_1);
-            }
-            finally { if (e_7) throw e_7.error; }
-        }
-        sprite.scheduledCallbackExecutor = new ScheduledCallbackExecutor(sprite);
-        sprite.stage.addSprite(sprite);
-        sprite.init();
-        return sprite;
-    }
-    Sprite.prototype.init = function () { };
-    Sprite.prototype.onReady = function (callback) {
-        this.onReadyCallbacks.push(callback);
+    const onLoadImage = () => {
+      if (this.deleted) {
+        return;
+      }
+      const transformedImage = this.transformImage(
+        image,
+        options?.rotate ?? 0,
+        options?.flipX ?? false,
+        options?.flipY ?? false,
+        options?.x ?? 0,
+        options?.y ?? 0,
+        options?.width ?? image.naturalWidth,
+        options?.height ?? image.naturalHeight,
+        options?.alphaColor ?? null,
+        options?.alphaTolerance ?? 0,
+        options?.crop ?? 0,
+        options?.cropTop ?? null,
+        options?.cropRight ?? null,
+        options?.cropBottom ?? null,
+        options?.cropLeft ?? null
+      );
+      costume.image = transformedImage;
+      costume.ready = true;
+      this.pendingCostumes--;
+      this.tryDoOnReady();
+      image.removeEventListener("load", onLoadImage);
     };
-    Sprite.prototype.isReady = function () {
-        return this.pendingCostumes === 0 && this.pendingCostumeGrids === 0 && this.pendingSounds === 0;
-    };
-    Object.defineProperty(Sprite.prototype, "deleted", {
-        get: function () {
-            return this._deleted;
-        },
-        enumerable: false,
-        configurable: true
+    image.addEventListener("load", onLoadImage);
+    image.addEventListener("error", () => {
+      this.game.throwError(ErrorMessages.COSTUME_NOT_LOADED, { costumePath });
     });
-    Object.defineProperty(Sprite.prototype, "stopped", {
-        get: function () {
-            return this._stopped;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Sprite.prototype.setParent = function (parent) {
-        parent.addChild(this);
-        return this;
-    };
-    Sprite.prototype.addChild = function (child) {
-        var e_8, _a;
-        if (!this._children.includes(child)) {
-            this._children.push(child);
-            child.parent = this;
-            child.layer = this.layer;
-            child.x = 0;
-            child.y = 0;
-            child.direction = 0;
-            try {
-                for (var _b = __values(this.tags), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var tag = _c.value;
-                    child.addTag(tag);
-                }
+    return this;
+  }
+  addCostumeGrid(costumePath, options) {
+    const image = new Image();
+    image.src = costumePath;
+    let costumeName = options?.name ?? "Costume";
+    this.pendingCostumeGrids++;
+    const onLoadImage = () => {
+      image.naturalWidth;
+      image.naturalHeight;
+      let cols = options.cols;
+      let rows = options.rows;
+      let limit = options.limit;
+      let offset = options.offset;
+      const chunkWidth = image.naturalWidth / cols;
+      const chunkHeight = image.naturalHeight / rows;
+      let skip = false;
+      let costumeIndex = 0;
+      let x = 0;
+      let y = 0;
+      for (let i = 0; i < rows; i++) {
+        for (let t = 0; t < cols; t++) {
+          skip = false;
+          if (offset !== null) {
+            if (offset > 0) {
+              offset--;
+              skip = true;
             }
-            catch (e_8_1) { e_8 = { error: e_8_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_8) throw e_8.error; }
+          }
+          if (!skip) {
+            if (limit !== null) {
+              if (limit == 0) {
+                break;
+              }
+              if (limit > 0) {
+                limit--;
+              }
             }
-        }
-        child.parent = this;
-        return this;
-    };
-    Sprite.prototype.removeChild = function (child) {
-        var e_9, _a;
-        var foundChildIndex = this._children.indexOf(child);
-        if (foundChildIndex > -1) {
-            var child_1 = this._children[foundChildIndex];
-            child_1.parent = null;
-            try {
-                for (var _b = __values(this.tags), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var tag = _c.value;
-                    child_1.removeTag(tag);
-                }
-            }
-            catch (e_9_1) { e_9 = { error: e_9_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_9) throw e_9.error; }
-            }
-            this._children.splice(foundChildIndex, 1);
-        }
-        return this;
-    };
-    Sprite.prototype.getChildren = function () {
-        return this._children;
-    };
-    Object.defineProperty(Sprite.prototype, "parent", {
-        get: function () {
-            return this._parentSprite;
-        },
-        set: function (newParent) {
-            this._parentSprite = newParent;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Sprite.prototype.getMainSprite = function () {
-        if (this._parentSprite) {
-            return this._parentSprite.getMainSprite();
-        }
-        return this;
-    };
-    Sprite.prototype.switchCollider = function (colliderName) {
-        if (!this.colliders.has(colliderName)) {
-            this.game.throwError(ErrorMessages.COLLIDER_NAME_NOT_FOUND, { colliderName: colliderName });
-        }
-        if (this.currentColliderName === colliderName) {
-            return this;
-        }
-        var prevCollider = this.collider;
-        if (prevCollider) {
-            this.stage.collisionSystem.remove(prevCollider);
-        }
-        this.currentColliderName = colliderName;
-        var newCollider = this.collider;
-        this.stage.collisionSystem.insert(newCollider);
-        this._width = newCollider.width;
-        this._height = newCollider.height;
-        return this;
-    };
-    Sprite.prototype.setCollider = function (colliderName, collider, offsetX, offsetY) {
-        if (offsetX === void 0) { offsetX = 0; }
-        if (offsetY === void 0) { offsetY = 0; }
-        collider.parentSprite = this;
-        collider.offset_x = offsetX;
-        collider.offset_y = offsetY;
-        if (this.currentColliderName === colliderName && this.colliders.has(colliderName)) {
-            var prevCollider = this.colliders.get(colliderName);
-            this.stage.collisionSystem.remove(prevCollider);
-            this.currentColliderName = null;
-        }
-        this.colliders.set(colliderName, collider);
-        this.updateColliderPosition(collider);
-        if (this.isReady() && !this.collider) {
-            this.switchCollider(colliderName);
-        }
-        return this;
-    };
-    Sprite.prototype.setRectCollider = function (colliderName, width, height, offsetX, offsetY) {
-        if (offsetX === void 0) { offsetX = 0; }
-        if (offsetY === void 0) { offsetY = 0; }
-        var angle = 0;
-        if (this._rotateStyle != 'leftRight') {
-            angle = this.globalAngleRadians;
-        }
-        var collider = new PolygonCollider(this.x, this.y, [
-            [(width / 2) * -1, (height / 2) * -1],
-            [width / 2, (height / 2) * -1],
-            [width / 2, height / 2],
-            [(width / 2) * -1, height / 2]
-        ], angle, this.size / 100, this.size / 100);
-        collider.width = width;
-        collider.height = height;
-        this.setCollider(colliderName, collider, offsetX, offsetY);
-        return this;
-    };
-    Sprite.prototype.setPolygonCollider = function (colliderName, points, offsetX, offsetY) {
-        if (offsetX === void 0) { offsetX = 0; }
-        if (offsetY === void 0) { offsetY = 0; }
-        var angleRadians = 0;
-        if (this._rotateStyle != 'leftRight') {
-            angleRadians = this.globalAngleRadians;
-        }
-        var centroid = this.calculateCentroid(points);
-        var centeredPoints = points.map(function (point) { return [
-            point[0] - centroid.x,
-            point[1] - centroid.y
-        ]; });
-        var collider = new PolygonCollider(this.x, this.y, centeredPoints, angleRadians, this.size / 100, this.size / 100);
-        var _a = this.calculatePolygonSize(centeredPoints), width = _a.width, height = _a.height;
-        collider.width = width;
-        collider.height = height;
-        this.setCollider(colliderName, collider, offsetX, offsetY);
-        return this;
-    };
-    Sprite.prototype.setCircleCollider = function (colliderName, radius, offsetX, offsetY) {
-        if (offsetX === void 0) { offsetX = 0; }
-        if (offsetY === void 0) { offsetY = 0; }
-        var collider = new CircleCollider(this.x, this.y, radius, this.size / 100);
-        collider.width = radius * 2;
-        collider.height = radius * 2;
-        this.setCollider(colliderName, collider, offsetX, offsetY);
-        return this;
-    };
-    Sprite.prototype.setCostumeCollider = function (colliderName, costumeIndex, offsetX, offsetY) {
-        if (costumeIndex === void 0) { costumeIndex = 0; }
-        if (offsetX === void 0) { offsetX = 0; }
-        if (offsetY === void 0) { offsetY = 0; }
-        if (this.costumes[costumeIndex] === undefined) {
-            this.game.throwError(ErrorMessages.COSTUME_INDEX_NOT_FOUND, { costumeIndex: costumeIndex });
-        }
-        var costume = this.costumes[costumeIndex];
-        this.setRectCollider(colliderName, costume.width, costume.height, offsetX, offsetY);
-        return this;
-    };
-    Sprite.prototype.removeCollider = function (colliderName) {
-        if (colliderName) {
-            this.removeColliderByName(colliderName);
-        }
-        else {
-            var collider = this.collider;
-            if (collider) {
-                this.stage.collisionSystem.remove(collider);
-            }
-            this.colliders.clear();
-            this.currentColliderName = null;
-            this.defaultColliderNone = true;
-        }
-        return this;
-    };
-    Sprite.prototype.removeColliderByName = function (colliderName) {
-        var collider = this.getCollider(colliderName);
-        this.colliders.delete(colliderName);
-        if (this.colliders.size === 0) {
-            this.defaultColliderNone = true;
-        }
-        if (colliderName === this.currentColliderName) {
-            this.stage.collisionSystem.remove(collider);
-            if (this.colliders.size) {
-                var nextColliderName = this.colliders.keys().next().value;
-                this.switchCollider(nextColliderName);
-            }
-        }
-        return this;
-    };
-    Sprite.prototype.getCollider = function (colliderName) {
-        if (!this.colliders.has(colliderName)) {
-            this.game.throwError(ErrorMessages.COLLIDER_NAME_NOT_FOUND, { colliderName: colliderName });
-        }
-        return this.colliders.get(colliderName);
-    };
-    Sprite.prototype.hasCollider = function (colliderName) {
-        return this.colliders.has(colliderName);
-    };
-    Object.defineProperty(Sprite.prototype, "collider", {
-        get: function () {
-            if (this.currentColliderName && this.colliders.has(this.currentColliderName)) {
-                return this.colliders.get(this.currentColliderName);
-            }
-            return null;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "collidedSprite", {
-        get: function () {
-            return this._collidedSprite;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "defaultColliderNone", {
-        get: function () {
-            return this._defaultColliderNone;
-        },
-        set: function (colliderNone) {
-            this._defaultColliderNone = colliderNone;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Sprite.prototype.getColliders = function () {
-        return this.colliders.entries();
-    };
-    Sprite.prototype.cloneCollider = function (sprite) {
-        var e_10, _a;
-        var colliders = sprite.getColliders();
-        try {
-            for (var colliders_1 = __values(colliders), colliders_1_1 = colliders_1.next(); !colliders_1_1.done; colliders_1_1 = colliders_1.next()) {
-                var _b = __read(colliders_1_1.value, 2), colliderName = _b[0], sourceCollider = _b[1];
-                if (sourceCollider instanceof CircleCollider) {
-                    this.setCircleCollider(colliderName, sourceCollider.radius, sourceCollider.offset_x, sourceCollider.offset_y);
-                }
-                if (sourceCollider instanceof PolygonCollider) {
-                    this.setPolygonCollider(colliderName, sourceCollider.points, sourceCollider.offset_x, sourceCollider.offset_y);
-                }
-            }
-        }
-        catch (e_10_1) { e_10 = { error: e_10_1 }; }
-        finally {
-            try {
-                if (colliders_1_1 && !colliders_1_1.done && (_a = colliders_1.return)) _a.call(colliders_1);
-            }
-            finally { if (e_10) throw e_10.error; }
-        }
-    };
-    Sprite.prototype.calculateCentroid = function (points) {
-        var e_11, _a;
-        var xSum = 0;
-        var ySum = 0;
-        try {
-            for (var points_1 = __values(points), points_1_1 = points_1.next(); !points_1_1.done; points_1_1 = points_1.next()) {
-                var point = points_1_1.value;
-                xSum += point[0];
-                ySum += point[1];
-            }
-        }
-        catch (e_11_1) { e_11 = { error: e_11_1 }; }
-        finally {
-            try {
-                if (points_1_1 && !points_1_1.done && (_a = points_1.return)) _a.call(points_1);
-            }
-            finally { if (e_11) throw e_11.error; }
-        }
-        var x = xSum / points.length;
-        var y = ySum / points.length;
-        return { x: x, y: y };
-    };
-    Sprite.prototype.calculatePolygonSize = function (points) {
-        var e_12, _a;
-        var minX = points[0][0];
-        var minY = points[0][1];
-        var maxX = points[0][0];
-        var maxY = points[0][1];
-        try {
-            for (var points_2 = __values(points), points_2_1 = points_2.next(); !points_2_1.done; points_2_1 = points_2.next()) {
-                var vertex = points_2_1.value;
-                if (vertex[0] < minX)
-                    minX = vertex[0];
-                if (vertex[0] > maxX)
-                    maxX = vertex[0];
-                if (vertex[1] < minY)
-                    minY = vertex[1];
-                if (vertex[1] > maxY)
-                    maxY = vertex[1];
-            }
-        }
-        catch (e_12_1) { e_12 = { error: e_12_1 }; }
-        finally {
-            try {
-                if (points_2_1 && !points_2_1.done && (_a = points_2.return)) _a.call(points_2);
-            }
-            finally { if (e_12) throw e_12.error; }
-        }
-        var width = maxX - minX;
-        var height = maxY - minY;
-        return { width: width, height: height };
-    };
-    Sprite.prototype.updateColliderPosition = function (collider) {
-        collider.x = this.imageCenterX + collider.center_offset_x * this.size / 100;
-        collider.y = this.imageCenterY + collider.center_offset_y * this.size / 100;
-    };
-    Sprite.prototype.updateColliderAngle = function () {
-        var collider = this.collider;
-        if (collider instanceof PolygonCollider) {
-            if (this._rotateStyle == 'leftRight') {
-                collider.angle = 0;
-            }
-            else {
-                collider.angle = this.globalAngleRadians;
-            }
-        }
-        if (collider) {
-            this.updateColliderPosition(collider);
-        }
-    };
-    Sprite.prototype.updateColliderSize = function (collider) {
-        if (collider instanceof PolygonCollider) {
-            collider.scale_x = this.size / 100;
-            collider.scale_y = this.size / 100;
-        }
-        else if (collider instanceof CircleCollider) {
-            collider.scale = this.size / 100;
-        }
-    };
-    Sprite.prototype.addTag = function (tagName) {
-        var e_13, _a;
-        if (!this.hasTag(tagName)) {
-            this._tags.push(tagName);
-        }
-        try {
-            for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                var child = _c.value;
-                child.addTag(tagName);
-            }
-        }
-        catch (e_13_1) { e_13 = { error: e_13_1 }; }
-        finally {
-            try {
-                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-            }
-            finally { if (e_13) throw e_13.error; }
-        }
-        return this;
-    };
-    Sprite.prototype.removeTag = function (tagName) {
-        var e_14, _a;
-        var foundIndex = this._tags.indexOf(tagName);
-        if (foundIndex > -1) {
-            this._tags.splice(foundIndex, 1);
-        }
-        try {
-            for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                var child = _c.value;
-                child.addTag(tagName);
-            }
-        }
-        catch (e_14_1) { e_14 = { error: e_14_1 }; }
-        finally {
-            try {
-                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-            }
-            finally { if (e_14) throw e_14.error; }
-        }
-        return this;
-    };
-    Sprite.prototype.hasTag = function (tagName) {
-        return this._tags.includes(tagName);
-    };
-    Object.defineProperty(Sprite.prototype, "tags", {
-        get: function () {
-            return this._tags;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Sprite.prototype.addCostume = function (costumePath, options) {
-        var _this = this;
-        var _a;
-        var costume = new Costume();
-        var costumeIndex = this.costumes.length;
-        var costumeName = ((_a = options === null || options === void 0 ? void 0 : options.name) !== null && _a !== void 0 ? _a : 'Costume') + '-' + costumeIndex;
-        this.costumes.push(costume);
-        this.costumeNames.push(costumeName);
-        this.pendingCostumes++;
-        var image = new Image();
-        image.src = costumePath;
-        if (options === null || options === void 0 ? void 0 : options.alphaColor) {
-            image.crossOrigin = 'anonymous';
-        }
-        var onLoadImage = function () {
-            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p;
-            if (_this.deleted) {
-                return;
-            }
-            var transformedImage = _this.transformImage(image, (_a = options === null || options === void 0 ? void 0 : options.rotate) !== null && _a !== void 0 ? _a : 0, (_b = options === null || options === void 0 ? void 0 : options.flipX) !== null && _b !== void 0 ? _b : false, (_c = options === null || options === void 0 ? void 0 : options.flipY) !== null && _c !== void 0 ? _c : false, (_d = options === null || options === void 0 ? void 0 : options.x) !== null && _d !== void 0 ? _d : 0, (_e = options === null || options === void 0 ? void 0 : options.y) !== null && _e !== void 0 ? _e : 0, (_f = options === null || options === void 0 ? void 0 : options.width) !== null && _f !== void 0 ? _f : image.naturalWidth, (_g = options === null || options === void 0 ? void 0 : options.height) !== null && _g !== void 0 ? _g : image.naturalHeight, (_h = options === null || options === void 0 ? void 0 : options.alphaColor) !== null && _h !== void 0 ? _h : null, (_j = options === null || options === void 0 ? void 0 : options.alphaTolerance) !== null && _j !== void 0 ? _j : 0, (_k = options === null || options === void 0 ? void 0 : options.crop) !== null && _k !== void 0 ? _k : 0, (_l = options === null || options === void 0 ? void 0 : options.cropTop) !== null && _l !== void 0 ? _l : null, (_m = options === null || options === void 0 ? void 0 : options.cropRight) !== null && _m !== void 0 ? _m : null, (_o = options === null || options === void 0 ? void 0 : options.cropBottom) !== null && _o !== void 0 ? _o : null, (_p = options === null || options === void 0 ? void 0 : options.cropLeft) !== null && _p !== void 0 ? _p : null);
+            const costume = new Costume();
+            this.costumes.push(costume);
+            this.costumeNames.push(costumeName + "-" + costumeIndex);
+            const transformedImage = this.transformImage(
+              image,
+              options?.rotate ?? 0,
+              options?.flipX ?? false,
+              options?.flipY ?? false,
+              x + (options?.x ?? 0),
+              y + (options?.y ?? 0),
+              options?.width ?? chunkWidth,
+              options?.height ?? chunkHeight,
+              options?.alphaColor ?? null,
+              options?.alphaTolerance ?? 0,
+              options?.crop ?? 0,
+              options?.cropTop ?? null,
+              options?.cropRight ?? null,
+              options?.cropBottom ?? null,
+              options?.cropLeft ?? null
+            );
             costume.image = transformedImage;
             costume.ready = true;
-            _this.pendingCostumes--;
-            _this.tryDoOnReady();
-            image.removeEventListener('load', onLoadImage);
-        };
-        image.addEventListener('load', onLoadImage);
-        image.addEventListener('error', function () {
-            _this.game.throwError(ErrorMessages.COSTUME_NOT_LOADED, { costumePath: costumePath });
-        });
-        return this;
+            costumeIndex++;
+          }
+          x += chunkWidth;
+        }
+        x = 0;
+        y += chunkHeight;
+      }
+      this.pendingCostumeGrids--;
+      this.tryDoOnReady();
+      image.removeEventListener("load", onLoadImage);
     };
-    Sprite.prototype.addCostumeGrid = function (costumePath, options) {
-        var _this = this;
-        var _a;
-        var image = new Image();
-        image.src = costumePath;
-        var costumeName = (_a = options === null || options === void 0 ? void 0 : options.name) !== null && _a !== void 0 ? _a : 'Costume';
-        this.pendingCostumeGrids++;
-        var onLoadImage = function () {
-            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p;
-            image.naturalWidth;
-            image.naturalHeight;
-            var cols = options.cols;
-            var rows = options.rows;
-            var limit = options.limit;
-            var offset = options.offset;
-            var chunkWidth = image.naturalWidth / cols;
-            var chunkHeight = image.naturalHeight / rows;
-            var skip = false;
-            var costumeIndex = 0;
-            var x = 0;
-            var y = 0;
-            for (var i = 0; i < rows; i++) {
-                for (var t = 0; t < cols; t++) {
-                    skip = false;
-                    if (offset !== null) {
-                        if (offset > 0) {
-                            offset--;
-                            skip = true;
-                        }
-                    }
-                    if (!skip) {
-                        if (limit !== null) {
-                            if (limit == 0) {
-                                break;
-                            }
-                            if (limit > 0) {
-                                limit--;
-                            }
-                        }
-                        var costume = new Costume();
-                        _this.costumes.push(costume);
-                        _this.costumeNames.push(costumeName + '-' + costumeIndex);
-                        var transformedImage = _this.transformImage(image, (_a = options === null || options === void 0 ? void 0 : options.rotate) !== null && _a !== void 0 ? _a : 0, (_b = options === null || options === void 0 ? void 0 : options.flipX) !== null && _b !== void 0 ? _b : false, (_c = options === null || options === void 0 ? void 0 : options.flipY) !== null && _c !== void 0 ? _c : false, x + ((_d = options === null || options === void 0 ? void 0 : options.x) !== null && _d !== void 0 ? _d : 0), y + ((_e = options === null || options === void 0 ? void 0 : options.y) !== null && _e !== void 0 ? _e : 0), ((_f = options === null || options === void 0 ? void 0 : options.width) !== null && _f !== void 0 ? _f : chunkWidth), ((_g = options === null || options === void 0 ? void 0 : options.height) !== null && _g !== void 0 ? _g : chunkHeight), (_h = options === null || options === void 0 ? void 0 : options.alphaColor) !== null && _h !== void 0 ? _h : null, (_j = options === null || options === void 0 ? void 0 : options.alphaTolerance) !== null && _j !== void 0 ? _j : 0, (_k = options === null || options === void 0 ? void 0 : options.crop) !== null && _k !== void 0 ? _k : 0, (_l = options === null || options === void 0 ? void 0 : options.cropTop) !== null && _l !== void 0 ? _l : null, (_m = options === null || options === void 0 ? void 0 : options.cropRight) !== null && _m !== void 0 ? _m : null, (_o = options === null || options === void 0 ? void 0 : options.cropBottom) !== null && _o !== void 0 ? _o : null, (_p = options === null || options === void 0 ? void 0 : options.cropLeft) !== null && _p !== void 0 ? _p : null);
-                        costume.image = transformedImage;
-                        costume.ready = true;
-                        costumeIndex++;
-                    }
-                    x += chunkWidth;
-                }
-                x = 0;
-                y += chunkHeight;
-            }
-            _this.pendingCostumeGrids--;
-            _this.tryDoOnReady();
-            image.removeEventListener('load', onLoadImage);
-        };
-        image.addEventListener('load', onLoadImage);
-        return this;
+    image.addEventListener("load", onLoadImage);
+    return this;
+  }
+  drawCostume(callback, options) {
+    let image = document.createElement("canvas");
+    const context = image.getContext("2d");
+    image.width = options?.width ?? 100;
+    image.height = options?.height ?? 100;
+    this.pendingCostumes++;
+    callback(context, this);
+    const costumeIndex = this.costumes.length;
+    const costumeName = (options?.name ?? "Costume") + "-" + costumeIndex;
+    const needTransform = Object.values(options || {}).some((value) => !!value);
+    if (needTransform) {
+      image = this.transformImage(
+        image,
+        options?.rotate ?? 0,
+        options?.flipX ?? false,
+        options?.flipY ?? false,
+        options?.x ?? 0,
+        options?.y ?? 0,
+        options?.width ?? image.width,
+        options?.height ?? image.height,
+        options?.alphaColor ?? null,
+        options?.alphaTolerance ?? 0,
+        options?.crop ?? 0,
+        options?.cropTop ?? null,
+        options?.cropRight ?? null,
+        options?.cropBottom ?? null,
+        options?.cropLeft ?? null
+      );
+    }
+    const costume = new Costume();
+    costume.image = image;
+    costume.ready = true;
+    this.costumes.push(costume);
+    this.costumeNames.push(costumeName + "-" + costumeIndex);
+    this.pendingCostumes--;
+    return this;
+  }
+  removeCostume(costumeIndex) {
+    if (this.costumes[costumeIndex] === void 0) {
+      this.game.throwError(ErrorMessages.COSTUME_INDEX_NOT_FOUND, { costumeIndex });
+    }
+    this.costumes.splice(costumeIndex, 1);
+    this.costumeNames.splice(costumeIndex, 1);
+    if (this.costumeIndex === costumeIndex) {
+      this.costumeIndex = null;
+      if (this.costumes.length > 0) {
+        this.nextCostume();
+      } else {
+        this.costume = null;
+      }
+    }
+    return this;
+  }
+  switchCostume(costumeIndex) {
+    if (this.deleted) {
+      return;
+    }
+    if (!this.isReady()) {
+      this.game.throwError(ErrorMessages.COSTUME_SWITCH_NOT_READY);
+    }
+    const costume = this.costumes[costumeIndex];
+    if (costume instanceof Costume && costume.ready) {
+      this.costumeIndex = costumeIndex;
+      this.costume = costume;
+    }
+    return this;
+  }
+  switchCostumeByName(costumeName) {
+    if (!this.isReady()) {
+      this.game.throwError(ErrorMessages.COSTUME_SWITCH_NOT_READY);
+    }
+    const costumeIndex = this.costumeNames.indexOf(costumeName);
+    if (costumeIndex > -1) {
+      this.switchCostume(costumeIndex);
+    } else {
+      this.game.throwError(ErrorMessages.COSTUME_NAME_NOT_FOUND, { costumeName });
+    }
+    return this;
+  }
+  nextCostume(minCostume = 0, maxCostume) {
+    if (this.deleted) {
+      return;
+    }
+    if (!this.isReady()) {
+      this.game.throwError(ErrorMessages.COSTUME_SWITCH_NOT_READY);
+    }
+    const maxCostumeIndex = this.costumes.length - 1;
+    minCostume = Math.min(maxCostumeIndex, Math.max(0, minCostume));
+    maxCostume = Math.min(maxCostumeIndex, Math.max(0, maxCostume ?? maxCostumeIndex));
+    let nextCostumeIndex = this.costumeIndex + 1;
+    if (nextCostumeIndex > maxCostume || nextCostumeIndex < minCostume) {
+      nextCostumeIndex = minCostume;
+    }
+    if (nextCostumeIndex !== this.costumeIndex) {
+      this.switchCostume(nextCostumeIndex);
+    }
+    return nextCostumeIndex;
+  }
+  prevCostume(minCostume = 0, maxCostume) {
+    if (this.deleted) {
+      return;
+    }
+    if (!this.isReady()) {
+      this.game.throwError(ErrorMessages.COSTUME_SWITCH_NOT_READY);
+    }
+    const maxCostumeIndex = this.costumes.length - 1;
+    minCostume = Math.min(maxCostumeIndex, Math.max(0, minCostume));
+    maxCostume = Math.min(maxCostumeIndex, Math.max(0, maxCostume ?? maxCostumeIndex));
+    let prevCostumeIndex = this.costumeIndex - 1;
+    if (prevCostumeIndex < minCostume || prevCostumeIndex > maxCostume) {
+      prevCostumeIndex = maxCostume;
+    }
+    if (prevCostumeIndex !== this.costumeIndex) {
+      this.switchCostume(prevCostumeIndex);
+    }
+    return prevCostumeIndex;
+  }
+  getCostume() {
+    return this.costume;
+  }
+  getCostumeName() {
+    if (this.costumeIndex === null) {
+      return "No costume";
+    }
+    return this.costumeNames[this.costumeIndex];
+  }
+  getCostumeIndex() {
+    return this.costumeIndex;
+  }
+  transformImage(srcImage, rotate, flipX = false, flipY = false, imageX = 0, imageY = 0, imageWidth = null, imageHeight = null, imageAlphaColor = null, imageAlphaTolerance = 0, crop = 0, cropTop = null, cropRight = null, cropBottom = null, cropLeft = null) {
+    cropTop = cropTop ?? crop;
+    cropRight = cropRight ?? crop;
+    cropBottom = cropBottom ?? crop;
+    cropLeft = cropLeft ?? crop;
+    imageX += cropRight;
+    imageWidth -= cropRight;
+    imageWidth -= cropLeft;
+    imageY += cropTop;
+    imageHeight -= cropTop;
+    imageHeight -= cropBottom;
+    let imageCanvas = document.createElement("canvas");
+    const context = imageCanvas.getContext("2d");
+    const radians = rotate * Math.PI / 180;
+    let canvasWidth = imageWidth ?? (srcImage instanceof HTMLImageElement ? srcImage.naturalWidth : srcImage.width);
+    let canvasHeight = imageHeight ?? (srcImage instanceof HTMLImageElement ? srcImage.naturalHeight : srcImage.height);
+    if (rotate) {
+      const absCos = Math.abs(Math.cos(radians));
+      const absSin = Math.abs(Math.sin(radians));
+      canvasWidth = canvasWidth * absCos + canvasHeight * absSin;
+      canvasHeight = canvasWidth * absSin + canvasHeight * absCos;
+    }
+    imageCanvas.width = Math.ceil(canvasWidth);
+    imageCanvas.height = Math.ceil(canvasHeight);
+    context.translate(imageCanvas.width / 2, imageCanvas.height / 2);
+    if (rotate) {
+      context.rotate(radians);
+    }
+    if (flipX || flipY) {
+      context.scale(flipX ? -1 : 1, flipY ? -1 : 1);
+    }
+    const offsetX = -imageWidth / 2;
+    const offsetY = -imageHeight / 2;
+    context.drawImage(
+      srcImage,
+      imageX,
+      imageY,
+      imageWidth,
+      imageHeight,
+      offsetX,
+      offsetY,
+      imageWidth,
+      imageHeight
+    );
+    if (imageAlphaColor) {
+      imageCanvas = this.setAlpha(imageCanvas, imageAlphaColor, imageAlphaTolerance ?? 0);
+    }
+    return imageCanvas;
+  }
+  setAlpha(image, targetColor, tolerance = 0) {
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+    if (!context) {
+      throw new Error("Canvas context is not available");
+    }
+    canvas.width = image.width;
+    canvas.height = image.height;
+    const imageData = image.getContext("2d").getImageData(0, 0, image.width, image.height);
+    const data = imageData.data;
+    let targetRGB;
+    if (typeof targetColor === "string") {
+      targetRGB = this.hexToRgb(targetColor);
+      if (!targetRGB) {
+        throw new Error(`Invalid HEX color: ${targetColor}`);
+      }
+    } else {
+      targetRGB = targetColor;
+    }
+    for (let i = 0; i < data.length; i += 4) {
+      const r = data[i];
+      const g = data[i + 1];
+      const b = data[i + 2];
+      if (Math.abs(r - targetRGB.r) <= tolerance && Math.abs(g - targetRGB.g) <= tolerance && Math.abs(b - targetRGB.b) <= tolerance) {
+        data[i + 3] = 0;
+      }
+    }
+    context.putImageData(imageData, 0, 0);
+    return canvas;
+  }
+  hexToRgb(hex) {
+    hex = hex.replace(/^#/, "");
+    if (hex.length === 3) {
+      hex = hex.split("").map((char) => char + char).join("");
+    }
+    if (hex.length !== 6) {
+      return null;
+    }
+    const bigint = parseInt(hex, 16);
+    return {
+      r: bigint >> 16 & 255,
+      g: bigint >> 8 & 255,
+      b: bigint & 255
     };
-    Sprite.prototype.drawCostume = function (callback, options) {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s;
-        var image = document.createElement('canvas');
-        var context = image.getContext('2d');
-        image.width = (_a = options === null || options === void 0 ? void 0 : options.width) !== null && _a !== void 0 ? _a : 100;
-        image.height = (_b = options === null || options === void 0 ? void 0 : options.height) !== null && _b !== void 0 ? _b : 100;
-        this.pendingCostumes++;
-        callback(context, this);
-        var costumeIndex = this.costumes.length;
-        var costumeName = ((_c = options === null || options === void 0 ? void 0 : options.name) !== null && _c !== void 0 ? _c : 'Costume') + '-' + costumeIndex;
-        var needTransform = Object.values(options || {}).some(function (value) { return !!value; });
-        if (needTransform) {
-            image = this.transformImage(image, (_d = options === null || options === void 0 ? void 0 : options.rotate) !== null && _d !== void 0 ? _d : 0, (_e = options === null || options === void 0 ? void 0 : options.flipX) !== null && _e !== void 0 ? _e : false, (_f = options === null || options === void 0 ? void 0 : options.flipY) !== null && _f !== void 0 ? _f : false, (_g = options === null || options === void 0 ? void 0 : options.x) !== null && _g !== void 0 ? _g : 0, (_h = options === null || options === void 0 ? void 0 : options.y) !== null && _h !== void 0 ? _h : 0, (_j = options === null || options === void 0 ? void 0 : options.width) !== null && _j !== void 0 ? _j : image.width, (_k = options === null || options === void 0 ? void 0 : options.height) !== null && _k !== void 0 ? _k : image.height, (_l = options === null || options === void 0 ? void 0 : options.alphaColor) !== null && _l !== void 0 ? _l : null, (_m = options === null || options === void 0 ? void 0 : options.alphaTolerance) !== null && _m !== void 0 ? _m : 0, (_o = options === null || options === void 0 ? void 0 : options.crop) !== null && _o !== void 0 ? _o : 0, (_p = options === null || options === void 0 ? void 0 : options.cropTop) !== null && _p !== void 0 ? _p : null, (_q = options === null || options === void 0 ? void 0 : options.cropRight) !== null && _q !== void 0 ? _q : null, (_r = options === null || options === void 0 ? void 0 : options.cropBottom) !== null && _r !== void 0 ? _r : null, (_s = options === null || options === void 0 ? void 0 : options.cropLeft) !== null && _s !== void 0 ? _s : null);
-        }
-        var costume = new Costume();
-        costume.image = image;
-        costume.ready = true;
-        this.costumes.push(costume);
-        this.costumeNames.push(costumeName + '-' + costumeIndex);
-        this.pendingCostumes--;
-        return this;
+  }
+  cloneCostume(costume, name) {
+    this.costumes.push(costume);
+    this.costumeNames.push(name);
+  }
+  /**
+   * Sounds
+   */
+  addSound(soundPath, soundName) {
+    if (this.soundNames.includes(soundName)) {
+      this.game.throwError(ErrorMessages.SOUND_NAME_ALREADY_EXISTS, { soundName });
+    }
+    const sound = new Audio();
+    sound.src = soundPath;
+    this.sounds.push(sound);
+    this.soundNames.push(soundName);
+    this.pendingSounds++;
+    sound.load();
+    const onLoadSound = () => {
+      this.pendingSounds--;
+      this.tryDoOnReady();
+      sound.removeEventListener("loadedmetadata", onLoadSound);
     };
-    Sprite.prototype.removeCostume = function (costumeIndex) {
-        if (this.costumes[costumeIndex] === undefined) {
-            this.game.throwError(ErrorMessages.COSTUME_INDEX_NOT_FOUND, { costumeIndex: costumeIndex });
+    sound.addEventListener("loadedmetadata", onLoadSound);
+    return this;
+  }
+  removeSound(soundName) {
+    const soundIndex = this.soundNames.indexOf(soundName);
+    if (soundIndex < 0) {
+      this.game.throwError(ErrorMessages.SOUND_NAME_NOT_FOUND, { soundName });
+    }
+    this.sounds.splice(soundIndex, 1);
+    return this;
+  }
+  playSound(soundName, options = {}) {
+    const sound = this.getSound(soundName);
+    this.doPlaySound(sound, options);
+  }
+  startSound(soundName, options = {}) {
+    const sound = this.cloneSound(soundName);
+    this.doPlaySound(sound, options);
+    return sound;
+  }
+  pauseSound(soundName) {
+    const sound = this.getSound(soundName);
+    sound.pause();
+  }
+  getSound(soundName) {
+    if (!this.isReady()) {
+      this.game.throwError(ErrorMessages.SOUND_USE_NOT_READY);
+    }
+    const soundIndex = this.soundNames.indexOf(soundName);
+    if (soundIndex < 0) {
+      this.game.throwError(ErrorMessages.SOUND_NAME_NOT_FOUND, { soundName });
+    }
+    const sound = this.sounds[soundIndex];
+    if (!(sound instanceof Audio)) {
+      this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, { soundIndex });
+    }
+    return sound;
+  }
+  cloneSound(soundName) {
+    const originSound = this.getSound(soundName);
+    return new Audio(originSound.src);
+  }
+  doPlaySound(sound, options = {}) {
+    if (options.volume !== void 0) {
+      sound.volume = options.volume;
+    }
+    if (options.currentTime !== void 0) {
+      sound.currentTime = options.currentTime;
+    }
+    if (options.loop !== void 0) {
+      sound.loop = options.loop;
+    }
+    const playPromise = sound.play();
+    if (playPromise !== void 0) {
+      playPromise.catch((error) => {
+        if (error.name === "NotAllowedError") {
+          this.game.throwError(ErrorMessages.SOUND_NOT_ALLOWED_ERROR, {}, false);
+        } else {
+          console.error("Audio playback error:", error);
         }
-        this.costumes.splice(costumeIndex, 1);
-        this.costumeNames.splice(costumeIndex, 1);
-        if (this.costumeIndex === costumeIndex) {
-            this.costumeIndex = null;
-            if (this.costumes.length > 0) {
-                this.nextCostume();
-            }
-            else {
-                this.costume = null;
-            }
-        }
-        return this;
-    };
-    Sprite.prototype.switchCostume = function (costumeIndex) {
-        if (this.deleted) {
-            return;
-        }
-        if (!this.isReady()) {
-            this.game.throwError(ErrorMessages.COSTUME_SWITCH_NOT_READY);
-        }
-        var costume = this.costumes[costumeIndex];
-        if (costume instanceof Costume && costume.ready) {
-            this.costumeIndex = costumeIndex;
-            this.costume = costume;
-        }
-        return this;
-    };
-    Sprite.prototype.switchCostumeByName = function (costumeName) {
-        if (!this.isReady()) {
-            this.game.throwError(ErrorMessages.COSTUME_SWITCH_NOT_READY);
-        }
-        var costumeIndex = this.costumeNames.indexOf(costumeName);
-        if (costumeIndex > -1) {
-            this.switchCostume(costumeIndex);
-        }
-        else {
-            this.game.throwError(ErrorMessages.COSTUME_NAME_NOT_FOUND, { costumeName: costumeName });
-        }
-        return this;
-    };
-    Sprite.prototype.nextCostume = function (minCostume, maxCostume) {
-        if (minCostume === void 0) { minCostume = 0; }
-        if (this.deleted) {
-            return;
-        }
-        if (!this.isReady()) {
-            this.game.throwError(ErrorMessages.COSTUME_SWITCH_NOT_READY);
-        }
-        var maxCostumeIndex = this.costumes.length - 1;
-        minCostume = Math.min(maxCostumeIndex, Math.max(0, minCostume));
-        maxCostume = Math.min(maxCostumeIndex, Math.max(0, maxCostume !== null && maxCostume !== void 0 ? maxCostume : maxCostumeIndex));
-        var nextCostumeIndex = this.costumeIndex + 1;
-        if (nextCostumeIndex > maxCostume || nextCostumeIndex < minCostume) {
-            nextCostumeIndex = minCostume;
-        }
-        if (nextCostumeIndex !== this.costumeIndex) {
-            this.switchCostume(nextCostumeIndex);
-        }
-        return nextCostumeIndex;
-    };
-    Sprite.prototype.prevCostume = function (minCostume, maxCostume) {
-        if (minCostume === void 0) { minCostume = 0; }
-        if (this.deleted) {
-            return;
-        }
-        if (!this.isReady()) {
-            this.game.throwError(ErrorMessages.COSTUME_SWITCH_NOT_READY);
-        }
-        var maxCostumeIndex = this.costumes.length - 1;
-        minCostume = Math.min(maxCostumeIndex, Math.max(0, minCostume));
-        maxCostume = Math.min(maxCostumeIndex, Math.max(0, maxCostume !== null && maxCostume !== void 0 ? maxCostume : maxCostumeIndex));
-        var prevCostumeIndex = this.costumeIndex - 1;
-        if (prevCostumeIndex < minCostume || prevCostumeIndex > maxCostume) {
-            prevCostumeIndex = maxCostume;
-        }
-        if (prevCostumeIndex !== this.costumeIndex) {
-            this.switchCostume(prevCostumeIndex);
-        }
-        return prevCostumeIndex;
-    };
-    Sprite.prototype.getCostume = function () {
-        return this.costume;
-    };
-    Sprite.prototype.getCostumeName = function () {
-        if (this.costumeIndex === null) {
-            return 'No costume';
-        }
-        return this.costumeNames[this.costumeIndex];
-    };
-    Sprite.prototype.getCostumeIndex = function () {
-        return this.costumeIndex;
-    };
-    Sprite.prototype.transformImage = function (srcImage, rotate, flipX, flipY, imageX, imageY, imageWidth, imageHeight, imageAlphaColor, imageAlphaTolerance, crop, cropTop, cropRight, cropBottom, cropLeft) {
-        if (flipX === void 0) { flipX = false; }
-        if (flipY === void 0) { flipY = false; }
-        if (imageX === void 0) { imageX = 0; }
-        if (imageY === void 0) { imageY = 0; }
-        if (imageWidth === void 0) { imageWidth = null; }
-        if (imageHeight === void 0) { imageHeight = null; }
-        if (imageAlphaColor === void 0) { imageAlphaColor = null; }
-        if (imageAlphaTolerance === void 0) { imageAlphaTolerance = 0; }
-        if (crop === void 0) { crop = 0; }
-        if (cropTop === void 0) { cropTop = null; }
-        if (cropRight === void 0) { cropRight = null; }
-        if (cropBottom === void 0) { cropBottom = null; }
-        if (cropLeft === void 0) { cropLeft = null; }
-        cropTop = cropTop !== null && cropTop !== void 0 ? cropTop : crop;
-        cropRight = cropRight !== null && cropRight !== void 0 ? cropRight : crop;
-        cropBottom = cropBottom !== null && cropBottom !== void 0 ? cropBottom : crop;
-        cropLeft = cropLeft !== null && cropLeft !== void 0 ? cropLeft : crop;
-        imageX += cropRight;
-        imageWidth -= cropRight;
-        imageWidth -= cropLeft;
-        imageY += cropTop;
-        imageHeight -= cropTop;
-        imageHeight -= cropBottom;
-        var imageCanvas = document.createElement('canvas');
-        var context = imageCanvas.getContext('2d');
-        var radians = rotate * Math.PI / 180;
-        var canvasWidth = imageWidth !== null && imageWidth !== void 0 ? imageWidth : (srcImage instanceof HTMLImageElement ? srcImage.naturalWidth : srcImage.width);
-        var canvasHeight = imageHeight !== null && imageHeight !== void 0 ? imageHeight : (srcImage instanceof HTMLImageElement ? srcImage.naturalHeight : srcImage.height);
-        if (rotate) {
-            var absCos = Math.abs(Math.cos(radians));
-            var absSin = Math.abs(Math.sin(radians));
-            canvasWidth = canvasWidth * absCos + canvasHeight * absSin;
-            canvasHeight = canvasWidth * absSin + canvasHeight * absCos;
-        }
-        imageCanvas.width = Math.ceil(canvasWidth);
-        imageCanvas.height = Math.ceil(canvasHeight);
-        context.translate(imageCanvas.width / 2, imageCanvas.height / 2);
-        if (rotate) {
-            context.rotate(radians);
-        }
-        if (flipX || flipY) {
-            context.scale(flipX ? -1 : 1, flipY ? -1 : 1);
-        }
-        var offsetX = -imageWidth / 2;
-        var offsetY = -imageHeight / 2;
-        context.drawImage(srcImage, imageX, imageY, imageWidth, imageHeight, offsetX, offsetY, imageWidth, imageHeight);
-        if (imageAlphaColor) {
-            imageCanvas = this.setAlpha(imageCanvas, imageAlphaColor, imageAlphaTolerance !== null && imageAlphaTolerance !== void 0 ? imageAlphaTolerance : 0);
-        }
-        return imageCanvas;
-    };
-    Sprite.prototype.setAlpha = function (image, targetColor, tolerance) {
-        if (tolerance === void 0) { tolerance = 0; }
-        var canvas = document.createElement('canvas');
-        var context = canvas.getContext('2d');
-        if (!context) {
-            throw new Error('Canvas context is not available');
-        }
-        canvas.width = image.width;
-        canvas.height = image.height;
-        var imageData = image.getContext('2d').getImageData(0, 0, image.width, image.height);
-        var data = imageData.data;
-        var targetRGB;
-        if (typeof targetColor === 'string') {
-            targetRGB = this.hexToRgb(targetColor);
-            if (!targetRGB) {
-                throw new Error("Invalid HEX color: ".concat(targetColor));
-            }
-        }
-        else {
-            targetRGB = targetColor;
-        }
-        for (var i = 0; i < data.length; i += 4) {
-            var r = data[i];
-            var g = data[i + 1];
-            var b = data[i + 2];
-            if (Math.abs(r - targetRGB.r) <= tolerance &&
-                Math.abs(g - targetRGB.g) <= tolerance &&
-                Math.abs(b - targetRGB.b) <= tolerance) {
-                data[i + 3] = 0;
-            }
-        }
-        context.putImageData(imageData, 0, 0);
-        return canvas;
-    };
-    Sprite.prototype.hexToRgb = function (hex) {
-        hex = hex.replace(/^#/, '');
-        if (hex.length === 3) {
-            hex = hex.split('').map(function (char) { return char + char; }).join('');
-        }
-        if (hex.length !== 6) {
-            return null;
-        }
-        var bigint = parseInt(hex, 16);
-        return {
-            r: (bigint >> 16) & 255,
-            g: (bigint >> 8) & 255,
-            b: bigint & 255,
-        };
-    };
-    Sprite.prototype.cloneCostume = function (costume, name) {
-        this.costumes.push(costume);
-        this.costumeNames.push(name);
-    };
-    Sprite.prototype.addSound = function (soundPath, soundName) {
-        var _this = this;
-        if (this.soundNames.includes(soundName)) {
-            this.game.throwError(ErrorMessages.SOUND_NAME_ALREADY_EXISTS, { soundName: soundName });
-        }
-        var sound = new Audio();
-        sound.src = soundPath;
-        this.sounds.push(sound);
-        this.soundNames.push(soundName);
-        this.pendingSounds++;
-        sound.load();
-        var onLoadSound = function () {
-            _this.pendingSounds--;
-            _this.tryDoOnReady();
-            sound.removeEventListener('loadedmetadata', onLoadSound);
-        };
-        sound.addEventListener('loadedmetadata', onLoadSound);
-        return this;
-    };
-    Sprite.prototype.removeSound = function (soundName) {
-        var soundIndex = this.soundNames.indexOf(soundName);
-        if (soundIndex < 0) {
-            this.game.throwError(ErrorMessages.SOUND_NAME_NOT_FOUND, { soundName: soundName });
-        }
-        this.sounds.splice(soundIndex, 1);
-        return this;
-    };
-    Sprite.prototype.playSound = function (soundName, options) {
-        if (options === void 0) { options = {}; }
-        var sound = this.getSound(soundName);
-        this.doPlaySound(sound, options);
-    };
-    Sprite.prototype.startSound = function (soundName, options) {
-        if (options === void 0) { options = {}; }
-        var sound = this.cloneSound(soundName);
-        this.doPlaySound(sound, options);
-        return sound;
-    };
-    Sprite.prototype.pauseSound = function (soundName) {
-        var sound = this.getSound(soundName);
-        sound.pause();
-    };
-    Sprite.prototype.getSound = function (soundName) {
-        if (!this.isReady()) {
-            this.game.throwError(ErrorMessages.SOUND_USE_NOT_READY);
-        }
-        var soundIndex = this.soundNames.indexOf(soundName);
-        if (soundIndex < 0) {
-            this.game.throwError(ErrorMessages.SOUND_NAME_NOT_FOUND, { soundName: soundName });
-        }
-        var sound = this.sounds[soundIndex];
-        if (!(sound instanceof Audio)) {
-            this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, { soundIndex: soundIndex });
-        }
-        return sound;
-    };
-    Sprite.prototype.cloneSound = function (soundName) {
-        var originSound = this.getSound(soundName);
-        return new Audio(originSound.src);
-    };
-    Sprite.prototype.doPlaySound = function (sound, options) {
-        var _this = this;
-        if (options === void 0) { options = {}; }
-        if (options.volume !== undefined) {
-            sound.volume = options.volume;
-        }
-        if (options.currentTime !== undefined) {
-            sound.currentTime = options.currentTime;
-        }
-        if (options.loop !== undefined) {
-            sound.loop = options.loop;
-        }
-        var playPromise = sound.play();
-        if (playPromise !== undefined) {
-            playPromise.catch(function (error) {
-                if (error.name === "NotAllowedError") {
-                    _this.game.throwError(ErrorMessages.SOUND_NOT_ALLOWED_ERROR, {}, false);
-                }
-                else {
-                    console.error("Audio playback error:", error);
-                }
-            });
-        }
-    };
-    Sprite.prototype.stamp = function (costumeIndex, withRotation) {
-        if (withRotation === void 0) { withRotation = true; }
-        if (!this.isReady()) {
-            this.game.throwError(ErrorMessages.STAMP_NOT_READY);
-        }
-        costumeIndex = costumeIndex !== null && costumeIndex !== void 0 ? costumeIndex : this.costumeIndex;
-        if (!this.costumes[costumeIndex]) {
-            this.game.throwError(ErrorMessages.STAMP_COSTUME_NOT_FOUND, { costumeIndex: costumeIndex });
-        }
-        var costume = this.costumes[costumeIndex];
-        if (!(costume.image instanceof HTMLCanvasElement)) {
-            this.game.throwErrorRaw('The image inside the costume was not found.');
-        }
-        var direction = 0;
-        if (withRotation && this._rotateStyle === 'normal') {
-            direction = this.direction;
-        }
-        this.stage.stampImage(costume.image, this.x, this.y, direction);
-    };
-    Sprite.prototype.pen = function (callback) {
-        this._drawings.push(callback);
-    };
-    Object.defineProperty(Sprite.prototype, "drawings", {
-        get: function () {
-            return this._drawings;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "opacity", {
-        get: function () {
-            return this._opacity;
-        },
-        set: function (value) {
-            if (value === null) {
-                this._opacity = null;
-            }
-            else {
-                this._opacity = Math.min(1, Math.max(0, value));
-            }
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "filter", {
-        get: function () {
-            return this._filter;
-        },
-        set: function (value) {
-            this._filter = value;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "rotateStyle", {
-        get: function () {
-            return this._rotateStyle;
-        },
-        set: function (value) {
-            var e_15, _a;
-            this._rotateStyle = value;
-            try {
-                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var child = _c.value;
-                    child.rotateStyle = value;
-                }
-            }
-            catch (e_15_1) { e_15 = { error: e_15_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_15) throw e_15.error; }
-            }
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "layer", {
-        get: function () {
-            return this._layer;
-        },
-        set: function (newLayer) {
-            var e_16, _a;
-            this.stage.changeSpriteLayer(this, this._layer, newLayer);
-            this._layer = newLayer;
-            try {
-                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var child = _c.value;
-                    child.layer = child.layer + this._layer;
-                }
-            }
-            catch (e_16_1) { e_16 = { error: e_16_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_16) throw e_16.error; }
-            }
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "hidden", {
-        get: function () {
-            return this._hidden;
-        },
-        set: function (value) {
-            var e_17, _a;
-            this._hidden = value;
-            try {
-                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var child = _c.value;
-                    child.hidden = value;
-                }
-            }
-            catch (e_17_1) { e_17 = { error: e_17_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_17) throw e_17.error; }
-            }
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Sprite.prototype.say = function (text, time) {
-        this.phrase = this.name + ': ' + text;
+      });
+    }
+  }
+  /**
+   * Visual functionality
+   */
+  stamp(costumeIndex, withRotation = true) {
+    if (!this.isReady()) {
+      this.game.throwError(ErrorMessages.STAMP_NOT_READY);
+    }
+    costumeIndex = costumeIndex ?? this.costumeIndex;
+    if (!this.costumes[costumeIndex]) {
+      this.game.throwError(ErrorMessages.STAMP_COSTUME_NOT_FOUND, { costumeIndex });
+    }
+    const costume = this.costumes[costumeIndex];
+    if (!(costume.image instanceof HTMLCanvasElement)) {
+      this.game.throwErrorRaw("The image inside the costume was not found.");
+    }
+    let direction = 0;
+    if (withRotation && this._rotateStyle === "normal") {
+      direction = this.direction;
+    }
+    this.stage.stampImage(costume.image, this.x, this.y, direction);
+  }
+  pen(callback) {
+    this._drawings.push(callback);
+  }
+  get drawings() {
+    return this._drawings;
+  }
+  set opacity(value) {
+    if (value === null) {
+      this._opacity = null;
+    } else {
+      this._opacity = Math.min(1, Math.max(0, value));
+    }
+  }
+  get opacity() {
+    return this._opacity;
+  }
+  set filter(value) {
+    this._filter = value;
+  }
+  get filter() {
+    return this._filter;
+  }
+  set rotateStyle(value) {
+    this._rotateStyle = value;
+    for (const child of this._children) {
+      child.rotateStyle = value;
+    }
+  }
+  get rotateStyle() {
+    return this._rotateStyle;
+  }
+  set layer(newLayer) {
+    this.stage.changeSpriteLayer(this, this._layer, newLayer);
+    this._layer = newLayer;
+    for (const child of this._children) {
+      child.layer = child.layer + this._layer;
+    }
+  }
+  get layer() {
+    return this._layer;
+  }
+  set hidden(value) {
+    this._hidden = value;
+    for (const child of this._children) {
+      child.hidden = value;
+    }
+  }
+  get hidden() {
+    return this._hidden;
+  }
+  say(text, time) {
+    this.phrase = this.name + ": " + text;
+    this.phraseLiveTime = null;
+    if (time) {
+      const currentTime = (/* @__PURE__ */ new Date()).getTime();
+      this.phraseLiveTime = currentTime + time;
+    }
+  }
+  getPhrase() {
+    if (this.phrase) {
+      if (this.phraseLiveTime === null) {
+        return this.phrase;
+      }
+      const currentTime = (/* @__PURE__ */ new Date()).getTime();
+      if (this.phraseLiveTime > currentTime) {
+        return this.phrase;
+      } else {
+        this.phrase = null;
         this.phraseLiveTime = null;
-        if (time) {
-            var currentTime = (new Date()).getTime();
-            this.phraseLiveTime = currentTime + time;
-        }
-    };
-    Sprite.prototype.getPhrase = function () {
-        if (this.phrase) {
-            if (this.phraseLiveTime === null) {
-                return this.phrase;
-            }
-            var currentTime = (new Date()).getTime();
-            if (this.phraseLiveTime > currentTime) {
-                return this.phrase;
-            }
-            else {
-                this.phrase = null;
-                this.phraseLiveTime = null;
-            }
-        }
-        return null;
-    };
-    Sprite.prototype.move = function (steps) {
-        var angleRadians = this.globalAngleRadians;
-        this.x += (steps * Math.sin(angleRadians));
-        this.y -= (steps * Math.cos(angleRadians));
-    };
-    Sprite.prototype.pointForward = function (object) {
-        var globalX = object.globalX ? object.globalX : object.x;
-        var globalY = object.globalY ? object.globalY : object.y;
-        this.globalDirection = (Math.atan2(this.globalY - globalY, this.globalX - globalX) / Math.PI * 180) - 90;
-    };
-    Sprite.prototype.getDistanceTo = function (object) {
-        var globalX = object.globalX ? object.globalX : object.x;
-        var globalY = object.globalY ? object.globalY : object.y;
-        return Math.sqrt((Math.abs(this.globalX - globalX)) + (Math.abs(this.globalY - globalY)));
-    };
-    Sprite.prototype.bounceOnEdge = function () {
-        if (this.touchTopEdge() || this.touchBottomEdge()) {
-            this.direction = 180 - this.direction;
-        }
-        if (this.touchLeftEdge() || this.touchRightEdge()) {
-            this.direction *= -1;
-        }
-    };
-    Object.defineProperty(Sprite.prototype, "x", {
-        get: function () {
-            return this._x;
-        },
-        set: function (value) {
-            var e_18, _a;
-            this._x = value;
-            if (this._children.length) {
-                this.updateCenterParams();
-            }
-            var collider = this.collider;
-            if (collider) {
-                this.updateColliderPosition(collider);
-            }
-            try {
-                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var child = _c.value;
-                    if (child.collider) {
-                        child.updateColliderPosition(child.collider);
-                    }
-                }
-            }
-            catch (e_18_1) { e_18 = { error: e_18_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_18) throw e_18.error; }
-            }
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "y", {
-        get: function () {
-            return this._y;
-        },
-        set: function (value) {
-            var e_19, _a;
-            this._y = value;
-            if (this._children.length) {
-                this.updateCenterParams();
-            }
-            var collider = this.collider;
-            if (collider) {
-                this.updateColliderPosition(collider);
-            }
-            try {
-                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var child = _c.value;
-                    if (child.collider) {
-                        child.updateColliderPosition(child.collider);
-                    }
-                }
-            }
-            catch (e_19_1) { e_19 = { error: e_19_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_19) throw e_19.error; }
-            }
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "globalX", {
-        get: function () {
-            if (this._parentSprite) {
-                if (this._rotateStyle === 'leftRight' || this._rotateStyle === 'none') {
-                    return this._parentSprite.imageCenterX + this._x * this.size / 100;
-                }
-                return this._parentSprite.imageCenterX + this.distanceToParent * Math.cos(this.angleToParent - this._parentSprite.globalAngleRadians) * this.size / 100;
-            }
-            return this._x;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "globalY", {
-        get: function () {
-            if (this._parentSprite) {
-                if (this._rotateStyle === 'leftRight' || this._rotateStyle === 'none') {
-                    return this._parentSprite.imageCenterY + this._y;
-                }
-                return this._parentSprite.imageCenterY - this.distanceToParent * Math.sin(this.angleToParent - this._parentSprite.globalAngleRadians) * this.size / 100;
-            }
-            return this._y;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "imageCenterX", {
-        get: function () {
-            if (this._rotateStyle === 'leftRight' || this._rotateStyle === 'none') {
-                var leftRightMultiplier = this._direction > 180 && this._rotateStyle === 'leftRight' ? -1 : 1;
-                return this.globalX - this._pivotOffsetX * leftRightMultiplier * this.size / 100;
-            }
-            return this.globalX + Math.cos(this._centerAngle - this.globalAngleRadians) * this._centerDistance * this.size / 100;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "imageCenterY", {
-        get: function () {
-            if (this._rotateStyle === 'leftRight' || this._rotateStyle === 'none') {
-                return this.globalY - this._pivotOffsetY * this.size / 100;
-            }
-            return this.globalY - Math.sin(this._centerAngle - this.globalAngleRadians) * this._centerDistance * this.size / 100;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "realX", {
-        get: function () {
-            return this.x - this.width / 2;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "realY", {
-        get: function () {
-            return this.y - this.height / 2;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "rightX", {
-        get: function () {
-            var collider = this.collider;
-            var offset = collider ? collider.center_offset_x * this.size / 100 : 0;
-            return this.imageCenterX + this.width / 2 + offset;
-        },
-        set: function (x) {
-            var collider = this.collider;
-            var offset = collider ? collider.center_offset_x * this.size / 100 : 0;
-            this.x = x - this.width / 2 - offset;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "leftX", {
-        get: function () {
-            var collider = this.collider;
-            var offset = collider ? collider.center_offset_x * this.size / 100 : 0;
-            return this.imageCenterX - this.width / 2 + offset;
-        },
-        set: function (x) {
-            var collider = this.collider;
-            var offset = collider ? collider.center_offset_x * this.size / 100 : 0;
-            this.x = x + this.width / 2 + offset;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "topY", {
-        get: function () {
-            var collider = this.collider;
-            var offset = collider ? collider.center_offset_y * this.size / 100 : 0;
-            return this.imageCenterY - this.height / 2 + offset;
-        },
-        set: function (y) {
-            var collider = this.collider;
-            var offset = collider ? collider.center_offset_y * this.size / 100 : 0;
-            this.y = y + this.height / 2 + offset;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "bottomY", {
-        get: function () {
-            var collider = this.collider;
-            var offset = collider ? collider.center_offset_y * this.size / 100 : 0;
-            return this.imageCenterY + this.height / 2 + offset;
-        },
-        set: function (y) {
-            var collider = this.collider;
-            var offset = collider ? collider.center_offset_y * this.size / 100 : 0;
-            this.y = y - this.height / 2 - offset;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "width", {
-        get: function () {
-            if (this.collider instanceof PolygonCollider) {
-                var angleRadians = this.globalAngleRadians;
-                return Math.abs(this.sourceWidth * Math.cos(angleRadians)) + Math.abs(this.sourceHeight * Math.sin(angleRadians));
-            }
-            return this.sourceWidth;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "height", {
-        get: function () {
-            if (this.collider instanceof PolygonCollider) {
-                var angleRadians = this.globalAngleRadians;
-                return Math.abs(this.sourceWidth * Math.sin(angleRadians)) + Math.abs(this.sourceHeight * Math.cos(angleRadians));
-            }
-            return this.sourceHeight;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "sourceWidth", {
-        get: function () {
-            return this._width * this.size / 100;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "sourceHeight", {
-        get: function () {
-            return this._height * this.size / 100;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "size", {
-        get: function () {
-            return this._size;
-        },
-        set: function (value) {
-            var e_20, _a;
-            this._size = value;
-            var collider = this.collider;
-            if (collider) {
-                this.updateColliderSize(collider);
-            }
-            try {
-                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var child = _c.value;
-                    child.size = value;
-                }
-            }
-            catch (e_20_1) { e_20 = { error: e_20_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_20) throw e_20.error; }
-            }
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "direction", {
-        get: function () {
-            return this._direction;
-        },
-        set: function (direction) {
-            var e_21, _a;
-            if ((direction * 0) !== 0) {
-                return;
-            }
-            direction = direction % 360;
-            if (direction < 0) {
-                direction += 360;
-            }
-            this._direction = (direction > 360) ? direction - 360 : direction;
-            this.updateColliderAngle();
-            try {
-                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var child = _c.value;
-                    child.updateColliderAngle();
-                }
-            }
-            catch (e_21_1) { e_21 = { error: e_21_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_21) throw e_21.error; }
-            }
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "globalDirection", {
-        get: function () {
-            return this._parentSprite ? this._parentSprite.direction + this.direction : this.direction;
-        },
-        set: function (value) {
-            this.direction = this._parentSprite ? value - this._parentSprite.direction : value;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "globalAngleRadians", {
-        get: function () {
-            return this.globalDirection * Math.PI / 180;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "angleToParent", {
-        get: function () {
-            return -Math.atan2(this.y, this.x);
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "distanceToParent", {
-        get: function () {
-            return Math.hypot(this.x, this.y);
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Sprite.prototype.setPivotOffset = function (x, y) {
-        if (x === void 0) { x = 0; }
-        if (y === void 0) { y = 0; }
-        this.pivotOffsetX = x;
-        this.pivotOffsetY = y;
-        return this;
-    };
-    Object.defineProperty(Sprite.prototype, "pivotOffsetX", {
-        get: function () {
-            return this._pivotOffsetX;
-        },
-        set: function (value) {
-            var prevX = this.x;
-            this._pivotOffsetX = value;
-            this.updateCenterParams();
-            this.x = prevX;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "pivotOffsetY", {
-        get: function () {
-            return this._pivotOffsetY;
-        },
-        set: function (value) {
-            var prevY = this.y;
-            this._pivotOffsetY = value;
-            this.updateCenterParams();
-            this.y = prevY;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Sprite.prototype.updateCenterParams = function () {
-        this._centerDistance = Math.hypot(this._pivotOffsetX, this._pivotOffsetY);
-        this._centerAngle = -Math.atan2(-this._pivotOffsetY, -this._pivotOffsetX);
-    };
-    Sprite.prototype.touchSprite = function (sprite, checkChildren) {
-        var e_22, _a, e_23, _b, e_24, _c;
-        if (checkChildren === void 0) { checkChildren = true; }
-        this._collidedSprite = null;
-        if (sprite.hidden ||
-            this.hidden ||
-            sprite.stopped ||
-            this.stopped ||
-            sprite.deleted ||
-            this.deleted) {
-            return false;
-        }
-        var collider = this.collider;
-        var otherCollider = sprite.collider;
-        var isTouch = collider && otherCollider && collider.collides(otherCollider, this.collisionResult);
-        if (isTouch) {
-            return true;
-        }
-        if (collider) {
-            try {
-                for (var _d = __values(sprite.getChildren()), _e = _d.next(); !_e.done; _e = _d.next()) {
-                    var otherChild = _e.value;
-                    if (this.touchSprite(otherChild, false)) {
-                        return true;
-                    }
-                }
-            }
-            catch (e_22_1) { e_22 = { error: e_22_1 }; }
-            finally {
-                try {
-                    if (_e && !_e.done && (_a = _d.return)) _a.call(_d);
-                }
-                finally { if (e_22) throw e_22.error; }
-            }
-        }
-        if (!checkChildren) {
-            return false;
-        }
-        try {
-            for (var _f = __values(this._children), _g = _f.next(); !_g.done; _g = _f.next()) {
-                var child = _g.value;
-                if (otherCollider && child.touchSprite(sprite)) {
-                    this._collidedSprite = child;
-                    return true;
-                }
-                try {
-                    for (var _h = (e_24 = void 0, __values(sprite.getChildren())), _j = _h.next(); !_j.done; _j = _h.next()) {
-                        var otherChild = _j.value;
-                        if (child.touchSprite(otherChild)) {
-                            this._collidedSprite = child;
-                            return true;
-                        }
-                    }
-                }
-                catch (e_24_1) { e_24 = { error: e_24_1 }; }
-                finally {
-                    try {
-                        if (_j && !_j.done && (_c = _h.return)) _c.call(_h);
-                    }
-                    finally { if (e_24) throw e_24.error; }
-                }
-            }
-        }
-        catch (e_23_1) { e_23 = { error: e_23_1 }; }
-        finally {
-            try {
-                if (_g && !_g.done && (_b = _f.return)) _b.call(_f);
-            }
-            finally { if (e_23) throw e_23.error; }
-        }
-        return false;
-    };
-    Sprite.prototype.touchSprites = function (sprites, checkChildren) {
-        var e_25, _a;
-        if (checkChildren === void 0) { checkChildren = true; }
-        if (this.hidden || this.stopped || this.deleted) {
-            return false;
-        }
-        try {
-            for (var sprites_1 = __values(sprites), sprites_1_1 = sprites_1.next(); !sprites_1_1.done; sprites_1_1 = sprites_1.next()) {
-                var sprite = sprites_1_1.value;
-                if (this.touchSprite(sprite, checkChildren)) {
-                    return true;
-                }
-            }
-        }
-        catch (e_25_1) { e_25 = { error: e_25_1 }; }
-        finally {
-            try {
-                if (sprites_1_1 && !sprites_1_1.done && (_a = sprites_1.return)) _a.call(sprites_1);
-            }
-            finally { if (e_25) throw e_25.error; }
-        }
-        return false;
-    };
-    Sprite.prototype.touchMouse = function (checkChildren) {
-        if (checkChildren === void 0) { checkChildren = true; }
-        return this.touchPoint(this.game.getMousePoint(), checkChildren);
-    };
-    Sprite.prototype.touchPoint = function (point, checkChildren) {
-        var e_26, _a;
-        if (checkChildren === void 0) { checkChildren = true; }
-        this._collidedSprite = null;
-        if (this.hidden || this.stopped || this.deleted) {
-            return false;
-        }
-        var collider = this.collider;
-        var isTouch = collider && collider.collides(point, this.collisionResult);
-        if (isTouch) {
-            return true;
-        }
-        if (checkChildren) {
-            try {
-                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var child = _c.value;
-                    if (child.touchPoint(child.game.getMousePoint())) {
-                        this._collidedSprite = child.otherSprite;
-                        return true;
-                    }
-                }
-            }
-            catch (e_26_1) { e_26 = { error: e_26_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_26) throw e_26.error; }
-            }
-        }
-        return false;
-    };
-    Sprite.prototype.touchEdge = function (checkChildren) {
-        var e_27, _a;
-        if (checkChildren === void 0) { checkChildren = true; }
-        var result = this.getPureCollisionResult();
-        this._collidedSprite = null;
-        if (this.hidden || this.stopped || this.deleted) {
-            return false;
-        }
-        if (this.collider) {
-            var gameWidth = this.game.width;
-            var gameHeight = this.game.height;
-            if (this.topY < 0) {
-                result.collision = true;
-                result.overlap = -this.topY;
-                result.overlap_y = -1;
-                return true;
-            }
-            if (this.bottomY > gameHeight) {
-                result.collision = true;
-                result.overlap = this.bottomY - gameHeight;
-                result.overlap_y = 1;
-                return true;
-            }
-            if (this.leftX < 0) {
-                result.collision = true;
-                result.overlap = -this.leftX;
-                result.overlap_x = -1;
-                return true;
-            }
-            if (this.rightX > gameWidth) {
-                result.collision = true;
-                result.overlap = this.rightX - gameWidth;
-                result.overlap_x = 1;
-                return true;
-            }
-        }
-        if (checkChildren) {
-            try {
-                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var child = _c.value;
-                    if (child.touchEdge()) {
-                        this._collidedSprite = child;
-                        return true;
-                    }
-                }
-            }
-            catch (e_27_1) { e_27 = { error: e_27_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_27) throw e_27.error; }
-            }
-        }
-        return false;
-    };
-    Sprite.prototype.touchTopEdge = function (checkChildren) {
-        var e_28, _a;
-        if (checkChildren === void 0) { checkChildren = true; }
-        this.clearCollisionResult();
-        this._collidedSprite = null;
-        if (this.hidden || this.stopped || this.deleted) {
-            return false;
-        }
-        if (this.collider && this.topY < 0) {
-            this.collisionResult.collision = true;
-            this.collisionResult.overlap = -this.topY;
-            this.collisionResult.overlap_y = -1;
-            return true;
-        }
-        if (checkChildren) {
-            try {
-                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var child = _c.value;
-                    if (child.touchTopEdge()) {
-                        this._collidedSprite = child;
-                        return true;
-                    }
-                }
-            }
-            catch (e_28_1) { e_28 = { error: e_28_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_28) throw e_28.error; }
-            }
-        }
-        return false;
-    };
-    Sprite.prototype.touchBottomEdge = function (checkChildren) {
-        var e_29, _a;
-        if (checkChildren === void 0) { checkChildren = true; }
-        this.clearCollisionResult();
-        this._collidedSprite = null;
-        if (this.hidden || this.stopped || this.deleted) {
-            return false;
-        }
-        if (this.collider && this.bottomY > this.game.height) {
-            this.collisionResult.collision = true;
-            this.collisionResult.overlap = this.bottomY - this.game.height;
-            this.collisionResult.overlap_y = 1;
-            return true;
-        }
-        if (checkChildren) {
-            try {
-                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var child = _c.value;
-                    if (child.touchBottomEdge()) {
-                        this._collidedSprite = child;
-                        return true;
-                    }
-                }
-            }
-            catch (e_29_1) { e_29 = { error: e_29_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_29) throw e_29.error; }
-            }
-        }
-        return false;
-    };
-    Sprite.prototype.touchLeftEdge = function (checkChildren) {
-        var e_30, _a;
-        if (checkChildren === void 0) { checkChildren = true; }
-        this.clearCollisionResult();
-        this._collidedSprite = null;
-        if (this.hidden || this.stopped || this.deleted) {
-            return false;
-        }
-        if (this.collider && this.leftX < 0) {
-            this.collisionResult.collision = true;
-            this.collisionResult.overlap = -this.leftX;
-            this.collisionResult.overlap_x = -1;
-            return true;
-        }
-        if (checkChildren) {
-            try {
-                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var child = _c.value;
-                    if (child.touchLeftEdge()) {
-                        this._collidedSprite = child;
-                        return true;
-                    }
-                }
-            }
-            catch (e_30_1) { e_30 = { error: e_30_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_30) throw e_30.error; }
-            }
-        }
-        return false;
-    };
-    Sprite.prototype.touchRightEdge = function (checkChildren) {
-        var e_31, _a;
-        if (checkChildren === void 0) { checkChildren = true; }
-        this.clearCollisionResult();
-        this._collidedSprite = null;
-        if (this.hidden || this.stopped || this.deleted) {
-            return false;
-        }
-        if (this.collider && this.rightX > this.game.width) {
-            this.collisionResult.collision = true;
-            this.collisionResult.overlap = this.rightX - this.game.width;
-            this.collisionResult.overlap_x = 1;
-            return true;
-        }
-        if (checkChildren) {
-            try {
-                for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var child = _c.value;
-                    if (child.touchRightEdge()) {
-                        this._collidedSprite = child;
-                        return true;
-                    }
-                }
-            }
-            catch (e_31_1) { e_31 = { error: e_31_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_31) throw e_31.error; }
-            }
-        }
-        return false;
-    };
-    Sprite.prototype.touchTag = function (tagName, checkChildren) {
-        var e_32, _a, e_33, _b;
-        if (checkChildren === void 0) { checkChildren = true; }
-        this.clearCollisionResult();
-        this._collidedSprite = null;
-        if (this.hidden || this.stopped || this.deleted) {
-            return false;
-        }
-        var collider = this.collider;
-        if (collider) {
-            var potentialsColliders = collider.potentials();
-            if (!potentialsColliders.length) {
-                return false;
-            }
-            try {
-                for (var potentialsColliders_1 = __values(potentialsColliders), potentialsColliders_1_1 = potentialsColliders_1.next(); !potentialsColliders_1_1.done; potentialsColliders_1_1 = potentialsColliders_1.next()) {
-                    var potentialCollider = potentialsColliders_1_1.value;
-                    var potentialSprite = potentialCollider.parentSprite;
-                    if (potentialSprite && potentialSprite.hasTag(tagName)) {
-                        if (!potentialSprite.hidden &&
-                            !potentialSprite.stopped &&
-                            !potentialSprite.deleted &&
-                            collider.collides(potentialCollider, this.collisionResult)) {
-                            return true;
-                        }
-                    }
-                }
-            }
-            catch (e_32_1) { e_32 = { error: e_32_1 }; }
-            finally {
-                try {
-                    if (potentialsColliders_1_1 && !potentialsColliders_1_1.done && (_a = potentialsColliders_1.return)) _a.call(potentialsColliders_1);
-                }
-                finally { if (e_32) throw e_32.error; }
-            }
-        }
-        if (checkChildren) {
-            try {
-                for (var _c = __values(this._children), _d = _c.next(); !_d.done; _d = _c.next()) {
-                    var child = _d.value;
-                    if (child.touchTag(tagName)) {
-                        this._collidedSprite = child;
-                        return true;
-                    }
-                }
-            }
-            catch (e_33_1) { e_33 = { error: e_33_1 }; }
-            finally {
-                try {
-                    if (_d && !_d.done && (_b = _c.return)) _b.call(_c);
-                }
-                finally { if (e_33) throw e_33.error; }
-            }
-        }
-        return false;
-    };
-    Sprite.prototype.touchTagAll = function (tagName, checkChildren) {
-        var e_34, _a, e_35, _b, e_36, _c;
-        if (checkChildren === void 0) { checkChildren = true; }
-        this.clearCollisionResult();
-        this._collidedSprite = null;
-        if (this.hidden || this.stopped || this.deleted) {
-            return false;
-        }
-        var collidedSprites = [];
-        var collider = this.collider;
-        if (collider) {
-            var potentialsColliders = collider.potentials();
-            if (!potentialsColliders.length) {
-                return false;
-            }
-            try {
-                for (var potentialsColliders_2 = __values(potentialsColliders), potentialsColliders_2_1 = potentialsColliders_2.next(); !potentialsColliders_2_1.done; potentialsColliders_2_1 = potentialsColliders_2.next()) {
-                    var potentialCollider = potentialsColliders_2_1.value;
-                    var potentialSprite = potentialCollider.parentSprite;
-                    if (potentialSprite && potentialSprite.hasTag(tagName)) {
-                        if (!potentialSprite.hidden &&
-                            !potentialSprite.stopped &&
-                            !potentialSprite.deleted &&
-                            potentialSprite.collider &&
-                            collider.collides(potentialCollider, this.collisionResult)) {
-                            collidedSprites.push(potentialSprite);
-                        }
-                    }
-                }
-            }
-            catch (e_34_1) { e_34 = { error: e_34_1 }; }
-            finally {
-                try {
-                    if (potentialsColliders_2_1 && !potentialsColliders_2_1.done && (_a = potentialsColliders_2.return)) _a.call(potentialsColliders_2);
-                }
-                finally { if (e_34) throw e_34.error; }
-            }
-        }
-        if (checkChildren) {
-            try {
-                for (var _d = __values(this._children), _e = _d.next(); !_e.done; _e = _d.next()) {
-                    var child = _e.value;
-                    var collision = child.touchTagAll(tagName);
-                    if (collision && !collision.length) {
-                        try {
-                            for (var collision_1 = (e_36 = void 0, __values(collision)), collision_1_1 = collision_1.next(); !collision_1_1.done; collision_1_1 = collision_1.next()) {
-                                var sprite = collision_1_1.value;
-                                collidedSprites.push(sprite);
-                            }
-                        }
-                        catch (e_36_1) { e_36 = { error: e_36_1 }; }
-                        finally {
-                            try {
-                                if (collision_1_1 && !collision_1_1.done && (_c = collision_1.return)) _c.call(collision_1);
-                            }
-                            finally { if (e_36) throw e_36.error; }
-                        }
-                    }
-                }
-            }
-            catch (e_35_1) { e_35 = { error: e_35_1 }; }
-            finally {
-                try {
-                    if (_e && !_e.done && (_b = _d.return)) _b.call(_d);
-                }
-                finally { if (e_35) throw e_35.error; }
-            }
-        }
-        if (collidedSprites.length) {
-            return collidedSprites;
-        }
-        return false;
-    };
-    Sprite.prototype.touchAnySprite = function (checkChildren) {
-        var e_37, _a, e_38, _b;
-        if (checkChildren === void 0) { checkChildren = true; }
-        this.clearCollisionResult();
-        this._collidedSprite = null;
-        if (this.hidden || this.stopped || this.deleted) {
-            return false;
-        }
-        var collider = this.collider;
-        if (collider) {
-            var potentialsColliders = collider.potentials();
-            if (!potentialsColliders.length) {
-                return false;
-            }
-            try {
-                for (var potentialsColliders_3 = __values(potentialsColliders), potentialsColliders_3_1 = potentialsColliders_3.next(); !potentialsColliders_3_1.done; potentialsColliders_3_1 = potentialsColliders_3.next()) {
-                    var potentialCollider = potentialsColliders_3_1.value;
-                    var potentialSprite = potentialCollider.parentSprite;
-                    if (!potentialSprite.hidden &&
-                        !potentialSprite.stopped &&
-                        !potentialSprite.deleted &&
-                        collider.collides(potentialCollider, this.collisionResult)) {
-                        return true;
-                    }
-                }
-            }
-            catch (e_37_1) { e_37 = { error: e_37_1 }; }
-            finally {
-                try {
-                    if (potentialsColliders_3_1 && !potentialsColliders_3_1.done && (_a = potentialsColliders_3.return)) _a.call(potentialsColliders_3);
-                }
-                finally { if (e_37) throw e_37.error; }
-            }
-        }
-        if (checkChildren) {
-            try {
-                for (var _c = __values(this._children), _d = _c.next(); !_d.done; _d = _c.next()) {
-                    var child = _d.value;
-                    if (child.touchAnySprite()) {
-                        this._collidedSprite = child;
-                        return true;
-                    }
-                }
-            }
-            catch (e_38_1) { e_38 = { error: e_38_1 }; }
-            finally {
-                try {
-                    if (_d && !_d.done && (_b = _c.return)) _b.call(_c);
-                }
-                finally { if (e_38) throw e_38.error; }
-            }
-        }
-        return false;
-    };
-    Object.defineProperty(Sprite.prototype, "overlap", {
-        get: function () {
-            if (this._collidedSprite) {
-                return this._collidedSprite.overlap;
-            }
-            if (!this.collisionResult.collision) {
-                return 0;
-            }
-            return this.collisionResult.overlap;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "overlapX", {
-        get: function () {
-            if (this._collidedSprite) {
-                return this._collidedSprite.overlapX;
-            }
-            if (!this.collisionResult.collision) {
-                return 0;
-            }
-            return this.collisionResult.overlap_x * this.collisionResult.overlap;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "overlapY", {
-        get: function () {
-            if (this._collidedSprite) {
-                return this._collidedSprite.overlapY;
-            }
-            if (!this.collisionResult.collision) {
-                return 0;
-            }
-            return this.collisionResult.overlap_y * this.collisionResult.overlap;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "otherSprite", {
-        get: function () {
-            if (!this.collisionResult.collision) {
-                return null;
-            }
-            return this.collisionResult.b.parentSprite;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Sprite.prototype, "otherMainSprite", {
-        get: function () {
-            if (!this.collisionResult.collision) {
-                return null;
-            }
-            return this.collisionResult.b.parentSprite.getMainSprite();
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Sprite.prototype.clearCollisionResult = function () {
-        this.collisionResult.collision = false;
-        this.collisionResult.a = null;
-        this.collisionResult.b = null;
-        this.collisionResult.a_in_b = false;
-        this.collisionResult.b_in_a = false;
-        this.collisionResult.overlap = 0;
-        this.collisionResult.overlap_x = 0;
-        this.collisionResult.overlap_y = 0;
-    };
-    Sprite.prototype.getPureCollisionResult = function () {
-        this.clearCollisionResult();
-        return this.collisionResult;
-    };
-    Sprite.prototype.timeout = function (callback, timeout) {
-        this.repeat(callback, 1, null, timeout, undefined);
-    };
-    Sprite.prototype.repeat = function (callback, repeat, interval, timeout, finishCallback) {
-        var state = new ScheduledState(interval, repeat, 0);
-        if (timeout) {
-            timeout = Date.now() + timeout;
-        }
-        this.tempScheduledCallbacks.push(new ScheduledCallbackItem(callback, state, timeout, finishCallback));
-        return state;
-    };
-    Sprite.prototype.forever = function (callback, interval, timeout, finishCallback) {
-        var state = new ScheduledState(interval);
-        if (timeout) {
-            timeout = Date.now() + timeout;
-        }
-        this.tempScheduledCallbacks.push(new ScheduledCallbackItem(callback, state, timeout, finishCallback));
-        return state;
-    };
-    Sprite.prototype.update = function (diffTime) {
-        if (this.deleted) {
-            return;
-        }
-        if (this.tempScheduledCallbacks.length) {
-            this.scheduledCallbacks = this.scheduledCallbacks.concat(this.tempScheduledCallbacks);
-            this.tempScheduledCallbacks = [];
-        }
-        this.scheduledCallbacks = this.scheduledCallbacks.filter(this.scheduledCallbackExecutor.execute(Date.now(), diffTime));
-    };
-    Sprite.prototype.run = function () {
-        this._stopped = false;
-    };
-    Sprite.prototype.stop = function () {
-        this._stopped = true;
-    };
-    Sprite.prototype.ready = function () {
-        this.tryDoOnReady();
-    };
-    Object.defineProperty(Sprite.prototype, "original", {
-        get: function () {
-            return this._original;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Sprite.prototype.setOriginal = function (original) {
-        this._original = original;
-    };
-    Sprite.prototype.createClone = function (stage) {
-        var _a, e_39, _b, e_40, _c;
-        if (!this.isReady()) {
-            this.game.throwError(ErrorMessages.CLONED_NOT_READY);
-        }
-        if (!stage) {
-            stage = this.stage;
-        }
-        var clone = new Sprite(stage, this.layer);
-        clone.setOriginal(this);
-        clone.name = this.name;
-        clone._rotateStyle = this._rotateStyle;
-        clone.x = this.x;
-        clone.y = this.y;
-        clone.pivotOffsetX = this.pivotOffsetX;
-        clone.pivotOffsetY = this.pivotOffsetY;
-        clone.direction = this.direction;
-        clone.size = this.size;
-        clone.hidden = this.hidden;
-        clone._deleted = this.deleted;
-        clone._stopped = this.stopped;
-        (_a = clone._tags).push.apply(_a, __spreadArray([], __read(this.tags), false));
-        clone.defaultColliderNone = this.defaultColliderNone;
-        for (var i = 0; i < this.costumes.length; i++) {
-            clone.cloneCostume(this.costumes[i], this.costumeNames[i]);
-        }
-        clone.switchCostume(this.costumeIndex);
-        try {
-            for (var _d = __values(this.sounds.entries()), _e = _d.next(); !_e.done; _e = _d.next()) {
-                var _f = __read(_e.value, 2), soundIndex = _f[0], sound = _f[1];
-                clone.sounds.push(sound);
-                clone.soundNames.push(this.soundNames[soundIndex]);
-            }
-        }
-        catch (e_39_1) { e_39 = { error: e_39_1 }; }
-        finally {
-            try {
-                if (_e && !_e.done && (_b = _d.return)) _b.call(_d);
-            }
-            finally { if (e_39) throw e_39.error; }
-        }
-        clone.currentColliderName = null;
-        clone.cloneCollider(this);
-        if (this.currentColliderName) {
-            clone.switchCollider(this.currentColliderName);
-        }
-        try {
-            for (var _g = __values(this._children), _h = _g.next(); !_h.done; _h = _g.next()) {
-                var child = _h.value;
-                var childClone = child.createClone();
-                clone.addChild(childClone);
-                childClone.x = child.x;
-                childClone.y = child.y;
-                childClone.direction = child.direction;
-            }
-        }
-        catch (e_40_1) { e_40 = { error: e_40_1 }; }
-        finally {
-            try {
-                if (_h && !_h.done && (_c = _g.return)) _c.call(_g);
-            }
-            finally { if (e_40) throw e_40.error; }
-        }
-        clone.ready();
-        return clone;
-    };
-    Sprite.prototype.delete = function () {
-        var e_41, _a;
-        if (this.deleted) {
-            return;
-        }
-        this.stage.removeSprite(this, this.layer);
-        this.eventEmitter.clearAll();
-        this.removeCollider();
-        this.scheduledCallbackExecutor = null;
-        try {
-            for (var _b = __values(this._children), _c = _b.next(); !_c.done; _c = _b.next()) {
-                var child = _c.value;
-                child.delete();
-            }
-        }
-        catch (e_41_1) { e_41 = { error: e_41_1 }; }
-        finally {
-            try {
-                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-            }
-            finally { if (e_41) throw e_41.error; }
-        }
-        var props = Object.keys(this);
-        for (var i = 0; i < props.length; i++) {
-            delete this[props[i]];
-        }
-        this.costumes = [];
-        this.costumeNames = [];
-        this.sounds = [];
-        this.soundNames = [];
-        this.onReadyCallbacks = [];
-        this.tempScheduledCallbacks = [];
-        this.scheduledCallbacks = [];
-        this._children = [];
-        this._deleted = true;
-    };
-    Sprite.prototype.deleteClones = function () {
-        var _this = this;
-        var spritesToDelete = this.stage.getSprites().filter(function (sprite) { return sprite.original === _this; });
-        spritesToDelete.forEach(function (sprite) { return sprite.delete(); });
-    };
-    Sprite.prototype.tryDoOnReady = function () {
-        var e_42, _a;
-        if (this.onReadyPending && this.isReady()) {
-            this.onReadyPending = false;
-            if (this.costumes.length && this.costume === null) {
-                this.switchCostume(0);
-            }
-            if (!this.defaultColliderNone && this.colliders.size === 0 && this.costumes.length) {
-                var colliderName = 'main';
-                this.setCostumeCollider(colliderName, 0);
-                this.switchCollider(colliderName);
-                this.updateColliderPosition(this.collider);
-                this.updateColliderSize(this.collider);
-            }
-            if (!this.collider && this.colliders.size) {
-                var colliderName = this.colliders.keys().next().value;
-                this.switchCollider(colliderName);
-                this.updateColliderPosition(this.collider);
-                this.updateColliderSize(this.collider);
-            }
-            if (this.onReadyCallbacks.length) {
-                try {
-                    for (var _b = __values(this.onReadyCallbacks), _c = _b.next(); !_c.done; _c = _b.next()) {
-                        var callback = _c.value;
-                        callback();
-                    }
-                }
-                catch (e_42_1) { e_42 = { error: e_42_1 }; }
-                finally {
-                    try {
-                        if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                    }
-                    finally { if (e_42) throw e_42.error; }
-                }
-                this.onReadyCallbacks = [];
-            }
-            this.stage.eventEmitter.emit(Game.SPRITE_READY_EVENT, {
-                sprite: this,
-                stageId: this.stage.id
-            });
-        }
-    };
-    return Sprite;
-}());
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
-    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (g && (g = 0, op[0] && (_ = 0)), _) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+      }
     }
-};
-var MultiplayerGame = (function (_super) {
-    __extends(MultiplayerGame, _super);
-    function MultiplayerGame(socketUrl, gameToken, width, height, canvasId, displayErrors, locale, lobbyId, autoSyncGame, multiplayerOptions) {
-        if (canvasId === void 0) { canvasId = null; }
-        if (displayErrors === void 0) { displayErrors = true; }
-        if (locale === void 0) { locale = 'ru'; }
-        if (lobbyId === void 0) { lobbyId = 0; }
-        if (autoSyncGame === void 0) { autoSyncGame = 0; }
-        if (multiplayerOptions === void 0) { multiplayerOptions = {}; }
-        var _this = _super.call(this, width, height, canvasId, displayErrors, locale) || this;
-        _this.autoSyncGameTimeout = 0;
-        _this.players = [];
-        _this.sharedObjects = [];
-        _this.autoSyncGameTimeout = autoSyncGame;
-        _this.initializeConnection(socketUrl, gameToken, lobbyId, multiplayerOptions);
-        return _this;
+    return null;
+  }
+  /**
+   * Movements functionality.
+   */
+  move(steps) {
+    const angleRadians = this.globalAngleRadians;
+    this.x += steps * Math.sin(angleRadians);
+    this.y -= steps * Math.cos(angleRadians);
+  }
+  pointForward(object) {
+    let globalX = object.globalX ? object.globalX : object.x;
+    let globalY = object.globalY ? object.globalY : object.y;
+    this.globalDirection = Math.atan2(this.globalY - globalY, this.globalX - globalX) / Math.PI * 180 - 90;
+  }
+  getDistanceTo(object) {
+    let globalX = object.globalX ? object.globalX : object.x;
+    let globalY = object.globalY ? object.globalY : object.y;
+    return Math.sqrt(Math.abs(this.globalX - globalX) + Math.abs(this.globalY - globalY));
+  }
+  bounceOnEdge() {
+    if (this.touchTopEdge() || this.touchBottomEdge()) {
+      this.direction = 180 - this.direction;
     }
-    MultiplayerGame.prototype.send = function (userData, parameters, syncPackName, syncData) {
-        if (parameters === void 0) { parameters = {}; }
-        if (syncData === void 0) { syncData = []; }
-        if (!this.connection) {
-            throw new Error('Connection to the server is not established.');
-        }
-        var data = {
-            'data': userData,
-            'sync': this.packSyncData(syncPackName, syncData)
-        };
-        this.connection.sendData(JSON.stringify(data), parameters);
-    };
-    MultiplayerGame.prototype.sync = function (syncPackName, syncData, parameters) {
-        if (syncData === void 0) { syncData = []; }
-        if (parameters === void 0) { parameters = {}; }
-        if (!syncData.length) {
-            return;
-        }
-        parameters.SyncGame = 'true';
-        var data = this.packSyncData(syncPackName, syncData);
-        this.sendData(JSON.stringify(data), parameters);
-    };
-    MultiplayerGame.prototype.syncGame = function () {
-        var syncObjects = this.getSyncObjects();
-        var syncData = this.packSyncData('game', syncObjects);
-        this.sendData(JSON.stringify(syncData), {
-            SyncGame: 'true'
-        });
-    };
-    MultiplayerGame.prototype.onConnection = function (callback) {
-        this.onConnectionCallback = callback;
-    };
-    MultiplayerGame.prototype.removeConnectionHandler = function (callback) {
-        this.onConnectionCallback = null;
-    };
-    MultiplayerGame.prototype.onReceive = function (callback) {
-        this.onReceiveCallback = callback;
-    };
-    MultiplayerGame.prototype.removeReceiveHandler = function (callback) {
-        this.onReceiveCallback = null;
-    };
-    MultiplayerGame.prototype.onMemberJoined = function (callback) {
-        this.onMemberJoinedCallback = callback;
-    };
-    MultiplayerGame.prototype.removeMemberJoinedHandler = function (callback) {
-        this.onMemberJoinedCallback = null;
-    };
-    MultiplayerGame.prototype.onMemberLeft = function (callback) {
-        this.onMemberLeftCallback = callback;
-    };
-    MultiplayerGame.prototype.removeMemberLeftHandler = function (callback) {
-        this.onMemberLeftCallback = null;
-    };
-    MultiplayerGame.prototype.onGameStarted = function (callback) {
-        this.onGameStartedCallback = callback;
-    };
-    MultiplayerGame.prototype.removeGameStartedHandler = function (callback) {
-        this.onGameStartedCallback = null;
-    };
-    MultiplayerGame.prototype.onGameStopped = function (callback) {
-        this.onGameStoppedCallback = callback;
-    };
-    MultiplayerGame.prototype.removeGameStoppedHandler = function (callback) {
-        this.onGameStoppedCallback = null;
-    };
-    MultiplayerGame.prototype.onMultiplayerError = function (callback) {
-        this.onMultiplayerErrorCallback = callback;
-    };
-    MultiplayerGame.prototype.removeMultiplayerErrorHandler = function (callback) {
-        this.onMultiplayerErrorCallback = null;
-    };
-    MultiplayerGame.prototype.run = function () {
-        _super.prototype.run.call(this);
-        if (this.isHost && this.autoSyncGameTimeout) {
-            this.autoSyncGame(this.autoSyncGameTimeout);
-        }
-    };
-    MultiplayerGame.prototype.stop = function () {
-        var e_43, _a;
-        _super.prototype.stop.call(this);
-        try {
-            for (var _b = __values(this.players), _c = _b.next(); !_c.done; _c = _b.next()) {
-                var player = _c.value;
-                player.delete();
-            }
-        }
-        catch (e_43_1) { e_43 = { error: e_43_1 }; }
-        finally {
-            try {
-                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-            }
-            finally { if (e_43) throw e_43.error; }
-        }
-        this.players = [];
-    };
-    MultiplayerGame.prototype.getPlayers = function () {
-        return this.players;
-    };
-    MultiplayerGame.prototype.addSharedObject = function (sharedObject) {
-        this.sharedObjects.push(sharedObject);
-    };
-    MultiplayerGame.prototype.removeSharedObject = function (sharedObject) {
-        var index = this.sharedObjects.indexOf(sharedObject);
-        if (index > -1) {
-            this.sharedObjects.splice(index, 1);
-        }
-    };
-    MultiplayerGame.prototype.getSharedObjects = function () {
-        return this.sharedObjects;
-    };
-    MultiplayerGame.prototype.getMultiplayerSprites = function () {
-        if (!this.getActiveStage()) {
-            return [];
-        }
-        return this.getActiveStage().getSprites().filter(function (sprite) {
-            return sprite instanceof MultiplayerSprite;
-        });
-    };
-    MultiplayerGame.prototype.getSyncObjects = function () {
-        var multiplayerSprites = this.getMultiplayerSprites();
-        var players = this.getPlayers();
-        var sharedObjects = this.getSharedObjects();
-        return __spreadArray(__spreadArray(__spreadArray([], __read(multiplayerSprites), false), __read(players), false), __read(sharedObjects), false);
-    };
-    MultiplayerGame.prototype.syncObjects = function (syncData, deltaTime) {
-        var e_44, _a, e_45, _b;
-        var gameAllSyncObjects = this.getSyncObjects();
-        try {
-            for (var _c = __values(Object.entries(syncData)), _d = _c.next(); !_d.done; _d = _c.next()) {
-                var _e = __read(_d.value, 2), syncPackName = _e[0], syncObjectsData = _e[1];
-                try {
-                    for (var gameAllSyncObjects_1 = (e_45 = void 0, __values(gameAllSyncObjects)), gameAllSyncObjects_1_1 = gameAllSyncObjects_1.next(); !gameAllSyncObjects_1_1.done; gameAllSyncObjects_1_1 = gameAllSyncObjects_1.next()) {
-                        var syncObject = gameAllSyncObjects_1_1.value;
-                        if (syncObjectsData[syncObject.getMultiplayerName()]) {
-                            var syncPackData = syncObjectsData[syncObject.getMultiplayerName()];
-                            syncObject.setSyncData(syncPackName, syncPackData, deltaTime);
-                        }
-                    }
-                }
-                catch (e_45_1) { e_45 = { error: e_45_1 }; }
-                finally {
-                    try {
-                        if (gameAllSyncObjects_1_1 && !gameAllSyncObjects_1_1.done && (_b = gameAllSyncObjects_1.return)) _b.call(gameAllSyncObjects_1);
-                    }
-                    finally { if (e_45) throw e_45.error; }
-                }
-            }
-        }
-        catch (e_44_1) { e_44 = { error: e_44_1 }; }
-        finally {
-            try {
-                if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
-            }
-            finally { if (e_44) throw e_44.error; }
-        }
-    };
-    MultiplayerGame.prototype.packSyncData = function (packName, syncObjects) {
-        var e_46, _a;
-        var syncObjectsData = {};
-        try {
-            for (var syncObjects_1 = __values(syncObjects), syncObjects_1_1 = syncObjects_1.next(); !syncObjects_1_1.done; syncObjects_1_1 = syncObjects_1.next()) {
-                var syncObject = syncObjects_1_1.value;
-                syncObjectsData[syncObject.getMultiplayerName()] = syncObject.getSyncData();
-                syncObjectsData[syncObject.getMultiplayerName()]['syncId'] = syncObject.increaseSyncId();
-            }
-        }
-        catch (e_46_1) { e_46 = { error: e_46_1 }; }
-        finally {
-            try {
-                if (syncObjects_1_1 && !syncObjects_1_1.done && (_a = syncObjects_1.return)) _a.call(syncObjects_1);
-            }
-            finally { if (e_46) throw e_46.error; }
-        }
-        var result = {};
-        result[packName] = syncObjectsData;
-        return result;
-    };
-    MultiplayerGame.prototype.sendData = function (data, parameters) {
-        if (parameters === void 0) { parameters = {}; }
-        if (!this.connection) {
-            throw new Error('Connection to the server is not established.');
-        }
-        this.connection.sendData(data, parameters);
-    };
-    MultiplayerGame.prototype.calcDeltaTime = function (sendTime) {
-        return Date.now() - sendTime - this.connection.deltaTime;
-    };
-    MultiplayerGame.prototype.extrapolate = function (callback, deltaTime, timeout) {
-        var times = Math.round((deltaTime / timeout) * 0.75);
-        for (var i = 0; i < times; i++) {
-            callback();
-        }
-    };
-    MultiplayerGame.prototype.initializeConnection = function (socketUrl_1, gameToken_1, lobbyId_1) {
-        return __awaiter(this, arguments, void 0, function (socketUrl, gameToken, lobbyId, multiplayerOptions) {
-            var socket, _a, error_1;
-            var _this = this;
-            if (multiplayerOptions === void 0) { multiplayerOptions = {}; }
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        socket = new JetcodeSocket(socketUrl);
-                        _b.label = 1;
-                    case 1:
-                        _b.trys.push([1, 3, , 4]);
-                        _a = this;
-                        return [4, socket.connect(gameToken, lobbyId, multiplayerOptions)];
-                    case 2:
-                        _a.connection = _b.sent();
-                        if (this.onConnectionCallback) {
-                            this.onConnectionCallback(this.connection);
-                        }
-                        this.connection.connect(JetcodeSocket.RECEIVE_DATA, function (data, parameters, isMe) {
-                            if (!data || !_this.running || !parameters.SendTime) {
-                                return;
-                            }
-                            if (parameters.SyncGame === 'true') {
-                                var syncObjectsData = JSON.parse(data);
-                                _this.syncObjects(syncObjectsData, _this.calcDeltaTime(parameters.SendTime));
-                            }
-                            else if (parameters.Keydown !== 'true' && parameters.Mousedown !== 'true' && _this.onReceiveCallback) {
-                                data = JSON.parse(data);
-                                var userData = data['userData'];
-                                var syncSpritesData = data['sync'];
-                                _this.syncObjects(syncSpritesData, _this.calcDeltaTime(parameters.SendTime));
-                                _this.onReceiveCallback(userData, parameters, isMe);
-                            }
-                        });
-                        this.connection.connect(JetcodeSocket.MEMBER_JOINED, function (parameters, isMe) {
-                            if (_this.onMemberJoinedCallback) {
-                                _this.onMemberJoinedCallback(parameters, isMe);
-                            }
-                        });
-                        this.connection.connect(JetcodeSocket.MEMBER_LEFT, function (parameters, isMe) {
-                            if (_this.onMemberLeftCallback) {
-                                _this.onMemberLeftCallback(parameters, isMe);
-                            }
-                        });
-                        this.connection.connect(JetcodeSocket.GAME_STARTED, function (parameters) {
-                            var _a, _b;
-                            var hostId = parameters.HostId;
-                            var playerIds = (_b = (_a = parameters.Members) === null || _a === void 0 ? void 0 : _a.split(',')) !== null && _b !== void 0 ? _b : [];
-                            _this.players = playerIds.map(function (playerId) {
-                                return new Player(playerId, playerId === _this.connection.memberId, _this);
-                            });
-                            _this.isHost = hostId === _this.connection.memberId;
-                            if (_this.onGameStartedCallback) {
-                                _this.onGameStartedCallback(_this.players, parameters);
-                            }
-                        });
-                        this.connection.connect(JetcodeSocket.GAME_STOPPED, function (parameters) {
-                            if (_this.onGameStoppedCallback) {
-                                _this.onGameStoppedCallback(parameters);
-                            }
-                        });
-                        this.connection.connect(JetcodeSocket.ERROR, function (parameters) {
-                            if (_this.onMultiplayerError) {
-                                _this.onMultiplayerError(parameters);
-                            }
-                        });
-                        return [3, 4];
-                    case 3:
-                        error_1 = _b.sent();
-                        console.error(error_1);
-                        return [3, 4];
-                    case 4: return [2];
-                }
-            });
-        });
-    };
-    MultiplayerGame.prototype.autoSyncGame = function (timeout) {
-        var _this = this;
-        var hander = function () {
-            _this.syncGame();
-        };
-        setInterval(hander, timeout);
-    };
-    return MultiplayerGame;
-}(Game));
-var MultiplayerSprite = (function (_super) {
-    __extends(MultiplayerSprite, _super);
-    function MultiplayerSprite(multiplayerName, stage, layer, costumePaths) {
-        if (stage === void 0) { stage = null; }
-        if (layer === void 0) { layer = 1; }
-        if (costumePaths === void 0) { costumePaths = []; }
-        var _this = _super.call(this, stage, layer, costumePaths) || this;
-        _this.multiplayerName = 'sprite_' + multiplayerName;
-        _this.syncId = 1;
-        _this.reservedProps = Object.keys(_this);
-        _this.reservedProps.push('body');
-        _this.reservedProps.push('reservedProps');
-        return _this;
+    if (this.touchLeftEdge() || this.touchRightEdge()) {
+      this.direction *= -1;
     }
-    MultiplayerSprite.prototype.generateUniqueId = function () {
-        return Math.random().toString(36).slice(2) + '-' + Math.random().toString(36).slice(2);
-    };
-    MultiplayerSprite.prototype.getCustomerProperties = function () {
-        var e_47, _a;
-        var data = {};
-        try {
-            for (var _b = __values(Object.keys(this)), _c = _b.next(); !_c.done; _c = _b.next()) {
-                var key = _c.value;
-                if (this.reservedProps.includes(key)) {
-                    continue;
-                }
-                data[key] = this[key];
-            }
-        }
-        catch (e_47_1) { e_47 = { error: e_47_1 }; }
-        finally {
-            try {
-                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-            }
-            finally { if (e_47) throw e_47.error; }
-        }
-        return data;
-    };
-    MultiplayerSprite.prototype.getMultiplayerName = function () {
-        return this.multiplayerName;
-    };
-    MultiplayerSprite.prototype.getSyncId = function () {
-        return this.syncId;
-    };
-    MultiplayerSprite.prototype.increaseSyncId = function () {
-        this.syncId++;
-        return this.syncId;
-    };
-    MultiplayerSprite.prototype.getSyncData = function () {
-        return Object.assign({}, this.getCustomerProperties(), {
-            size: this.size,
-            rotateStyle: this.rotateStyle,
-            costumeIndex: this.costumeIndex,
-            deleted: this._deleted,
-            x: this.x,
-            y: this.y,
-            direction: this.direction,
-            hidden: this.hidden,
-            stopped: this.stopped,
-        });
-    };
-    MultiplayerSprite.prototype.setSyncData = function (packName, data, deltaTime) {
-        var oldData = {};
-        for (var key in data) {
-            if (data.hasOwnProperty(key) && !this.reservedProps.includes(key)) {
-                oldData[key] = this[key];
-                this[key] = data[key];
-            }
-        }
-        if (this.syncCallback) {
-            this.syncCallback(this, packName, data, oldData, deltaTime);
-        }
-    };
-    MultiplayerSprite.prototype.onSync = function (callback) {
-        this.syncCallback = callback;
-    };
-    MultiplayerSprite.prototype.removeSyncHandler = function () {
-        this.syncCallback = null;
-    };
-    MultiplayerSprite.prototype.only = function () {
-        var properties = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            properties[_i] = arguments[_i];
-        }
-        return new OrphanSharedData(this, properties);
-    };
-    return MultiplayerSprite;
-}(Sprite));
-var OrphanSharedData = (function () {
-    function OrphanSharedData(parent, properties) {
-        this.parent = parent;
-        this.properties = properties;
+  }
+  /**
+   * Coordinates, dimensions, rotations, pivots, etc.
+   */
+  set x(value) {
+    this._x = value;
+    if (this._children.length) {
+      this.updateCenterParams();
     }
-    OrphanSharedData.prototype.getMultiplayerName = function () {
-        return this.parent.getMultiplayerName();
-    };
-    OrphanSharedData.prototype.getSyncId = function () {
-        return this.parent.getSyncId();
-    };
-    OrphanSharedData.prototype.increaseSyncId = function () {
-        return this.parent.increaseSyncId();
-    };
-    OrphanSharedData.prototype.getSyncData = function () {
-        var e_48, _a;
-        var syncData = {};
-        try {
-            for (var _b = __values(this.properties), _c = _b.next(); !_c.done; _c = _b.next()) {
-                var property = _c.value;
-                if (this.parent[property]) {
-                    syncData[property] = this.parent[property];
-                }
-            }
-        }
-        catch (e_48_1) { e_48 = { error: e_48_1 }; }
-        finally {
-            try {
-                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-            }
-            finally { if (e_48) throw e_48.error; }
-        }
-        return syncData;
-    };
-    OrphanSharedData.prototype.setSyncData = function (packName, data, deltaTime) {
-        this.parent.setSyncData(packName, data, deltaTime);
-    };
-    OrphanSharedData.prototype.onSync = function (callback) {
-        throw new Error('Not implemented.');
-    };
-    OrphanSharedData.prototype.removeSyncHandler = function () {
-        throw new Error('Not implemented.');
-    };
-    OrphanSharedData.prototype.only = function () {
-        var properties = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            properties[_i] = arguments[_i];
-        }
-        throw new Error('Not implemented.');
-    };
-    return OrphanSharedData;
-}());
-var Player = (function () {
-    function Player(id, isMe, game) {
-        this.deleted = false;
-        this.id = id;
-        this._isMe = isMe;
-        this.game = game;
-        this.multiplayerName = 'player_' + id;
-        this.syncId = 1;
-        this.control = new MultiplayerControl(this, this.game, game.connection, isMe);
-        this.reservedProps = Object.keys(this);
-        this.reservedProps.push('reservedProps');
+    const collider = this.collider;
+    if (collider) {
+      this.updateColliderPosition(collider);
     }
-    Player.prototype.keyDown = function (char, callback, syncPackName, syncData) {
-        if (syncData === void 0) { syncData = []; }
-        this.control.keyDown(char, callback, syncPackName, syncData);
-    };
-    Player.prototype.removeKeyDownHandler = function (char) {
-        this.control.removeKeyDownHandler(char);
-    };
-    Player.prototype.mouseDown = function (callback, syncPackName, syncData) {
-        if (syncData === void 0) { syncData = []; }
-        this.control.mouseDown(callback, syncPackName, syncData);
-    };
-    Player.prototype.removeMouseDownHandler = function () {
-        this.control.removeMouseDownHandler();
-    };
-    Player.prototype.isMe = function () {
-        return this._isMe;
-    };
-    Player.prototype.delete = function () {
-        if (this.deleted) {
-            return;
-        }
-        this.control.stop();
-        var props = Object.keys(this);
-        for (var i = 0; i < props.length; i++) {
-            delete this[props[i]];
-        }
-        this.deleted = true;
-    };
-    Player.prototype.repeat = function (i, callback, timeout, finishCallback) {
-        var _this = this;
-        if (this.deleted) {
-            finishCallback();
-            return;
-        }
-        if (i < 1) {
-            finishCallback();
-            return;
-        }
-        var result = callback(this);
-        if (result === false) {
-            finishCallback();
-            return;
-        }
-        if (result > 0) {
-            timeout = result;
-        }
-        i--;
-        if (i < 1) {
-            finishCallback();
-            return;
-        }
-        setTimeout(function () {
-            requestAnimationFrame(function () { return _this.repeat(i, callback, timeout, finishCallback); });
-        }, timeout);
-    };
-    Player.prototype.forever = function (callback, timeout) {
-        var _this = this;
-        if (timeout === void 0) { timeout = null; }
-        if (this.deleted) {
-            return;
-        }
-        var result = callback(this);
-        if (result === false) {
-            return;
-        }
-        if (result > 0) {
-            timeout = result;
-        }
-        if (timeout) {
-            setTimeout(function () {
-                requestAnimationFrame(function () { return _this.forever(callback, timeout); });
-            }, timeout);
-        }
-        else {
-            requestAnimationFrame(function () { return _this.forever(callback); });
-        }
-    };
-    Player.prototype.timeout = function (callback, timeout) {
-        var _this = this;
-        setTimeout(function () {
-            if (_this.deleted) {
-                return;
-            }
-            requestAnimationFrame(function () { return callback(_this); });
-        }, timeout);
-    };
-    Player.prototype.getMultiplayerName = function () {
-        return this.multiplayerName;
-    };
-    Player.prototype.getSyncId = function () {
-        return this.syncId;
-    };
-    Player.prototype.increaseSyncId = function () {
-        this.syncId++;
-        return this.syncId;
-    };
-    Player.prototype.getSyncData = function () {
-        var e_49, _a;
-        var data = {};
-        try {
-            for (var _b = __values(Object.keys(this)), _c = _b.next(); !_c.done; _c = _b.next()) {
-                var key = _c.value;
-                if (this.reservedProps.includes(key)) {
-                    continue;
-                }
-                data[key] = this[key];
-            }
-        }
-        catch (e_49_1) { e_49 = { error: e_49_1 }; }
-        finally {
-            try {
-                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-            }
-            finally { if (e_49) throw e_49.error; }
-        }
-        return data;
-    };
-    Player.prototype.setSyncData = function (packName, data, deltaTime) {
-        var oldData = {};
-        for (var key in data) {
-            if (data.hasOwnProperty(key) && !this.reservedProps.includes(key)) {
-                oldData[key] = this[key];
-                this[key] = data[key];
-            }
-        }
-        if (this.syncCallback) {
-            this.syncCallback(this, packName, data, oldData, deltaTime);
-        }
-    };
-    Player.prototype.onSync = function (callback) {
-        this.syncCallback = callback;
-    };
-    Player.prototype.removeSyncHandler = function () {
-        this.syncCallback = null;
-    };
-    Player.prototype.only = function () {
-        var properties = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            properties[_i] = arguments[_i];
-        }
-        return new OrphanSharedData(this, properties);
-    };
-    return Player;
-}());
-var ScheduledCallbackExecutor = (function () {
-    function ScheduledCallbackExecutor(context) {
-        this.context = context;
+    for (const child of this._children) {
+      if (child.collider) {
+        child.updateColliderPosition(child.collider);
+      }
     }
-    ScheduledCallbackExecutor.prototype.execute = function (now, diffTime) {
-        var _this = this;
-        return function (item) {
-            var state = item.state;
-            if (_this.context instanceof Sprite) {
-                if (_this.context.deleted) {
-                    return false;
-                }
-                if (_this.context.stopped) {
-                    return true;
-                }
-            }
-            if (item.timeout && diffTime) {
-                item.timeout += diffTime;
-            }
-            if (!item.timeout || item.timeout <= now) {
-                var result = item.callback.bind(_this.context)(_this.context, state);
-                if (state.maxIterations) {
-                    state.currentIteration++;
-                }
-                var isFinished = result === false ||
-                    (item.timeout && !state.interval && !state.maxIterations) ||
-                    (state.maxIterations && state.currentIteration >= state.maxIterations);
-                if (isFinished) {
-                    if (item.finishCallback) {
-                        item.finishCallback(_this.context, state);
-                    }
-                    return false;
-                }
-                if (state.interval) {
-                    item.timeout = now + state.interval;
-                }
-            }
-            return true;
-        };
-    };
-    return ScheduledCallbackExecutor;
-}());
-var ScheduledCallbackItem = (function () {
-    function ScheduledCallbackItem(callback, state, timeout, finishCallback) {
-        this.callback = callback;
-        this.state = state;
-        this.timeout = timeout;
-        this.finishCallback = finishCallback;
+  }
+  get x() {
+    return this._x;
+  }
+  set y(value) {
+    this._y = value;
+    if (this._children.length) {
+      this.updateCenterParams();
     }
-    return ScheduledCallbackItem;
-}());
-var ScheduledState = (function () {
-    function ScheduledState(interval, maxIterations, currentIteration) {
-        this.interval = interval;
-        this.maxIterations = maxIterations;
-        this.currentIteration = currentIteration;
+    const collider = this.collider;
+    if (collider) {
+      this.updateColliderPosition(collider);
     }
-    return ScheduledState;
-}());
-var SharedData = (function () {
-    function SharedData(multiplayerName) {
-        this.multiplayerName = 'data_' + multiplayerName;
-        this.syncId = 1;
-        if (!Registry.getInstance().has('game')) {
-            throw new Error('You need create Game instance before Sprite instance.');
-        }
-        var game = Registry.getInstance().get('game');
-        game.addSharedObject(this);
+    for (const child of this._children) {
+      if (child.collider) {
+        child.updateColliderPosition(child.collider);
+      }
     }
-    SharedData.prototype.generateUniqueId = function () {
-        return Math.random().toString(36).slice(2) + '-' + Math.random().toString(36).slice(2);
-    };
-    SharedData.prototype.getMultiplayerName = function () {
-        return this.multiplayerName;
-    };
-    SharedData.prototype.getSyncId = function () {
-        return this.syncId;
-    };
-    SharedData.prototype.increaseSyncId = function () {
-        this.syncId++;
-        return this.syncId;
-    };
-    SharedData.prototype.getSyncData = function () {
-        var e_50, _a;
-        var data = {};
-        try {
-            for (var _b = __values(Object.keys(this)), _c = _b.next(); !_c.done; _c = _b.next()) {
-                var key = _c.value;
-                data[key] = this[key];
-            }
-        }
-        catch (e_50_1) { e_50 = { error: e_50_1 }; }
-        finally {
-            try {
-                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-            }
-            finally { if (e_50) throw e_50.error; }
-        }
-        return data;
-    };
-    SharedData.prototype.setSyncData = function (packName, data, deltaTime) {
-        var oldData = {};
-        for (var key in data) {
-            if (data.hasOwnProperty(key)) {
-                oldData[key] = this[key];
-                this[key] = data[key];
-            }
-        }
-        if (this.syncCallback) {
-            this.syncCallback(this, packName, data, oldData, deltaTime);
-        }
-    };
-    SharedData.prototype.onSync = function (callback) {
-        this.syncCallback = callback;
-    };
-    SharedData.prototype.removeSyncHandler = function () {
-        this.syncCallback = null;
-    };
-    SharedData.prototype.only = function () {
-        var properties = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            properties[_i] = arguments[_i];
-        }
-        return new OrphanSharedData(this, properties);
-    };
-    return SharedData;
-}());
-var Stage = (function () {
-    function Stage(background) {
-        if (background === void 0) { background = null; }
-        this.background = null;
-        this.backgroundIndex = null;
-        this.backgrounds = [];
-        this.sprites = new Map();
-        this.drawings = new Map();
-        this.sounds = [];
-        this.soundNames = [];
-        this.addedSprites = 0;
-        this.loadedSprites = 0;
-        this.pendingBackgrounds = 0;
-        this.pendingSounds = 0;
-        this.pendingRun = false;
-        this.onReadyPending = true;
-        this.onReadyCallbacks = [];
-        this.onStartCallbacks = [];
-        this.scheduledCallbacks = [];
-        this.tempScheduledCallbacks = [];
-        this._stopped = true;
-        this._running = false;
-        this.stoppedTime = null;
-        this.diffTime = null;
-        if (!Registry.getInstance().has('game')) {
-            throw new Error('You need create Game instance before Stage instance.');
-        }
-        this.game = Registry.getInstance().get('game');
-        var stage = this;
-        if (this.game.displayErrors) {
-            stage = this.game.validatorFactory.createValidator(this, 'Stage');
-        }
-        stage.id = Symbol();
-        stage.eventEmitter = new EventEmitter();
-        stage.collisionSystem = new CollisionSystem();
-        stage.canvas = stage.game.canvas;
-        stage.context = stage.game.context;
-        if (background) {
-            stage.addBackground(background);
-        }
-        stage.addListeners();
-        stage.game.addStage(stage);
-        stage.scheduledCallbackExecutor = new ScheduledCallbackExecutor(stage);
-        stage.stoppedTime = Date.now();
-        stage.init();
-        stage.camera = new Camera(stage);
-        return stage;
+  }
+  get y() {
+    return this._y;
+  }
+  get globalX() {
+    if (this._parentSprite) {
+      if (this._rotateStyle === "leftRight" || this._rotateStyle === "none") {
+        return this._parentSprite.imageCenterX + this._x * this.size / 100;
+      }
+      return this._parentSprite.imageCenterX + this.distanceToParent * Math.cos(this.angleToParent - this._parentSprite.globalAngleRadians) * this.size / 100;
     }
-    Stage.prototype.init = function () { };
-    Stage.prototype.onStart = function (onStartCallback) {
-        this.onStartCallbacks.push(onStartCallback);
-    };
-    Stage.prototype.onReady = function (callback) {
-        this.onReadyCallbacks.push(callback);
-    };
-    Object.defineProperty(Stage.prototype, "running", {
-        get: function () {
-            return this._running;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Stage.prototype, "stopped", {
-        get: function () {
-            return this._stopped;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Stage.prototype.isReady = function () {
-        return this.addedSprites == this.loadedSprites && this.pendingBackgrounds === 0;
-    };
-    Object.defineProperty(Stage.prototype, "width", {
-        get: function () {
-            return this.canvas.width;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Stage.prototype, "height", {
-        get: function () {
-            return this.canvas.height;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Stage.prototype, "backgroundColor", {
-        set: function (color) {
-            this.drawBackground(function (context, stage) {
-                context.fillStyle = color;
-                context.fillRect(0, 0, stage.width, stage.height);
-            });
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Stage.prototype.drawBackground = function (callback) {
-        var backgroundCanvas = document.createElement('canvas');
-        var context = backgroundCanvas.getContext('2d');
-        backgroundCanvas.width = this.width;
-        backgroundCanvas.height = this.height;
-        this.pendingBackgrounds++;
-        callback(context, this);
-        this.backgrounds.push(backgroundCanvas);
-        this.pendingBackgrounds--;
-        return this;
-    };
-    Stage.prototype.addBackground = function (backgroundPath) {
-        var _this = this;
-        var backgroundImage = new Image();
-        backgroundImage.src = backgroundPath;
-        this.pendingBackgrounds++;
-        var onLoad = function () {
-            var backgroundCanvas = document.createElement('canvas');
-            var context = backgroundCanvas.getContext('2d');
-            backgroundCanvas.width = _this.width;
-            backgroundCanvas.height = _this.height;
-            context.drawImage(backgroundImage, 0, 0, _this.width, _this.height);
-            _this.backgrounds.push(backgroundCanvas);
-            _this.pendingBackgrounds--;
-            _this.tryDoOnReady();
-            _this.tryDoRun();
-            backgroundImage.removeEventListener('load', onLoad);
-        };
-        backgroundImage.addEventListener('load', onLoad);
-        backgroundImage.addEventListener('error', function () {
-            _this.game.throwError(ErrorMessages.BACKGROUND_NOT_LOADED, { backgroundPath: backgroundPath });
-        });
-        return this;
-    };
-    Stage.prototype.switchBackground = function (backgroundIndex) {
-        this.backgroundIndex = backgroundIndex;
-        var background = this.backgrounds[backgroundIndex];
-        if (background) {
-            this.background = background;
-        }
-    };
-    Stage.prototype.nextBackground = function () {
-        var nextBackgroundIndex = this.backgroundIndex + 1;
-        if (nextBackgroundIndex > this.backgrounds.length - 1) {
-            nextBackgroundIndex = 0;
-        }
-        if (nextBackgroundIndex !== this.backgroundIndex) {
-            this.switchBackground(nextBackgroundIndex);
-        }
-    };
-    Stage.prototype.addSound = function (soundPath, soundName) {
-        var _this = this;
-        if (this.soundNames.includes(soundName)) {
-            this.game.throwError(ErrorMessages.SOUND_NAME_ALREADY_EXISTS, { soundName: soundName });
-        }
-        var sound = new Audio();
-        sound.src = soundPath;
-        this.sounds.push(sound);
-        this.soundNames.push(soundName);
-        this.pendingSounds++;
-        sound.load();
-        var onLoadSound = function () {
-            _this.pendingSounds--;
-            _this.tryDoOnReady();
-            sound.removeEventListener('loadedmetadata', onLoadSound);
-        };
-        sound.addEventListener('loadedmetadata', onLoadSound);
-        return this;
-    };
-    Stage.prototype.removeSound = function (soundName) {
-        var soundIndex = this.soundNames.indexOf(soundName);
-        if (soundIndex < 0) {
-            this.game.throwError(ErrorMessages.SOUND_NAME_NOT_FOUND, { soundName: soundName });
-        }
-        this.sounds.splice(soundIndex, 1);
-        return this;
-    };
-    Stage.prototype.playSound = function (soundName, options) {
-        if (options === void 0) { options = {}; }
-        var sound = this.getSound(soundName);
-        this.doPlaySound(sound, options);
-    };
-    Stage.prototype.startSound = function (soundName, options) {
-        if (options === void 0) { options = {}; }
-        var sound = this.cloneSound(soundName);
-        this.doPlaySound(sound, options);
-        return sound;
-    };
-    Stage.prototype.pauseSound = function (soundName) {
-        var sound = this.getSound(soundName);
-        sound.pause();
-    };
-    Stage.prototype.getSound = function (soundName) {
-        if (!this.isReady()) {
-            this.game.throwError(ErrorMessages.SOUND_USE_NOT_READY);
-        }
-        var soundIndex = this.soundNames.indexOf(soundName);
-        if (soundIndex < 0) {
-            this.game.throwError(ErrorMessages.SOUND_NAME_NOT_FOUND, { soundName: soundName });
-        }
-        var sound = this.sounds[soundIndex];
-        if (!(sound instanceof Audio)) {
-            this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, { soundIndex: soundIndex });
-        }
-        return sound;
-    };
-    Stage.prototype.cloneSound = function (soundName) {
-        var originSound = this.getSound(soundName);
-        return new Audio(originSound.src);
-    };
-    Stage.prototype.doPlaySound = function (sound, options) {
-        var _this = this;
-        if (options === void 0) { options = {}; }
-        if (options.volume !== undefined) {
-            sound.volume = options.volume;
-        }
-        if (options.currentTime !== undefined) {
-            sound.currentTime = options.currentTime;
-        }
-        if (options.loop !== undefined) {
-            sound.loop = options.loop;
-        }
-        var playPromise = sound.play();
-        if (playPromise !== undefined) {
-            playPromise.catch(function (error) {
-                if (error.name === "NotAllowedError") {
-                    _this.game.throwError(ErrorMessages.SOUND_NOT_ALLOWED_ERROR, {}, false);
-                }
-                else {
-                    console.error("Audio playback error:", error);
-                }
-            });
-        }
-    };
-    Stage.prototype.addSprite = function (sprite) {
-        var layerSprites;
-        if (this.sprites.has(sprite.layer)) {
-            layerSprites = this.sprites.get(sprite.layer);
-        }
-        else {
-            layerSprites = [];
-            this.sprites.set(sprite.layer, layerSprites);
-        }
-        layerSprites.push(sprite);
-        this.addedSprites++;
-        return this;
-    };
-    Stage.prototype.removeSprite = function (sprite, layer) {
-        if (!this.sprites.has(layer)) {
-            this.game.throwErrorRaw('The layer "' + layer + '" not defined in the stage.');
-        }
-        var layerSprites = this.sprites.get(layer);
-        layerSprites.splice(layerSprites.indexOf(sprite), 1);
-        if (!layerSprites.length) {
-            this.sprites.delete(layer);
-        }
-        if (sprite.deleted || sprite.isReady()) {
-            this.loadedSprites--;
-        }
-        this.addedSprites--;
-        return this;
-    };
-    Stage.prototype.getSprites = function () {
-        return Array.from(this.sprites.values()).reduce(function (accumulator, currentValue) { return accumulator.concat(currentValue); }, []);
-    };
-    Stage.prototype.changeSpriteLayer = function (sprite, fromLayer, toLayer) {
-        if (!this.sprites.has(fromLayer)) {
-            this.game.throwErrorRaw('The layer "' + fromLayer + '" not defined in the stage.');
-        }
-        var fromLayerSprites = this.sprites.get(fromLayer);
-        fromLayerSprites.splice(fromLayerSprites.indexOf(sprite), 1);
-        if (!fromLayerSprites.length) {
-            this.sprites.delete(fromLayer);
-        }
-        var toLayerSprites = [];
-        if (this.sprites.has(toLayer)) {
-            toLayerSprites = this.sprites.get(toLayer);
-        }
-        else {
-            this.sprites.set(toLayer, toLayerSprites);
-        }
-        toLayerSprites.push(sprite);
-    };
-    Stage.prototype.drawSprite = function (sprite) {
-        var costume = sprite.getCostume();
-        var image = costume.image;
-        var dstX = sprite.imageCenterX - sprite.sourceWidth / 2;
-        var dstY = sprite.imageCenterY - sprite.sourceHeight / 2;
-        var dstWidth = sprite.sourceWidth;
-        var dstHeight = sprite.sourceHeight;
-        var direction = sprite.globalDirection;
-        var rotateStyle = sprite.rotateStyle;
-        var colliderOffsetX = (sprite.sourceWidth - costume.width * sprite.size / 100) / 2;
-        var colliderOffsetY = (sprite.sourceHeight - costume.height * sprite.size / 100) / 2;
-        var needSave = (rotateStyle === 'normal' && direction !== 0) ||
-            (rotateStyle === 'leftRight' && direction > 180) ||
-            sprite.opacity !== null ||
-            (sprite.filter !== null && sprite.filter != '');
-        if (needSave) {
-            this.context.save();
-        }
-        if (sprite.opacity !== null) {
-            this.context.globalAlpha = sprite.opacity;
-        }
-        if (sprite.filter) {
-            this.context.filter = sprite.filter;
-        }
-        if (rotateStyle === 'normal' && direction !== 0) {
-            this.context.translate(dstX + dstWidth / 2, dstY + dstHeight / 2);
-            this.context.rotate(sprite.globalAngleRadians);
-            this.context.translate(-dstX - dstWidth / 2, -dstY - dstHeight / 2);
-        }
-        if (rotateStyle === 'leftRight' && direction > 180) {
-            this.context.scale(-1, 1);
-            this.context.drawImage(image, 0, 0, costume.width, costume.height, -dstX - dstWidth + colliderOffsetX, dstY + colliderOffsetY, costume.width * sprite.size / 100, costume.height * sprite.size / 100);
-        }
-        else {
-            this.context.drawImage(image, 0, 0, costume.width, costume.height, dstX + colliderOffsetX, dstY + colliderOffsetY, costume.width * sprite.size / 100, costume.height * sprite.size / 100);
-        }
-        if (needSave) {
-            this.context.restore();
-        }
-    };
-    Stage.prototype.stampImage = function (stampImage, x, y, direction) {
-        if (direction === void 0) { direction = 0; }
-        if (this.background instanceof HTMLCanvasElement) {
-            var backgroundCanvas = document.createElement('canvas');
-            var context = backgroundCanvas.getContext('2d');
-            backgroundCanvas.width = this.width;
-            backgroundCanvas.height = this.height;
-            context.drawImage(this.background, 0, 0, this.width, this.height);
-            var stampWidth = stampImage instanceof HTMLImageElement ? stampImage.naturalWidth : stampImage.width;
-            var stampHeight = stampImage instanceof HTMLImageElement ? stampImage.naturalHeight : stampImage.height;
-            var stampDstX = x - stampWidth / 2;
-            var stampDstY = y - stampHeight / 2;
-            if (direction !== 0) {
-                var angleRadians = direction * Math.PI / 180;
-                context.translate(stampDstX + stampWidth / 2, stampDstY + stampHeight / 2);
-                context.rotate(angleRadians);
-                context.translate(-stampDstX - stampWidth / 2, -stampDstY - stampHeight / 2);
-            }
-            context.drawImage(stampImage, stampDstX, stampDstY, stampWidth, stampHeight);
-            this.background = backgroundCanvas;
-            this.backgrounds[this.backgroundIndex] = this.background;
-        }
-    };
-    Stage.prototype.pen = function (callback, layer) {
-        if (layer === void 0) { layer = 0; }
-        var layerDrawings;
-        if (this.drawings.has(layer)) {
-            layerDrawings = this.drawings.get(layer);
-        }
-        else {
-            layerDrawings = [];
-            this.drawings.set(layer, layerDrawings);
-        }
-        layerDrawings.push(callback);
-    };
-    Stage.prototype.timeout = function (callback, timeout) {
-        this.repeat(callback, 1, null, timeout, undefined);
-    };
-    Stage.prototype.repeat = function (callback, repeat, interval, timeout, finishCallback) {
-        if (interval === void 0) { interval = null; }
-        if (timeout === void 0) { timeout = null; }
-        var state = new ScheduledState(interval, repeat, 0);
-        if (timeout) {
-            timeout = Date.now() + timeout;
-        }
-        this.tempScheduledCallbacks.push(new ScheduledCallbackItem(callback, state, timeout, finishCallback));
-        return state;
-    };
-    Stage.prototype.forever = function (callback, interval, timeout, finishCallback) {
-        if (interval === void 0) { interval = null; }
-        if (timeout === void 0) { timeout = null; }
-        var state = new ScheduledState(interval);
-        if (timeout) {
-            timeout = Date.now() + timeout;
-        }
-        this.tempScheduledCallbacks.push(new ScheduledCallbackItem(callback, state, timeout, finishCallback));
-        return state;
-    };
-    Stage.prototype.render = function () {
-        var e_51, _a, e_52, _b, e_53, _c;
-        var _this = this;
-        this.update();
-        this.collisionSystem.update();
-        this.context.clearRect(this.camera.startCornerX - this.camera.width / this.camera.zoom / 2, this.camera.startCornerY - this.camera.height / this.camera.zoom / 2, this.width + this.camera.width / this.camera.zoom, this.height + this.camera.height / this.camera.zoom);
-        if (this.background) {
-            this.context.drawImage(this.background, 0, 0, this.width, this.height);
-        }
-        var layers = Array.from(this.sprites.keys()).concat(Array.from(this.drawings.keys()));
-        layers = layers.filter(function (item, pos) { return layers.indexOf(item) === pos; });
-        layers = layers.sort(function (a, b) { return a - b; });
-        try {
-            for (var layers_1 = __values(layers), layers_1_1 = layers_1.next(); !layers_1_1.done; layers_1_1 = layers_1.next()) {
-                var layer = layers_1_1.value;
-                if (this.drawings.has(layer)) {
-                    var layerDrawings = this.drawings.get(layer);
-                    try {
-                        for (var layerDrawings_1 = (e_52 = void 0, __values(layerDrawings)), layerDrawings_1_1 = layerDrawings_1.next(); !layerDrawings_1_1.done; layerDrawings_1_1 = layerDrawings_1.next()) {
-                            var drawing = layerDrawings_1_1.value;
-                            drawing(this.context, this);
-                        }
-                    }
-                    catch (e_52_1) { e_52 = { error: e_52_1 }; }
-                    finally {
-                        try {
-                            if (layerDrawings_1_1 && !layerDrawings_1_1.done && (_b = layerDrawings_1.return)) _b.call(layerDrawings_1);
-                        }
-                        finally { if (e_52) throw e_52.error; }
-                    }
-                }
-                if (this.sprites.has(layer)) {
-                    var layerSprites = this.sprites.get(layer);
-                    var _loop_1 = function (sprite) {
-                        var e_54, _d;
-                        if (sprite.hidden) {
-                            return "continue";
-                        }
-                        var distance = Math.hypot(sprite.imageCenterX - this_1.camera.x, sprite.imageCenterY - this_1.camera.y);
-                        var spriteRadius = Math.hypot(sprite.sourceWidth, sprite.sourceHeight) / 2 * this_1.camera.zoom;
-                        if (distance > this_1.camera.renderRadius + spriteRadius) {
-                            return "continue";
-                        }
-                        if (this_1.game.debugMode !== 'none') {
-                            var fn = function () {
-                                var x = sprite.imageCenterX - (_this.context.measureText(sprite.name).width / 2);
-                                var y = sprite.imageCenterY + sprite.height + 20;
-                                _this.context.fillStyle = _this.game.debugColor;
-                                _this.context.font = '16px Arial';
-                                _this.context.fillText(sprite.name, x, y);
-                                y += 20;
-                                _this.context.font = '14px Arial';
-                                _this.context.fillText('x: ' + sprite.x, x, y);
-                                y += 20;
-                                _this.context.fillText('y: ' + sprite.y, x, y);
-                                y += 20;
-                                _this.context.fillText('direction: ' + sprite.direction, x, y);
-                                y += 20;
-                                _this.context.fillText('costume: ' + sprite.getCostumeName(), x, y);
-                                y += 20;
-                                _this.context.fillText('xOffset: ' + sprite.pivotOffsetX, x, y);
-                                y += 20;
-                                _this.context.fillText('yOffset: ' + sprite.pivotOffsetY, x, y);
-                                _this.context.beginPath();
-                                _this.context.moveTo(sprite.globalX - 2, sprite.globalY);
-                                _this.context.lineTo(sprite.globalX + 2, sprite.globalY);
-                                _this.context.moveTo(sprite.globalX, sprite.globalY - 2);
-                                _this.context.lineTo(sprite.globalX, sprite.globalY + 2);
-                                _this.context.stroke();
-                            };
-                            if (this_1.game.debugMode === 'hover') {
-                                if (sprite.touchMouse()) {
-                                    fn();
-                                }
-                            }
-                            if (this_1.game.debugMode === 'forever') {
-                                fn();
-                            }
-                        }
-                        var phrase = sprite.getPhrase();
-                        if (phrase) {
-                            this_1.context.font = '20px Arial';
-                            this_1.context.fillStyle = 'black';
-                            this_1.context.fillText(phrase, 40, this_1.canvas.height - 40);
-                        }
-                        if (sprite.getCostume()) {
-                            this_1.drawSprite(sprite);
-                        }
-                        try {
-                            for (var _e = (e_54 = void 0, __values(sprite.drawings)), _f = _e.next(); !_f.done; _f = _e.next()) {
-                                var drawing = _f.value;
-                                drawing(this_1.context, sprite);
-                            }
-                        }
-                        catch (e_54_1) { e_54 = { error: e_54_1 }; }
-                        finally {
-                            try {
-                                if (_f && !_f.done && (_d = _e.return)) _d.call(_e);
-                            }
-                            finally { if (e_54) throw e_54.error; }
-                        }
-                    };
-                    var this_1 = this;
-                    try {
-                        for (var layerSprites_1 = (e_53 = void 0, __values(layerSprites)), layerSprites_1_1 = layerSprites_1.next(); !layerSprites_1_1.done; layerSprites_1_1 = layerSprites_1.next()) {
-                            var sprite = layerSprites_1_1.value;
-                            _loop_1(sprite);
-                        }
-                    }
-                    catch (e_53_1) { e_53 = { error: e_53_1 }; }
-                    finally {
-                        try {
-                            if (layerSprites_1_1 && !layerSprites_1_1.done && (_c = layerSprites_1.return)) _c.call(layerSprites_1);
-                        }
-                        finally { if (e_53) throw e_53.error; }
-                    }
-                }
-            }
-        }
-        catch (e_51_1) { e_51 = { error: e_51_1 }; }
-        finally {
-            try {
-                if (layers_1_1 && !layers_1_1.done && (_a = layers_1.return)) _a.call(layers_1);
-            }
-            finally { if (e_51) throw e_51.error; }
-        }
-        if (this.game.debugCollider) {
-            this.context.strokeStyle = this.game.debugColor;
-            this.context.beginPath();
-            this.collisionSystem.draw(this.context);
-            this.context.stroke();
-        }
-        this.context.translate(-this.camera.changes.x, -this.camera.changes.y);
-        var centerPointX = this.width / 2 + this.camera.startCornerX;
-        var centerPointY = this.height / 2 + this.camera.startCornerY;
-        this.context.translate(centerPointX, centerPointY);
-        this.context.scale(this.camera.changes.zoom, this.camera.changes.zoom);
-        this.context.translate(-centerPointX, -centerPointY);
-        this.camera.changes.reset();
-    };
-    Stage.prototype.update = function () {
-        var _this = this;
-        if (this.tempScheduledCallbacks.length) {
-            this.scheduledCallbacks = this.scheduledCallbacks.concat(this.tempScheduledCallbacks);
-            this.tempScheduledCallbacks = [];
-        }
-        this.scheduledCallbacks = this.scheduledCallbacks.filter(this.scheduledCallbackExecutor.execute(Date.now(), this.diffTime));
-        this.sprites.forEach(function (layerSprites, layer) {
-            var e_55, _a;
-            try {
-                for (var layerSprites_2 = __values(layerSprites), layerSprites_2_1 = layerSprites_2.next(); !layerSprites_2_1.done; layerSprites_2_1 = layerSprites_2.next()) {
-                    var sprite = layerSprites_2_1.value;
-                    if (sprite.deleted) {
-                        _this.removeSprite(sprite, layer);
-                        return;
-                    }
-                    sprite.update(_this.diffTime);
-                }
-            }
-            catch (e_55_1) { e_55 = { error: e_55_1 }; }
-            finally {
-                try {
-                    if (layerSprites_2_1 && !layerSprites_2_1.done && (_a = layerSprites_2.return)) _a.call(layerSprites_2);
-                }
-                finally { if (e_55) throw e_55.error; }
-            }
-        });
-        this.diffTime = 0;
-    };
-    Stage.prototype.run = function () {
-        var e_56, _a, e_57, _b;
-        if (!this._stopped) {
-            return;
-        }
-        this._stopped = false;
-        try {
-            for (var _c = __values(this.sprites.values()), _d = _c.next(); !_d.done; _d = _c.next()) {
-                var layerSprites = _d.value;
-                try {
-                    for (var layerSprites_3 = (e_57 = void 0, __values(layerSprites)), layerSprites_3_1 = layerSprites_3.next(); !layerSprites_3_1.done; layerSprites_3_1 = layerSprites_3.next()) {
-                        var sprite = layerSprites_3_1.value;
-                        sprite.run();
-                    }
-                }
-                catch (e_57_1) { e_57 = { error: e_57_1 }; }
-                finally {
-                    try {
-                        if (layerSprites_3_1 && !layerSprites_3_1.done && (_b = layerSprites_3.return)) _b.call(layerSprites_3);
-                    }
-                    finally { if (e_57) throw e_57.error; }
-                }
-            }
-        }
-        catch (e_56_1) { e_56 = { error: e_56_1 }; }
-        finally {
-            try {
-                if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
-            }
-            finally { if (e_56) throw e_56.error; }
-        }
-        this.pendingRun = true;
-        this.tryDoRun();
-    };
-    Stage.prototype.ready = function () {
-        var e_58, _a, e_59, _b;
-        this.tryDoOnReady();
-        this.tryDoRun();
-        try {
-            for (var _c = __values(this.sprites.values()), _d = _c.next(); !_d.done; _d = _c.next()) {
-                var layerSprites = _d.value;
-                try {
-                    for (var layerSprites_4 = (e_59 = void 0, __values(layerSprites)), layerSprites_4_1 = layerSprites_4.next(); !layerSprites_4_1.done; layerSprites_4_1 = layerSprites_4.next()) {
-                        var sprite = layerSprites_4_1.value;
-                        sprite.ready();
-                    }
-                }
-                catch (e_59_1) { e_59 = { error: e_59_1 }; }
-                finally {
-                    try {
-                        if (layerSprites_4_1 && !layerSprites_4_1.done && (_b = layerSprites_4.return)) _b.call(layerSprites_4);
-                    }
-                    finally { if (e_59) throw e_59.error; }
-                }
-            }
-        }
-        catch (e_58_1) { e_58 = { error: e_58_1 }; }
-        finally {
-            try {
-                if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
-            }
-            finally { if (e_58) throw e_58.error; }
-        }
-    };
-    Stage.prototype.stop = function () {
-        var e_60, _a, e_61, _b;
-        if (this._stopped) {
-            return;
-        }
-        this._running = false;
-        this._stopped = true;
-        try {
-            for (var _c = __values(this.sprites.values()), _d = _c.next(); !_d.done; _d = _c.next()) {
-                var layerSprites = _d.value;
-                try {
-                    for (var layerSprites_5 = (e_61 = void 0, __values(layerSprites)), layerSprites_5_1 = layerSprites_5.next(); !layerSprites_5_1.done; layerSprites_5_1 = layerSprites_5.next()) {
-                        var sprite = layerSprites_5_1.value;
-                        sprite.stop();
-                    }
-                }
-                catch (e_61_1) { e_61 = { error: e_61_1 }; }
-                finally {
-                    try {
-                        if (layerSprites_5_1 && !layerSprites_5_1.done && (_b = layerSprites_5.return)) _b.call(layerSprites_5);
-                    }
-                    finally { if (e_61) throw e_61.error; }
-                }
-            }
-        }
-        catch (e_60_1) { e_60 = { error: e_60_1 }; }
-        finally {
-            try {
-                if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
-            }
-            finally { if (e_60) throw e_60.error; }
-        }
-        this.stoppedTime = Date.now();
-    };
-    Stage.prototype.tryDoOnReady = function () {
-        var e_62, _a;
-        if (this.onReadyPending && this.isReady()) {
-            this.onReadyPending = false;
-            if (this.backgrounds.length && this.backgroundIndex === null) {
-                this.switchBackground(0);
-            }
-            if (this.onReadyCallbacks.length) {
-                try {
-                    for (var _b = __values(this.onReadyCallbacks), _c = _b.next(); !_c.done; _c = _b.next()) {
-                        var callback = _c.value;
-                        callback();
-                    }
-                }
-                catch (e_62_1) { e_62 = { error: e_62_1 }; }
-                finally {
-                    try {
-                        if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                    }
-                    finally { if (e_62) throw e_62.error; }
-                }
-                this.onReadyCallbacks = [];
-            }
-            this.game.eventEmitter.emit(Game.STAGE_READY_EVENT, {
-                stage: this
-            });
-        }
-    };
-    Stage.prototype.doOnStart = function () {
-        var e_63, _a;
-        var _loop_2 = function (callback) {
-            setTimeout(function () {
-                callback();
-            });
-        };
-        try {
-            for (var _b = __values(this.onStartCallbacks), _c = _b.next(); !_c.done; _c = _b.next()) {
-                var callback = _c.value;
-                _loop_2(callback);
-            }
-        }
-        catch (e_63_1) { e_63 = { error: e_63_1 }; }
-        finally {
-            try {
-                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-            }
-            finally { if (e_63) throw e_63.error; }
-        }
-    };
-    Stage.prototype.tryDoRun = function () {
-        var _this = this;
-        if (this.pendingRun && !this._running && this.isReady()) {
-            this._running = true;
-            this.pendingRun = false;
-            this.doOnStart();
-            this.diffTime = Date.now() - this.stoppedTime;
-            setTimeout(function () {
-                var stoppedTime = _this.stoppedTime;
-                var loop = function () {
-                    if (_this._stopped || stoppedTime !== _this.stoppedTime) {
-                        return;
-                    }
-                    _this.render();
-                    requestAnimationFrame(loop);
-                };
-                loop();
-            });
-        }
-    };
-    Stage.prototype.addListeners = function () {
-        var _this = this;
-        this.eventEmitter.on(Game.SPRITE_READY_EVENT, Game.SPRITE_READY_EVENT, function (event) {
-            if (_this.id == event.detail.stageId) {
-                _this.loadedSprites++;
-                _this.tryDoOnReady();
-                _this.tryDoRun();
-            }
-        });
-    };
-    return Stage;
-}());
-var BVH = (function () {
-    function BVH() {
-        this._hierarchy = null;
-        this._bodies = [];
-        this._dirty_branches = [];
+    return this._x;
+  }
+  get globalY() {
+    if (this._parentSprite) {
+      if (this._rotateStyle === "leftRight" || this._rotateStyle === "none") {
+        return this._parentSprite.imageCenterY + this._y;
+      }
+      return this._parentSprite.imageCenterY - this.distanceToParent * Math.sin(this.angleToParent - this._parentSprite.globalAngleRadians) * this.size / 100;
     }
-    BVH.prototype.insert = function (body, updating) {
-        if (updating === void 0) { updating = false; }
-        if (!updating) {
-            var bvh = body._bvh;
-            if (bvh && bvh !== this) {
-                throw new Error('Body belongs to another collision system');
-            }
-            body._bvh = this;
-            this._bodies.push(body);
-        }
-        var polygon = body._polygon;
-        var body_x = body.x;
-        var body_y = body.y;
-        if (polygon) {
-            if (body._dirty_coords ||
-                body.x !== body._x ||
-                body.y !== body._y ||
-                body.angle !== body._angle ||
-                body.scale_x !== body._scale_x ||
-                body.scale_y !== body._scale_y) {
-                body._calculateCoords();
-            }
-        }
-        var padding = body._bvh_padding;
-        var radius = polygon ? 0 : body.radius * body.scale;
-        var body_min_x = (polygon ? body._min_x : body_x - radius) - padding;
-        var body_min_y = (polygon ? body._min_y : body_y - radius) - padding;
-        var body_max_x = (polygon ? body._max_x : body_x + radius) + padding;
-        var body_max_y = (polygon ? body._max_y : body_y + radius) + padding;
-        body._bvh_min_x = body_min_x;
-        body._bvh_min_y = body_min_y;
-        body._bvh_max_x = body_max_x;
-        body._bvh_max_y = body_max_y;
-        var current = this._hierarchy;
-        var sort = 0;
-        if (!current) {
-            this._hierarchy = body;
-        }
-        else {
-            var depth = 0;
-            while (depth++ < BVH.MAX_DEPTH) {
-                if (current._bvh_branch) {
-                    var left = current._bvh_left;
-                    var left_min_y = left._bvh_min_y;
-                    var left_max_x = left._bvh_max_x;
-                    var left_max_y = left._bvh_max_y;
-                    var left_new_min_x = body_min_x < left._bvh_min_x ? body_min_x : left._bvh_min_x;
-                    var left_new_min_y = body_min_y < left_min_y ? body_min_y : left_min_y;
-                    var left_new_max_x = body_max_x > left_max_x ? body_max_x : left_max_x;
-                    var left_new_max_y = body_max_y > left_max_y ? body_max_y : left_max_y;
-                    var left_volume = (left_max_x - left._bvh_min_x) * (left_max_y - left_min_y);
-                    var left_new_volume = (left_new_max_x - left_new_min_x) * (left_new_max_y - left_new_min_y);
-                    var left_difference = left_new_volume - left_volume;
-                    var right = current._bvh_right;
-                    var right_min_x = right._bvh_min_x;
-                    var right_min_y = right._bvh_min_y;
-                    var right_max_x = right._bvh_max_x;
-                    var right_max_y = right._bvh_max_y;
-                    var right_new_min_x = body_min_x < right_min_x ? body_min_x : right_min_x;
-                    var right_new_min_y = body_min_y < right_min_y ? body_min_y : right_min_y;
-                    var right_new_max_x = body_max_x > right_max_x ? body_max_x : right_max_x;
-                    var right_new_max_y = body_max_y > right_max_y ? body_max_y : right_max_y;
-                    var right_volume = (right_max_x - right_min_x) * (right_max_y - right_min_y);
-                    var right_new_volume = (right_new_max_x - right_new_min_x) * (right_new_max_y - right_new_min_y);
-                    var right_difference = right_new_volume - right_volume;
-                    current._bvh_sort = sort++;
-                    current._bvh_min_x = left_new_min_x < right_new_min_x ? left_new_min_x : right_new_min_x;
-                    current._bvh_min_y = left_new_min_y < right_new_min_y ? left_new_min_y : right_new_min_y;
-                    current._bvh_max_x = left_new_max_x > right_new_max_x ? left_new_max_x : right_new_max_x;
-                    current._bvh_max_y = left_new_max_y > right_new_max_y ? left_new_max_y : right_new_max_y;
-                    current = left_difference <= right_difference ? left : right;
-                }
-                else {
-                    var grandparent = current._bvh_parent;
-                    var parent_min_x = current._bvh_min_x;
-                    var parent_min_y = current._bvh_min_y;
-                    var parent_max_x = current._bvh_max_x;
-                    var parent_max_y = current._bvh_max_y;
-                    var new_parent = current._bvh_parent = body._bvh_parent = BVHBranch.getBranch();
-                    new_parent._bvh_parent = grandparent;
-                    new_parent._bvh_left = current;
-                    new_parent._bvh_right = body;
-                    new_parent._bvh_sort = sort++;
-                    new_parent._bvh_min_x = body_min_x < parent_min_x ? body_min_x : parent_min_x;
-                    new_parent._bvh_min_y = body_min_y < parent_min_y ? body_min_y : parent_min_y;
-                    new_parent._bvh_max_x = body_max_x > parent_max_x ? body_max_x : parent_max_x;
-                    new_parent._bvh_max_y = body_max_y > parent_max_y ? body_max_y : parent_max_y;
-                    if (!grandparent) {
-                        this._hierarchy = new_parent;
-                    }
-                    else if (grandparent._bvh_left === current) {
-                        grandparent._bvh_left = new_parent;
-                    }
-                    else {
-                        grandparent._bvh_right = new_parent;
-                    }
-                    break;
-                }
-            }
-        }
-    };
-    BVH.prototype.remove = function (body, updating) {
-        if (updating === void 0) { updating = false; }
-        if (!updating) {
-            var bvh = body._bvh;
-            if (bvh && bvh !== this) {
-                throw new Error('Body belongs to another collision system');
-            }
-            body._bvh = null;
-            this._bodies.splice(this._bodies.indexOf(body), 1);
-        }
-        if (this._hierarchy === body) {
-            this._hierarchy = null;
-            return;
-        }
-        var parent = body._bvh_parent;
-        if (!parent) {
-            console.error('The parent is not defined in the collision system.');
-            return;
-        }
-        var grandparent = parent._bvh_parent;
-        var parent_left = parent._bvh_left;
-        var sibling = parent_left === body ? parent._bvh_right : parent_left;
-        sibling._bvh_parent = grandparent;
-        if (sibling._bvh_branch) {
-            sibling._bvh_sort = parent._bvh_sort;
-        }
-        if (grandparent) {
-            if (grandparent._bvh_left === parent) {
-                grandparent._bvh_left = sibling;
-            }
-            else {
-                grandparent._bvh_right = sibling;
-            }
-            var branch = grandparent;
-            var depth = 0;
-            while (branch && depth++ < BVH.MAX_DEPTH) {
-                var left = branch._bvh_left;
-                var left_min_x = left._bvh_min_x;
-                var left_min_y = left._bvh_min_y;
-                var left_max_x = left._bvh_max_x;
-                var left_max_y = left._bvh_max_y;
-                var right = branch._bvh_right;
-                var right_min_x = right._bvh_min_x;
-                var right_min_y = right._bvh_min_y;
-                var right_max_x = right._bvh_max_x;
-                var right_max_y = right._bvh_max_y;
-                branch._bvh_min_x = left_min_x < right_min_x ? left_min_x : right_min_x;
-                branch._bvh_min_y = left_min_y < right_min_y ? left_min_y : right_min_y;
-                branch._bvh_max_x = left_max_x > right_max_x ? left_max_x : right_max_x;
-                branch._bvh_max_y = left_max_y > right_max_y ? left_max_y : right_max_y;
-                branch = branch._bvh_parent;
-            }
-        }
-        else {
-            this._hierarchy = sibling;
-        }
-        BVHBranch.releaseBranch(parent);
-    };
-    BVH.prototype.update = function () {
-        var bodies = this._bodies;
-        var count = bodies.length;
-        for (var i = 0; i < count; ++i) {
-            var body = bodies[i];
-            var update = false;
-            if (!update && body.padding !== body._bvh_padding) {
-                body._bvh_padding = body.padding;
-                update = true;
-            }
-            if (!update) {
-                var polygon = body._polygon;
-                if (polygon) {
-                    if (body._dirty_coords ||
-                        body.x !== body._x ||
-                        body.y !== body._y ||
-                        body.angle !== body._angle ||
-                        body.scale_x !== body._scale_x ||
-                        body.scale_y !== body._scale_y) {
-                        body._calculateCoords();
-                    }
-                }
-                var x = body.x;
-                var y = body.y;
-                var radius = polygon ? 0 : body.radius * body.scale;
-                var min_x = polygon ? body._min_x : x - radius;
-                var min_y = polygon ? body._min_y : y - radius;
-                var max_x = polygon ? body._max_x : x + radius;
-                var max_y = polygon ? body._max_y : y + radius;
-                update = min_x < body._bvh_min_x || min_y < body._bvh_min_y || max_x > body._bvh_max_x || max_y > body._bvh_max_y;
-            }
-            if (update) {
-                this.remove(body, true);
-                this.insert(body, true);
-            }
-        }
-    };
-    BVH.prototype.potentials = function (body) {
-        var results = [];
-        var min_x = body._bvh_min_x;
-        var min_y = body._bvh_min_y;
-        var max_x = body._bvh_max_x;
-        var max_y = body._bvh_max_y;
-        var current = this._hierarchy;
-        var traverse_left = true;
-        if (!current || !current._bvh_branch) {
-            return results;
-        }
-        var depth = 0;
-        while (current && depth++ < BVH.MAX_DEPTH) {
-            if (traverse_left) {
-                traverse_left = false;
-                var left = current._bvh_branch ? current._bvh_left : null;
-                while (left &&
-                    left._bvh_max_x >= min_x &&
-                    left._bvh_max_y >= min_y &&
-                    left._bvh_min_x <= max_x &&
-                    left._bvh_min_y <= max_y) {
-                    current = left;
-                    left = current._bvh_branch ? current._bvh_left : null;
-                }
-            }
-            var branch = current._bvh_branch;
-            var right = branch ? current._bvh_right : null;
-            if (right &&
-                right._bvh_max_x > min_x &&
-                right._bvh_max_y > min_y &&
-                right._bvh_min_x < max_x &&
-                right._bvh_min_y < max_y) {
-                current = right;
-                traverse_left = true;
-            }
-            else {
-                if (!branch && current !== body) {
-                    results.push(current);
-                }
-                var parent_1 = current._bvh_parent;
-                if (parent_1) {
-                    while (parent_1 && parent_1._bvh_right === current) {
-                        current = parent_1;
-                        parent_1 = current._bvh_parent;
-                    }
-                    current = parent_1;
-                }
-                else {
-                    break;
-                }
-            }
-        }
-        return results;
-    };
-    BVH.prototype.draw = function (context) {
-        var bodies = this._bodies;
-        var count = bodies.length;
-        for (var i = 0; i < count; ++i) {
-            bodies[i].draw(context);
-        }
-    };
-    BVH.prototype.drawBVH = function (context) {
-        var current = this._hierarchy;
-        var traverse_left = true;
-        while (current) {
-            if (traverse_left) {
-                traverse_left = false;
-                var left = current._bvh_branch ? current._bvh_left : null;
-                while (left) {
-                    current = left;
-                    left = current._bvh_branch ? current._bvh_left : null;
-                }
-            }
-            var branch = current._bvh_branch;
-            var min_x = current._bvh_min_x;
-            var min_y = current._bvh_min_y;
-            var max_x = current._bvh_max_x;
-            var max_y = current._bvh_max_y;
-            var right = branch ? current._bvh_right : null;
-            context.moveTo(min_x, min_y);
-            context.lineTo(max_x, min_y);
-            context.lineTo(max_x, max_y);
-            context.lineTo(min_x, max_y);
-            context.lineTo(min_x, min_y);
-            if (right) {
-                current = right;
-                traverse_left = true;
-            }
-            else {
-                var parent_2 = current._bvh_parent;
-                if (parent_2) {
-                    while (parent_2 && parent_2._bvh_right === current) {
-                        current = parent_2;
-                        parent_2 = current._bvh_parent;
-                    }
-                    current = parent_2;
-                }
-                else {
-                    break;
-                }
-            }
-        }
-    };
-    BVH.MAX_DEPTH = 10000;
-    return BVH;
-}());
-var branch_pool = [];
-var BVHBranch = (function () {
-    function BVHBranch() {
-        this._bvh_parent = null;
-        this._bvh_branch = true;
-        this._bvh_left = null;
-        this._bvh_right = null;
-        this._bvh_sort = 0;
-        this._bvh_min_x = 0;
-        this._bvh_min_y = 0;
-        this._bvh_max_x = 0;
-        this._bvh_max_y = 0;
+    return this._y;
+  }
+  get imageCenterX() {
+    if (this._rotateStyle === "leftRight" || this._rotateStyle === "none") {
+      const leftRightMultiplier = this._direction > 180 && this._rotateStyle === "leftRight" ? -1 : 1;
+      return this.globalX - this._pivotOffsetX * leftRightMultiplier * this.size / 100;
     }
-    BVHBranch.getBranch = function () {
-        if (branch_pool.length) {
-            return branch_pool.pop();
-        }
-        return new BVHBranch();
-    };
-    BVHBranch.releaseBranch = function (branch) {
-        branch_pool.push(branch);
-    };
-    BVHBranch.sortBranches = function (a, b) {
-        return a.sort > b.sort ? -1 : 1;
-    };
-    return BVHBranch;
-}());
-var Collider = (function () {
-    function Collider(x, y, padding) {
-        if (x === void 0) { x = 0; }
-        if (y === void 0) { y = 0; }
-        if (padding === void 0) { padding = 5; }
-        this._offset_x = 0;
-        this._offset_y = 0;
-        this._circle = false;
-        this._polygon = false;
-        this._point = false;
-        this._bvh = null;
-        this._bvh_parent = null;
-        this._bvh_branch = false;
-        this._bvh_min_x = 0;
-        this._bvh_min_y = 0;
-        this._bvh_max_x = 0;
-        this._bvh_max_y = 0;
-        this._parent_sprite = null;
-        this._center_distance = 0;
-        this._center_angle = 0;
-        this.x = x;
-        this.y = y;
-        this.padding = padding;
-        this._bvh_padding = padding;
+    return this.globalX + Math.cos(this._centerAngle - this.globalAngleRadians) * this._centerDistance * this.size / 100;
+  }
+  get imageCenterY() {
+    if (this._rotateStyle === "leftRight" || this._rotateStyle === "none") {
+      return this.globalY - this._pivotOffsetY * this.size / 100;
     }
-    Collider.prototype.collides = function (target, result, aabb) {
-        if (result === void 0) { result = null; }
-        if (aabb === void 0) { aabb = true; }
-        return SAT(this, target, result, aabb);
-    };
-    Collider.prototype.potentials = function () {
-        var bvh = this._bvh;
-        if (bvh === null) {
-            throw new Error('Body does not belong to a collision system');
-        }
-        return bvh.potentials(this);
-    };
-    Collider.prototype.remove = function () {
-        var bvh = this._bvh;
-        if (bvh) {
-            bvh.remove(this, false);
-        }
-    };
-    Object.defineProperty(Collider.prototype, "parentSprite", {
-        get: function () {
-            return this._parent_sprite;
-        },
-        set: function (value) {
-            this._parent_sprite = value;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Collider.prototype, "offset_x", {
-        get: function () {
-            return -this._offset_x;
-        },
-        set: function (value) {
-            this._offset_x = -value;
-            this.updateCenterParams();
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Collider.prototype, "offset_y", {
-        get: function () {
-            return -this._offset_y;
-        },
-        set: function (value) {
-            this._offset_y = -value;
-            this.updateCenterParams();
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Collider.prototype, "center_offset_x", {
-        get: function () {
-            if (this._parent_sprite.rotateStyle === 'leftRight' || this._parent_sprite.rotateStyle === 'none') {
-                var leftRightMultiplier = this._parent_sprite._direction > 180 && this._parent_sprite.rotateStyle === 'leftRight' ? -1 : 1;
-                return this._offset_x * leftRightMultiplier;
-            }
-            return this._center_distance * Math.cos(this._center_angle - this._parent_sprite.globalAngleRadians);
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Collider.prototype, "center_offset_y", {
-        get: function () {
-            if (this._parent_sprite.rotateStyle === 'leftRight' || this._parent_sprite.rotateStyle === 'none') {
-                return -this._offset_y;
-            }
-            return -this._center_distance * Math.sin(this._center_angle - this._parent_sprite.globalAngleRadians);
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Collider.prototype.createResult = function () {
-        return new CollisionResult();
-    };
-    Collider.prototype.updateCenterParams = function () {
-        this._center_distance = Math.hypot(this._offset_x, this._offset_y);
-        this._center_angle = -Math.atan2(-this._offset_y, -this._offset_x);
-    };
-    Collider.createResult = function () {
-        return new CollisionResult();
-    };
-    return Collider;
-}());
-var CircleCollider = (function (_super) {
-    __extends(CircleCollider, _super);
-    function CircleCollider(x, y, radius, scale, padding) {
-        if (x === void 0) { x = 0; }
-        if (y === void 0) { y = 0; }
-        if (radius === void 0) { radius = 0; }
-        if (scale === void 0) { scale = 1; }
-        if (padding === void 0) { padding = 5; }
-        var _this = _super.call(this, x, y, padding) || this;
-        _this.radius = radius;
-        _this.scale = scale;
-        return _this;
+    return this.globalY - Math.sin(this._centerAngle - this.globalAngleRadians) * this._centerDistance * this.size / 100;
+  }
+  get realX() {
+    return this.x - this.width / 2;
+  }
+  get realY() {
+    return this.y - this.height / 2;
+  }
+  get rightX() {
+    const collider = this.collider;
+    const offset = collider ? collider.center_offset_x * this.size / 100 : 0;
+    return this.imageCenterX + this.width / 2 + offset;
+  }
+  set rightX(x) {
+    const collider = this.collider;
+    const offset = collider ? collider.center_offset_x * this.size / 100 : 0;
+    this.x = x - this.width / 2 - offset;
+  }
+  get leftX() {
+    const collider = this.collider;
+    const offset = collider ? collider.center_offset_x * this.size / 100 : 0;
+    return this.imageCenterX - this.width / 2 + offset;
+  }
+  set leftX(x) {
+    const collider = this.collider;
+    const offset = collider ? collider.center_offset_x * this.size / 100 : 0;
+    this.x = x + this.width / 2 + offset;
+  }
+  get topY() {
+    const collider = this.collider;
+    const offset = collider ? collider.center_offset_y * this.size / 100 : 0;
+    return this.imageCenterY - this.height / 2 + offset;
+  }
+  set topY(y) {
+    const collider = this.collider;
+    const offset = collider ? collider.center_offset_y * this.size / 100 : 0;
+    this.y = y + this.height / 2 + offset;
+  }
+  get bottomY() {
+    const collider = this.collider;
+    const offset = collider ? collider.center_offset_y * this.size / 100 : 0;
+    return this.imageCenterY + this.height / 2 + offset;
+  }
+  set bottomY(y) {
+    const collider = this.collider;
+    const offset = collider ? collider.center_offset_y * this.size / 100 : 0;
+    this.y = y - this.height / 2 - offset;
+  }
+  get width() {
+    if (this.collider instanceof PolygonCollider) {
+      const angleRadians = this.globalAngleRadians;
+      return Math.abs(this.sourceWidth * Math.cos(angleRadians)) + Math.abs(this.sourceHeight * Math.sin(angleRadians));
     }
-    CircleCollider.prototype.draw = function (context) {
-        var x = this.x;
-        var y = this.y;
-        var radius = this.radius * this.scale;
-        context.moveTo(x + radius, y);
-        context.arc(x, y, radius, 0, Math.PI * 2);
-    };
-    return CircleCollider;
-}(Collider));
-var CollisionResult = (function () {
-    function CollisionResult() {
-        this.collision = false;
-        this.a = null;
-        this.b = null;
-        this.a_in_b = false;
-        this.b_in_a = false;
-        this.overlap = 0;
-        this.overlap_x = 0;
-        this.overlap_y = 0;
+    return this.sourceWidth;
+  }
+  get height() {
+    if (this.collider instanceof PolygonCollider) {
+      const angleRadians = this.globalAngleRadians;
+      return Math.abs(this.sourceWidth * Math.sin(angleRadians)) + Math.abs(this.sourceHeight * Math.cos(angleRadians));
     }
-    return CollisionResult;
-}());
-var CollisionSystem = (function () {
-    function CollisionSystem() {
-        this._bvh = new BVH();
+    return this.sourceHeight;
+  }
+  get sourceWidth() {
+    return this._width * this.size / 100;
+  }
+  get sourceHeight() {
+    return this._height * this.size / 100;
+  }
+  set size(value) {
+    this._size = value;
+    const collider = this.collider;
+    if (collider) {
+      this.updateColliderSize(collider);
     }
-    CollisionSystem.prototype.createCircle = function (x, y, radius, scale, padding) {
-        if (x === void 0) { x = 0; }
-        if (y === void 0) { y = 0; }
-        if (radius === void 0) { radius = 0; }
-        if (scale === void 0) { scale = 1; }
-        if (padding === void 0) { padding = 0; }
-        var body = new CircleCollider(x, y, radius, scale, padding);
-        this._bvh.insert(body);
-        return body;
-    };
-    CollisionSystem.prototype.createPolygon = function (x, y, points, angle, scale_x, scale_y, padding) {
-        if (x === void 0) { x = 0; }
-        if (y === void 0) { y = 0; }
-        if (points === void 0) { points = [[0, 0]]; }
-        if (angle === void 0) { angle = 0; }
-        if (scale_x === void 0) { scale_x = 1; }
-        if (scale_y === void 0) { scale_y = 1; }
-        if (padding === void 0) { padding = 0; }
-        var body = new PolygonCollider(x, y, points, angle, scale_x, scale_y, padding);
-        this._bvh.insert(body);
-        return body;
-    };
-    CollisionSystem.prototype.createPoint = function (x, y, padding) {
-        if (x === void 0) { x = 0; }
-        if (y === void 0) { y = 0; }
-        if (padding === void 0) { padding = 0; }
-        var body = new PointCollider(x, y, padding);
-        this._bvh.insert(body);
-        return body;
-    };
-    CollisionSystem.prototype.createResult = function () {
-        return new CollisionResult();
-    };
-    CollisionSystem.createResult = function () {
-        return new CollisionResult();
-    };
-    CollisionSystem.prototype.insert = function () {
-        var e_64, _a;
-        var bodies = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            bodies[_i] = arguments[_i];
-        }
-        try {
-            for (var bodies_1 = __values(bodies), bodies_1_1 = bodies_1.next(); !bodies_1_1.done; bodies_1_1 = bodies_1.next()) {
-                var body = bodies_1_1.value;
-                this._bvh.insert(body, false);
-            }
-        }
-        catch (e_64_1) { e_64 = { error: e_64_1 }; }
-        finally {
-            try {
-                if (bodies_1_1 && !bodies_1_1.done && (_a = bodies_1.return)) _a.call(bodies_1);
-            }
-            finally { if (e_64) throw e_64.error; }
-        }
-        return this;
-    };
-    CollisionSystem.prototype.remove = function () {
-        var e_65, _a;
-        var bodies = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            bodies[_i] = arguments[_i];
-        }
-        try {
-            for (var bodies_2 = __values(bodies), bodies_2_1 = bodies_2.next(); !bodies_2_1.done; bodies_2_1 = bodies_2.next()) {
-                var body = bodies_2_1.value;
-                this._bvh.remove(body, false);
-            }
-        }
-        catch (e_65_1) { e_65 = { error: e_65_1 }; }
-        finally {
-            try {
-                if (bodies_2_1 && !bodies_2_1.done && (_a = bodies_2.return)) _a.call(bodies_2);
-            }
-            finally { if (e_65) throw e_65.error; }
-        }
-        return this;
-    };
-    CollisionSystem.prototype.update = function () {
-        this._bvh.update();
-        return this;
-    };
-    CollisionSystem.prototype.draw = function (context) {
-        return this._bvh.draw(context);
-    };
-    CollisionSystem.prototype.drawBVH = function (context) {
-        return this._bvh.drawBVH(context);
-    };
-    CollisionSystem.prototype.potentials = function (body) {
-        return this._bvh.potentials(body);
-    };
-    CollisionSystem.prototype.collides = function (source, target, result, aabb) {
-        if (result === void 0) { result = null; }
-        if (aabb === void 0) { aabb = true; }
-        return SAT(source, target, result, aabb);
-    };
-    return CollisionSystem;
-}());
-var PolygonCollider = (function (_super) {
-    __extends(PolygonCollider, _super);
-    function PolygonCollider(x, y, points, angle, scale_x, scale_y, padding) {
-        if (x === void 0) { x = 0; }
-        if (y === void 0) { y = 0; }
-        if (points === void 0) { points = []; }
-        if (angle === void 0) { angle = 0; }
-        if (scale_x === void 0) { scale_x = 1; }
-        if (scale_y === void 0) { scale_y = 1; }
-        if (padding === void 0) { padding = 5; }
-        var _this = _super.call(this, x, y, padding) || this;
-        _this._min_x = 0;
-        _this._min_y = 0;
-        _this._max_x = 0;
-        _this._max_y = 0;
-        _this._points = null;
-        _this._coords = null;
-        _this._edges = null;
-        _this._normals = null;
-        _this._dirty_coords = true;
-        _this._dirty_normals = true;
-        _this._origin_points = null;
-        _this.angle = angle;
-        _this.scale_x = scale_x;
-        _this.scale_y = scale_y;
-        _this._polygon = true;
-        _this._x = x;
-        _this._y = y;
-        _this._angle = angle;
-        _this._scale_x = scale_x;
-        _this._scale_y = scale_y;
-        _this._origin_points = points;
-        PolygonCollider.prototype.setPoints.call(_this, points);
-        return _this;
+    for (const child of this._children) {
+      child.size = value;
     }
-    PolygonCollider.prototype.draw = function (context) {
-        if (this._dirty_coords ||
-            this.x !== this._x ||
-            this.y !== this._y ||
-            this.angle !== this._angle ||
-            this.scale_x !== this._scale_x ||
-            this.scale_y !== this._scale_y) {
-            this._calculateCoords();
-        }
-        var coords = this._coords;
-        if (coords.length === 2) {
-            context.moveTo(coords[0], coords[1]);
-            context.arc(coords[0], coords[1], 1, 0, Math.PI * 2);
-        }
-        else {
-            context.moveTo(coords[0], coords[1]);
-            for (var i = 2; i < coords.length; i += 2) {
-                context.lineTo(coords[i], coords[i + 1]);
-            }
-            if (coords.length > 4) {
-                context.lineTo(coords[0], coords[1]);
-            }
-        }
-    };
-    PolygonCollider.prototype.setPoints = function (new_points) {
-        var count = new_points.length;
-        this._points = new Float64Array(count * 2);
-        this._coords = new Float64Array(count * 2);
-        this._edges = new Float64Array(count * 2);
-        this._normals = new Float64Array(count * 2);
-        var points = this._points;
-        for (var i = 0, ix = 0, iy = 1; i < count; ++i, ix += 2, iy += 2) {
-            var new_point = new_points[i];
-            points[ix] = new_point[0];
-            points[iy] = new_point[1];
-        }
-        this._dirty_coords = true;
-    };
-    PolygonCollider.prototype._calculateCoords = function () {
-        var x = this.x;
-        var y = this.y;
-        var angle = this.angle;
-        var scale_x = this.scale_x;
-        var scale_y = this.scale_y;
-        var points = this._points;
-        var coords = this._coords;
-        var count = points.length;
-        var min_x;
-        var max_x;
-        var min_y;
-        var max_y;
-        for (var ix = 0, iy = 1; ix < count; ix += 2, iy += 2) {
-            var coord_x = points[ix] * scale_x;
-            var coord_y = points[iy] * scale_y;
-            if (angle) {
-                var cos = Math.cos(angle);
-                var sin = Math.sin(angle);
-                var tmp_x = coord_x;
-                var tmp_y = coord_y;
-                coord_x = tmp_x * cos - tmp_y * sin;
-                coord_y = tmp_x * sin + tmp_y * cos;
-            }
-            coord_x += x;
-            coord_y += y;
-            coords[ix] = coord_x;
-            coords[iy] = coord_y;
-            if (ix === 0) {
-                min_x = max_x = coord_x;
-                min_y = max_y = coord_y;
-            }
-            else {
-                if (coord_x < min_x) {
-                    min_x = coord_x;
-                }
-                else if (coord_x > max_x) {
-                    max_x = coord_x;
-                }
-                if (coord_y < min_y) {
-                    min_y = coord_y;
-                }
-                else if (coord_y > max_y) {
-                    max_y = coord_y;
-                }
-            }
-        }
-        this._x = x;
-        this._y = y;
-        this._angle = angle;
-        this._scale_x = scale_x;
-        this._scale_y = scale_y;
-        this._min_x = min_x;
-        this._min_y = min_y;
-        this._max_x = max_x;
-        this._max_y = max_y;
-        this._dirty_coords = false;
-        this._dirty_normals = true;
-    };
-    PolygonCollider.prototype._calculateNormals = function () {
-        var coords = this._coords;
-        var edges = this._edges;
-        var normals = this._normals;
-        var count = coords.length;
-        for (var ix = 0, iy = 1; ix < count; ix += 2, iy += 2) {
-            var next = ix + 2 < count ? ix + 2 : 0;
-            var x = coords[next] - coords[ix];
-            var y = coords[next + 1] - coords[iy];
-            var length_1 = x || y ? Math.sqrt(x * x + y * y) : 0;
-            edges[ix] = x;
-            edges[iy] = y;
-            normals[ix] = length_1 ? y / length_1 : 0;
-            normals[iy] = length_1 ? -x / length_1 : 0;
-        }
-        this._dirty_normals = false;
-    };
-    Object.defineProperty(PolygonCollider.prototype, "points", {
-        get: function () {
-            return this._origin_points;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    return PolygonCollider;
-}(Collider));
-var PointCollider = (function (_super) {
-    __extends(PointCollider, _super);
-    function PointCollider(x, y, padding) {
-        if (x === void 0) { x = 0; }
-        if (y === void 0) { y = 0; }
-        if (padding === void 0) { padding = 5; }
-        var _this = _super.call(this, x, y, [[0, 0]], 0, 1, 1, padding) || this;
-        _this._point = true;
-        return _this;
+  }
+  get size() {
+    return this._size;
+  }
+  set direction(direction) {
+    if (direction * 0 !== 0) {
+      return;
     }
-    return PointCollider;
-}(PolygonCollider));
-PointCollider.prototype.setPoints = undefined;
-function SAT(a, b, result, aabb) {
-    if (result === void 0) { result = null; }
-    if (aabb === void 0) { aabb = true; }
-    var a_polygon = a._polygon;
-    var b_polygon = b._polygon;
-    var collision = false;
-    if (result) {
-        result.a = a;
-        result.b = b;
-        result.a_in_b = true;
-        result.b_in_a = true;
-        result.overlap = null;
-        result.overlap_x = 0;
-        result.overlap_y = 0;
-        result.collidedSprite = null;
+    direction = direction % 360;
+    if (direction < 0) {
+      direction += 360;
     }
-    if (a_polygon) {
-        if (a._dirty_coords ||
-            a.x !== a._x ||
-            a.y !== a._y ||
-            a.angle !== a._angle ||
-            a.scale_x !== a._scale_x ||
-            a.scale_y !== a._scale_y) {
-            a._calculateCoords();
+    this._direction = direction > 360 ? direction - 360 : direction;
+    this.updateColliderAngle();
+    for (const child of this._children) {
+      child.updateColliderAngle();
+    }
+  }
+  get direction() {
+    return this._direction;
+  }
+  set globalDirection(value) {
+    this.direction = this._parentSprite ? value - this._parentSprite.direction : value;
+  }
+  get globalDirection() {
+    return this._parentSprite ? this._parentSprite.direction + this.direction : this.direction;
+  }
+  get globalAngleRadians() {
+    return this.globalDirection * Math.PI / 180;
+  }
+  get angleToParent() {
+    return -Math.atan2(this.y, this.x);
+  }
+  get distanceToParent() {
+    return Math.hypot(this.x, this.y);
+  }
+  setPivotOffset(x = 0, y = 0) {
+    this.pivotOffsetX = x;
+    this.pivotOffsetY = y;
+    return this;
+  }
+  set pivotOffsetX(value) {
+    const prevX = this.x;
+    this._pivotOffsetX = value;
+    this.updateCenterParams();
+    this.x = prevX;
+  }
+  get pivotOffsetX() {
+    return this._pivotOffsetX;
+  }
+  set pivotOffsetY(value) {
+    const prevY = this.y;
+    this._pivotOffsetY = value;
+    this.updateCenterParams();
+    this.y = prevY;
+  }
+  get pivotOffsetY() {
+    return this._pivotOffsetY;
+  }
+  updateCenterParams() {
+    this._centerDistance = Math.hypot(this._pivotOffsetX, this._pivotOffsetY);
+    this._centerAngle = -Math.atan2(-this._pivotOffsetY, -this._pivotOffsetX);
+  }
+  /**
+   * Touches
+   */
+  touchSprite(sprite, checkChildren = true) {
+    this._collidedSprite = null;
+    if (sprite.hidden || this.hidden || sprite.stopped || this.stopped || sprite.deleted || this.deleted) {
+      return false;
+    }
+    const collider = this.collider;
+    const otherCollider = sprite.collider;
+    let isTouch = collider && otherCollider && collider.collides(otherCollider, this.collisionResult);
+    if (isTouch) {
+      return true;
+    }
+    if (collider) {
+      for (const otherChild of sprite.getChildren()) {
+        if (this.touchSprite(otherChild, false)) {
+          return true;
         }
+      }
     }
-    if (b_polygon) {
-        if (b._dirty_coords ||
-            b.x !== b._x ||
-            b.y !== b._y ||
-            b.angle !== b._angle ||
-            b.scale_x !== b._scale_x ||
-            b.scale_y !== b._scale_y) {
-            b._calculateCoords();
-        }
+    if (!checkChildren) {
+      return false;
     }
-    if (!aabb || aabbAABB(a, b)) {
-        if (a_polygon && a._dirty_normals) {
-            a._calculateNormals();
-        }
-        if (b_polygon && b._dirty_normals) {
-            b._calculateNormals();
-        }
-        collision = (a_polygon && b_polygon ? polygonPolygon(a, b, result) :
-            a_polygon ? polygonCircle(a, b, result, false) :
-                b_polygon ? polygonCircle(b, a, result, true) :
-                    circleCircle(a, b, result));
-    }
-    if (result) {
-        result.collision = collision;
-    }
-    return collision;
-}
-;
-function aabbAABB(a, b) {
-    var a_polygon = a._polygon;
-    var a_x = a_polygon ? 0 : a.x;
-    var a_y = a_polygon ? 0 : a.y;
-    var a_radius = a_polygon ? 0 : a.radius * a.scale;
-    var a_min_x = a_polygon ? a._min_x : a_x - a_radius;
-    var a_min_y = a_polygon ? a._min_y : a_y - a_radius;
-    var a_max_x = a_polygon ? a._max_x : a_x + a_radius;
-    var a_max_y = a_polygon ? a._max_y : a_y + a_radius;
-    var b_polygon = b._polygon;
-    var b_x = b_polygon ? 0 : b.x;
-    var b_y = b_polygon ? 0 : b.y;
-    var b_radius = b_polygon ? 0 : b.radius * b.scale;
-    var b_min_x = b_polygon ? b._min_x : b_x - b_radius;
-    var b_min_y = b_polygon ? b._min_y : b_y - b_radius;
-    var b_max_x = b_polygon ? b._max_x : b_x + b_radius;
-    var b_max_y = b_polygon ? b._max_y : b_y + b_radius;
-    return a_min_x < b_max_x && a_min_y < b_max_y && a_max_x > b_min_x && a_max_y > b_min_y;
-}
-function polygonPolygon(a, b, result) {
-    if (result === void 0) { result = null; }
-    var a_count = a._coords.length;
-    var b_count = b._coords.length;
-    if (a_count === 2 && b_count === 2) {
-        var a_coords_1 = a._coords;
-        var b_coords_1 = b._coords;
-        if (result) {
-            result.overlap = 0;
-        }
-        return a_coords_1[0] === b_coords_1[0] && a_coords_1[1] === b_coords_1[1];
-    }
-    var a_coords = a._coords;
-    var b_coords = b._coords;
-    var a_normals = a._normals;
-    var b_normals = b._normals;
-    if (a_count > 2) {
-        for (var ix = 0, iy = 1; ix < a_count; ix += 2, iy += 2) {
-            if (separatingAxis(a_coords, b_coords, a_normals[ix], a_normals[iy], result)) {
-                return false;
-            }
-        }
-    }
-    if (b_count > 2) {
-        for (var ix = 0, iy = 1; ix < b_count; ix += 2, iy += 2) {
-            if (separatingAxis(a_coords, b_coords, b_normals[ix], b_normals[iy], result)) {
-                return false;
-            }
-        }
-    }
-    return true;
-}
-function polygonCircle(a, b, result, reverse) {
-    if (result === void 0) { result = null; }
-    if (reverse === void 0) { reverse = false; }
-    var a_coords = a._coords;
-    var a_edges = a._edges;
-    var a_normals = a._normals;
-    var b_x = b.x;
-    var b_y = b.y;
-    var b_radius = b.radius * b.scale;
-    var b_radius2 = b_radius * 2;
-    var radius_squared = b_radius * b_radius;
-    var count = a_coords.length;
-    var a_in_b = true;
-    var b_in_a = true;
-    var overlap = null;
-    var overlap_x = 0;
-    var overlap_y = 0;
-    if (count === 2) {
-        var coord_x = b_x - a_coords[0];
-        var coord_y = b_y - a_coords[1];
-        var length_squared = coord_x * coord_x + coord_y * coord_y;
-        if (length_squared > radius_squared) {
-            return false;
-        }
-        if (result) {
-            var length_2 = Math.sqrt(length_squared);
-            overlap = b_radius - length_2;
-            overlap_x = coord_x / length_2;
-            overlap_y = coord_y / length_2;
-            b_in_a = false;
-        }
-    }
-    else {
-        for (var ix = 0, iy = 1; ix < count; ix += 2, iy += 2) {
-            var coord_x = b_x - a_coords[ix];
-            var coord_y = b_y - a_coords[iy];
-            var edge_x = a_edges[ix];
-            var edge_y = a_edges[iy];
-            var dot = coord_x * edge_x + coord_y * edge_y;
-            var region = dot < 0 ? -1 : dot > edge_x * edge_x + edge_y * edge_y ? 1 : 0;
-            var tmp_overlapping = false;
-            var tmp_overlap = 0;
-            var tmp_overlap_x = 0;
-            var tmp_overlap_y = 0;
-            if (result && a_in_b && coord_x * coord_x + coord_y * coord_y > radius_squared) {
-                a_in_b = false;
-            }
-            if (region) {
-                var left = region === -1;
-                var other_x = left ? (ix === 0 ? count - 2 : ix - 2) : (ix === count - 2 ? 0 : ix + 2);
-                var other_y = other_x + 1;
-                var coord2_x = b_x - a_coords[other_x];
-                var coord2_y = b_y - a_coords[other_y];
-                var edge2_x = a_edges[other_x];
-                var edge2_y = a_edges[other_y];
-                var dot2 = coord2_x * edge2_x + coord2_y * edge2_y;
-                var region2 = dot2 < 0 ? -1 : dot2 > edge2_x * edge2_x + edge2_y * edge2_y ? 1 : 0;
-                if (region2 === -region) {
-                    var target_x = left ? coord_x : coord2_x;
-                    var target_y = left ? coord_y : coord2_y;
-                    var length_squared = target_x * target_x + target_y * target_y;
-                    if (length_squared > radius_squared) {
-                        return false;
-                    }
-                    if (result) {
-                        var length_3 = Math.sqrt(length_squared);
-                        tmp_overlapping = true;
-                        tmp_overlap = b_radius - length_3;
-                        tmp_overlap_x = target_x / length_3;
-                        tmp_overlap_y = target_y / length_3;
-                        b_in_a = false;
-                    }
-                }
-            }
-            else {
-                var normal_x = a_normals[ix];
-                var normal_y = a_normals[iy];
-                var length_4 = coord_x * normal_x + coord_y * normal_y;
-                var absolute_length = length_4 < 0 ? -length_4 : length_4;
-                if (length_4 > 0 && absolute_length > b_radius) {
-                    return false;
-                }
-                if (result) {
-                    tmp_overlapping = true;
-                    tmp_overlap = b_radius - length_4;
-                    tmp_overlap_x = normal_x;
-                    tmp_overlap_y = normal_y;
-                    if (b_in_a && length_4 >= 0 || tmp_overlap < b_radius2) {
-                        b_in_a = false;
-                    }
-                }
-            }
-            if (tmp_overlapping && (overlap === null || overlap > tmp_overlap)) {
-                overlap = tmp_overlap;
-                overlap_x = tmp_overlap_x;
-                overlap_y = tmp_overlap_y;
-            }
-        }
-    }
-    if (result) {
-        result.a_in_b = reverse ? b_in_a : a_in_b;
-        result.b_in_a = reverse ? a_in_b : b_in_a;
-        result.overlap = overlap;
-        result.overlap_x = reverse ? -overlap_x : overlap_x;
-        result.overlap_y = reverse ? -overlap_y : overlap_y;
-    }
-    return true;
-}
-function circleCircle(a, b, result) {
-    if (result === void 0) { result = null; }
-    var a_radius = a.radius * a.scale;
-    var b_radius = b.radius * b.scale;
-    var difference_x = b.x - a.x;
-    var difference_y = b.y - a.y;
-    var radius_sum = a_radius + b_radius;
-    var length_squared = difference_x * difference_x + difference_y * difference_y;
-    if (length_squared > radius_sum * radius_sum) {
-        return false;
-    }
-    if (result) {
-        var length_5 = Math.sqrt(length_squared);
-        result.a_in_b = a_radius <= b_radius && length_5 <= b_radius - a_radius;
-        result.b_in_a = b_radius <= a_radius && length_5 <= a_radius - b_radius;
-        result.overlap = radius_sum - length_5;
-        result.overlap_x = difference_x / length_5;
-        result.overlap_y = difference_y / length_5;
-    }
-    return true;
-}
-function separatingAxis(a_coords, b_coords, x, y, result) {
-    if (result === void 0) { result = null; }
-    var a_count = a_coords.length;
-    var b_count = b_coords.length;
-    if (!a_count || !b_count) {
+    for (const child of this._children) {
+      if (otherCollider && child.touchSprite(sprite)) {
+        this._collidedSprite = child;
         return true;
-    }
-    var a_start = null;
-    var a_end = null;
-    var b_start = null;
-    var b_end = null;
-    for (var ix = 0, iy = 1; ix < a_count; ix += 2, iy += 2) {
-        var dot = a_coords[ix] * x + a_coords[iy] * y;
-        if (a_start === null || a_start > dot) {
-            a_start = dot;
+      }
+      for (const otherChild of sprite.getChildren()) {
+        if (child.touchSprite(otherChild)) {
+          this._collidedSprite = child;
+          return true;
         }
-        if (a_end === null || a_end < dot) {
-            a_end = dot;
-        }
-    }
-    for (var ix = 0, iy = 1; ix < b_count; ix += 2, iy += 2) {
-        var dot = b_coords[ix] * x + b_coords[iy] * y;
-        if (b_start === null || b_start > dot) {
-            b_start = dot;
-        }
-        if (b_end === null || b_end < dot) {
-            b_end = dot;
-        }
-    }
-    if (a_start > b_end || a_end < b_start) {
-        return true;
-    }
-    if (result) {
-        var overlap = 0;
-        if (a_start < b_start) {
-            result.a_in_b = false;
-            if (a_end < b_end) {
-                overlap = a_end - b_start;
-                result.b_in_a = false;
-            }
-            else {
-                var option1 = a_end - b_start;
-                var option2 = b_end - a_start;
-                overlap = option1 < option2 ? option1 : -option2;
-            }
-        }
-        else {
-            result.b_in_a = false;
-            if (a_end > b_end) {
-                overlap = a_start - b_end;
-                result.a_in_b = false;
-            }
-            else {
-                var option1 = a_end - b_start;
-                var option2 = b_end - a_start;
-                overlap = option1 < option2 ? option1 : -option2;
-            }
-        }
-        var current_overlap = result.overlap;
-        var absolute_overlap = overlap < 0 ? -overlap : overlap;
-        if (current_overlap === null || current_overlap > absolute_overlap) {
-            var sign = overlap < 0 ? -1 : 1;
-            result.overlap = absolute_overlap;
-            result.overlap_x = x * sign;
-            result.overlap_y = y * sign;
-        }
+      }
     }
     return false;
-}
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
+  }
+  touchSprites(sprites, checkChildren = true) {
+    if (this.hidden || this.stopped || this.deleted) {
+      return false;
+    }
+    for (const sprite of sprites) {
+      if (this.touchSprite(sprite, checkChildren)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  touchMouse(checkChildren = true) {
+    return this.touchPoint(this.game.getMousePoint(), checkChildren);
+  }
+  touchPoint(point, checkChildren = true) {
+    this._collidedSprite = null;
+    if (this.hidden || this.stopped || this.deleted) {
+      return false;
+    }
+    const collider = this.collider;
+    const isTouch = collider && collider.collides(point, this.collisionResult);
+    if (isTouch) {
+      return true;
+    }
+    if (checkChildren) {
+      for (const child of this._children) {
+        if (child.touchPoint(child.game.getMousePoint())) {
+          this._collidedSprite = child.otherSprite;
+          return true;
         }
-        return t;
-    };
-    return __assign.apply(this, arguments);
+      }
+    }
+    return false;
+  }
+  touchEdge(checkChildren = true) {
+    const result = this.getPureCollisionResult();
+    this._collidedSprite = null;
+    if (this.hidden || this.stopped || this.deleted) {
+      return false;
+    }
+    if (this.collider) {
+      const gameWidth = this.game.width;
+      const gameHeight = this.game.height;
+      if (this.topY < 0) {
+        result.collision = true;
+        result.overlap = -this.topY;
+        result.overlap_y = -1;
+        return true;
+      }
+      if (this.bottomY > gameHeight) {
+        result.collision = true;
+        result.overlap = this.bottomY - gameHeight;
+        result.overlap_y = 1;
+        return true;
+      }
+      if (this.leftX < 0) {
+        result.collision = true;
+        result.overlap = -this.leftX;
+        result.overlap_x = -1;
+        return true;
+      }
+      if (this.rightX > gameWidth) {
+        result.collision = true;
+        result.overlap = this.rightX - gameWidth;
+        result.overlap_x = 1;
+        return true;
+      }
+    }
+    if (checkChildren) {
+      for (const child of this._children) {
+        if (child.touchEdge()) {
+          this._collidedSprite = child;
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  touchTopEdge(checkChildren = true) {
+    this.clearCollisionResult();
+    this._collidedSprite = null;
+    if (this.hidden || this.stopped || this.deleted) {
+      return false;
+    }
+    if (this.collider && this.topY < 0) {
+      this.collisionResult.collision = true;
+      this.collisionResult.overlap = -this.topY;
+      this.collisionResult.overlap_y = -1;
+      return true;
+    }
+    if (checkChildren) {
+      for (const child of this._children) {
+        if (child.touchTopEdge()) {
+          this._collidedSprite = child;
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  touchBottomEdge(checkChildren = true) {
+    this.clearCollisionResult();
+    this._collidedSprite = null;
+    if (this.hidden || this.stopped || this.deleted) {
+      return false;
+    }
+    if (this.collider && this.bottomY > this.game.height) {
+      this.collisionResult.collision = true;
+      this.collisionResult.overlap = this.bottomY - this.game.height;
+      this.collisionResult.overlap_y = 1;
+      return true;
+    }
+    if (checkChildren) {
+      for (const child of this._children) {
+        if (child.touchBottomEdge()) {
+          this._collidedSprite = child;
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  touchLeftEdge(checkChildren = true) {
+    this.clearCollisionResult();
+    this._collidedSprite = null;
+    if (this.hidden || this.stopped || this.deleted) {
+      return false;
+    }
+    if (this.collider && this.leftX < 0) {
+      this.collisionResult.collision = true;
+      this.collisionResult.overlap = -this.leftX;
+      this.collisionResult.overlap_x = -1;
+      return true;
+    }
+    if (checkChildren) {
+      for (const child of this._children) {
+        if (child.touchLeftEdge()) {
+          this._collidedSprite = child;
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  touchRightEdge(checkChildren = true) {
+    this.clearCollisionResult();
+    this._collidedSprite = null;
+    if (this.hidden || this.stopped || this.deleted) {
+      return false;
+    }
+    if (this.collider && this.rightX > this.game.width) {
+      this.collisionResult.collision = true;
+      this.collisionResult.overlap = this.rightX - this.game.width;
+      this.collisionResult.overlap_x = 1;
+      return true;
+    }
+    if (checkChildren) {
+      for (const child of this._children) {
+        if (child.touchRightEdge()) {
+          this._collidedSprite = child;
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  touchTag(tagName, checkChildren = true) {
+    this.clearCollisionResult();
+    this._collidedSprite = null;
+    if (this.hidden || this.stopped || this.deleted) {
+      return false;
+    }
+    const collider = this.collider;
+    if (collider) {
+      const potentialsColliders = collider.potentials();
+      if (!potentialsColliders.length) {
+        return false;
+      }
+      for (const potentialCollider of potentialsColliders) {
+        const potentialSprite = potentialCollider.parentSprite;
+        if (potentialSprite && potentialSprite.hasTag(tagName)) {
+          if (!potentialSprite.hidden && !potentialSprite.stopped && !potentialSprite.deleted && collider.collides(potentialCollider, this.collisionResult)) {
+            return true;
+          }
+        }
+      }
+    }
+    if (checkChildren) {
+      for (const child of this._children) {
+        if (child.touchTag(tagName)) {
+          this._collidedSprite = child;
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  touchTagAll(tagName, checkChildren = true) {
+    this.clearCollisionResult();
+    this._collidedSprite = null;
+    if (this.hidden || this.stopped || this.deleted) {
+      return false;
+    }
+    const collidedSprites = [];
+    const collider = this.collider;
+    if (collider) {
+      const potentialsColliders = collider.potentials();
+      if (!potentialsColliders.length) {
+        return false;
+      }
+      for (const potentialCollider of potentialsColliders) {
+        const potentialSprite = potentialCollider.parentSprite;
+        if (potentialSprite && potentialSprite.hasTag(tagName)) {
+          if (!potentialSprite.hidden && !potentialSprite.stopped && !potentialSprite.deleted && potentialSprite.collider && collider.collides(potentialCollider, this.collisionResult)) {
+            collidedSprites.push(potentialSprite);
+          }
+        }
+      }
+    }
+    if (checkChildren) {
+      for (const child of this._children) {
+        const collision = child.touchTagAll(tagName);
+        if (collision && !collision.length) {
+          for (const sprite of collision) {
+            collidedSprites.push(sprite);
+          }
+        }
+      }
+    }
+    if (collidedSprites.length) {
+      return collidedSprites;
+    }
+    return false;
+  }
+  touchAnySprite(checkChildren = true) {
+    this.clearCollisionResult();
+    this._collidedSprite = null;
+    if (this.hidden || this.stopped || this.deleted) {
+      return false;
+    }
+    const collider = this.collider;
+    if (collider) {
+      const potentialsColliders = collider.potentials();
+      if (!potentialsColliders.length) {
+        return false;
+      }
+      for (const potentialCollider of potentialsColliders) {
+        const potentialSprite = potentialCollider.parentSprite;
+        if (!potentialSprite.hidden && !potentialSprite.stopped && !potentialSprite.deleted && collider.collides(potentialCollider, this.collisionResult)) {
+          return true;
+        }
+      }
+    }
+    if (checkChildren) {
+      for (const child of this._children) {
+        if (child.touchAnySprite()) {
+          this._collidedSprite = child;
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  get overlap() {
+    if (this._collidedSprite) {
+      return this._collidedSprite.overlap;
+    }
+    if (!this.collisionResult.collision) {
+      return 0;
+    }
+    return this.collisionResult.overlap;
+  }
+  get overlapX() {
+    if (this._collidedSprite) {
+      return this._collidedSprite.overlapX;
+    }
+    if (!this.collisionResult.collision) {
+      return 0;
+    }
+    return this.collisionResult.overlap_x * this.collisionResult.overlap;
+  }
+  get overlapY() {
+    if (this._collidedSprite) {
+      return this._collidedSprite.overlapY;
+    }
+    if (!this.collisionResult.collision) {
+      return 0;
+    }
+    return this.collisionResult.overlap_y * this.collisionResult.overlap;
+  }
+  get otherSprite() {
+    if (!this.collisionResult.collision) {
+      return null;
+    }
+    return this.collisionResult.b.parentSprite;
+  }
+  get otherMainSprite() {
+    if (!this.collisionResult.collision) {
+      return null;
+    }
+    return this.collisionResult.b.parentSprite.getMainSprite();
+  }
+  clearCollisionResult() {
+    this.collisionResult.collision = false;
+    this.collisionResult.a = null;
+    this.collisionResult.b = null;
+    this.collisionResult.a_in_b = false;
+    this.collisionResult.b_in_a = false;
+    this.collisionResult.overlap = 0;
+    this.collisionResult.overlap_x = 0;
+    this.collisionResult.overlap_y = 0;
+  }
+  getPureCollisionResult() {
+    this.clearCollisionResult();
+    return this.collisionResult;
+  }
+  /**
+   * Schedulers
+   */
+  timeout(callback, timeout) {
+    this.repeat(callback, 1, null, timeout, void 0);
+  }
+  repeat(callback, repeat, interval, timeout, finishCallback) {
+    const state = new ScheduledState(interval, repeat, 0);
+    if (timeout) {
+      timeout = Date.now() + timeout;
+    }
+    this.tempScheduledCallbacks.push(new ScheduledCallbackItem(callback, state, timeout, finishCallback));
+    return state;
+  }
+  forever(callback, interval, timeout, finishCallback) {
+    const state = new ScheduledState(interval);
+    if (timeout) {
+      timeout = Date.now() + timeout;
+    }
+    this.tempScheduledCallbacks.push(new ScheduledCallbackItem(callback, state, timeout, finishCallback));
+    return state;
+  }
+  update(diffTime) {
+    if (this.deleted) {
+      return;
+    }
+    if (this.tempScheduledCallbacks.length) {
+      this.scheduledCallbacks = this.scheduledCallbacks.concat(this.tempScheduledCallbacks);
+      this.tempScheduledCallbacks = [];
+    }
+    this.scheduledCallbacks = this.scheduledCallbacks.filter(
+      this.scheduledCallbackExecutor.execute(Date.now(), diffTime)
+    );
+  }
+  /**
+   * Start and stop, create and delete
+   */
+  run() {
+    this._stopped = false;
+  }
+  stop() {
+    this._stopped = true;
+  }
+  ready() {
+    this.tryDoOnReady();
+  }
+  get original() {
+    return this._original;
+  }
+  setOriginal(original) {
+    this._original = original;
+  }
+  createClone(stage) {
+    if (!this.isReady()) {
+      this.game.throwError(ErrorMessages.CLONED_NOT_READY);
+    }
+    if (!stage) {
+      stage = this.stage;
+    }
+    const clone = new _Sprite(stage, this.layer);
+    clone.setOriginal(this);
+    clone.name = this.name;
+    clone._rotateStyle = this._rotateStyle;
+    clone.x = this.x;
+    clone.y = this.y;
+    clone.pivotOffsetX = this.pivotOffsetX;
+    clone.pivotOffsetY = this.pivotOffsetY;
+    clone.direction = this.direction;
+    clone.size = this.size;
+    clone.hidden = this.hidden;
+    clone._deleted = this.deleted;
+    clone._stopped = this.stopped;
+    clone._tags.push(...this.tags);
+    clone.defaultColliderNone = this.defaultColliderNone;
+    for (let i = 0; i < this.costumes.length; i++) {
+      clone.cloneCostume(this.costumes[i], this.costumeNames[i]);
+    }
+    clone.switchCostume(this.costumeIndex);
+    for (let [soundIndex, sound] of this.sounds.entries()) {
+      clone.sounds.push(sound);
+      clone.soundNames.push(this.soundNames[soundIndex]);
+    }
+    clone.currentColliderName = null;
+    clone.cloneCollider(this);
+    if (this.currentColliderName) {
+      clone.switchCollider(this.currentColliderName);
+    }
+    for (const child of this._children) {
+      const childClone = child.createClone();
+      clone.addChild(childClone);
+      childClone.x = child.x;
+      childClone.y = child.y;
+      childClone.direction = child.direction;
+    }
+    clone.ready();
+    return clone;
+  }
+  delete() {
+    if (this.deleted) {
+      return;
+    }
+    this.stage.removeSprite(this, this.layer);
+    this.eventEmitter.clearAll();
+    this.removeCollider();
+    this.scheduledCallbackExecutor = null;
+    for (const child of this._children) {
+      child.delete();
+    }
+    let props = Object.keys(this);
+    for (let i = 0; i < props.length; i++) {
+      delete this[props[i]];
+    }
+    this.costumes = [];
+    this.costumeNames = [];
+    this.sounds = [];
+    this.soundNames = [];
+    this.onReadyCallbacks = [];
+    this.tempScheduledCallbacks = [];
+    this.scheduledCallbacks = [];
+    this._children = [];
+    this._deleted = true;
+  }
+  deleteClones() {
+    const spritesToDelete = this.stage.getSprites().filter((sprite) => sprite.original === this);
+    spritesToDelete.forEach((sprite) => sprite.delete());
+  }
+  tryDoOnReady() {
+    if (this.onReadyPending && this.isReady()) {
+      this.onReadyPending = false;
+      if (this.costumes.length && this.costume === null) {
+        this.switchCostume(0);
+      }
+      if (!this.defaultColliderNone && this.colliders.size === 0 && this.costumes.length) {
+        const colliderName = "main";
+        this.setCostumeCollider(colliderName, 0);
+        this.switchCollider(colliderName);
+        this.updateColliderPosition(this.collider);
+        this.updateColliderSize(this.collider);
+      }
+      if (!this.collider && this.colliders.size) {
+        const colliderName = this.colliders.keys().next().value;
+        this.switchCollider(colliderName);
+        this.updateColliderPosition(this.collider);
+        this.updateColliderSize(this.collider);
+      }
+      if (this.onReadyCallbacks.length) {
+        for (const callback of this.onReadyCallbacks) {
+          callback();
+        }
+        this.onReadyCallbacks = [];
+      }
+      this.stage.eventEmitter.emit(Game.SPRITE_READY_EVENT, {
+        sprite: this,
+        stageId: this.stage.id
+      });
+    }
+  }
 };
-var JetcodeSocket = (function () {
-    function JetcodeSocket(socketUrl) {
-        if (socketUrl === void 0) { socketUrl = 'ws://localhost:17500'; }
-        this.socketUrl = socketUrl;
-        this.socket = null;
-        this.defaultParameters = {
-            'LobbyAutoCreate': true,
-            'MaxMembers': 2,
-            'MinMembers': 2,
-            'StartGameWithMembers': 2
-        };
+
+// src/ScheduledCallbackExecutor.ts
+var ScheduledCallbackExecutor = class {
+  constructor(context) {
+    this.context = context;
+  }
+  execute(now, diffTime) {
+    return (item) => {
+      const state = item.state;
+      if (this.context instanceof Sprite) {
+        if (this.context.deleted) {
+          return false;
+        }
+        if (this.context.stopped) {
+          return true;
+        }
+      }
+      if (item.timeout && diffTime) {
+        item.timeout += diffTime;
+      }
+      if (!item.timeout || item.timeout <= now) {
+        const result = item.callback.bind(this.context)(this.context, state);
+        if (state.maxIterations) {
+          state.currentIteration++;
+        }
+        const isFinished = result === false || item.timeout && !state.interval && !state.maxIterations || state.maxIterations && state.currentIteration >= state.maxIterations;
+        if (isFinished) {
+          if (item.finishCallback) {
+            item.finishCallback(this.context, state);
+          }
+          return false;
+        }
+        if (state.interval) {
+          item.timeout = now + state.interval;
+        }
+      }
+      return true;
+    };
+  }
+};
+
+// src/CameraChanges.ts
+var CameraChanges = class {
+  constructor() {
+    this.x = 0;
+    this.y = 0;
+    this.zoom = 1;
+    this.direction = 0;
+  }
+  reset() {
+    this.x = 0;
+    this.y = 0;
+    this.zoom = 1;
+    this.direction = 0;
+  }
+};
+
+// src/Camera.ts
+var Camera = class {
+  constructor(stage) {
+    this._direction = 0;
+    this._zoom = 1;
+    this.stage = stage;
+    this._x = this.stage.width / 2;
+    this._y = this.stage.height / 2;
+    this.updateRenderRadius();
+    this.changes = new CameraChanges();
+  }
+  set direction(value) {
+    let direction = value % 360;
+    direction = direction < 0 ? direction + 360 : direction;
+    this.changes.direction = direction - this._direction;
+    this._direction = direction;
+  }
+  get direction() {
+    return this._direction;
+  }
+  get angleDirection() {
+    return this._direction * Math.PI / 180;
+  }
+  get width() {
+    return this.stage.width / this._zoom;
+  }
+  get height() {
+    return this.stage.height / this._zoom;
+  }
+  set x(value) {
+    this.changes.x = value - this._x;
+    this._x = value;
+  }
+  get x() {
+    return this._x;
+  }
+  set y(value) {
+    this.changes.y = value - this._y;
+    this._y = value;
+  }
+  get y() {
+    return this._y;
+  }
+  get startCornerX() {
+    return this._x - this.stage.width / 2;
+  }
+  get startCornerY() {
+    return this._y - this.stage.height / 2;
+  }
+  get renderRadius() {
+    return this._renderRadius;
+  }
+  set zoom(value) {
+    if (this.changes.zoom == 1) {
+      const newZoom = value < 0.1 ? 0.1 : value;
+      this.changes.zoom = newZoom / this._zoom;
+      this._zoom = newZoom;
+      this.updateRenderRadius();
     }
-    JetcodeSocket.prototype.connect = function (gameToken, lobbyId, inParameters) {
-        var _this = this;
-        if (lobbyId === void 0) { lobbyId = null; }
-        if (inParameters === void 0) { inParameters = {}; }
-        var parameters = __assign(__assign({}, this.defaultParameters), inParameters);
-        return new Promise(function (resolve, reject) {
-            _this.socket = new WebSocket(_this.socketUrl);
-            _this.socket.onopen = function () {
-                var connection = new JetcodeSocketConnection(_this.socket, gameToken, lobbyId);
-                connection.joinLobby(gameToken, lobbyId, parameters)
-                    .then(function () {
-                    resolve(connection);
-                })
-                    .catch(reject);
+  }
+  get zoom() {
+    return this._zoom;
+  }
+  updateRenderRadius() {
+    this._renderRadius = Math.hypot(this.width, this.height) / 1.7;
+  }
+};
+
+// src/Stage.ts
+var Stage = class {
+  constructor(background = null) {
+    this.background = null;
+    this.backgroundIndex = null;
+    this.backgrounds = [];
+    this.sprites = /* @__PURE__ */ new Map();
+    this.drawings = /* @__PURE__ */ new Map();
+    this.sounds = [];
+    this.soundNames = [];
+    this.addedSprites = 0;
+    this.loadedSprites = 0;
+    this.pendingBackgrounds = 0;
+    this.pendingSounds = 0;
+    this.pendingRun = false;
+    this.onReadyPending = true;
+    this.onReadyCallbacks = [];
+    this.onStartCallbacks = [];
+    this.scheduledCallbacks = [];
+    this.tempScheduledCallbacks = [];
+    this._stopped = true;
+    this._running = false;
+    this.stoppedTime = null;
+    this.diffTime = null;
+    if (!Registry.getInstance().has("game")) {
+      throw new Error("You need create Game instance before Stage instance.");
+    }
+    this.game = Registry.getInstance().get("game");
+    let stage = this;
+    if (this.game.displayErrors) {
+      stage = this.game.validatorFactory.createValidator(this, "Stage");
+    }
+    stage.id = Symbol();
+    stage.eventEmitter = new EventEmitter();
+    stage.collisionSystem = new CollisionSystem();
+    stage.canvas = stage.game.canvas;
+    stage.context = stage.game.context;
+    if (background) {
+      stage.addBackground(background);
+    }
+    stage.addListeners();
+    stage.game.addStage(stage);
+    stage.scheduledCallbackExecutor = new ScheduledCallbackExecutor(stage);
+    stage.stoppedTime = Date.now();
+    stage.init();
+    stage.camera = new Camera(stage);
+    return stage;
+  }
+  init() {
+  }
+  /**
+   * Events
+   */
+  onStart(onStartCallback) {
+    this.onStartCallbacks.push(onStartCallback);
+  }
+  onReady(callback) {
+    this.onReadyCallbacks.push(callback);
+  }
+  /**
+   * States
+   */
+  get running() {
+    return this._running;
+  }
+  get stopped() {
+    return this._stopped;
+  }
+  isReady() {
+    return this.addedSprites == this.loadedSprites && this.pendingBackgrounds === 0;
+  }
+  /**
+   * Dimensions
+   */
+  get width() {
+    return this.canvas.width;
+  }
+  get height() {
+    return this.canvas.height;
+  }
+  /**
+   * Backgrounds
+   */
+  set backgroundColor(color) {
+    this.drawBackground((context, stage) => {
+      context.fillStyle = color;
+      context.fillRect(0, 0, stage.width, stage.height);
+    });
+  }
+  drawBackground(callback) {
+    const backgroundCanvas = document.createElement("canvas");
+    const context = backgroundCanvas.getContext("2d");
+    backgroundCanvas.width = this.width;
+    backgroundCanvas.height = this.height;
+    this.pendingBackgrounds++;
+    callback(context, this);
+    this.backgrounds.push(backgroundCanvas);
+    this.pendingBackgrounds--;
+    return this;
+  }
+  addBackground(backgroundPath) {
+    const backgroundImage = new Image();
+    backgroundImage.src = backgroundPath;
+    this.pendingBackgrounds++;
+    const onLoad = () => {
+      const backgroundCanvas = document.createElement("canvas");
+      const context = backgroundCanvas.getContext("2d");
+      backgroundCanvas.width = this.width;
+      backgroundCanvas.height = this.height;
+      context.drawImage(
+        backgroundImage,
+        0,
+        0,
+        this.width,
+        this.height
+      );
+      this.backgrounds.push(backgroundCanvas);
+      this.pendingBackgrounds--;
+      this.tryDoOnReady();
+      this.tryDoRun();
+      backgroundImage.removeEventListener("load", onLoad);
+    };
+    backgroundImage.addEventListener("load", onLoad);
+    backgroundImage.addEventListener("error", () => {
+      this.game.throwError(ErrorMessages.BACKGROUND_NOT_LOADED, { backgroundPath });
+    });
+    return this;
+  }
+  switchBackground(backgroundIndex) {
+    this.backgroundIndex = backgroundIndex;
+    const background = this.backgrounds[backgroundIndex];
+    if (background) {
+      this.background = background;
+    }
+  }
+  nextBackground() {
+    let nextBackgroundIndex = this.backgroundIndex + 1;
+    if (nextBackgroundIndex > this.backgrounds.length - 1) {
+      nextBackgroundIndex = 0;
+    }
+    if (nextBackgroundIndex !== this.backgroundIndex) {
+      this.switchBackground(nextBackgroundIndex);
+    }
+  }
+  /**
+   * Sounds
+   */
+  addSound(soundPath, soundName) {
+    if (this.soundNames.includes(soundName)) {
+      this.game.throwError(ErrorMessages.SOUND_NAME_ALREADY_EXISTS, { soundName });
+    }
+    const sound = new Audio();
+    sound.src = soundPath;
+    this.sounds.push(sound);
+    this.soundNames.push(soundName);
+    this.pendingSounds++;
+    sound.load();
+    const onLoadSound = () => {
+      this.pendingSounds--;
+      this.tryDoOnReady();
+      sound.removeEventListener("loadedmetadata", onLoadSound);
+    };
+    sound.addEventListener("loadedmetadata", onLoadSound);
+    return this;
+  }
+  removeSound(soundName) {
+    const soundIndex = this.soundNames.indexOf(soundName);
+    if (soundIndex < 0) {
+      this.game.throwError(ErrorMessages.SOUND_NAME_NOT_FOUND, { soundName });
+    }
+    this.sounds.splice(soundIndex, 1);
+    return this;
+  }
+  playSound(soundName, options = {}) {
+    const sound = this.getSound(soundName);
+    this.doPlaySound(sound, options);
+  }
+  startSound(soundName, options = {}) {
+    const sound = this.cloneSound(soundName);
+    this.doPlaySound(sound, options);
+    return sound;
+  }
+  pauseSound(soundName) {
+    const sound = this.getSound(soundName);
+    sound.pause();
+  }
+  getSound(soundName) {
+    if (!this.isReady()) {
+      this.game.throwError(ErrorMessages.SOUND_USE_NOT_READY);
+    }
+    const soundIndex = this.soundNames.indexOf(soundName);
+    if (soundIndex < 0) {
+      this.game.throwError(ErrorMessages.SOUND_NAME_NOT_FOUND, { soundName });
+    }
+    const sound = this.sounds[soundIndex];
+    if (!(sound instanceof Audio)) {
+      this.game.throwError(ErrorMessages.SOUND_INDEX_NOT_FOUND, { soundIndex });
+    }
+    return sound;
+  }
+  cloneSound(soundName) {
+    const originSound = this.getSound(soundName);
+    return new Audio(originSound.src);
+  }
+  doPlaySound(sound, options = {}) {
+    if (options.volume !== void 0) {
+      sound.volume = options.volume;
+    }
+    if (options.currentTime !== void 0) {
+      sound.currentTime = options.currentTime;
+    }
+    if (options.loop !== void 0) {
+      sound.loop = options.loop;
+    }
+    const playPromise = sound.play();
+    if (playPromise !== void 0) {
+      playPromise.catch((error) => {
+        if (error.name === "NotAllowedError") {
+          this.game.throwError(ErrorMessages.SOUND_NOT_ALLOWED_ERROR, {}, false);
+        } else {
+          console.error("Audio playback error:", error);
+        }
+      });
+    }
+  }
+  /**
+   * Sprite management
+   */
+  addSprite(sprite) {
+    let layerSprites;
+    if (this.sprites.has(sprite.layer)) {
+      layerSprites = this.sprites.get(sprite.layer);
+    } else {
+      layerSprites = [];
+      this.sprites.set(sprite.layer, layerSprites);
+    }
+    layerSprites.push(sprite);
+    this.addedSprites++;
+    return this;
+  }
+  removeSprite(sprite, layer) {
+    if (!this.sprites.has(layer)) {
+      this.game.throwErrorRaw('The layer "' + layer + '" not defined in the stage.');
+    }
+    const layerSprites = this.sprites.get(layer);
+    layerSprites.splice(layerSprites.indexOf(sprite), 1);
+    if (!layerSprites.length) {
+      this.sprites.delete(layer);
+    }
+    if (sprite.deleted || sprite.isReady()) {
+      this.loadedSprites--;
+    }
+    this.addedSprites--;
+    return this;
+  }
+  getSprites() {
+    return Array.from(this.sprites.values()).reduce((accumulator, currentValue) => accumulator.concat(currentValue), []);
+  }
+  changeSpriteLayer(sprite, fromLayer, toLayer) {
+    if (!this.sprites.has(fromLayer)) {
+      this.game.throwErrorRaw('The layer "' + fromLayer + '" not defined in the stage.');
+    }
+    const fromLayerSprites = this.sprites.get(fromLayer);
+    fromLayerSprites.splice(fromLayerSprites.indexOf(sprite), 1);
+    if (!fromLayerSprites.length) {
+      this.sprites.delete(fromLayer);
+    }
+    let toLayerSprites = [];
+    if (this.sprites.has(toLayer)) {
+      toLayerSprites = this.sprites.get(toLayer);
+    } else {
+      this.sprites.set(toLayer, toLayerSprites);
+    }
+    toLayerSprites.push(sprite);
+  }
+  /**
+   * Draw
+   */
+  drawSprite(sprite) {
+    const costume = sprite.getCostume();
+    const image = costume.image;
+    const dstX = sprite.imageCenterX - sprite.sourceWidth / 2;
+    const dstY = sprite.imageCenterY - sprite.sourceHeight / 2;
+    const dstWidth = sprite.sourceWidth;
+    const dstHeight = sprite.sourceHeight;
+    const direction = sprite.globalDirection;
+    const rotateStyle = sprite.rotateStyle;
+    let colliderOffsetX = (sprite.sourceWidth - costume.width * sprite.size / 100) / 2;
+    let colliderOffsetY = (sprite.sourceHeight - costume.height * sprite.size / 100) / 2;
+    const needSave = rotateStyle === "normal" && direction !== 0 || rotateStyle === "leftRight" && direction > 180 || sprite.opacity !== null || sprite.filter !== null && sprite.filter != "";
+    if (needSave) {
+      this.context.save();
+    }
+    if (sprite.opacity !== null) {
+      this.context.globalAlpha = sprite.opacity;
+    }
+    if (sprite.filter) {
+      this.context.filter = sprite.filter;
+    }
+    if (rotateStyle === "normal" && direction !== 0) {
+      this.context.translate(dstX + dstWidth / 2, dstY + dstHeight / 2);
+      this.context.rotate(sprite.globalAngleRadians);
+      this.context.translate(-dstX - dstWidth / 2, -dstY - dstHeight / 2);
+    }
+    if (rotateStyle === "leftRight" && direction > 180) {
+      this.context.scale(-1, 1);
+      this.context.drawImage(
+        image,
+        0,
+        0,
+        costume.width,
+        costume.height,
+        -dstX - dstWidth + colliderOffsetX,
+        dstY + colliderOffsetY,
+        costume.width * sprite.size / 100,
+        costume.height * sprite.size / 100
+      );
+    } else {
+      this.context.drawImage(
+        image,
+        0,
+        0,
+        costume.width,
+        costume.height,
+        dstX + colliderOffsetX,
+        dstY + colliderOffsetY,
+        costume.width * sprite.size / 100,
+        costume.height * sprite.size / 100
+      );
+    }
+    if (needSave) {
+      this.context.restore();
+    }
+  }
+  stampImage(stampImage, x, y, direction = 0) {
+    if (this.background instanceof HTMLCanvasElement) {
+      const backgroundCanvas = document.createElement("canvas");
+      const context = backgroundCanvas.getContext("2d");
+      backgroundCanvas.width = this.width;
+      backgroundCanvas.height = this.height;
+      context.drawImage(
+        this.background,
+        0,
+        0,
+        this.width,
+        this.height
+      );
+      const stampWidth = stampImage instanceof HTMLImageElement ? stampImage.naturalWidth : stampImage.width;
+      const stampHeight = stampImage instanceof HTMLImageElement ? stampImage.naturalHeight : stampImage.height;
+      const stampDstX = x - stampWidth / 2;
+      const stampDstY = y - stampHeight / 2;
+      if (direction !== 0) {
+        const angleRadians = direction * Math.PI / 180;
+        context.translate(stampDstX + stampWidth / 2, stampDstY + stampHeight / 2);
+        context.rotate(angleRadians);
+        context.translate(-stampDstX - stampWidth / 2, -stampDstY - stampHeight / 2);
+      }
+      context.drawImage(
+        stampImage,
+        stampDstX,
+        stampDstY,
+        stampWidth,
+        stampHeight
+      );
+      this.background = backgroundCanvas;
+      this.backgrounds[this.backgroundIndex] = this.background;
+    }
+  }
+  pen(callback, layer = 0) {
+    let layerDrawings;
+    if (this.drawings.has(layer)) {
+      layerDrawings = this.drawings.get(layer);
+    } else {
+      layerDrawings = [];
+      this.drawings.set(layer, layerDrawings);
+    }
+    layerDrawings.push(callback);
+  }
+  /**
+   * Schedulers and render
+   */
+  timeout(callback, timeout) {
+    this.repeat(callback, 1, null, timeout, void 0);
+  }
+  repeat(callback, repeat, interval = null, timeout = null, finishCallback) {
+    const state = new ScheduledState(interval, repeat, 0);
+    if (timeout) {
+      timeout = Date.now() + timeout;
+    }
+    this.tempScheduledCallbacks.push(new ScheduledCallbackItem(callback, state, timeout, finishCallback));
+    return state;
+  }
+  forever(callback, interval = null, timeout = null, finishCallback) {
+    const state = new ScheduledState(interval);
+    if (timeout) {
+      timeout = Date.now() + timeout;
+    }
+    this.tempScheduledCallbacks.push(new ScheduledCallbackItem(callback, state, timeout, finishCallback));
+    return state;
+  }
+  render() {
+    this.update();
+    this.collisionSystem.update();
+    this.context.clearRect(this.camera.startCornerX - this.camera.width / this.camera.zoom / 2, this.camera.startCornerY - this.camera.height / this.camera.zoom / 2, this.width + this.camera.width / this.camera.zoom, this.height + this.camera.height / this.camera.zoom);
+    if (this.background) {
+      this.context.drawImage(this.background, 0, 0, this.width, this.height);
+    }
+    let layers = Array.from(this.sprites.keys()).concat(Array.from(this.drawings.keys()));
+    layers = layers.filter((item, pos) => layers.indexOf(item) === pos);
+    layers = layers.sort((a, b) => a - b);
+    for (const layer of layers) {
+      if (this.drawings.has(layer)) {
+        const layerDrawings = this.drawings.get(layer);
+        for (const drawing of layerDrawings) {
+          drawing(this.context, this);
+        }
+      }
+      if (this.sprites.has(layer)) {
+        const layerSprites = this.sprites.get(layer);
+        for (const sprite of layerSprites) {
+          if (sprite.hidden) {
+            continue;
+          }
+          const distance = Math.hypot(sprite.imageCenterX - this.camera.x, sprite.imageCenterY - this.camera.y);
+          const spriteRadius = Math.hypot(sprite.sourceWidth, sprite.sourceHeight) / 2 * this.camera.zoom;
+          if (distance > this.camera.renderRadius + spriteRadius) {
+            continue;
+          }
+          if (this.game.debugMode !== "none") {
+            const fn = () => {
+              const x = sprite.imageCenterX - this.context.measureText(sprite.name).width / 2;
+              let y = sprite.imageCenterY + sprite.height + 20;
+              this.context.fillStyle = this.game.debugColor;
+              this.context.font = "16px Arial";
+              this.context.fillText(sprite.name, x, y);
+              y += 20;
+              this.context.font = "14px Arial";
+              this.context.fillText("x: " + sprite.x, x, y);
+              y += 20;
+              this.context.fillText("y: " + sprite.y, x, y);
+              y += 20;
+              this.context.fillText("direction: " + sprite.direction, x, y);
+              y += 20;
+              this.context.fillText("costume: " + sprite.getCostumeName(), x, y);
+              y += 20;
+              this.context.fillText("xOffset: " + sprite.pivotOffsetX, x, y);
+              y += 20;
+              this.context.fillText("yOffset: " + sprite.pivotOffsetY, x, y);
+              this.context.beginPath();
+              this.context.moveTo(sprite.globalX - 2, sprite.globalY);
+              this.context.lineTo(sprite.globalX + 2, sprite.globalY);
+              this.context.moveTo(sprite.globalX, sprite.globalY - 2);
+              this.context.lineTo(sprite.globalX, sprite.globalY + 2);
+              this.context.stroke();
             };
-            _this.socket.onerror = function (error) {
-                reject(error);
-            };
-        });
-    };
-    JetcodeSocket.JOIN_LOBBY = 'JOIN_LOBBY';
-    JetcodeSocket.LEAVE_LOBBY = 'LEAVE_LOBBY';
-    JetcodeSocket.SEND_DATA = 'SEND_DATA';
-    JetcodeSocket.JOINED = 'JOINED';
-    JetcodeSocket.RECEIVE_DATA = 'RECEIVE_DATA';
-    JetcodeSocket.MEMBER_JOINED = 'MEMBER_JOINED';
-    JetcodeSocket.MEMBER_LEFT = 'MEMBER_LEFT';
-    JetcodeSocket.GAME_STARTED = 'GAME_STARTED';
-    JetcodeSocket.GAME_STOPPED = 'GAME_STOPPED';
-    JetcodeSocket.ERROR = 'ERROR';
-    return JetcodeSocket;
-}());
-var JetcodeSocketConnection = (function () {
-    function JetcodeSocketConnection(socket, gameToken, lobbyId) {
-        if (lobbyId === void 0) { lobbyId = 0; }
-        this.connectActions = [
-            JetcodeSocket.JOINED,
-            JetcodeSocket.RECEIVE_DATA,
-            JetcodeSocket.MEMBER_JOINED,
-            JetcodeSocket.MEMBER_LEFT,
-            JetcodeSocket.GAME_STARTED,
-            JetcodeSocket.GAME_STOPPED,
-            JetcodeSocket.ERROR
-        ];
-        this.socket = socket;
-        this.lobbyId = lobbyId;
-        this.memberId = null;
-        this.connects = {};
-        this._listenSocket();
+            if (this.game.debugMode === "hover") {
+              if (sprite.touchMouse()) {
+                fn();
+              }
+            }
+            if (this.game.debugMode === "forever") {
+              fn();
+            }
+          }
+          let phrase = sprite.getPhrase();
+          if (phrase) {
+            this.context.font = "20px Arial";
+            this.context.fillStyle = "black";
+            this.context.fillText(phrase, 40, this.canvas.height - 40);
+          }
+          if (sprite.getCostume()) {
+            this.drawSprite(sprite);
+          }
+          for (const drawing of sprite.drawings) {
+            drawing(this.context, sprite);
+          }
+        }
+      }
     }
-    JetcodeSocketConnection.prototype._listenSocket = function () {
-        var _this = this;
-        this.socket.onmessage = function (event) {
-            var _a = __read(_this._parse(event.data), 3), action = _a[0], parameters = _a[1], value = _a[2];
-            if (action === JetcodeSocket.RECEIVE_DATA) {
-                _this.emit(JetcodeSocket.RECEIVE_DATA, [value, parameters, (parameters === null || parameters === void 0 ? void 0 : parameters.MemberId) === _this.memberId]);
-            }
-            else if (action === JetcodeSocket.MEMBER_JOINED) {
-                _this.emit(JetcodeSocket.MEMBER_JOINED, [parameters, (parameters === null || parameters === void 0 ? void 0 : parameters.MemberId) === _this.memberId]);
-            }
-            else if (action === JetcodeSocket.MEMBER_LEFT) {
-                _this.emit(JetcodeSocket.MEMBER_LEFT, [parameters, (parameters === null || parameters === void 0 ? void 0 : parameters.MemberId) === _this.memberId]);
-            }
-            else if (_this.connects[action]) {
-                _this.emit(action, [parameters]);
-            }
+    if (this.game.debugCollider) {
+      this.context.strokeStyle = this.game.debugColor;
+      this.context.beginPath();
+      this.collisionSystem.draw(this.context);
+      this.context.stroke();
+    }
+    this.context.translate(-this.camera.changes.x, -this.camera.changes.y);
+    const centerPointX = this.width / 2 + this.camera.startCornerX;
+    const centerPointY = this.height / 2 + this.camera.startCornerY;
+    this.context.translate(centerPointX, centerPointY);
+    this.context.scale(this.camera.changes.zoom, this.camera.changes.zoom);
+    this.context.translate(-centerPointX, -centerPointY);
+    this.camera.changes.reset();
+  }
+  update() {
+    if (this.tempScheduledCallbacks.length) {
+      this.scheduledCallbacks = this.scheduledCallbacks.concat(this.tempScheduledCallbacks);
+      this.tempScheduledCallbacks = [];
+    }
+    this.scheduledCallbacks = this.scheduledCallbacks.filter(
+      this.scheduledCallbackExecutor.execute(Date.now(), this.diffTime)
+    );
+    this.sprites.forEach((layerSprites, layer) => {
+      for (const sprite of layerSprites) {
+        if (sprite.deleted) {
+          this.removeSprite(sprite, layer);
+          return;
+        }
+        sprite.update(this.diffTime);
+      }
+    });
+    this.diffTime = 0;
+  }
+  /**
+   * Run and stop
+   */
+  run() {
+    if (!this._stopped) {
+      return;
+    }
+    this._stopped = false;
+    for (const layerSprites of this.sprites.values()) {
+      for (const sprite of layerSprites) {
+        sprite.run();
+      }
+    }
+    this.pendingRun = true;
+    this.tryDoRun();
+  }
+  ready() {
+    this.tryDoOnReady();
+    this.tryDoRun();
+    for (const layerSprites of this.sprites.values()) {
+      for (const sprite of layerSprites) {
+        sprite.ready();
+      }
+    }
+  }
+  stop() {
+    if (this._stopped) {
+      return;
+    }
+    this._running = false;
+    this._stopped = true;
+    for (const layerSprites of this.sprites.values()) {
+      for (const sprite of layerSprites) {
+        sprite.stop();
+      }
+    }
+    this.stoppedTime = Date.now();
+  }
+  tryDoOnReady() {
+    if (this.onReadyPending && this.isReady()) {
+      this.onReadyPending = false;
+      if (this.backgrounds.length && this.backgroundIndex === null) {
+        this.switchBackground(0);
+      }
+      if (this.onReadyCallbacks.length) {
+        for (const callback of this.onReadyCallbacks) {
+          callback();
+        }
+        this.onReadyCallbacks = [];
+      }
+      this.game.eventEmitter.emit(Game.STAGE_READY_EVENT, {
+        stage: this
+      });
+    }
+  }
+  doOnStart() {
+    for (const callback of this.onStartCallbacks) {
+      setTimeout(() => {
+        callback();
+      });
+    }
+  }
+  tryDoRun() {
+    if (this.pendingRun && !this._running && this.isReady()) {
+      this._running = true;
+      this.pendingRun = false;
+      this.doOnStart();
+      this.diffTime = Date.now() - this.stoppedTime;
+      setTimeout(() => {
+        const stoppedTime = this.stoppedTime;
+        const loop = () => {
+          if (this._stopped || stoppedTime !== this.stoppedTime) {
+            return;
+          }
+          this.render();
+          requestAnimationFrame(loop);
         };
-    };
-    JetcodeSocketConnection.prototype.emit = function (action, args) {
-        if (this.connects[action]) {
-            this.connects[action].forEach(function (callback) {
-                callback.apply(void 0, __spreadArray([], __read(args), false));
-            });
-        }
-    };
-    JetcodeSocketConnection.prototype.connect = function (action, callback) {
-        if (!this.connectActions.includes(action)) {
-            throw new Error('This actions is not defined.');
-        }
-        if (!this.connects[action]) {
-            this.connects[action] = [];
-        }
-        this.connects[action].push(callback);
-        return callback;
-    };
-    JetcodeSocketConnection.prototype.disconnect = function (action, callback) {
-        if (!this.connectActions.includes(action)) {
-            throw new Error('This action is not defined.');
-        }
-        if (!this.connects[action]) {
-            return;
-        }
-        this.connects[action] = this.connects[action].filter(function (cb) { return cb !== callback; });
-    };
-    JetcodeSocketConnection.prototype.sendData = function (value, parameters) {
-        var e_66, _a;
-        if (parameters === void 0) { parameters = {}; }
-        if (!this.lobbyId) {
-            throw new Error('You are not in the lobby!');
-        }
-        var request = "".concat(JetcodeSocket.SEND_DATA, "\n");
-        try {
-            for (var _b = __values(Object.entries(parameters)), _c = _b.next(); !_c.done; _c = _b.next()) {
-                var _d = __read(_c.value, 2), key = _d[0], value_1 = _d[1];
-                request += key + '=' + value_1 + '\n';
-            }
-        }
-        catch (e_66_1) { e_66 = { error: e_66_1 }; }
-        finally {
-            try {
-                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-            }
-            finally { if (e_66) throw e_66.error; }
-        }
-        request += "SendTime=".concat(Date.now(), "\n");
-        request += '\n' + value;
-        this.socket.send(request);
-    };
-    JetcodeSocketConnection.prototype.joinLobby = function (gameToken, lobbyId, parameters) {
-        var _this = this;
-        if (parameters === void 0) { parameters = {}; }
-        return new Promise(function (resolve, reject) {
-            var e_67, _a;
-            if (!lobbyId) {
-                lobbyId = 0;
-            }
-            var request = "".concat(JetcodeSocket.JOIN_LOBBY, "\n");
-            request += "GameToken=".concat(gameToken, "\n");
-            request += "LobbyId=".concat(lobbyId, "\n");
-            try {
-                for (var _b = __values(Object.entries(parameters)), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var _d = __read(_c.value, 2), key = _d[0], value = _d[1];
-                    request += "".concat(key, "=").concat(value, "\n");
-                }
-            }
-            catch (e_67_1) { e_67 = { error: e_67_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_67) throw e_67.error; }
-            }
-            _this.socket.send(request);
-            _this.connect(JetcodeSocket.JOINED, function (responseParams) {
-                if (responseParams.LobbyId && responseParams.MemberId && responseParams.CurrentTime) {
-                    _this.lobbyId = responseParams.LobbyId;
-                    _this.memberId = responseParams.MemberId;
-                    var currentTimeMs = Date.now();
-                    _this.deltaTime = currentTimeMs - Number(responseParams.CurrentTime);
-                    resolve(_this.lobbyId);
-                }
-                else {
-                    reject(new Error('Couldn\'t join the lobby'));
-                }
-            });
-        });
-    };
-    JetcodeSocketConnection.prototype.leaveLobby = function () {
-        if (!this.lobbyId) {
-            return;
-        }
-        var request = "".concat(JetcodeSocket.LEAVE_LOBBY, "\nLobbyId=").concat(this.lobbyId, "\n");
-        this.socket.send(request);
-        this.lobbyId = null;
-    };
-    JetcodeSocketConnection.prototype._parse = function (data) {
-        var parsable = data.split('\n');
-        var action = parsable[0];
-        var value = '';
-        var parameters = [];
-        var nextIs = 'parameters';
-        for (var i = 1; i < parsable.length; i++) {
-            var line = parsable[i];
-            if (line === '' && nextIs === 'parameters') {
-                nextIs = 'value';
-            }
-            else if (nextIs === 'parameters') {
-                var splitted = line.split('=');
-                var parameter = splitted[0];
-                parameters[parameter] = splitted.length > 1 ? splitted[1] : null;
-            }
-            else if (nextIs === 'value') {
-                value = value + line + '\n';
-            }
-        }
-        if (value) {
-            value = value.slice(0, -1);
-        }
-        return [action, parameters, value];
-    };
-    return JetcodeSocketConnection;
-}());
-var ErrorMessages = (function () {
-    function ErrorMessages() {
+        loop();
+      });
     }
-    ErrorMessages.getMessage = function (messageId, locale, variables) {
-        if (variables === void 0) { variables = null; }
-        if (!ErrorMessages.messages[messageId]) {
-            throw new Error('Message is not defined.');
-        }
-        if (!ErrorMessages.messages[messageId][locale]) {
-            throw new Error('Message for this locale is not defined.');
-        }
-        var message = ErrorMessages.messages[messageId][locale];
-        if (variables) {
-            message = ErrorMessages.replaceVariables(message, variables);
-        }
-        return message;
-    };
-    ErrorMessages.replaceVariables = function (message, variables) {
-        return message.replace(/\${([^}]+)}/g, function (match, key) {
-            return variables[key] !== undefined ? variables[key] : '';
-        });
-    };
-    ErrorMessages.SCRIPT_ERROR = 'script_error';
-    ErrorMessages.MISTAKE_METHOD = 'mistake_method';
-    ErrorMessages.MISTAKE_METHOD_WITH_CLOSEST = 'mistake_method_with_closest';
-    ErrorMessages.NEED_STAGE_BEFORE_RUN_GAME = 'need_stage_before_run_game';
-    ErrorMessages.NEED_CREATE_STAGE_BEFORE_SPRITE = 'need_create_stage_before_sprite';
-    ErrorMessages.COSTUME_NOT_LOADED = 'costume_not_loaded';
-    ErrorMessages.BACKGROUND_NOT_LOADED = 'background_not_loaded';
-    ErrorMessages.CLONED_NOT_READY = 'cloned_not_ready';
-    ErrorMessages.SOUND_INDEX_NOT_FOUND = 'sound_index_not_found';
-    ErrorMessages.SOUND_NAME_NOT_FOUND = 'sound_name_not_found';
-    ErrorMessages.SOUND_NAME_ALREADY_EXISTS = 'sound_name_already_exists';
-    ErrorMessages.SOUND_NOT_ALLOWED_ERROR = 'sound_not_allowed_error';
-    ErrorMessages.SOUND_USE_NOT_READY = 'sound_use_not_ready';
-    ErrorMessages.COSTUME_INDEX_NOT_FOUND = 'costume_index_not_found';
-    ErrorMessages.COSTUME_NAME_NOT_FOUND = 'costume_name_not_found';
-    ErrorMessages.COSTUME_SWITCH_NOT_READY = 'costume_switch_not_ready';
-    ErrorMessages.STAMP_NOT_READY = 'stamp_not_ready';
-    ErrorMessages.STAMP_COSTUME_NOT_FOUND = 'stamp_costume_not_found';
-    ErrorMessages.COLLIDER_NAME_NOT_FOUND = 'collider_name_not_found';
-    ErrorMessages.messages = {
-        script_error: {
-            'ru': 'Произошла ошибка, ознакомьтесь с подробной информацией в консоли.',
-            'en': 'An error has occurred, take a look at the details in the console.'
-        },
-        mistake_method: {
-            'ru': '${className}: Метод или свойство "${prop}" не найдено',
-            'en': '${className}: Method "${prop}" not found'
-        },
-        mistake_method_with_closest: {
-            'ru': '${className}: Метод или свойство "${prop}" не найдено. Возможно вы имели ввиду: ${closestString}?',
-            'en': '${className}: Method "${prop}" not found. Did you mean: ${closestString}?'
-        },
-        need_stage_before_run_game: {
-            'ru': 'Вам нужно создать экземпляр Stage перед запуском игры.',
-            'en': 'You need create Stage instance before run game.'
-        },
-        need_create_stage_before_sprite: {
-            'ru': 'Вам нужно создать экземпляр класса Stage перед экземпляром класса Sprite.',
-            'en': 'You need create Stage instance before Sprite instance.'
-        },
-        costume_not_loaded: {
-            'ru': 'Изображение для костюма "${costumePath}" не было загружено. Проверьте правильность пути.',
-            'en': 'Costume image "${costumePath}" was not loaded. Check that the path is correct.'
-        },
-        background_not_loaded: {
-            'ru': 'Изображение для фона "${backgroundPath}" не было загружено. Проверьте правильность пути.',
-            'en': 'Background image "${backgroundPath}" was not loaded. Check that the path is correct.'
-        },
-        cloned_not_ready: {
-            'ru': 'Спрайт не может быть клонирован, потому что он еще не готов. Попробуйте использовать метод sprite.onReady()',
-            'en': 'Sprite cannot be cloned because one is not ready. Try using the sprite.onReady() method.'
-        },
-        sound_index_not_found: {
-            'ru': 'Звук с индексом "${soundIndex}" не найден.',
-            'en': 'Sound with index "${soundIndex}" not found.'
-        },
-        sound_name_not_found: {
-            'ru': 'Звук с именем "${soundName}" не найден.',
-            'en': 'Sound with name "${soundName}" not found.'
-        },
-        sound_name_already_exists: {
-            'ru': 'Звук с именем "${soundName}" уже добавлен.',
-            'en': 'Sound with name "${soundName}" already exists.'
-        },
-        sound_use_not_ready: {
-            'ru': 'Спрайт не может использовать звуки, потому что спрайт еще не готов. Попробуйте использовать метод sprite.onReady().',
-            'en': 'Sprite cannot use sounds because sprite is not ready. Try using the sprite.onReady() method.'
-        },
-        sound_not_allowed_error: {
-            'ru': 'Воспроизведение звука заблокировано. Пользователь должен сначала взаимодействовать с игрой. Воспользуйтесь методом Game.onUserInteracted()',
-            'en': 'Audio playback is blocked. The user must first interact with the game. Use the Game.onUserInteracted() method.'
-        },
-        costume_index_not_found: {
-            'ru': 'Костюм с индексом "${costumeIndex}" не найден.',
-            'en': 'Costume with index "${costumeIndex}" not found.'
-        },
-        costume_name_not_found: {
-            'ru': 'Костюм с именем "${costumeName}" не найден.',
-            'en': 'Costume with name "${costumeName}" not found.'
-        },
-        costume_switch_not_ready: {
-            'ru': 'Спрайт не может изменить костюм, потому что спрайт еще не готов. Попробуйте использовать метод sprite.onReady().',
-            'en': 'Sprite cannot change a costume because sprite is not ready. Try using the sprite.onReady() method.'
-        },
-        stamp_not_ready: {
-            'ru': 'Спрайт не может создать штамп, потому что он еще не готов. Попробуйте использовать метод sprite.onReady()',
-            'en': 'Sprite cannot create a stamp because sprite is not ready. Try using the sprite.onReady() method.'
-        },
-        stamp_costume_not_found: {
-            'ru': 'Штам не может быть создан, так как костюм с индексом "${costumeIndex}" не найден.',
-            'en': 'The stamp cannot be created because the costume with the index "${costumeIndex}" has not been found.'
-        },
-        collider_name_not_found: {
-            'ru': 'Коллайдер с именем "${colliderName}" не найден.',
-            'en': 'Collider with name "${colliderName}" not found.'
-        },
-    };
-    return ErrorMessages;
-}());
-var Keyboard = (function () {
-    function Keyboard() {
-        var _this = this;
-        this.keys = {};
-        document.addEventListener('keydown', function (event) {
-            var char = KeyboardMap.getChar(event.keyCode);
-            _this.keys[char] = true;
-        });
-        document.addEventListener('keyup', function (event) {
-            var char = KeyboardMap.getChar(event.keyCode);
-            delete _this.keys[char];
-        });
+  }
+  addListeners() {
+    this.eventEmitter.on(Game.SPRITE_READY_EVENT, Game.SPRITE_READY_EVENT, (event) => {
+      if (this.id == event.detail.stageId) {
+        this.loadedSprites++;
+        this.tryDoOnReady();
+        this.tryDoRun();
+      }
+    });
+  }
+};
+
+// src/MultiplayerControl.ts
+var MultiplayerControl = class {
+  constructor(player, game, connection, isMe) {
+    this.trackedKeys = [];
+    this.receiveDataConnections = [];
+    this.userKeydownCallbacks = /* @__PURE__ */ new Map();
+    this.systemLockedChars = {};
+    this.userLockedChars = {};
+    this.systemMouseLocked = false;
+    this.userMouseLocked = false;
+    this.game = game;
+    this.connection = connection;
+    if (isMe) {
+      this.defineListeners();
     }
-    Keyboard.prototype.keyPressed = function (char) {
-        return this.keys[char.toUpperCase()] !== undefined;
-    };
-    Keyboard.prototype.keyDown = function (char, callback) {
-        document.addEventListener('keydown', function (event) {
-            var pressedChar = KeyboardMap.getChar(event.keyCode);
-            if (char.toUpperCase() == pressedChar) {
-                callback(event);
+    const keydownConnection = connection.connect(JetcodeSocket.RECEIVE_DATA, (dataJson, parameters) => {
+      const data = JSON.parse(dataJson);
+      const char = data["char"];
+      if (!parameters.SendTime || parameters.Keydown != "true" || parameters.MemberId != player.id || !this.trackedKeys.includes(char)) {
+        return;
+      }
+      if (this.userKeydownCallbacks.has(char)) {
+        const callback = this.userKeydownCallbacks.get(char)[0];
+        const block = (isBlock, chars = [char], mouse = false) => {
+          if (mouse) {
+            this.userMouseLocked = isBlock;
+          }
+          for (const char2 of chars) {
+            this.userLockedChars[char2.toUpperCase()] = isBlock;
+          }
+        };
+        let attempts = 0;
+        const handler = () => {
+          if (this.userLockedChars[char] !== true || attempts > 999) {
+            const syncData = data["sync"];
+            if (syncData) {
+              game.syncObjects(syncData, this.game.calcDeltaTime(parameters.SendTime));
             }
-        });
-    };
-    Keyboard.prototype.keyUp = function (char, callback) {
-        document.addEventListener('keyup', function (event) {
-            var pressedChar = KeyboardMap.getChar(event.keyCode);
-            if (char.toUpperCase() == pressedChar) {
-                callback(event);
+            callback(player, block);
+          } else {
+            attempts++;
+            setTimeout(handler, 50);
+          }
+        };
+        handler();
+      }
+      this.systemLockedChars[char] = false;
+    });
+    this.receiveDataConnections.push(keydownConnection);
+    const mousedownConnection = connection.connect(JetcodeSocket.RECEIVE_DATA, (dataJson, parameters) => {
+      if (!parameters.SendTime || parameters.Mousedown != "true" || parameters.MemberId != player.id) {
+        return;
+      }
+      if (this.userMousedownCallback) {
+        const callback = this.userMousedownCallback[0];
+        const data = JSON.parse(dataJson);
+        const mouseX = data["mouseX"];
+        const mouseY = data["mouseY"];
+        const syncData = data["sync"];
+        const block = (isBlock, chars = [], mouse = true) => {
+          if (mouse) {
+            this.userMouseLocked = isBlock;
+          }
+          for (const char of chars) {
+            this.userLockedChars[char.toUpperCase()] = isBlock;
+          }
+        };
+        let attempts = 0;
+        const handler = () => {
+          if (this.userMouseLocked !== true || attempts > 999) {
+            if (syncData) {
+              game.syncObjects(syncData, this.game.calcDeltaTime(parameters.SendTime));
             }
-        });
+            const mousePoint = new PointCollider(mouseX, mouseY);
+            callback(mousePoint, player, block);
+          } else {
+            attempts++;
+            setTimeout(handler, 50);
+          }
+        };
+        handler();
+      }
+      this.systemMouseLocked = false;
+    });
+    this.receiveDataConnections.push(mousedownConnection);
+  }
+  defineListeners() {
+    this.keydownCallback = (event) => {
+      const char = KeyboardMap.getChar(event.keyCode);
+      if (!this.userKeydownCallbacks.has(char) || this.systemLockedChars[char] === true || this.userLockedChars[char] === true || !this.trackedKeys.includes(char)) {
+        return;
+      }
+      this.systemLockedChars[char] = true;
+      const syncPackName = this.userKeydownCallbacks.get(char)[1];
+      const syncData = this.userKeydownCallbacks.get(char)[2];
+      const syncDataPacked = this.game.packSyncData(syncPackName, syncData);
+      this.connection.sendData(JSON.stringify({
+        "char": char,
+        "sync": syncDataPacked
+      }), {
+        Keydown: "true"
+      });
     };
-    return Keyboard;
-}());
-var Mouse = (function () {
-    function Mouse(game) {
-        var _this = this;
-        this.x = 0;
-        this.y = 0;
-        this.isDown = false;
-        document.addEventListener('mousedown', function () {
-            _this.isDown = true;
-            _this.lastStage = game.getActiveStage();
-        });
-        document.addEventListener('mouseup', function () {
-            _this.isDown = false;
-        });
-        document.addEventListener('mousemove', function (e) {
-            _this.x = game.correctMouseX(e.clientX);
-            _this.y = game.correctMouseY(e.clientY);
-        });
-        this.point = new PointCollider(this.x, this.y);
+    this.mousedownCallback = (event) => {
+      if (!this.userMousedownCallback || this.systemMouseLocked || this.userMouseLocked) {
+        return;
+      }
+      const mouseX = this.game.correctMouseX(event.clientX);
+      const mouseY = this.game.correctMouseY(event.clientY);
+      if (!this.game.isInsideGame(mouseX, mouseY)) {
+        return;
+      }
+      this.systemMouseLocked = true;
+      const syncPackName = this.userMousedownCallback[1];
+      const syncData = this.userMousedownCallback[2];
+      const syncDataPacked = this.game.packSyncData(syncPackName, syncData);
+      this.connection.sendData(JSON.stringify({
+        "mouseX": mouseX,
+        "mouseY": mouseY,
+        "sync": syncDataPacked
+      }), {
+        Mousedown: "true"
+      });
+    };
+    document.addEventListener("keydown", this.keydownCallback);
+    document.addEventListener("mousedown", this.mousedownCallback);
+  }
+  stop() {
+    if (this.keydownCallback) {
+      document.removeEventListener("keydown", this.keydownCallback);
     }
-    Mouse.prototype.getPoint = function () {
-        this.point.x = this.x;
-        this.point.y = this.y;
-        return this.point;
-    };
-    Mouse.prototype.isMouseDown = function (stage) {
-        return this.isDown && stage === this.lastStage;
-    };
-    Mouse.prototype.clearMouseDown = function () {
-        this.isDown = false;
-    };
-    return Mouse;
-}());
-var Registry = (function () {
-    function Registry() {
-        this.data = {};
+    for (const connection of this.receiveDataConnections) {
+      this.connection.disconnect(JetcodeSocket.RECEIVE_DATA, connection);
     }
-    Registry.getInstance = function () {
-        if (!this.instance) {
-            this.instance = new Registry();
+  }
+  keyDown(char, callback, syncPackName, syncData = []) {
+    char = char.toUpperCase();
+    if (!this.trackedKeys.includes(char)) {
+      this.trackedKeys.push(char);
+    }
+    this.userKeydownCallbacks.set(char, [callback, syncPackName, syncData]);
+  }
+  removeKeyDownHandler(char) {
+    char = char.toUpperCase();
+    this.userKeydownCallbacks.delete(char);
+  }
+  mouseDown(callback, syncPackName, syncData = []) {
+    this.userMousedownCallback = [callback, syncPackName, syncData];
+  }
+  removeMouseDownHandler() {
+    this.userMousedownCallback = null;
+  }
+};
+
+// src/OrphanSharedData.ts
+var OrphanSharedData = class {
+  constructor(parent, properties) {
+    this.parent = parent;
+    this.properties = properties;
+  }
+  getMultiplayerName() {
+    return this.parent.getMultiplayerName();
+  }
+  getSyncId() {
+    return this.parent.getSyncId();
+  }
+  increaseSyncId() {
+    return this.parent.increaseSyncId();
+  }
+  getSyncData() {
+    const syncData = {};
+    for (const property of this.properties) {
+      if (this.parent[property]) {
+        syncData[property] = this.parent[property];
+      }
+    }
+    return syncData;
+  }
+  setSyncData(packName, data, deltaTime) {
+    this.parent.setSyncData(packName, data, deltaTime);
+  }
+  onSync(callback) {
+    throw new Error("Not implemented.");
+  }
+  removeSyncHandler() {
+    throw new Error("Not implemented.");
+  }
+  only(...properties) {
+    throw new Error("Not implemented.");
+  }
+};
+
+// src/Player.ts
+var Player = class {
+  constructor(id, isMe, game) {
+    this.deleted = false;
+    this.id = id;
+    this._isMe = isMe;
+    this.game = game;
+    this.multiplayerName = "player_" + id;
+    this.syncId = 1;
+    this.control = new MultiplayerControl(this, this.game, game.connection, isMe);
+    this.reservedProps = Object.keys(this);
+    this.reservedProps.push("reservedProps");
+  }
+  keyDown(char, callback, syncPackName, syncData = []) {
+    this.control.keyDown(char, callback, syncPackName, syncData);
+  }
+  removeKeyDownHandler(char) {
+    this.control.removeKeyDownHandler(char);
+  }
+  mouseDown(callback, syncPackName, syncData = []) {
+    this.control.mouseDown(callback, syncPackName, syncData);
+  }
+  removeMouseDownHandler() {
+    this.control.removeMouseDownHandler();
+  }
+  isMe() {
+    return this._isMe;
+  }
+  delete() {
+    if (this.deleted) {
+      return;
+    }
+    this.control.stop();
+    let props = Object.keys(this);
+    for (let i = 0; i < props.length; i++) {
+      delete this[props[i]];
+    }
+    this.deleted = true;
+  }
+  repeat(i, callback, timeout, finishCallback) {
+    if (this.deleted) {
+      finishCallback();
+      return;
+    }
+    if (i < 1) {
+      finishCallback();
+      return;
+    }
+    const result = callback(this);
+    if (result === false) {
+      finishCallback();
+      return;
+    }
+    if (result > 0) {
+      timeout = result;
+    }
+    i--;
+    if (i < 1) {
+      finishCallback();
+      return;
+    }
+    setTimeout(() => {
+      requestAnimationFrame(() => this.repeat(i, callback, timeout, finishCallback));
+    }, timeout);
+  }
+  forever(callback, timeout = null) {
+    if (this.deleted) {
+      return;
+    }
+    const result = callback(this);
+    if (result === false) {
+      return;
+    }
+    if (result > 0) {
+      timeout = result;
+    }
+    if (timeout) {
+      setTimeout(() => {
+        requestAnimationFrame(() => this.forever(callback, timeout));
+      }, timeout);
+    } else {
+      requestAnimationFrame(() => this.forever(callback));
+    }
+  }
+  timeout(callback, timeout) {
+    setTimeout(() => {
+      if (this.deleted) {
+        return;
+      }
+      requestAnimationFrame(() => callback(this));
+    }, timeout);
+  }
+  getMultiplayerName() {
+    return this.multiplayerName;
+  }
+  getSyncId() {
+    return this.syncId;
+  }
+  increaseSyncId() {
+    this.syncId++;
+    return this.syncId;
+  }
+  getSyncData() {
+    const data = {};
+    for (const key of Object.keys(this)) {
+      if (this.reservedProps.includes(key)) {
+        continue;
+      }
+      data[key] = this[key];
+    }
+    return data;
+  }
+  setSyncData(packName, data, deltaTime) {
+    const oldData = {};
+    for (const key in data) {
+      if (data.hasOwnProperty(key) && !this.reservedProps.includes(key)) {
+        oldData[key] = this[key];
+        this[key] = data[key];
+      }
+    }
+    if (this.syncCallback) {
+      this.syncCallback(this, packName, data, oldData, deltaTime);
+    }
+  }
+  onSync(callback) {
+    this.syncCallback = callback;
+  }
+  removeSyncHandler() {
+    this.syncCallback = null;
+  }
+  only(...properties) {
+    return new OrphanSharedData(this, properties);
+  }
+};
+
+// src/MultiplayerSprite.ts
+var MultiplayerSprite = class extends Sprite {
+  constructor(multiplayerName, stage = null, layer = 1, costumePaths = []) {
+    super(stage, layer, costumePaths);
+    this.multiplayerName = "sprite_" + multiplayerName;
+    this.syncId = 1;
+    this.reservedProps = Object.keys(this);
+    this.reservedProps.push("body");
+    this.reservedProps.push("reservedProps");
+  }
+  generateUniqueId() {
+    return Math.random().toString(36).slice(2) + "-" + Math.random().toString(36).slice(2);
+  }
+  getCustomerProperties() {
+    const data = {};
+    for (const key of Object.keys(this)) {
+      if (this.reservedProps.includes(key)) {
+        continue;
+      }
+      data[key] = this[key];
+    }
+    return data;
+  }
+  getMultiplayerName() {
+    return this.multiplayerName;
+  }
+  getSyncId() {
+    return this.syncId;
+  }
+  increaseSyncId() {
+    this.syncId++;
+    return this.syncId;
+  }
+  getSyncData() {
+    return Object.assign({}, this.getCustomerProperties(), {
+      size: this.size,
+      rotateStyle: this.rotateStyle,
+      costumeIndex: this.costumeIndex,
+      deleted: this._deleted,
+      x: this.x,
+      y: this.y,
+      direction: this.direction,
+      hidden: this.hidden,
+      stopped: this.stopped
+    });
+  }
+  setSyncData(packName, data, deltaTime) {
+    const oldData = {};
+    for (const key in data) {
+      if (data.hasOwnProperty(key) && !this.reservedProps.includes(key)) {
+        oldData[key] = this[key];
+        this[key] = data[key];
+      }
+    }
+    if (this.syncCallback) {
+      this.syncCallback(this, packName, data, oldData, deltaTime);
+    }
+  }
+  onSync(callback) {
+    this.syncCallback = callback;
+  }
+  removeSyncHandler() {
+    this.syncCallback = null;
+  }
+  only(...properties) {
+    return new OrphanSharedData(this, properties);
+  }
+};
+
+// src/MultiplayerGame.ts
+var MultiplayerGame = class extends Game {
+  constructor(socketUrl, gameToken, width, height, canvasId = null, displayErrors = true, locale = "ru", lobbyId = 0, autoSyncGame = 0, multiplayerOptions = {}) {
+    super(width, height, canvasId, displayErrors, locale);
+    this.autoSyncGameTimeout = 0;
+    this.players = [];
+    this.sharedObjects = [];
+    this.autoSyncGameTimeout = autoSyncGame;
+    this.initializeConnection(socketUrl, gameToken, lobbyId, multiplayerOptions);
+  }
+  send(userData, parameters = {}, syncPackName, syncData = []) {
+    if (!this.connection) {
+      throw new Error("Connection to the server is not established.");
+    }
+    const data = {
+      "data": userData,
+      "sync": this.packSyncData(syncPackName, syncData)
+    };
+    this.connection.sendData(JSON.stringify(data), parameters);
+  }
+  sync(syncPackName, syncData = [], parameters = {}) {
+    if (!syncData.length) {
+      return;
+    }
+    parameters.SyncGame = "true";
+    const data = this.packSyncData(syncPackName, syncData);
+    this.sendData(JSON.stringify(data), parameters);
+  }
+  syncGame() {
+    const syncObjects = this.getSyncObjects();
+    const syncData = this.packSyncData("game", syncObjects);
+    this.sendData(JSON.stringify(syncData), {
+      SyncGame: "true"
+    });
+  }
+  onConnection(callback) {
+    this.onConnectionCallback = callback;
+  }
+  removeConnectionHandler(callback) {
+    this.onConnectionCallback = null;
+  }
+  onReceive(callback) {
+    this.onReceiveCallback = callback;
+  }
+  removeReceiveHandler(callback) {
+    this.onReceiveCallback = null;
+  }
+  onMemberJoined(callback) {
+    this.onMemberJoinedCallback = callback;
+  }
+  removeMemberJoinedHandler(callback) {
+    this.onMemberJoinedCallback = null;
+  }
+  onMemberLeft(callback) {
+    this.onMemberLeftCallback = callback;
+  }
+  removeMemberLeftHandler(callback) {
+    this.onMemberLeftCallback = null;
+  }
+  onGameStarted(callback) {
+    this.onGameStartedCallback = callback;
+  }
+  removeGameStartedHandler(callback) {
+    this.onGameStartedCallback = null;
+  }
+  onGameStopped(callback) {
+    this.onGameStoppedCallback = callback;
+  }
+  removeGameStoppedHandler(callback) {
+    this.onGameStoppedCallback = null;
+  }
+  onMultiplayerError(callback) {
+    this.onMultiplayerErrorCallback = callback;
+  }
+  removeMultiplayerErrorHandler(callback) {
+    this.onMultiplayerErrorCallback = null;
+  }
+  run() {
+    super.run();
+    if (this.isHost && this.autoSyncGameTimeout) {
+      this.autoSyncGame(this.autoSyncGameTimeout);
+    }
+  }
+  stop() {
+    super.stop();
+    for (const player of this.players) {
+      player.delete();
+    }
+    this.players = [];
+  }
+  getPlayers() {
+    return this.players;
+  }
+  addSharedObject(sharedObject) {
+    this.sharedObjects.push(sharedObject);
+  }
+  removeSharedObject(sharedObject) {
+    const index = this.sharedObjects.indexOf(sharedObject);
+    if (index > -1) {
+      this.sharedObjects.splice(index, 1);
+    }
+  }
+  getSharedObjects() {
+    return this.sharedObjects;
+  }
+  getMultiplayerSprites() {
+    if (!this.getActiveStage()) {
+      return [];
+    }
+    return this.getActiveStage().getSprites().filter((sprite) => {
+      return sprite instanceof MultiplayerSprite;
+    });
+  }
+  getSyncObjects() {
+    const multiplayerSprites = this.getMultiplayerSprites();
+    const players = this.getPlayers();
+    const sharedObjects = this.getSharedObjects();
+    return [...multiplayerSprites, ...players, ...sharedObjects];
+  }
+  syncObjects(syncData, deltaTime) {
+    const gameAllSyncObjects = this.getSyncObjects();
+    for (const [syncPackName, syncObjectsData] of Object.entries(syncData)) {
+      for (const syncObject of gameAllSyncObjects) {
+        if (syncObjectsData[syncObject.getMultiplayerName()]) {
+          const syncPackData = syncObjectsData[syncObject.getMultiplayerName()];
+          syncObject.setSyncData(syncPackName, syncPackData, deltaTime);
         }
-        return this.instance;
-    };
-    Registry.prototype.set = function (name, value) {
-        this.data[name] = value;
-    };
-    Registry.prototype.has = function (name) {
-        return this.data[name] !== undefined;
-    };
-    Registry.prototype.get = function (name) {
-        return this.data[name];
-    };
-    return Registry;
-}());
-var Styles = (function () {
-    function Styles(canvas, width, height) {
-        var _this = this;
-        this.canvas = canvas;
-        this.setEnvironmentStyles();
-        this.setCanvasSize(width, height);
-        this.canvasRect = canvas.getBoundingClientRect();
-        window.addEventListener('resize', function () {
-            _this.setCanvasSize(width, height);
-            _this.canvasRect = canvas.getBoundingClientRect();
-        });
+      }
     }
-    Styles.prototype.setEnvironmentStyles = function () {
-        document.body.style.margin = '0';
-        document.body.style.height = '100' + 'vh';
-        document.body.style.padding = '0';
-        document.body.style.overflow = 'hidden';
-    };
-    Styles.prototype.setCanvasSize = function (width, height) {
-        this.canvas.width = width ? width : document.body.clientWidth;
-        this.canvas.height = height ? height : document.body.clientHeight;
-    };
-    return Styles;
-}());
-var ValidatorFactory = (function () {
-    function ValidatorFactory(game) {
-        this.game = game;
+  }
+  packSyncData(packName, syncObjects) {
+    const syncObjectsData = {};
+    for (const syncObject of syncObjects) {
+      syncObjectsData[syncObject.getMultiplayerName()] = syncObject.getSyncData();
+      syncObjectsData[syncObject.getMultiplayerName()]["syncId"] = syncObject.increaseSyncId();
     }
-    ValidatorFactory.prototype.createValidator = function (target, className) {
-        var game = this.game;
-        return new Proxy(target, {
-            get: function (obj, prop) {
-                if (prop in obj) {
-                    return obj[prop];
-                }
-                if (typeof prop === 'symbol' || prop.startsWith('_')) {
-                    return undefined;
-                }
-                var methods = Object.getOwnPropertyNames(Object.getPrototypeOf(obj))
-                    .filter(function (m) { return m !== 'constructor'; });
-                var closest = ValidatorFactory.findClosestMethods(prop.toString(), methods);
-                if (closest.length) {
-                    var closestString = closest.join(', ');
-                    game.throwError(ErrorMessages.MISTAKE_METHOD_WITH_CLOSEST, { className: className, prop: prop, closestString: closestString });
-                }
-                else {
-                    game.throwError(ErrorMessages.MISTAKE_METHOD, { className: className, prop: prop });
-                }
-            }
-        });
-    };
-    ValidatorFactory.findClosestMethods = function (input, methods, maxDistance) {
-        if (maxDistance === void 0) { maxDistance = 2; }
-        return methods
-            .map(function (method) { return ({
-            name: method,
-            distance: ValidatorFactory.levenshteinDistance(input.toLowerCase(), method.toLowerCase())
-        }); })
-            .filter(function (_a) {
-            var distance = _a.distance;
-            return distance <= maxDistance;
-        })
-            .sort(function (a, b) { return a.distance - b.distance; })
-            .map(function (_a) {
-            var name = _a.name;
-            return name;
-        })
-            .slice(0, 3);
-    };
-    ValidatorFactory.levenshteinDistance = function (a, b) {
-        var matrix = Array(a.length + 1)
-            .fill(null)
-            .map(function () { return Array(b.length + 1).fill(0); });
-        for (var i = 0; i <= a.length; i++)
-            matrix[i][0] = i;
-        for (var j = 0; j <= b.length; j++)
-            matrix[0][j] = j;
-        for (var i = 1; i <= a.length; i++) {
-            for (var j = 1; j <= b.length; j++) {
-                var cost = a[i - 1] === b[j - 1] ? 0 : 1;
-                matrix[i][j] = Math.min(matrix[i - 1][j] + 1, matrix[i][j - 1] + 1, matrix[i - 1][j - 1] + cost);
-            }
+    const result = {};
+    result[packName] = syncObjectsData;
+    return result;
+  }
+  sendData(data, parameters = {}) {
+    if (!this.connection) {
+      throw new Error("Connection to the server is not established.");
+    }
+    this.connection.sendData(data, parameters);
+  }
+  calcDeltaTime(sendTime) {
+    return Date.now() - sendTime - this.connection.deltaTime;
+  }
+  extrapolate(callback, deltaTime, timeout) {
+    const times = Math.round(deltaTime / timeout * 0.75);
+    for (let i = 0; i < times; i++) {
+      callback();
+    }
+  }
+  async initializeConnection(socketUrl, gameToken, lobbyId, multiplayerOptions = {}) {
+    const socket = new JetcodeSocket(socketUrl);
+    try {
+      this.connection = await socket.connect(gameToken, lobbyId, multiplayerOptions);
+      if (this.onConnectionCallback) {
+        this.onConnectionCallback(this.connection);
+      }
+      this.connection.connect(JetcodeSocket.RECEIVE_DATA, (data, parameters, isMe) => {
+        if (!data || !this.running || !parameters.SendTime) {
+          return;
         }
-        return matrix[a.length][b.length];
+        if (parameters.SyncGame === "true") {
+          const syncObjectsData = JSON.parse(data);
+          this.syncObjects(syncObjectsData, this.calcDeltaTime(parameters.SendTime));
+        } else if (parameters.Keydown !== "true" && parameters.Mousedown !== "true" && this.onReceiveCallback) {
+          data = JSON.parse(data);
+          const userData = data["userData"];
+          const syncSpritesData = data["sync"];
+          this.syncObjects(syncSpritesData, this.calcDeltaTime(parameters.SendTime));
+          this.onReceiveCallback(userData, parameters, isMe);
+        }
+      });
+      this.connection.connect(JetcodeSocket.MEMBER_JOINED, (parameters, isMe) => {
+        if (this.onMemberJoinedCallback) {
+          this.onMemberJoinedCallback(parameters, isMe);
+        }
+      });
+      this.connection.connect(JetcodeSocket.MEMBER_LEFT, (parameters, isMe) => {
+        if (this.onMemberLeftCallback) {
+          this.onMemberLeftCallback(parameters, isMe);
+        }
+      });
+      this.connection.connect(JetcodeSocket.GAME_STARTED, (parameters) => {
+        const hostId = parameters.HostId;
+        const playerIds = parameters.Members?.split(",") ?? [];
+        this.players = playerIds.map((playerId) => {
+          return new Player(playerId, playerId === this.connection.memberId, this);
+        });
+        this.isHost = hostId === this.connection.memberId;
+        if (this.onGameStartedCallback) {
+          this.onGameStartedCallback(this.players, parameters);
+        }
+      });
+      this.connection.connect(JetcodeSocket.GAME_STOPPED, (parameters) => {
+        if (this.onGameStoppedCallback) {
+          this.onGameStoppedCallback(parameters);
+        }
+      });
+      this.connection.connect(JetcodeSocket.ERROR, (parameters) => {
+        if (this.onMultiplayerError) {
+          this.onMultiplayerError(parameters);
+        }
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  autoSyncGame(timeout) {
+    const hander = () => {
+      this.syncGame();
     };
-    return ValidatorFactory;
-}());
-//# sourceMappingURL=scrub.js.map
+    setInterval(hander, timeout);
+  }
+};
+
+// src/SharedData.ts
+var SharedData = class {
+  constructor(multiplayerName) {
+    this.multiplayerName = "data_" + multiplayerName;
+    this.syncId = 1;
+    if (!Registry.getInstance().has("game")) {
+      throw new Error("You need create Game instance before Sprite instance.");
+    }
+    const game = Registry.getInstance().get("game");
+    game.addSharedObject(this);
+  }
+  generateUniqueId() {
+    return Math.random().toString(36).slice(2) + "-" + Math.random().toString(36).slice(2);
+  }
+  getMultiplayerName() {
+    return this.multiplayerName;
+  }
+  getSyncId() {
+    return this.syncId;
+  }
+  increaseSyncId() {
+    this.syncId++;
+    return this.syncId;
+  }
+  getSyncData() {
+    const data = {};
+    for (const key of Object.keys(this)) {
+      data[key] = this[key];
+    }
+    return data;
+  }
+  setSyncData(packName, data, deltaTime) {
+    const oldData = {};
+    for (const key in data) {
+      if (data.hasOwnProperty(key)) {
+        oldData[key] = this[key];
+        this[key] = data[key];
+      }
+    }
+    if (this.syncCallback) {
+      this.syncCallback(this, packName, data, oldData, deltaTime);
+    }
+  }
+  onSync(callback) {
+    this.syncCallback = callback;
+  }
+  removeSyncHandler() {
+    this.syncCallback = null;
+  }
+  only(...properties) {
+    return new OrphanSharedData(this, properties);
+  }
+};
+// Annotate the CommonJS export names for ESM import in node:
+0 && (module.exports = {
+  BVH,
+  BVHBranch,
+  Camera,
+  CameraChanges,
+  CircleCollider,
+  Collider,
+  CollisionResult,
+  CollisionSystem,
+  Costume,
+  ErrorMessages,
+  EventEmitter,
+  Game,
+  JetcodeSocket,
+  JetcodeSocketConnection,
+  Keyboard,
+  KeyboardMap,
+  Mouse,
+  MultiplayerControl,
+  MultiplayerGame,
+  MultiplayerSprite,
+  OrphanSharedData,
+  Player,
+  PointCollider,
+  PolygonCollider,
+  Registry,
+  SAT,
+  ScheduledCallbackExecutor,
+  ScheduledCallbackItem,
+  ScheduledState,
+  SharedData,
+  Sprite,
+  Stage,
+  Styles,
+  ValidatorFactory,
+  aabbAABB,
+  circleCircle,
+  polygonCircle,
+  polygonPolygon,
+  separatingAxis
+});

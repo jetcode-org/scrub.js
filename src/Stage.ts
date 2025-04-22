@@ -1,4 +1,14 @@
-class Stage {
+import { EventEmitter } from './EventEmitter';
+import { CollisionSystem } from './collisions';
+import { DrawingCallbackFunction, Game, ScheduledCallbackFunction, SoundOptions } from './Game';
+import { ScheduledCallbackExecutor } from './ScheduledCallbackExecutor';
+import { Sprite } from './Sprite';
+import { ScheduledCallbackItem } from './ScheduledCallbackItem';
+import { ErrorMessages, Registry } from './utils';
+import { ScheduledState } from './ScheduledState';
+import { Camera } from './Camera';
+
+export class Stage {
     id: Symbol;
     eventEmitter: EventEmitter;
     canvas: HTMLCanvasElement;

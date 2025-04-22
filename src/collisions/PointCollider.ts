@@ -1,10 +1,10 @@
-/// <reference path="PolygonCollider.ts"/>
+import { PolygonCollider } from './PolygonCollider';
 
 /**
  * A point used to detect collisions
  * @class
  */
-class PointCollider extends PolygonCollider {
+export class PointCollider extends PolygonCollider {
     /**
      * @constructor
      * @param {Number} [x = 0] The starting X coordinate

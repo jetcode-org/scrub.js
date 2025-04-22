@@ -1,4 +1,4 @@
-class Costume {
+export class Costume {
     image: HTMLCanvasElement;
     ready = false;
 

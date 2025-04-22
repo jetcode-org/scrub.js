@@ -1,9 +1,12 @@
+import { SAT } from './SAT';
+import { CollisionResult } from './CollisionResult';
+
 /**
  * The base class for bodies used to detect collisions
  * @class
  * @protected
  */
-class Collider {
+export class Collider {
     /**
      * The X coordinate of the body
      */

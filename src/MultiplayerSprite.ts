@@ -1,6 +1,9 @@
-/// <reference path="./Sprite.ts" />
+import { SyncObjectInterface } from './SyncObjectInterface';
+import { OrphanSharedData } from './OrphanSharedData';
+import { Stage } from './Stage';
+import { Sprite } from './Sprite';
 
-class MultiplayerSprite extends Sprite implements SyncObjectInterface {
+export class MultiplayerSprite extends Sprite implements SyncObjectInterface {
     private multiplayerName: string;
     private syncId: number;
     private reservedProps: string[];
