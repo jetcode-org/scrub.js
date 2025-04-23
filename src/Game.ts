@@ -120,6 +120,10 @@ export class Game {
         game.eventEmitter = new EventEmitter();
         game.keyboard = new Keyboard();
 
+        const div = document.createElement('div');
+        div.style.position = 'relative';
+        document.body.appendChild(div)
+
         if (canvasId) {
             const element = document.getElementById(canvasId);
 
@@ -129,8 +133,9 @@ export class Game {
 
         } else {
             game.canvas = document.createElement('canvas');
-            document.body.appendChild(game.canvas);
+            // document.body.appendChild(game.canvas);
         }
+        div.appendChild(game.canvas);
         if (canvasUIId) {
             const element = document.getElementById(canvasUIId);
 
@@ -140,11 +145,13 @@ export class Game {
 
         } else {
             game.canvasUI = document.createElement('canvas');
-            document.body.appendChild(game.canvasUI);
-            game.canvasUI.style.position = 'absolute';
-            game.canvasUI.style.left = '0';
-            game.canvasUI.style.top = '0';
+            // document.body.appendChild(game.canvasUI);
         }
+        div.appendChild(game.canvasUI);
+        game.canvasUI.style.position = 'absolute';
+        game.canvasUI.style.left = '0';
+        game.canvasUI.style.top = '0';
+
 
         game.canvas.width = width;
         game.canvas.height = height;
