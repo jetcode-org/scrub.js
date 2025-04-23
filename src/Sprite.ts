@@ -1414,21 +1414,23 @@ export class Sprite {
 
     get width(): number {
         if (this.collider instanceof PolygonCollider) {
-            const angleRadians = this.globalAngleRadians;
+            if (this._rotateStyle === 'normal') {
+                const angleRadians = this.globalAngleRadians;
 
-            return Math.abs(this.sourceWidth * Math.cos(angleRadians)) + Math.abs(this.sourceHeight * Math.sin(angleRadians));
+                return Math.abs(this.sourceWidth * Math.cos(angleRadians)) + Math.abs(this.sourceHeight * Math.sin(angleRadians));
+            }
         }
-
         return this.sourceWidth;
     }
 
     get height(): number {
-        if (this.collider instanceof PolygonCollider) {
-            const angleRadians = this.globalAngleRadians;
+        if (this.collider instanceof PolygonCollider ) {
+            if (this._rotateStyle === 'normal') {
+                const angleRadians = this.globalAngleRadians;
 
-            return Math.abs(this.sourceWidth * Math.sin(angleRadians)) + Math.abs(this.sourceHeight * Math.cos(angleRadians));
+                return Math.abs(this.sourceWidth * Math.sin(angleRadians)) + Math.abs(this.sourceHeight * Math.cos(angleRadians));
+            }
         }
-
         return this.sourceHeight;
     }
 
