@@ -68,6 +68,8 @@ export class Game {
     validatorFactory: ValidatorFactory;
     canvas: HTMLCanvasElement;
     context: CanvasRenderingContext2D;
+    canvasUI: HTMLCanvasElement;
+    contextUI: CanvasRenderingContext2D;
     keyboard: Keyboard;
     mouse: Mouse;
 
@@ -97,6 +99,7 @@ export class Game {
     constructor(width: number = null,
                 height: number = null,
                 canvasId: string = null,
+                canvasUIId: string = null,
                 displayErrors = true,
                 locale: Locale = 'ru'
     ) {
@@ -128,12 +131,35 @@ export class Game {
             game.canvas = document.createElement('canvas');
             document.body.appendChild(game.canvas);
         }
+        if (canvasUIId) {
+            const element = document.getElementById(canvasUIId);
+
+            if (element instanceof HTMLCanvasElement) {
+                game.canvasUI = element;
+            }
+
+        } else {
+            game.canvasUI = document.createElement('canvas');
+            document.body.appendChild(game.canvasUI);
+            game.canvasUI.style.position = 'absolute';
+            game.canvasUI.style.left = '0';
+            game.canvasUI.style.top = '0';
+        }
 
         game.canvas.width = width;
         game.canvas.height = height;
+
+        game.canvasUI.width = width;
+        game.canvasUI.height = height;
+
         game.styles = new Styles(game.canvas, width, height);
+
+        new Styles(game.canvasUI, width, height);
+
         game.mouse = new Mouse(game);
         game.context = game.canvas.getContext('2d');
+
+        game.contextUI = game.canvasUI.getContext('2d');
 
         Registry.getInstance().set('game', game);
 

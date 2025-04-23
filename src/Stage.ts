@@ -13,6 +13,7 @@ export class Stage {
     eventEmitter: EventEmitter;
     canvas: HTMLCanvasElement;
     context: CanvasRenderingContext2D;
+    contextUI: CanvasRenderingContext2D;
     collisionSystem: CollisionSystem;
     camera: Camera;
 
@@ -23,6 +24,7 @@ export class Stage {
     private backgrounds = [];
     private sprites = new Map<number, Sprite[]>();
     private drawings = new Map<number, DrawingCallbackFunction[]>();
+    private drawingsUI = new Map<number, DrawingCallbackFunction[]>();
     private sounds = [];
     private soundNames = [];
     private addedSprites = 0;
@@ -57,6 +59,7 @@ export class Stage {
         stage.collisionSystem = new CollisionSystem();
         stage.canvas = stage.game.canvas;
         stage.context = stage.game.context;
+        stage.contextUI = stage.game.contextUI;
 
         if (background) {
             stage.addBackground(background);
@@ -514,6 +517,20 @@ export class Stage {
         layerDrawings.push(callback);
     }
 
+    ui(callback: DrawingCallbackFunction, layer = 0): void {
+        let layerDrawings: DrawingCallbackFunction[];
+
+        if (this.drawingsUI.has(layer)) {
+            layerDrawings = this.drawingsUI.get(layer);
+
+        } else {
+            layerDrawings = [];
+            this.drawingsUI.set(layer, layerDrawings);
+        }
+
+        layerDrawings.push(callback);
+    }
+
     /**
      * Schedulers and render
      */
@@ -651,6 +668,20 @@ export class Stage {
                     for (const drawing of sprite.drawings) {
                         drawing(this.context, sprite);
                     }
+                }
+            }
+        }
+
+        let layersUI = Array.from(this.drawingsUI.keys());
+        layersUI = layersUI.filter((item, pos) => layersUI.indexOf(item) === pos);
+        layersUI = layersUI.sort((a, b) => a - b);
+
+        for (const layer of layersUI) {
+            if (this.drawingsUI.has(layer)) {
+                const layerDrawings = this.drawingsUI.get(layer);
+
+                for (const drawing of layerDrawings) {
+                    drawing(this.contextUI, this);
                 }
             }
         }
