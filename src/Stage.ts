@@ -587,9 +587,9 @@ export class Stage {
                     }
 
                     const distance = Math.hypot(sprite.imageCenterX - this.camera.x, sprite.imageCenterY - this.camera.y);
-                    const spriteRadius = Math.hypot(sprite.sourceWidth, sprite.sourceHeight) / 2 * this.camera.zoom;
+                    const spriteRadius = Math.hypot(sprite.sourceWidth, sprite.sourceHeight) / 1.5 * this.camera.zoom;
 
-                    if (distance > this.camera.renderRadius + spriteRadius) {
+                    if (distance >= this.camera.renderRadius + spriteRadius) {
                         continue;
                     }
 
@@ -672,6 +672,8 @@ export class Stage {
         // this.context.rotate(this.camera.changes.direction * Math.PI / 180);
         this.context.translate(-centerPointX, -centerPointY);
 
+        this.camera.update();
+
         this.camera.changes.reset();
     }
 
@@ -709,6 +711,7 @@ export class Stage {
         }
 
         this._stopped = false;
+        this.camera.run();
 
         for (const layerSprites of this.sprites.values()) {
             for (const sprite of layerSprites) {
@@ -736,6 +739,8 @@ export class Stage {
             return;
         }
 
+        console.log('сцена остановлена')
+
         this._running = false;
         this._stopped = true;
 
@@ -744,6 +749,8 @@ export class Stage {
                 sprite.stop();
             }
         }
+
+        this.camera.stop();
 
         this.stoppedTime = Date.now();
     }
