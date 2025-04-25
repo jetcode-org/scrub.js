@@ -739,8 +739,6 @@ export class Stage {
             return;
         }
 
-        console.log('сцена остановлена')
-
         this._running = false;
         this._stopped = true;
 

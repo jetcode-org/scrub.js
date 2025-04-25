@@ -92,7 +92,6 @@ export class Camera {
     }
 
     stop(){
-        console.log('камера сброшена')
         this.stage.context.translate(this._x - this.stage.width / 2, this._y - this.stage.height / 2);
 
         this.stage.context.translate(this.stage.width / 2, this.stage.height / 2);
@@ -103,7 +102,6 @@ export class Camera {
     }
 
     run(){
-        console.log('камера запущена')
         this.stage.context.translate(-this._x + this.stage.width / 2, -this._y + this.stage.height / 2);
 
         this.stage.context.translate(this._x, this._y);
