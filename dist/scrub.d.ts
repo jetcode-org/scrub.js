@@ -1025,6 +1025,9 @@ declare class Camera {
     get renderRadius(): number;
     set zoom(value: number);
     get zoom(): number;
+    stop(): void;
+    run(): void;
+    update(): void;
     private updateRenderRadius;
 }
 

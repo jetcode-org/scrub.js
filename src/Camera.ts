@@ -22,12 +22,14 @@ export class Camera {
     }
 
     set direction(value){
-        let direction = value % 360;
-        direction = direction < 0 ? direction + 360 : direction;
+        if (this.changes.direction == 0) {
+            let direction = value % 360;
+            direction = direction < 0 ? direction + 360 : direction;
 
-        this.changes.direction = direction - this._direction;
+            this.changes.direction = direction - this._direction;
 
-        this._direction = direction;
+            this._direction = direction;
+        }
     }
 
     get direction(){
@@ -47,23 +49,19 @@ export class Camera {
     }
 
     set x(value){
-        this.changes.x = value - this._x;
-
-        this._x = value;
+            this.changes.x = value - this._x;
     }
 
     get x(){
-        return this._x;
+        return this._x + this.changes.x;
     }
 
     set y(value){
-        this.changes.y = value - this._y;
-
-        this._y = value;
+            this.changes.y = value - this._y;
     }
 
     get y(){
-        return this._y;
+        return this._y + this.changes.y;
     }
 
     get startCornerX (): number {
@@ -79,16 +77,13 @@ export class Camera {
     }
 
     set zoom(value){
-        if (this.changes.zoom == 1) {
-
+        if (this.changes.zoom == 1){
             const newZoom = value < 0.1 ? 0.1 : value
 
             this.changes.zoom = newZoom / this._zoom;
 
             this._zoom = newZoom;
-
-            this.updateRenderRadius();
-
+            this.updateRenderRadius()
         }
     }
 
@@ -96,7 +91,35 @@ export class Camera {
         return this._zoom;
     }
 
+    stop(){
+        this.stage.context.translate(this._x - this.stage.width / 2, this._y - this.stage.height / 2);
+
+        this.stage.context.translate(this.stage.width / 2, this.stage.height / 2);
+        this.stage.context.scale(1 / this._zoom, 1 / this._zoom);
+        // this.context.rotate(-this._direction * Math.PI / 180);
+        this.stage.context.translate(-this.stage.width / 2, -this.stage.height / 2);
+        this._renderRadius = Math.hypot(this.stage.width, this.stage.height) / 1.5;
+    }
+
+    run(){
+        this.stage.context.translate(-this._x + this.stage.width / 2, -this._y + this.stage.height / 2);
+
+        this.stage.context.translate(this._x, this._y);
+        this.stage.context.scale(this._zoom, this._zoom);
+        // this.context.rotate(this._direction * Math.PI / 180);
+        this.stage.context.translate(-this._x, -this._y);
+
+        this.updateRenderRadius();
+
+        this.changes.reset();
+    }
+
+    update() {
+        this._x += this.changes.x;
+        this._y += this.changes.y;
+    }
+
     private updateRenderRadius(){
-        this._renderRadius = Math.hypot(this.width, this.height) / 1.7;
+        this._renderRadius = Math.hypot(this.width, this.height) / 1.5;
     }
 }

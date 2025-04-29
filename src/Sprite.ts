@@ -1484,11 +1484,11 @@ export class Sprite {
     }
 
     set globalDirection(value) {
-        this.direction = this._parentSprite ? value - this._parentSprite.direction : value;
+        this.direction = this._parentSprite ? value - this._parentSprite.globalDirection : value;
     }
 
     get globalDirection(): number {
-        return this._parentSprite ? this._parentSprite.direction + this.direction : this.direction;
+        return this._parentSprite ? this._parentSprite.globalDirection + this.direction : this.direction;
     }
 
     get globalAngleRadians(): number {
