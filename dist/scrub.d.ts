@@ -514,6 +514,7 @@ declare class ErrorMessages {
     static readonly STAMP_NOT_READY = "stamp_not_ready";
     static readonly STAMP_COSTUME_NOT_FOUND = "stamp_costume_not_found";
     static readonly COLLIDER_NAME_NOT_FOUND = "collider_name_not_found";
+    static readonly STAGE_SET_BEFORE_GAME_READY = "stage_set_before_game_ready";
     static readonly messages: {
         script_error: {
             ru: string;
@@ -588,6 +589,10 @@ declare class ErrorMessages {
             en: string;
         };
         collider_name_not_found: {
+            ru: string;
+            en: string;
+        };
+        stage_set_before_game_ready: {
             ru: string;
             en: string;
         };
@@ -684,6 +689,8 @@ declare class Sprite {
     private tempScheduledCallbacks;
     private _drawings;
     private _tags;
+    private stoppedTime;
+    private diffTime;
     constructor(stage?: Stage, layer?: number, costumePaths?: any[]);
     init(): void;
     /**
@@ -710,6 +717,7 @@ declare class Sprite {
      * Colliders
      */
     switchCollider(colliderName: string): this;
+    get launched(): boolean;
     setCollider(colliderName: string, collider: Collider, offsetX?: number, offsetY?: number): this;
     setRectCollider(colliderName: string, width: number, height: number, offsetX?: number, offsetY?: number): this;
     setPolygonCollider(colliderName: string, points: [number, number][], offsetX?: number, offsetY?: number): this;
@@ -780,6 +788,8 @@ declare class Sprite {
     get rotateStyle(): string;
     set layer(newLayer: number);
     get layer(): number;
+    set globalLayer(newLayer: number);
+    get globalLayer(): number;
     set hidden(value: boolean);
     get hidden(): boolean;
     say(text: string, time?: number): void;
@@ -859,7 +869,7 @@ declare class Sprite {
     timeout(callback: ScheduledCallbackFunction, timeout: number): void;
     repeat(callback: ScheduledCallbackFunction, repeat: number, interval?: number, timeout?: number, finishCallback?: ScheduledCallbackFunction): ScheduledState;
     forever(callback: ScheduledCallbackFunction, interval?: number, timeout?: number, finishCallback?: ScheduledCallbackFunction): ScheduledState;
-    update(diffTime: number): void;
+    update(): void;
     /**
      * Start and stop, create and delete
      */
@@ -867,10 +877,12 @@ declare class Sprite {
     stop(): void;
     ready(): void;
     get original(): Sprite | null;
+    get activeStage(): Stage;
     setOriginal(original: Sprite | null): void;
     createClone(stage?: Stage): Sprite;
     delete(): void;
     deleteClones(): void;
+    setStage(newStage: Stage): void;
     private tryDoOnReady;
 }
 
@@ -1083,6 +1095,7 @@ declare class Stage {
      * Backgrounds
      */
     set backgroundColor(color: string);
+    get currentStoppedTime(): any;
     drawBackground(callback: DrawingCallbackFunction): this;
     addBackground(backgroundPath: string): this;
     switchBackground(backgroundIndex: number): void;

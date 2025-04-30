@@ -65,6 +65,8 @@ export class Sprite {
     private tempScheduledCallbacks: Array<ScheduledCallbackItem> = [];
     private _drawings: DrawingCallbackFunction[] = [];
     private _tags: string[] = [];
+    private stoppedTime = null;
+    private diffTime = null;
 
     constructor(stage?: Stage, layer = 0, costumePaths = []) {
         if (!Registry.getInstance().has('game')) {
@@ -87,7 +89,7 @@ export class Sprite {
         }
 
         if (!sprite.stage) {
-            sprite.game.throwError(ErrorMessages.NEED_CREATE_STAGE_BEFORE_SPRITE);
+            sprite.game.throwError(ErrorMessages.STAGE_SET_BEFORE_GAME_READY);
         }
 
         sprite._layer = layer;
@@ -103,6 +105,7 @@ export class Sprite {
         sprite.stage.addSprite(sprite);
 
         sprite.init();
+        sprite.stoppedTime = Date.now();
 
         return sprite;
     }
@@ -122,7 +125,7 @@ export class Sprite {
      */
 
     isReady(): boolean {
-        return this.pendingCostumes === 0 && this.pendingCostumeGrids === 0 && this.pendingSounds === 0;
+        return this.pendingCostumes === 0 && this.pendingCostumeGrids === 0 && this.pendingSounds === 0 || this.game.isReady();
     }
 
     get deleted(): boolean {
@@ -224,6 +227,10 @@ export class Sprite {
         this._height = newCollider.height;
 
         return this;
+    }
+
+    get launched() {
+        return !this.onReadyPending;
     }
 
     setCollider(colliderName: string, collider: Collider, offsetX = 0, offsetY = 0): this {
@@ -1168,16 +1175,26 @@ export class Sprite {
     }
 
     set layer(newLayer: number) {
-        this.stage.changeSpriteLayer(this, this._layer, newLayer);
+        const globalLayer = this._parentSprite ? this._parentSprite.globalLayer + newLayer: newLayer;
+
+        this.stage.changeSpriteLayer(this, this._layer, globalLayer);
         this._layer = newLayer;
 
         for (const child of this._children) {
-            child.layer = child.layer + this._layer;
+            child.globalLayer = child.layer + this._layer;
         }
     }
 
     get layer(): number {
         return this._layer;
+    }
+
+    set globalLayer(newLayer: number) {
+        this.layer = this._parentSprite ? newLayer - this._parentSprite.globalLayer : newLayer;
+    }
+
+    get globalLayer() {
+        return this._parentSprite ? this._parentSprite.globalLayer + this._layer : this._layer;
     }
 
     set hidden(value: boolean) {
@@ -2066,7 +2083,7 @@ export class Sprite {
         return state;
     }
 
-    update(diffTime: number): void {
+    update(): void {
         if (this.deleted) {
             return;
         }
@@ -2077,8 +2094,10 @@ export class Sprite {
         }
 
         this.scheduledCallbacks = this.scheduledCallbacks.filter(
-            this.scheduledCallbackExecutor.execute(Date.now(), diffTime)
+            this.scheduledCallbackExecutor.execute(Date.now(), this.diffTime)
         );
+
+        this.diffTime = 0
     }
 
     /**
@@ -2087,10 +2106,12 @@ export class Sprite {
 
     run(): void {
         this._stopped = false;
+        this.diffTime = Date.now() - this.stoppedTime;
     }
 
     stop(): void {
         this._stopped = true;
+        this.stoppedTime = Date.now();
     }
 
     ready(): void {
@@ -2099,6 +2120,10 @@ export class Sprite {
 
     get original(): Sprite | null {
         return this._original;
+    }
+
+    get activeStage() {
+        return this.stage;
     }
 
     setOriginal(original: Sprite | null): void {
@@ -2131,6 +2156,7 @@ export class Sprite {
         clone._stopped = this.stopped;
         clone._tags.push(...this.tags);
         clone.defaultColliderNone = this.defaultColliderNone;
+        clone.stoppedTime = this.stoppedTime;
 
         for (let i = 0; i < this.costumes.length; i++) {
             clone.cloneCostume(this.costumes[i], this.costumeNames[i]);
@@ -2200,6 +2226,29 @@ export class Sprite {
         const spritesToDelete = this.stage.getSprites().filter((sprite: Sprite) => sprite.original === this);
 
         spritesToDelete.forEach(sprite => sprite.delete());
+    }
+
+    setStage(newStage: Stage) {
+        if (newStage == this.stage){
+            return;
+        }
+
+        if (!this.game.isReady()){
+            this.game.throwError(ErrorMessages.STAGE_SET_BEFORE_GAME_READY);
+        }
+
+        this.stage.removeSprite(this, this.globalLayer);
+        newStage.addSprite(this);
+        if (this.collider) {
+            this.stage.collisionSystem.remove(this.collider);
+            newStage.collisionSystem.insert(this.collider);
+        }
+        this.stage = newStage;
+        this.stop();
+
+        for (const child of this._children) {
+            child.setStage(newStage);
+        }
     }
 
     private tryDoOnReady(): void {
