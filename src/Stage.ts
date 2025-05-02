@@ -102,7 +102,7 @@ export class Stage {
     }
 
     isReady(): boolean {
-        return this.addedSprites == this.loadedSprites && this.pendingBackgrounds === 0;
+        return this.addedSprites == this.loadedSprites && this.pendingBackgrounds === 0 || this.game.isReady();
     }
 
     /**
@@ -126,6 +126,10 @@ export class Stage {
             context.fillStyle = color;
             context.fillRect(0, 0, stage.width, stage.height);
         });
+    }
+
+    get currentStoppedTime() {
+        return this.stoppedTime;
     }
 
     drawBackground(callback: DrawingCallbackFunction): this {
@@ -321,12 +325,12 @@ export class Stage {
     addSprite(sprite: Sprite): this {
         let layerSprites: Sprite[];
 
-        if (this.sprites.has(sprite.layer)) {
-            layerSprites = this.sprites.get(sprite.layer);
+        if (this.sprites.has(sprite.globalLayer)) {
+            layerSprites = this.sprites.get(sprite.globalLayer);
 
         } else {
             layerSprites = [];
-            this.sprites.set(sprite.layer, layerSprites);
+            this.sprites.set(sprite.globalLayer, layerSprites);
         }
 
         layerSprites.push(sprite);
@@ -694,7 +698,7 @@ export class Stage {
                     return;
                 }
 
-                sprite.update(this.diffTime);
+                sprite.update();
             }
         });
 

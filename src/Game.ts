@@ -165,6 +165,10 @@ export class Game {
     }
 
     run(stage: Stage = null): void {
+        if (this.activeStage && this.activeStage == stage) {
+            return;
+        }
+
         if (!stage && this.stages.length) {
             stage = this.stages[0];
         }
@@ -235,11 +239,15 @@ export class Game {
     }
 
     correctMouseX(mouseX: number): number {
-        return mouseX - this.styles.canvasRect.left;
+        const cameraOffsetX = this.activeStage ? this.activeStage.camera.startCornerX : 0;
+
+        return mouseX - this.styles.canvasRect.left + cameraOffsetX;
     }
 
     correctMouseY(mouseY: number): number {
-        return mouseY - this.styles.canvasRect.top;
+        const cameraOffsetY = this.activeStage ? this.activeStage.camera.startCornerY : 0;
+
+        return mouseY - this.styles.canvasRect.top + cameraOffsetY;
     }
 
     keyPressed(char: string | string[]): boolean {

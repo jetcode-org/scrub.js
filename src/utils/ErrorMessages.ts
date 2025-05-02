@@ -18,6 +18,7 @@ export class ErrorMessages {
     static readonly STAMP_NOT_READY = 'stamp_not_ready';
     static readonly STAMP_COSTUME_NOT_FOUND = 'stamp_costume_not_found';
     static readonly COLLIDER_NAME_NOT_FOUND = 'collider_name_not_found';
+    static readonly STAGE_SET_BEFORE_GAME_READY = 'stage_set_before_game_ready';
 
     static readonly messages = {
         script_error: {
@@ -95,6 +96,10 @@ export class ErrorMessages {
         collider_name_not_found: {
             'ru': 'Коллайдер с именем "${colliderName}" не найден.',
             'en': 'Collider with name "${colliderName}" not found.'
+        },
+        stage_set_before_game_ready: {
+            'ru': 'Спрайт меняет сцену до готовности игры.',
+            'en': 'Sprite changed stage before game is ready.'
         },
     }
 
