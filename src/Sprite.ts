@@ -15,6 +15,10 @@ import { ScheduledCallbackItem } from './ScheduledCallbackItem';
 import { ErrorMessages, Registry } from './utils';
 import { ScheduledState } from './ScheduledState';
 
+interface SpriteInterface<T> {
+    new(stage?: Stage, layer?: number, costumePaths?: any): T;
+}
+
 export class Sprite {
     id: Symbol;
     eventEmitter: EventEmitter;
@@ -2139,7 +2143,9 @@ export class Sprite {
             stage = this.stage;
         }
 
-        const clone = new Sprite(stage, this.layer);
+        const SpriteClass = this.constructor as SpriteInterface<this>;
+        const clone = new SpriteClass(stage, this.layer);
+
         clone.setOriginal(this);
 
         clone.name = this.name;
