@@ -691,7 +691,7 @@ declare class Sprite {
     private _tags;
     private stoppedTime;
     private diffTime;
-    constructor(stage?: Stage, layer?: number, costumePaths?: any[]);
+    constructor(stage?: Stage, layer?: number, costumePaths?: any[], original?: Sprite);
     init(): void;
     /**
      * Events

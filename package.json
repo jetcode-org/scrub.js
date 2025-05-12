@@ -1,7 +1,7 @@
 {
   "name": "jetcode-scrubjs",
   "private": false,
-  "version": "2.3.1",
+  "version": "2.3.2",
   "description": "HTML5 Game Library with a Focus on Ease of Learning",
   "repository": {
     "type": "git",

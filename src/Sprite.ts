@@ -16,7 +16,7 @@ import { ErrorMessages, Registry } from './utils';
 import { ScheduledState } from './ScheduledState';
 
 interface SpriteInterface<T> {
-    new(stage?: Stage, layer?: number, costumePaths?: any): T;
+    new(stage?: Stage, layer?: number, costumePaths?: any, original?: Sprite): T;
 }
 
 export class Sprite {
@@ -72,7 +72,7 @@ export class Sprite {
     private stoppedTime = null;
     private diffTime = null;
 
-    constructor(stage?: Stage, layer = 0, costumePaths = []) {
+    constructor(stage?: Stage, layer = 0, costumePaths = [], original: Sprite = null) {
         if (!Registry.getInstance().has('game')) {
             throw new Error('You need create Game instance before Stage instance.');
         }
@@ -108,7 +108,13 @@ export class Sprite {
         sprite.scheduledCallbackExecutor = new ScheduledCallbackExecutor(sprite);
         sprite.stage.addSprite(sprite);
 
-        sprite.init();
+        if (original) {
+            this.setOriginal(original);
+
+        } else {
+            sprite.init();
+        }
+
         sprite.stoppedTime = Date.now();
 
         return sprite;
@@ -2144,9 +2150,7 @@ export class Sprite {
         }
 
         const SpriteClass = this.constructor as SpriteInterface<this>;
-        const clone = new SpriteClass(stage, this.layer);
-
-        clone.setOriginal(this);
+        const clone = new SpriteClass(stage, this.layer, [], this);
 
         clone.name = this.name;
         clone._rotateStyle = this._rotateStyle;
