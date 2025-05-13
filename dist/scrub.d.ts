@@ -974,7 +974,7 @@ declare class Game {
     private _locale;
     private _userInteracted;
     private userInteractionPromise;
-    constructor(width?: number, height?: number, canvasId?: string, displayErrors?: boolean, locale?: Locale);
+    constructor(width?: number, height?: number, canvasId?: string, displayErrors?: boolean, locale?: Locale, smoothingEnabled?: boolean);
     addStage(stage: Stage): this;
     getLastStage(): Stage | null;
     getActiveStage(): Stage | null;

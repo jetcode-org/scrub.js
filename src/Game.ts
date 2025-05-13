@@ -98,7 +98,8 @@ export class Game {
                 height: number = null,
                 canvasId: string = null,
                 displayErrors = true,
-                locale: Locale = 'ru'
+                locale: Locale = 'ru',
+                smoothingEnabled = false
     ) {
         this._displayErrors = displayErrors;
         this._locale = locale;
@@ -134,6 +135,7 @@ export class Game {
         game.styles = new Styles(game.canvas, width, height);
         game.mouse = new Mouse(game);
         game.context = game.canvas.getContext('2d');
+        game.context.imageSmoothingEnabled = smoothingEnabled;
 
         Registry.getInstance().set('game', game);
 
