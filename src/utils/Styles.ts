@@ -20,6 +20,9 @@ export class Styles {
         document.body.style.height = '100' + 'vh';
         document.body.style.padding = '0';
         document.body.style.overflow = 'hidden';
+        document.body.style.display = 'flex';
+        document.body.style.alignItems = 'center';
+        document.body.style.justifyContent = 'center';
     }
 
     setCanvasSize(width, height) {
