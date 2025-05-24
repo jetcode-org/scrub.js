@@ -1845,12 +1845,12 @@ export class Sprite {
     }
 
     touchTag(tagName: string, checkChildren = true): boolean {
-        this.clearCollisionResult();
-        this._collidedSprite = null;
-
         if (this.hidden || this.stopped || this.deleted) {
             return false;
         }
+
+        this.clearCollisionResult();
+        this._collidedSprite = null;
 
         const collider = this.collider;
         if (collider) {
@@ -1890,12 +1890,12 @@ export class Sprite {
     }
 
     touchTagAll(tagName: string, checkChildren = true): Sprite[] | false {
-        this.clearCollisionResult();
-        this._collidedSprite = null;
-
         if (this.hidden || this.stopped || this.deleted) {
             return false;
         }
+
+        this.clearCollisionResult();
+        this._collidedSprite = null;
 
         const collidedSprites = []
         const collider = this.collider;
