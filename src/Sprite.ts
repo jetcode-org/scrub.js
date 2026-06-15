@@ -1667,12 +1667,12 @@ export class Sprite {
     }
 
     touchEdge(checkChildren = true): boolean {
-        const result = this.getPureCollisionResult();
-        this._collidedSprite = null;
-
+        
         if (this.hidden || this.stopped || this.deleted) {
             return false;
         }
+        const result = this.getPureCollisionResult();
+        this._collidedSprite = null;
 
         if (this.collider) {
             const gameWidth = this.game.width;
@@ -1729,12 +1729,13 @@ export class Sprite {
     }
 
     touchTopEdge(checkChildren = true): boolean {
-        this.clearCollisionResult();
-        this._collidedSprite = null;
-
+        
         if (this.hidden || this.stopped || this.deleted) {
             return false;
         }
+
+        this.clearCollisionResult();
+        this._collidedSprite = null;
 
         if (this.collider && this.topY < 0) {
             this.collisionResult.collision = true;
@@ -1758,13 +1759,13 @@ export class Sprite {
     }
 
     touchBottomEdge(checkChildren = true): boolean {
-        this.clearCollisionResult();
-        this._collidedSprite = null;
-
+        
         if (this.hidden || this.stopped || this.deleted) {
             return false;
         }
-
+        this.clearCollisionResult();
+        this._collidedSprite = null;
+        
         if (this.collider && this.bottomY > this.game.height) {
             this.collisionResult.collision = true;
             this.collisionResult.overlap = this.bottomY - this.game.height;
@@ -1787,12 +1788,12 @@ export class Sprite {
     }
 
     touchLeftEdge(checkChildren = true): boolean {
-        this.clearCollisionResult();
-        this._collidedSprite = null;
-
+        
         if (this.hidden || this.stopped || this.deleted) {
             return false;
         }
+        this.clearCollisionResult();
+        this._collidedSprite = null;
 
         if (this.collider && this.leftX < 0) {
             this.collisionResult.collision = true;
@@ -1816,12 +1817,12 @@ export class Sprite {
     }
 
     touchRightEdge(checkChildren = true): boolean {
-        this.clearCollisionResult();
-        this._collidedSprite = null;
-
+        
         if (this.hidden || this.stopped || this.deleted) {
             return false;
         }
+        this.clearCollisionResult();
+        this._collidedSprite = null;
 
         if (this.collider && this.rightX > this.game.width) {
             this.collisionResult.collision = true;
@@ -1943,12 +1944,12 @@ export class Sprite {
     }
 
     touchAnySprite(checkChildren = true): boolean {
-        this.clearCollisionResult();
-        this._collidedSprite = null;
-
+        
         if (this.hidden || this.stopped || this.deleted) {
             return false;
         }
+        this.clearCollisionResult();
+        this._collidedSprite = null;
 
         const collider = this.collider;
         if (collider) {

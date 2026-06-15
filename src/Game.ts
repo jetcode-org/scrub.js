@@ -95,11 +95,11 @@ export class Game {
     private userInteractionPromise: Promise<unknown>;
 
     constructor(width: number = null,
-                height: number = null,
-                canvasId: string = null,
-                displayErrors = true,
-                locale: Locale = 'ru',
-                smoothingEnabled = false
+        height: number = null,
+        canvasId: string = null,
+        displayErrors = true,
+        locale: Locale = 'ru',
+        smoothingEnabled = false
     ) {
         this._displayErrors = displayErrors;
         this._locale = locale;
@@ -241,15 +241,60 @@ export class Game {
     }
 
     correctMouseX(mouseX: number): number {
-        const cameraOffsetX = this.activeStage ? this.activeStage.camera.startCornerX : 0;
+        if (!this.activeStage) {
+            return mouseX - this.styles.canvasRect.top;
+        }
 
-        return mouseX - this.styles.canvasRect.left + cameraOffsetX;
+        const camera = this.activeStage.camera;
+        const zoom = camera.zoom;
+        const direction = camera.angleDirection
+
+        // Размеры холста
+        const canvasWidth = this.styles.canvasRect.width;
+
+        // Центр холста в экранных координатах
+        const canvasCenterX = this.styles.canvasRect.left + canvasWidth / 2;
+
+        // Смещение мыши от центра холста (в пикселях экрана)
+        const offsetFromCenterX = mouseX - canvasCenterX;
+
+        // Масштабированное смещение от центра
+        const scaledOffsetX = offsetFromCenterX / zoom;
+
+        // Мировая координата центра камеры
+        const worldCenterX = camera.x;
+
+        // Итоговая мировая координата: центр камеры + масштабированное смещение
+        return worldCenterX + scaledOffsetX;
     }
 
-    correctMouseY(mouseY: number): number {
-        const cameraOffsetY = this.activeStage ? this.activeStage.camera.startCornerY : 0;
 
-        return mouseY - this.styles.canvasRect.top + cameraOffsetY;
+    correctMouseY(mouseY: number): number {
+        if (!this.activeStage) {
+            return mouseY - this.styles.canvasRect.top;
+        }
+
+        const camera = this.activeStage.camera;
+        const zoom = camera.zoom;
+        const direction = camera.angleDirection;
+
+        // Размеры холста
+        const canvasHeight = this.styles.canvasRect.height;
+
+        // Центр холста в экранных координатах
+        const canvasCenterY = this.styles.canvasRect.top + canvasHeight / 2;
+
+        // Смещение мыши от центра холста (в пикселях экрана)
+        const offsetFromCenterY = mouseY - canvasCenterY;
+
+        // Масштабированное смещение от центра
+        const scaledOffsetY = offsetFromCenterY / zoom;
+
+        // Мировая координата центра камеры
+        const worldCenterY = camera.y;
+
+        // Итоговая мировая координата: центр камеры + масштабированное смещение
+        return worldCenterY + scaledOffsetY;
     }
 
     keyPressed(char: string | string[]): boolean {
