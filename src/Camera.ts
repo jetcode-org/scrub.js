@@ -96,7 +96,7 @@ export class Camera {
 
         this.stage.context.translate(this.stage.width / 2, this.stage.height / 2);
         this.stage.context.scale(1 / this._zoom, 1 / this._zoom);
-        // this.context.rotate(-this._direction * Math.PI / 180);
+        this.stage.context.rotate(-this._direction * Math.PI / 180);
         this.stage.context.translate(-this.stage.width / 2, -this.stage.height / 2);
         this._renderRadius = Math.hypot(this.stage.width, this.stage.height) / 1.5;
     }
@@ -106,7 +106,7 @@ export class Camera {
 
         this.stage.context.translate(this._x, this._y);
         this.stage.context.scale(this._zoom, this._zoom);
-        // this.context.rotate(this._direction * Math.PI / 180);
+        this.stage.context.rotate(this._direction * Math.PI / 180);
         this.stage.context.translate(-this._x, -this._y);
 
         this.updateRenderRadius();

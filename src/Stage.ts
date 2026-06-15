@@ -673,7 +673,7 @@ export class Stage {
 
         this.context.translate(centerPointX, centerPointY);
         this.context.scale(this.camera.changes.zoom, this.camera.changes.zoom);
-        // this.context.rotate(this.camera.changes.direction * Math.PI / 180);
+        this.context.rotate(this.camera.changes.direction * Math.PI / 180);
         this.context.translate(-centerPointX, -centerPointY);
 
         this.camera.update();
